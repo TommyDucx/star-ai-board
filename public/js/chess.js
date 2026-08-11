@@ -119,6 +119,19 @@
     }, 400);
   }
 
+  // chessboard.js 0.3.0 不支持 onSquareClick 且会拦截 click 事件；
+  // 用 pointerdown/pointerup 同格判定实现点击式下棋（不干扰拖拽）
+  let pressSq = null;
+  function boardPointer(e) {
+    const sqEl = e.target.closest(".square-55d63");
+    const sq = sqEl ? ((sqEl.className.match(/square-([a-h][1-8])/) || [])[1] || null) : null;
+    if (e.type === "pointerdown") {
+      pressSq = sq;
+    } else if (e.type === "pointerup" && sq && sq === pressSq) {
+      onSquareClick(sq);   // 按下与抬起在同一格 = 点击
+    }
+    if (e.type === "pointerup") pressSq = null;
+  }
   function initBoard() {
     board = Chessboard("board", {
       draggable: true,
@@ -126,13 +139,8 @@
       onDragStart, onDrop, onSnapEnd, onSquareClick,
       pieceTheme: "img/chesspieces/wikipedia/{piece}.png",
     });
-    // chessboard.js 0.3.0 不支持 onSquareClick 回调，手动事件委托实现点击式下棋
-    document.getElementById("board").addEventListener("click", function boardClick(e) {
-      const sqEl = e.target.closest(".square-55d63");
-      if (!sqEl) return;
-      const m = sqEl.className.match(/square-([a-h][1-8])/);
-      if (m) onSquareClick(m[1]);
-    });
+    document.getElementById("board").addEventListener("pointerdown", boardPointer);
+    document.getElementById("board").addEventListener("pointerup", boardPointer);
     applyOrientation();
     updateStatus();
   }
