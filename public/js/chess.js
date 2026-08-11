@@ -30,6 +30,18 @@
     });
   }
 
+  // 动态填充可用引擎（Reckless 二进制未就位时不显示）
+  async function loadEngines() {
+    try {
+      const r = await rpc("engines", {});
+      const sel = document.getElementById("engine");
+      if (!sel || !r.engines) return;
+      sel.innerHTML = r.engines.filter(e => e.available)
+        .map(e => `<option value="${e.key}">${e.key === "reckless" ? "Reckless 0.10" : "Stockfish 18"}</option>`)
+        .join("") || `<option value="stockfish">Stockfish 18</option>`;
+    } catch (e) { /* 默认保留静态选项 */ }
+  }
+
   /* ---------------- 棋盘 ---------------- */
   function onDragStart(source, piece) {
     if (game.game_over()) return false;
@@ -247,6 +259,7 @@
   });
 
   connect();
+  loadEngines();
   initBoard();
   window.engineThink = engineThink;
   window.newGame = newGame;

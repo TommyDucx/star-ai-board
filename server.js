@@ -23,6 +23,10 @@ const ENGINES = {
   stockfish: { path: STOCKFISH, elo: true },   // 支持 UCI_LimitStrength/UCI_Elo
   reckless:  { path: RECKLESS, elo: false },   // 不支持 Elo option（自带棋力）
 };
+// 启动时检测引擎二进制是否存在（前端据此只显示可用引擎）
+Object.entries(ENGINES).forEach(([k, cfg]) => {
+  cfg.available = fs.existsSync(cfg.path);
+});
 
 // ---- 围棋引擎（KataGo）配置 ----
 const KATAGO = process.env.KATAGO || "/usr/local/bin/katago";
@@ -265,6 +269,11 @@ wss.on("connection", ws => {
   ws.on("message", async raw => {
     let msg;
     try { msg = JSON.parse(raw); } catch { return; }
+    if (msg.type === "engines") {
+      const list = Object.entries(ENGINES).map(([k, c]) => ({ key: k, available: c.available, elo: c.elo }));
+      ws.send(JSON.stringify({ type: "engines", id: msg.id, engines: list }));
+      return;
+    }
     if (msg.type === "chess") {
       const { key, cfg, eng } = engineFor(msg.engine);
       try {
