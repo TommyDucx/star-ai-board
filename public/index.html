@@ -39,11 +39,14 @@
   .tag.hot { color: var(--signal); border-color: #d7ff3f57; }
   .tag.cy { color: var(--cyan); border-color: #2ed3ff40; }
 
-  .hero-right { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: center; }
+  .hero-right { display: flex; justify-content: center; align-items: center; }
   .demo-board { border: 1px solid var(--lineStrong); padding: 14px; background: var(--surface); position: relative; }
   .demo-board .lb { font-family: ui-monospace, Menlo, monospace; font-size: 9px; letter-spacing: .24em;
     color: var(--faint); display: flex; justify-content: space-between; margin-bottom: 8px; }
   .demo-board .lb b { color: var(--signal); font-weight: 500; }
+  .chess-zone { max-width: 1080px; margin: 0 auto 8px; padding: 0 24px; display: flex; justify-content: center; }
+  .chess-zone .demo-board { width: 340px; }
+  #demo-num { position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--muted); white-space: nowrap; }
   #go-demo { width: 100%; display: block; cursor: pointer; }
   #go-demo line { stroke: #5d4320; }
   #go-demo rect.bg { fill: #dcb35c; }
@@ -98,12 +101,16 @@
     <div class="demo-board magnetic ripple-host" id="go-demo-card">
       <div class="lb"><span>GO / KATA</span><b>点击落子演示</b></div>
       <svg id="go-demo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320"></svg>
+      <div id="demo-num" class="roll"># 000</div>
     </div>
-    <div class="demo-board magnetic ripple-host" id="chess-demo-card">
-      <div class="lb"><span>CHESS / STOCKFISH·RECKLESS</span><b>AI 自弈演示</b></div>
-      <div id="chess-demo"></div>
-    </div>
-    <div id="demo-num" class="roll"># 000</div>
+  </div>
+</div>
+
+<!-- 国际象棋演示独立区域（与围棋分开，各自范围跟随鼠标） -->
+<div class="chess-zone">
+  <div class="demo-board magnetic ripple-host" id="chess-demo-card">
+    <div class="lb"><span>CHESS / STOCKFISH·RECKLESS</span><b>AI 自弈演示</b></div>
+    <div id="chess-demo"></div>
   </div>
 </div>
 

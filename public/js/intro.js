@@ -61,22 +61,28 @@
     demoBoard.position(demoGame.fen());
   }
 
-  /* ---------------- 光标跟随（棋盘微移 + 标题视差） ---------------- */
-  function parallaxFollow() {
+  /* ---------------- 独立磁吸（每个演示盘在各自范围内跟随鼠标）+ hero 网格视差 ---------------- */
+  function demoMagnet() {
+    const demos = document.querySelectorAll(".demo-board");
     const hero = document.querySelector(".hero");
-    const cards = document.querySelectorAll(".demo-board");
     document.addEventListener("pointermove", e => {
       if (hero) {
         const r = hero.getBoundingClientRect();
         hero.style.setProperty("--shift-x", ((e.clientX - r.left) / r.width - 0.5).toFixed(3));
         hero.style.setProperty("--shift-y", ((e.clientY - r.top) / r.height - 0.5).toFixed(3));
       }
-      cards.forEach((cd, i) => {
-        const r = cd.getBoundingClientRect();
-        const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
-        const f = 0.06;
-        cd.style.marginTop = (dy * f) + "px";
-        cd.style.transform = `translate(${dx * f * 0.6}px, ${dy * f * 0.4}px)`;
+      demos.forEach(d => {
+        const r = d.getBoundingClientRect();
+        const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        const dx = e.clientX - cx, dy = e.clientY - cy;
+        const dist = Math.hypot(dx, dy);
+        const range = Math.max(r.width, r.height) * 2.6;   // 各自的活动范围
+        if (dist < range) {
+          const f = (1 - dist / range) * 0.12;
+          d.style.transform = `translate(${dx * f}px, ${dy * f}px) rotateX(${dy * f * -0.1}deg)`;
+        } else {
+          d.style.transform = "translate(0,0) rotateX(0)";
+        }
       });
     });
   }
@@ -107,7 +113,7 @@
     Motion.initCursorLine();
     Motion.initMagnetic();
     Motion.initRipple();
-    parallaxFollow();
+    demoMagnet();
     wireEnter();
     fillBars();
 
