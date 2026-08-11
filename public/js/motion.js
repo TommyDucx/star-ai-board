@@ -72,19 +72,16 @@
     raf = requestAnimationFrame(step);
   }
 
-  /* ---------------- 磁吸 ---------------- */
+  /* ---------------- 磁吸（鼠标放在元素上才磁吸，离开即回正） ---------------- */
   function initMagnetic() {
     if (REDUCED) return;
     document.addEventListener("pointermove", e => {
       document.querySelectorAll(".magnetic").forEach(el => {
         const r = el.getBoundingClientRect();
-        const dx = e.clientX - (r.left + r.width / 2);
-        const dy = e.clientY - (r.top + r.height / 2);
-        const dist = Math.hypot(dx, dy);
-        const radius = Math.max(r.width, r.height) * 1.2;
-        if (dist < radius) {
-          const f = (1 - dist / radius) * 0.15;
-          el.style.transform = `perspective(800px) rotateX(${dy * f * -0.08}deg) rotateY(${dx * f * 0.08}deg) translate(${dx * f * 0.4}px, ${dy * f * 0.4}px)`;
+        const x = e.clientX - r.left, y = e.clientY - r.top;
+        if (x >= 0 && y >= 0 && x <= r.width && y <= r.height) {
+          const hx = x / r.width - 0.5, hy = y / r.height - 0.5;
+          el.style.transform = `perspective(800px) rotateX(${hy * -5}deg) rotateY(${hx * 5}deg) translate(${hx * 8}px, ${hy * 8}px)`;
         } else {
           el.style.transform = "perspective(800px) rotateX(0) rotateY(0) translate(0,0)";
         }
