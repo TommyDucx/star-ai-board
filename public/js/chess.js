@@ -42,40 +42,47 @@
     } catch (e) { /* 默认保留静态选项 */ }
   }
 
-  /* ---------------- 棋盘 ---------------- */
-  function onDragStart(source, piece) {
-    if (game.game_over()) return false;
-    clearHighlights();
-    return true; // 用户自己操控黑白双方
-  }
-  function onDrop(source, target) {
-    const move = game.move({ from: source, to: target, promotion: "q" });
-    if (move === null) return "snapback";
-    updateStatus();
-    scheduleEval();   // 每次移动后实时计算胜率
-  }
-  function onSnapEnd() { board.position(game.fen()); }
+  /* ---------------- 独立功能模块：棋子合法位移计算、移动执行、渲染 ---------------- */
 
-  /* ---------------- 点击式下棋（chess.com 风格） ---------------- */
+  // 棋子合法位移计算：输入棋子坐标，依据走法规则/阻挡/敌我棋子，输出合法目标格子集合
+  function legalMovesOf(sq) {
+    return game.moves({ square: sq, verbose: true }).map(m => m.to);
+  }
+
+  // 执行移动：原位置清空，目标位置放上棋子（chess.js 同步更新棋盘）
+  function doMove(from, to) {
+    const mv = game.move({ from, to, promotion: "q" });
+    if (!mv) return false;
+    updateStatus();
+    scheduleEval();
+    return true;
+  }
+
+  // 状态：选中棋子坐标 + 合法位移点集合
   let selectedSq = null;
+  let legalTargets = [];
+
   function squareEl(sq) {
     return document.querySelector(`.board-b72b1 .square-${sq}`);
   }
-  function clearHighlights() {
-    document.querySelectorAll(".star-hl").forEach(el => el.remove());
+  function clearSelection() {
     selectedSq = null;
+    legalTargets = [];
   }
-  function selectSquare(sq) {
-    selectedSq = sq;
-    const el = squareEl(sq);
-    if (el) {
+
+  // 渲染函数：根据最新状态重绘整个棋盘（重绘会重建格子 DOM，故重绘后重画选中/合法点高亮）
+  function render() {
+    board.position(game.fen(), false);
+    document.querySelectorAll(".star-hl").forEach(el => el.remove());
+    if (!selectedSq) return;
+    const selEl = squareEl(selectedSq);
+    if (selEl) {
       const o = document.createElement("div");
       o.className = "star-hl sel";
-      el.appendChild(o);
+      selEl.appendChild(o);
     }
-    // 高亮合法落点
-    game.moves({ square: sq, verbose: true }).forEach(m => {
-      const t = squareEl(m.to);
+    legalTargets.forEach(sq => {
+      const t = squareEl(sq);
       if (t) {
         const d = document.createElement("div");
         d.className = "star-hl dot";
@@ -83,26 +90,50 @@
       }
     });
   }
+
+  // 格子点击事件（优先级不可打乱）
   function onSquareClick(square) {
     if (game.game_over()) return;
     const piece = game.get(square);
-    if (!selectedSq) {
-      if (piece) selectSquare(square);   // 选中棋子
-      return;
+
+    // 1. 存在已选中棋子
+    if (selectedSq) {
+      if (square === selectedSq) {           // 点击选中棋子本身：清空选中、清空合法落点
+        clearSelection();
+        render();
+        return;
+      }
+      if (legalTargets.includes(square)) {   // 点击合法落点：执行移动，重置选中与合法落点
+        doMove(selectedSq, square);
+        clearSelection();
+        render();
+        return;
+      }
     }
-    if (square === selectedSq) { clearHighlights(); return; } // 再点取消
-    const mv = game.move({ from: selectedSq, to: square, promotion: "q" });
-    if (mv) {
-      clearHighlights();
-      board.position(game.fen());
-      updateStatus();
-      scheduleEval();   // 每次移动后实时计算胜率
-      return;
+
+    // 2. 无选中 或 上面条件均不命中
+    if (piece && piece.color === game.turn()) {  // 点击己方棋子：更新选中坐标，计算该棋子全部合法移动点
+      selectedSq = square;
+      legalTargets = legalMovesOf(square);
+    } else {                                     // 点击空白/敌方棋子：清空选中与合法落点
+      clearSelection();
     }
-    // 非法落点：点到己方棋子则改选，否则取消
-    if (piece && piece.color === game.turn()) { clearHighlights(); selectSquare(square); }
-    else clearHighlights();
+
+    // 3. 执行一次棋盘刷新渲染
+    render();
   }
+
+  /* ---------------- 拖拽式下棋（拖拽开始清空选中，落子后统一渲染） ---------------- */
+  function onDragStart(source, piece) {
+    if (game.game_over()) return false;
+    clearSelection();
+    document.querySelectorAll(".star-hl").forEach(el => el.remove());
+    return true;
+  }
+  function onDrop(source, target) {
+    if (!doMove(source, target)) return "snapback";
+  }
+  function onSnapEnd() { render(); }
 
   let evalTimer = null;
   function scheduleEval() {
