@@ -126,6 +126,13 @@
       onDragStart, onDrop, onSnapEnd, onSquareClick,
       pieceTheme: "img/chesspieces/wikipedia/{piece}.png",
     });
+    // chessboard.js 0.3.0 不支持 onSquareClick 回调，手动事件委托实现点击式下棋
+    document.getElementById("board").addEventListener("click", function boardClick(e) {
+      const sqEl = e.target.closest(".square-55d63");
+      if (!sqEl) return;
+      const m = sqEl.className.match(/square-([a-h][1-8])/);
+      if (m) onSquareClick(m[1]);
+    });
     applyOrientation();
     updateStatus();
   }
