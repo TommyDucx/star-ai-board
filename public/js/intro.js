@@ -128,7 +128,7 @@
     setInterval(() => { if (++ci % 2 === 0) chessNextStep(); }, 1500);
     setInterval(runNum, 500);
     const roll = document.getElementById("roll");
-    if (roll) roll.textContent = "双引擎已就绪 · KATAGO + STOCKFISH";
+    if (roll) roll.textContent = "三引擎已就绪 · KATAGO + STOCKFISH + RECKLESS";
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);

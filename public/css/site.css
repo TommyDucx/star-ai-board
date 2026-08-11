@@ -26,3 +26,7 @@ button { font-family: inherit; }
 .thinking { display: none; font-size: 12px; color: var(--muted); margin-top: 6px; }
 .thinking.on { display: block; }
 .panel { width: 300px; }
+.wrbar { height: 14px; background: #0b0d0c; border: 1px solid var(--lineStrong); display: flex; overflow: hidden; position: relative; }
+.wrbar span { display: block; height: 100%; background: #f0f0f0; transition: width .35s ease; }
+.wrbar::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--lineStrong); }
+.wrmono { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--muted); margin-top: 6px; letter-spacing: .06em; }

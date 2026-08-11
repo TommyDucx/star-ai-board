@@ -16,6 +16,13 @@ const { WebSocketServer } = require("ws");
 const PORT = process.env.PORT || 8765;
 const PUBLIC_DIR = path.join(__dirname, "public");
 const STOCKFISH = path.join(__dirname, "public", "stockfish");
+const RECKLESS = path.join(__dirname, "public", "reckless");
+
+// 引擎表：key → 二进制路径（含提示/能力标记）
+const ENGINES = {
+  stockfish: { path: STOCKFISH, elo: true },   // 支持 UCI_LimitStrength/UCI_Elo
+  reckless:  { path: RECKLESS, elo: false },   // 不支持 Elo option（自带棋力）
+};
 
 // ---- 围棋引擎（KataGo）配置 ----
 const KATAGO = process.env.KATAGO || "/usr/local/bin/katago";
@@ -46,9 +53,10 @@ const server = http.createServer((req, res) => {
   });
 });
 
-/* ===================== 国际象棋：Stockfish (UCI) ===================== */
+/* ===================== 国际象棋：UCI 引擎（Stockfish / Reckless） ===================== */
 class ChessEngine {
-  constructor() {
+  constructor(enginePath) {
+    this.path = enginePath;
     this.proc = null;
     this.buf = "";
     this.waiters = [];
@@ -57,7 +65,7 @@ class ChessEngine {
   }
   _ensureAlive() {
     if (!this.proc || this.proc.exitCode !== null) {
-      this.proc = spawn(STOCKFISH, [], { stdio: ["pipe", "pipe", "ignore"] });
+      this.proc = spawn(this.path, [], { stdio: ["pipe", "pipe", "ignore"] });
       this.buf = "";
       this._uci = false;
       this.proc.stdout.setEncoding("utf8");
@@ -100,13 +108,13 @@ class ChessEngine {
     await ready;
   }
   // 计算最佳走法；同时返回 Top 走法候选（供"推荐下一步"展示）
-  async bestMove(fen, { elo = null, movetime = 800, multipv = 3 } = {}) {
+  async bestMove(fen, { elo = null, movetime = 800, multipv = 3, supportsElo = true } = {}) {
     return this.run(async () => {
       await this.init();
-      if (elo) {
+      if (supportsElo && elo) {
         this._send("setoption name UCI_LimitStrength value true");
         this._send(`setoption name UCI_Elo value ${elo}`);
-      } else {
+      } else if (supportsElo) {
         this._send("setoption name UCI_LimitStrength value false");
       }
       this._send(`setoption name MultiPV value ${multipv}`);
@@ -124,7 +132,7 @@ class ChessEngine {
           const s = l.match(/score cp (-?\d+)/);
           const m = l.match(/score mate (-?\d+)/);
           const pv = (l.match(/ pv (.+)$/) || [])[1] || "";
-          cur = { pv: pv.split(/\s+/).slice(0, 2), depth: +(l.match(/depth (\d+)/) || [])[1] || 0 };
+          cur = { pv: pv.split(/\s+/).slice(0, 2), depth: +(l.match(/depth (\d+)/) || [])[1] || 0, evalCp: null, mate: null };
           if (s) { cur.evalCp = +s[1]; cur.mate = null; }
           if (m) { cur.mate = +m[1]; cur.evalCp = null; }
           candidates[pvN - 1] = cur;
@@ -236,7 +244,14 @@ class GoEngine {
 }
 
 /* ===================== 启动 + WebSocket ===================== */
-const chess = new ChessEngine();
+const chessEngines = {};
+Object.entries(ENGINES).forEach(([key, cfg]) => {
+  chessEngines[key] = new ChessEngine(cfg.path);
+});
+function engineFor(name) {
+  const key = ENGINES[name] ? name : "stockfish";
+  return { key, cfg: ENGINES[key], eng: chessEngines[key] };
+}
 const go = new GoEngine();
 
 (async () => {
@@ -251,29 +266,25 @@ wss.on("connection", ws => {
     let msg;
     try { msg = JSON.parse(raw); } catch { return; }
     if (msg.type === "chess") {
-      console.log("[chess] req", msg.id);
+      const { key, cfg, eng } = engineFor(msg.engine);
       try {
-        const r = await chess.bestMove(msg.fen, {
+        const r = await eng.bestMove(msg.fen, {
           elo: msg.elo || null,
           movetime: Math.min(Math.max(msg.movetime || 800, 100), 5000),
           multipv: msg.multipv || 3,
+          supportsElo: cfg.elo,
         });
-        ws.send(JSON.stringify({ type: "chess", id: msg.id, ...r }));
-        console.log("[chess] resp", msg.id, r.bestmove);
+        ws.send(JSON.stringify({ type: "chess", id: msg.id, engine: key, ...r }));
       } catch (e) {
-        console.log("[chess] err", String(e));
         ws.send(JSON.stringify({ type: "error", id: msg.id, message: String(e) }));
       }
     } else if (msg.type === "go") {
-      console.log("[go] req", msg.id);
       try {
         const r = await go.analyze(msg.stones || [], msg.side || "B", {
           komi: msg.komi, boardSize: msg.boardSize || 19, maxVisits: msg.maxVisits || 200, timeout: 30000,
         });
         ws.send(JSON.stringify({ ...r, type: "go", id: msg.id, backend: go.backend }));
-        console.log("[go] resp", msg.id, (r.moveInfos || []).length);
       } catch (e) {
-        console.log("[go] err", String(e));
         ws.send(JSON.stringify({ type: "error", id: msg.id, message: String(e) }));
       }
     }
@@ -282,6 +293,6 @@ wss.on("connection", ws => {
 
 server.listen(PORT, () => {
   console.log(`S.T.A.R. AI 推荐已启动: http://localhost:${PORT}`);
+  console.log(`  国际象棋引擎: ${Object.keys(ENGINES).join(" / ")}`);
   console.log(`  围棋分析引擎: ${KATAGO}`);
-  console.log(`  国际象棋引擎: ${STOCKFISH}`);
 });

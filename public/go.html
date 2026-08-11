@@ -68,14 +68,17 @@
     </div>
     <div class="status" id="status">准备就绪</div>
     <div class="thinking" id="thinking">KataGo 分析中…</div>
-    <div class="row" style="margin-top:12px">
-      <label>推荐落点（当前行棋方）</label>
+    <div class="row" style="margin-top:12px"><label>胜率评估</label>
+      <div class="wrbar" style="background:#f0f0f0"><span id="gwrfill" style="width:50%;background:#0b0d0c"></span></div>
+      <div class="wrmono" id="gwrlabel">黑 50.0% · 白 50.0%</div>
+    </div>
+    <div class="row" style="margin-top:12px"><label>推荐落点（当前行棋方）</label>
       <div id="cands"></div>
     </div>
   </div>
 </div>
 
-<script src="js/go.js"></script>
+<script src="js/go.js?v=2"></script>
 <script src="js/motion.js"></script>
 <script>
   Motion.initCursorLine();

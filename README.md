@@ -13,8 +13,20 @@ node server.js     # → http://localhost:8765
 
 > **注意**：本仓库**不包含引擎二进制**（GitHub 单文件限制）：
 > - `Stockfish`：从 [stockfishchess.org/download](https://stockfishchess.org/download/) 下载 macOS 版，解压后放到 `public/stockfish` 并 `chmod +x`
+> - `Reckless`（国际象棋第二引擎，页面可切换）：源码在 [codedeliveryservice/Reckless](https://github.com/codedeliveryservice/Reckless)，`make` 编译后放到 `public/reckless`；或从 Releases 下载对应平台二进制
 > - `KataGo`：`brew install katago`，或用 `GO_MODEL` 环境变量指定网络文件（默认指向本地 goeye 的 `g170e-b10c128.txt.gz`）
 > - 启动后可在 `/go.html`、`/chess.html` 直接使用；引擎不可用时页面会提示。
+
+## 国际象棋引擎选择
+`/chess.html` 面板顶部可选择引擎：
+- **Stockfish 18**：支持 Elo 分级（难度下拉可选）
+- **Reckless 0.10**：自带棋力，难度下拉忽略
+
+## 国际象棋复盘（chess.com 风格）
+对局结束后点「结束复盘」：
+- 逐手调用 Stockfish 分析，按胜率损失把每一步标注为 **最佳 / 很好 / 好 / 不精确 / 失误 / 严重错误**（颜色徽章）
+- 每步给出：胜率变化、损失百分比、**更优着法**与文字点评
+- 白方胜率走势曲线 + 走法列表（点击跳转）+ ←/→ 逐手浏览 + 全局限时统计
 
 ## 页面
 | 路径 | 内容 |

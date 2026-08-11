@@ -162,13 +162,20 @@
 
   function renderWinbar(side, m) {
     const wr = m.rootInfo && m.rootInfo.winrate;
-    if (wr == null) return;
-    const pct = side === "B" ? wr * 100 : (1 - wr) * 100;
-    document.getElementById("winw").style.width = pct + "%";
-    document.getElementById("winb").style.width = (100 - pct) + "%";
-    const label = document.getElementById("winlabel");
-    const lead = m.rootInfo.scoreLead;
-    label.textContent = `${side === "B" ? "黑" : "白"}胜率 ${(Math.max(wr, 1 - wr) * 100).toFixed(1)}% · 目差 ${lead >= 0 ? "+" : ""}${lead.toFixed(1)}`;
+    const lead = m.rootInfo && m.rootInfo.scoreLead;
+    if (wr != null) {
+      const pct = side === "B" ? wr * 100 : (1 - wr) * 100;
+      document.getElementById("winw").style.width = pct + "%";
+      document.getElementById("winb").style.width = (100 - pct) + "%";
+      const label = document.getElementById("winlabel");
+      label.textContent = `${side === "B" ? "黑" : "白"}胜率 ${(Math.max(wr, 1 - wr) * 100).toFixed(1)}% · 目差 ${lead >= 0 ? "+" : ""}${lead.toFixed(1)}`;
+    }
+    // 右侧胜率条（黑左 / 白右）——KataGo winrate 为当前行棋方视角，换算成黑方
+    const blackWr = side === "B" ? (wr || 0.5) : 1 - (wr || 0.5);
+    const g = document.getElementById("gwrfill");
+    if (g) g.style.width = (blackWr * 100).toFixed(1) + "%";
+    const gl = document.getElementById("gwrlabel");
+    if (gl) gl.textContent = `黑 ${(blackWr * 100).toFixed(1)}% · 白 ${((1 - blackWr) * 100).toFixed(1)}% · 目差 ${lead >= 0 ? "+" : ""}${(lead || 0).toFixed(1)}`;
   }
 
   function renderCands() {
