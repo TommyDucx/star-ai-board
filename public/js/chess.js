@@ -120,17 +120,19 @@
   }
 
   // chessboard.js 0.3.0 不支持 onSquareClick 且会拦截 click 事件；
-  // 用 pointerdown/pointerup 同格判定实现点击式下棋（不干扰拖拽）
-  let pressSq = null;
+  // 用 pointerdown 记录格子 + 移动距离判定点击（点击棋子任意位置均可选中，不依赖 up 的 target）
+  let press = null;
   function boardPointer(e) {
     const sqEl = e.target.closest(".square-55d63");
     const sq = sqEl ? ((sqEl.className.match(/square-([a-h][1-8])/) || [])[1] || null) : null;
     if (e.type === "pointerdown") {
-      pressSq = sq;
-    } else if (e.type === "pointerup" && sq && sq === pressSq) {
-      onSquareClick(sq);   // 按下与抬起在同一格 = 点击
+      press = { sq, x: e.clientX, y: e.clientY, moved: false };
+    } else if (e.type === "pointermove" && press) {
+      if (Math.hypot(e.clientX - press.x, e.clientY - press.y) > 6) press.moved = true;
+    } else if (e.type === "pointerup" && press) {
+      if (!press.moved && press.sq) onSquareClick(press.sq);   // 未拖动 = 点击
+      press = null;
     }
-    if (e.type === "pointerup") pressSq = null;
   }
   function initBoard() {
     board = Chessboard("board", {
@@ -140,7 +142,8 @@
       pieceTheme: "img/chesspieces/wikipedia/{piece}.png",
     });
     document.getElementById("board").addEventListener("pointerdown", boardPointer);
-    document.getElementById("board").addEventListener("pointerup", boardPointer);
+    document.addEventListener("pointermove", boardPointer);
+    document.addEventListener("pointerup", boardPointer);
     applyOrientation();
     updateStatus();
   }
