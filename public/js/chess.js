@@ -40,6 +40,7 @@
     const move = game.move({ from: source, to: target, promotion: "q" });
     if (move === null) return "snapback";
     updateStatus();
+    scheduleEval();   // 每次移动后实时计算胜率
   }
   function onSnapEnd() { board.position(game.fen()); }
 
@@ -83,11 +84,27 @@
       clearHighlights();
       board.position(game.fen());
       updateStatus();
+      scheduleEval();   // 每次移动后实时计算胜率
       return;
     }
     // 非法落点：点到己方棋子则改选，否则取消
     if (piece && piece.color === game.turn()) { clearHighlights(); selectSquare(square); }
     else clearHighlights();
+  }
+
+  let evalTimer = null;
+  function scheduleEval() {
+    clearTimeout(evalTimer);
+    evalTimer = setTimeout(async () => {
+      if (game.game_over()) return;
+      const engine = document.getElementById("engine").value;
+      const engineName = document.getElementById("engine").options[document.getElementById("engine").selectedIndex].textContent;
+      try {
+        const r = await rpc("chess", { engine, fen: game.fen(), movetime: 250, multipv: 1 });
+        const c = (r.candidates && r.candidates[0]) || null;
+        if (c) updateEval(c);
+      } catch (e) { /* 静默：保持上一版胜率 */ }
+    }, 400);
   }
 
   function initBoard() {
@@ -239,175 +256,22 @@
   window.__game = game;
   window.onSquareClick = onSquareClick;
 
-let reviewData = null;
-  let reviewBoard = null;
+  window.selectedSq = () => selectedSq;
 
-  function winrate(cp) { return 1 / (1 + Math.pow(10, -cp / 400)); }
-
-  const CLASSES = {
-    best:       { label: "最佳",     color: "#3ac94e", txt: "这是当前局面下的最佳走法，完全保持了优势。" },
-    excellent:  { label: "很好",     color: "#9bc44b", txt: "很好的走法，几乎与最佳相当。" },
-    good:       { label: "好",       color: "#e3c91a", txt: "不错的走法，略有改进空间。" },
-    inaccuracy: { label: "不精确",   color: "#e88a1a", txt: "不够精确，错过了更优的选择。" },
-    mistake:    { label: "失误",     color: "#e8611a", txt: "这是一步失误，明显损失了优势。" },
-    blunder:    { label: "严重错误", color: "#e02c1a", txt: "严重错误！这步棋让局面急剧恶化。" },
-  };
-  function classify(loss) {
-    if (loss < 0.02) return CLASSES.best;
-    if (loss < 0.06) return CLASSES.excellent;
-    if (loss < 0.12) return CLASSES.good;
-    if (loss < 0.22) return CLASSES.inaccuracy;
-    if (loss < 0.45) return CLASSES.mistake;
-    return CLASSES.blunder;
-  }
-
-  function replayFens() {
-    const fens = [];
-    const g = new Chess();
-    fens.push(g.fen());
-    // 用当前对局的走法重放，生成每个局面的 FEN
-    for (const mv of game.history({ verbose: true })) {
-      g.move({ from: mv.from, to: mv.to, promotion: mv.promotion || "q" });
-      fens.push(g.fen());
-    }
-    return fens;
-  }
-
-  window.reviewGame = async function () {
+  window.reviewGame = function () {
     const hist = game.history({ verbose: true });
     if (!hist.length) { setStatus("对局为空，先走几步再复盘", true); return; }
-    setStatus("复盘分析中…（逐手调用 Stockfish）", false);
-    setThinking(true);
-    try {
-      const fens = replayFens();
-      const analysis = [];
-      for (let i = 1; i < fens.length; i++) {
-        const r = await rpc("chess", { engine: "stockfish", fen: fens[i], movetime: 250, multipv: 1 });
-        const c = (r.candidates && r.candidates[0]) || null;
-        analysis.push({
-          evalCp: c && c.evalCp != null ? c.evalCp : null,
-          mate: c && c.mate != null ? c.mate : null,
-          best: (c && c.pv && c.pv[0]) || null,
-        });
-      }
-      const moves = [];
-      for (let i = 0; i < hist.length; i++) {
-        const p = i % 2 === 0 ? "w" : "b";
-        const before = i === 0 ? 0.5
-          : (analysis[i - 1].mate != null
-              ? (analysis[i - 1].mate > 0 === (p === "w") ? 1 : 0)
-              : winrate(p === "w" ? analysis[i - 1].evalCp : -analysis[i - 1].evalCp));
-        const a = analysis[i];
-        const after = a.mate != null
-          ? (a.mate > 0 === (p === "w") ? 1 : 0)
-          : (a.evalCp == null ? before : winrate(p === "w" ? a.evalCp : -a.evalCp));
-        const loss = Math.max(0, before - after);
-        const cls = classify(loss);
-        moves.push({
-          n: i + 1, san: hist[i].san, p, before, after, loss, cls,
-          best: i >= 1 ? analysis[i - 1].best : null,
-        });
-      }
-      reviewData = { fens, moves, cur: moves.length };
-      openReview();
-    } catch (e) {
-      setStatus("复盘失败: " + e.message, true);
-    } finally {
-      setThinking(false);
-    }
+    // 存详细走法（含 UCI from/to、吃子、将军信息），供复盘页判定
+    localStorage.setItem("star_review_moves", JSON.stringify(
+      hist.map(m => ({
+        from: m.from, to: m.to, promotion: m.promotion || null,
+        san: m.san, color: m.color, piece: m.piece, captured: m.captured || null,
+        flags: m.flags || "",
+      }))
+    ));
+    location.href = "review.html";
   };
 
-  function openReview() {
-    document.getElementById("review-modal").classList.remove("hidden");
-    reviewBoard = Chessboard("review-board", {
-      draggable: false,
-      position: reviewData.fens[reviewData.cur],
-      pieceTheme: "img/chesspieces/wikipedia/{piece}.png",
-    });
-    renderReview();
-  }
-
-  window.closeReview = function () {
-    document.getElementById("review-modal").classList.add("hidden");
-    if (reviewBoard && reviewBoard.destroy) reviewBoard.destroy();
-    reviewBoard = null;
-    setStatus("复盘已关闭");
-  };
-
-  window.reviewNav = function (d) {
-    reviewData.cur = Math.max(0, Math.min(reviewData.moves.length, reviewData.cur + d));
-    if (reviewBoard) reviewBoard.position(reviewData.fens[reviewData.cur]);
-    renderReview();
-  };
-
-  function renderReview() {
-    // 总评统计
-    const cnt = {};
-    reviewData.moves.forEach(m => { cnt[m.cls.label] = (cnt[m.cls.label] || 0) + 1; });
-    const sum = document.getElementById("review-summary");
-    sum.innerHTML = Object.entries(CLASSES)
-      .map(([id, c]) => `<span style="font-family:ui-monospace,Menlo,monospace;font-size:11px;border:1px solid ${c.color}66;color:${c.color};padding:4px 10px">${c.label} ${cnt[c.label] || 0}</span>`)
-      .join("");
-    drawCurve();
-    document.getElementById("review-pos").textContent = `${reviewData.cur} / ${reviewData.moves.length}`;
-    renderDetail();
-    renderMoveList();
-  }
-
-  function drawCurve() {
-    const svg = document.getElementById("review-curve");
-    const W = 600, H = 120;
-    // 白方胜率点：起点 0.5，每步后（换算成白方）
-    const pts = [0.5];
-    reviewData.moves.forEach(m => {
-      pts.push(m.p === "w" ? m.after : 1 - m.after);
-    });
-    let d = "";
-    pts.forEach((v, i) => {
-      const x = (i / Math.max(1, pts.length - 1)) * W;
-      const y = H - v * H;
-      d += (i === 0 ? "M" : "L") + x.toFixed(1) + "," + y.toFixed(1);
-    });
-    svg.innerHTML = `
-      <line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="#eff2e824" stroke-width="1" stroke-dasharray="4,4"></line>
-      <path d="${d}" fill="none" stroke="#d7ff3f" stroke-width="2"></path>
-      <line x1="${(reviewData.cur / Math.max(1, pts.length - 1)) * W}" y1="0" x2="${(reviewData.cur / Math.max(1, pts.length - 1)) * W}" y2="${H}" stroke="#2ed3ff" stroke-width="1"></line>`;
-  }
-
-  function renderDetail() {
-    const el = document.getElementById("review-detail");
-    const c = reviewData.cur;
-    if (c === 0) { el.innerHTML = `<div style="color:var(--muted)">开局局面 · 使用 ←/→ 浏览每一步的点评</div>`; return; }
-    const m = reviewData.moves[c - 1];
-    const sideName = m.p === "w" ? "白方" : "黑方";
-    el.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <span style="font-family:ui-monospace,Menlo,monospace;font-size:10px;border:1px solid ${m.cls.color}66;color:${m.cls.color};padding:3px 10px">${m.cls.label}</span>
-        <span style="font-size:15px;font-weight:600">${m.n}. ${m.san}</span>
-        <span style="font-size:12px;color:var(--muted)">${sideName}</span>
-      </div>
-      <div style="font-size:12.5px;color:var(--muted);line-height:1.8">
-        ${m.p === "w" ? "白方" : "黑方"}胜率 <b style="color:var(--paper)">${(m.before * 100).toFixed(1)}%</b> → <b style="color:var(--paper)">${(m.after * 100).toFixed(1)}%</b>
-        （损失 <b style="color:${m.cls.color}">${(m.loss * 100).toFixed(1)}%</b>）<br>
-        ${m.best ? `更优着法：<b style="color:var(--signal)">${m.best}</b>` : ""}
-      </div>
-      <div style="margin-top:10px;font-size:13px;color:var(--paper)">${m.cls.txt}</div>`;
-  }
-
-  function renderMoveList() {
-    const el = document.getElementById("review-movelist");
-    el.innerHTML = reviewData.moves.map((m, i) => `
-      <div onclick="reviewNav(${i + 1 - reviewData.cur})"
-        style="cursor:pointer;display:flex;gap:8px;align-items:center;padding:6px 10px;border:1px solid ${reviewData.cur === i + 1 ? "var(--signal)" : "var(--line)"};background:${reviewData.cur === i + 1 ? "#d7ff3f14" : "var(--surface)"}"
-        title="${m.cls.label}">
-        <span style="font-family:monospace;font-size:10px;color:var(--faint)">${m.n}.</span>
-        <span style="font-family:monospace;font-size:13px">${m.san}</span>
-        <span style="flex:1"></span>
-        <span style="width:8px;height:8px;border-radius:50%;background:${m.cls.color}"></span>
-      </div>`).join("");
-  }
-
-  window.selectedSq = () => selectedSq;
 })();
 
 

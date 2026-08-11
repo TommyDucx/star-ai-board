@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>对局复盘 — S.T.A.R.</title>
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/motion.css">
+<link rel="stylesheet" href="css/chessboard.min.css">
+<style>
+  .rev-wrap { max-width: 1080px; margin: 0 auto; padding: 26px 20px 60px; }
+  .rev-head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .rev-head h1 { font-size: 22px; font-weight: 700; letter-spacing: .06em; }
+  .rev-head h1 .sub { font-size: 11px; color: var(--muted); font-weight: 400; margin-left: 8px; }
+  .rev-head .flex1 { flex: 1; }
+  #summary { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+  #summary span { font-family: ui-monospace, Menlo, monospace; font-size: 11px; padding: 4px 10px; }
+  .acc-row { display: flex; gap: 12px; margin-bottom: 16px; }
+  .acc-box { flex: 1; border: 1px solid var(--line); padding: 12px 16px; }
+  .acc-box .who { font-size: 12px; color: var(--muted); }
+  .acc-box .num { font-size: 30px; font-weight: 800; }
+  .acc-box .ph { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--faint); letter-spacing: .14em; margin-top: 4px; }
+  .grid { display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
+  @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } .acc-row { flex-direction: column; } }
+  .nav { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+  #curve-box { border: 1px solid var(--line); padding: 12px; margin-bottom: 14px; }
+  #curve-box label { font-size: 12px; color: var(--muted); margin-bottom: 6px; display: block; }
+  #detail { border: 1px solid var(--line); padding: 14px; min-height: 120px; }
+  #recs { border: 1px solid var(--line); padding: 12px; margin-top: 12px; }
+  #recs label { font-size: 12px; color: var(--muted); margin-bottom: 8px; display: block; }
+  .rec { display: flex; gap: 10px; align-items: center; padding: 5px 8px; border: 1px solid var(--line); margin-bottom: 6px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+  #movelist { margin-top: 12px; max-height: 200px; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  #coach { border: 1px solid var(--line); padding: 12px 14px; margin-bottom: 14px; background: var(--surface); }
+  #coach .ct { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--signal); letter-spacing: .2em; margin-bottom: 6px; }
+  #coach p { font-size: 13px; color: var(--paper); line-height: 1.7; }
+  #coach b { color: var(--amber); }
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="pixel-fault" aria-hidden="true"></div>
+
+<div class="topbar">
+  <a href="chess.html" class="logo" data-nav>←</a>
+  <span class="crumb">GAME REVIEW / 对局复盘</span>
+  <span class="flex1"></span>
+  <a href="chess.html" class="btn" data-nav>返回对局</a>
+</div>
+
+  <div class="rev-wrap enter-node">
+    <div class="rev-head">
+      <h1>对局复盘 <span class="sub">GAME REVIEW</span></h1>
+      <span class="flex1"></span>
+      <span class="mono" style="font-size:11px;color:var(--signal)" id="status">分析中…</span>
+    </div>
+
+    <div class="acc-row">
+      <div class="acc-box"><div class="who">白方准确率</div><div class="num" id="acc-w">—</div><div class="ph">ACCURACY</div></div>
+      <div class="acc-box"><div class="who">黑方准确率</div><div class="num" id="acc-b">—</div><div class="ph">ACCURACY</div></div>
+      <div class="acc-box"><div class="who">对局分段</div><div class="num" id="phases" style="font-size:16px">—</div><div class="ph">OPENING / MID / END</div></div>
+    </div>
+
+    <div id="coach"><div class="ct">COACH / 对局教练总结</div><p id="coach-text">分析中…</p></div>
+    <div id="summary"></div>
+
+    <div class="grid">
+      <div>
+        <div id="board"></div>
+        <div class="nav">
+          <button class="btn" onclick="jumpStart()">⏮ 开局</button>
+          <button class="btn" onclick="nav(-1)">← 上一步</button>
+          <span class="mono" id="pos" style="font-size:12px;color:var(--muted);align-self:center">—</span>
+          <button class="btn" onclick="nav(1)">下一步 →</button>
+          <button class="btn primary" id="play-btn" onclick="autoPlay()">▶ 自动播放</button>
+        </div>
+      </div>
+      <div>
+        <div id="curve-box"><label>优势曲线（厘兵 cp · 正=白优 · 绿=妙手 红=大漏）</label>
+          <svg id="curve" width="100%" height="150" viewBox="0 0 600 150" preserveAspectRatio="none" style="display:block"></svg>
+        </div>
+        <div id="detail"></div>
+        <div id="recs"><label>引擎推荐走法（Top 3）</label></div>
+        <div id="movelist"></div>
+      </div>
+    </div>
+  </div>
+
+<script src="js/lib/jquery.min.js"></script>
+<script src="js/lib/chess.min.js"></script>
+<script src="js/lib/chessboard.min.js"></script>
+<script src="js/motion.js"></script>
+<script src="js/review.js?v=4"></script>
+</body>
+</html>
