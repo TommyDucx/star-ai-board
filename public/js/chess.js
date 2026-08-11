@@ -149,14 +149,14 @@
       const mv = r.bestmove ? san(r.bestmove) : "—";
       setStatus(`[${engineName}] ${sideName}行棋 · AI 落子：${mv}`, false);
       if (r.bestmove) {
-        // 高亮推荐走法后 AI 自动走出该步
-        highlightBest(cands[0] && cands[0].pv);
         const done = game.move({ from: r.bestmove.slice(0, 2), to: r.bestmove.slice(2, 4), promotion: "q" });
         if (done) {
           board.position(game.fen());
           updateStatus();
           const nextSide = game.turn() === "w" ? "白方" : "黑方";
           setStatus(`[${engineName}] AI 落子：${mv} · 轮到 ${nextSide}`, false);
+          // 落子后重绘棋盘会重建格子 DOM；延迟到重绘完成后高亮，保证与棋子位置一致
+          setTimeout(() => highlightBest([r.bestmove]), 150);
         }
       }
     } catch (e) {
@@ -172,18 +172,29 @@
     try { const r = m.move(mv); return r ? r.san : uci; } catch (e) { return uci; }
   }
 
+  let hlEls = [];
+  function clearOverlays() { hlEls.forEach(e => e.remove()); hlEls = []; }
   function highlightBest(pv) {
-    // 高亮推荐起点/终点
+    // 使用独立覆盖层高亮（棋盘重绘不会清掉），基于格子坐标定位，与棋子位置一致
+    clearOverlays();
     if (!pv || !pv[0]) return;
-    const from = pv[0].slice(0, 2), to = pv[0].slice(2, 4);
-    const fromEl = document.querySelector(`[data-square="${from}"]`);
-    if (fromEl) fromEl.style.background = "#d7ff3f44";
-    const toEl = document.querySelector(`[data-square="${to}"]`);
-    if (toEl) toEl.style.background = "#d7ff3f66";
-    setTimeout(() => {
-      if (fromEl) fromEl.style.background = "";
-      if (toEl) toEl.style.background = "";
-    }, 1200);
+    const boardEl = document.getElementById("board");
+    const r = boardEl.getBoundingClientRect();
+    const size = r.width / 8;
+    const orient = board.orientation();
+    const flip = orient === "black";
+    [pv[0].slice(0, 2), pv[0].slice(2, 4)].forEach((sq, i) => {
+      const f = sq.charCodeAt(0) - 97;
+      let rank = +sq[1] - 1;
+      if (flip) rank = 7 - rank;               // 黑方在下时翻转
+      const el = document.createElement("div");
+      el.style.cssText = `position:fixed;left:${r.left + f * size}px;top:${r.top + rank * size}px;` +
+        `width:${size}px;height:${size}px;background:rgba(215,255,63,${i === 0 ? 0.28 : 0.42});` +
+        `pointer-events:none;z-index:90;`;
+      document.body.appendChild(el);
+      hlEls.push(el);
+    });
+    setTimeout(clearOverlays, 1200);
   }
 
   function renderCands(cands, best) {
