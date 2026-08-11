@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.T.A.R. — 下一手下哪？</title>
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/motion.css">
+<link rel="stylesheet" href="css/chessboard.min.css">
+<style>
+  body { overflow-x: hidden; }
+  .top { height: 72px; display: flex; align-items: center; gap: 18px; padding: 0 30px;
+    border-bottom: 1px solid var(--line); background: var(--ink); position: sticky; top: 0; z-index: 20; }
+  .top .logo { font-weight: 800; letter-spacing: .08em; color: var(--signal); font-size: 18px; }
+  .top .flex1 { flex: 1; }
+  .enter-btn { font-family: ui-monospace, Menlo, monospace; font-size: 12px; letter-spacing: .16em;
+    background: var(--signal); color: var(--ink); border: 1px solid var(--signal); padding: 11px 24px; cursor: pointer;
+    font-weight: 700; position: relative; overflow: hidden; transition: box-shadow .25s var(--ease-out), transform .25s var(--ease-out); }
+  .enter-btn:hover { box-shadow: 0 0 28px #d7ff3f55, inset 0 0 14px #d7ff3f33; transform: translateY(-1px); }
+  .enter-btn::after { content:""; position:absolute; inset:0; background: linear-gradient(90deg, transparent, #ffffff66, transparent);
+    transform: translateX(-120%); animation: shine 2.8s ease-in-out infinite; }
+  @keyframes shine { 0%{transform:translateX(-120%);} 55%,100%{transform:translateX(120%);} }
+
+  .hero { max-width: 1080px; margin: 0 auto; padding: 54px 24px 40px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 44px; align-items: center; position: relative; }
+  .hero::before { content:""; position:absolute; inset:-70px 0 0; z-index:-1;
+    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 82px 82px; opacity: .38;
+    -webkit-mask-image: radial-gradient(ellipse 75% 70% at 55% 42%, black, transparent 76%);
+    mask-image: radial-gradient(ellipse 75% 70% at 55% 42%, black, transparent 76%);
+    transform: translate(calc(var(--shift-x,0)*-14px), calc(var(--shift-y,0)*-14px)); transition: transform .5s var(--ease-out); }
+  .hero-left { }
+  .kicker { font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; letter-spacing: .32em; color: var(--signal); margin-bottom: 16px; }
+  .hero-left h1 { font-size: clamp(46px, 7vw, 86px); font-weight: 800; letter-spacing: .02em; line-height: 1.02; }
+  .hero-left h1 .outline { color: transparent; -webkit-text-stroke: 1px var(--paper); }
+  .hero-left .sub { color: var(--muted); margin-top: 20px; line-height: 1.9; max-width: 460px; font-size: 14.5px; }
+  .hero-left .tags { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 26px; }
+  .tag { font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: .2em; color: var(--muted);
+    border: 1px solid var(--lineStrong); padding: 5px 12px; }
+  .tag.hot { color: var(--signal); border-color: #d7ff3f57; }
+  .tag.cy { color: var(--cyan); border-color: #2ed3ff40; }
+
+  .hero-right { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: center; }
+  .demo-board { border: 1px solid var(--lineStrong); padding: 14px; background: var(--surface); position: relative; }
+  .demo-board .lb { font-family: ui-monospace, Menlo, monospace; font-size: 9px; letter-spacing: .24em;
+    color: var(--faint); display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .demo-board .lb b { color: var(--signal); font-weight: 500; }
+  #go-demo { width: 100%; display: block; cursor: pointer; }
+  #go-demo line { stroke: #5d4320; }
+  #go-demo rect.bg { fill: #dcb35c; }
+  #chess-demo .chessboard { width: 100%; }
+  #demo-num { position: absolute; bottom: 14px; right: 16px; font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--muted); }
+
+  .feats { max-width: 1080px; margin: 8px auto 56px; padding: 0 24px; display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .feat { border: 1px solid var(--line); background: var(--surface); padding: 26px 22px; position: relative; }
+  .feat .fid { font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: .2em; color: var(--signal); }
+  .feat h3 { font-size: 19px; margin: 12px 0 8px; }
+  .feat p { color: var(--muted); font-size: 13px; line-height: 1.75; }
+  .feat .bar { height: 4px; background: var(--surface2); margin-top: 16px; position: relative; overflow: hidden; }
+  .feat .bar i { position: absolute; inset: 0 auto 0 0; background: var(--signal); width: 0; transition: width 1.4s var(--ease-out); }
+  @media (max-width: 860px) { .hero { grid-template-columns: 1fr; } .feats { grid-template-columns: 1fr; } .hero-right { grid-template-columns: 1fr; } }
+  .foot { text-align: center; font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--faint); letter-spacing: .2em; padding-bottom: 44px; }
+  .roll { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--cyan); letter-spacing: .14em; margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="pixel-fault" aria-hidden="true"></div>
+
+<!-- boot -->
+<div class="boot" aria-hidden="true">
+  <div class="boot-word"><span class="w-p">PROJECT</span><span class="w-s">S.T.A.R.</span></div>
+  <div class="boot-meta">GO · CHESS / AI SUGGEST NEXT MOVE</div>
+  <div class="boot-rules"></div>
+  <div class="boot-skip">点击任意处 跳过</div>
+</div>
+
+<div class="top">
+  <span class="logo">S.T.A.R.</span>
+  <span class="flex1"></span>
+  <button class="enter-btn ripple-host" id="enter-btn">进入系统 →</button>
+</div>
+
+<div class="hero" data-parallax>
+  <div class="hero-left">
+    <div class="kicker">LOCAL ENGINE · KATAGO + STOCKFISH</div>
+    <h1>下一手<br><span class="outline glitch" data-text="下哪？">下哪？</span></h1>
+    <p class="sub">根据对方的落子，AI 实时分析局面并推荐你的下一步。围棋与国际象棋双引擎就绪，全程本地计算。</p>
+    <div class="tags">
+      <span class="tag hot">KataGo 围棋</span>
+      <span class="tag cy">Stockfish 国际象棋</span>
+      <span class="tag">本地引擎 · 隐私安全</span>
+    </div>
+    <div class="roll" id="roll">引擎启动中…</div>
+  </div>
+
+  <div class="hero-right">
+    <div class="demo-board magnetic ripple-host" id="go-demo-card">
+      <div class="lb"><span>GO / KATA</span><b>点击落子演示</b></div>
+      <svg id="go-demo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320"></svg>
+    </div>
+    <div class="demo-board magnetic ripple-host" id="chess-demo-card">
+      <div class="lb"><span>CHESS / STOCKFISH</span><b>AI 自弈演示</b></div>
+      <div id="chess-demo"></div>
+    </div>
+    <div id="demo-num" class="roll"># 000</div>
+  </div>
+</div>
+
+<div class="feats">
+  <div class="feat magnetic ripple-host">
+    <div class="fid">A-01</div>
+    <h3>围棋 · KataGo</h3>
+    <p>点击棋盘落子，自动分析当前局面，数字标注 Top 候选点与胜率目差。</p>
+    <div class="bar" data-fill="86"><i></i></div>
+  </div>
+  <div class="feat magnetic ripple-host">
+    <div class="fid">A-02</div>
+    <h3>国际象棋 · Stockfish</h3>
+    <p>自由操控黑白双方，点击「推荐下一步」获取最佳走法与评估。</p>
+    <div class="bar" data-fill="92"><i></i></div>
+  </div>
+  <div class="feat magnetic ripple-host">
+    <div class="fid">A-03</div>
+    <h3>本地引擎 · 即刻响应</h3>
+    <p>引擎常驻本机，不走网络。落子即分析，推荐即反馈。</p>
+    <div class="bar" data-fill="78"><i></i></div>
+  </div>
+</div>
+
+<div class="foot">PROJECT S.T.A.R. · KATAGO + STOCKFISH · 本地对弈分析</div>
+
+<script src="js/lib/jquery.min.js"></script>
+<script src="js/lib/chess.min.js"></script>
+<script src="js/lib/chessboard.min.js"></script>
+<script src="js/motion.js"></script>
+<script src="js/intro.js"></script>
+</body>
+</html>

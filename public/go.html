@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>围棋 · AI 下一步推荐 — S.T.A.R.</title>
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/motion.css">
+<style>
+  .go-wrap { display: flex; gap: 26px; align-items: flex-start; justify-content: center; flex-wrap: wrap; padding: 24px 16px; }
+  .board-card { position: relative; }
+  .board-card svg { display: block; border-radius: 10px; }
+  #winbar { width: 100%; height: 10px; background: #1a201b; border: 1px solid #eff2e824; margin-top: 10px; display: flex; }
+  #winbar i { height: 100%; }
+  .panel-go { width: 300px; }
+  .cand { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid #eff2e824; margin-bottom: 8px; background: #121612; }
+  .cand .n { width: 22px; height: 22px; border-radius: 50%; background: #d7ff3f; color: #080a09; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 12px; flex: 0 0 22px; }
+  .cand .wr { flex: 1; text-align: right; font-family: monospace; color: #8a9288; font-size: 12px; }
+  .cand .pv { font-family: monospace; color: #788179; font-size: 11px; }
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="pixel-fault" aria-hidden="true"></div>
+<div class="topbar">
+  <a href="index.html" class="logo" data-nav>←</a>
+  <span class="crumb">GO / KATAGO ANALYSIS</span>
+  <span class="flex1"></span>
+  <a href="chess.html" class="btn" data-nav>国际象棋 →</a>
+</div>
+
+<div class="go-wrap enter-node">
+  <div class="board-card">
+    <svg id="board" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="winbar"><i id="winw" style="background:#eff2e8"></i><i id="winb" style="background:#0b0d0c"></i></div>
+    <div class="mono" id="winlabel" style="text-align:center;margin-top:6px;font-size:12px;color:#8a9288">当前执黑 · 点击棋盘落子 · 落子后自动分析推荐</div>
+  </div>
+
+  <div class="panel-go">
+    <div class="row">
+      <label>棋盘大小</label>
+      <select id="size">
+        <option value="9">9 路</option>
+        <option value="13">13 路</option>
+        <option value="19" selected>19 路</option>
+      </select>
+    </div>
+    <div class="row">
+      <label>我方执子（决定行棋顺序/视角）</label>
+      <select id="myside">
+        <option value="B" selected>执黑（先手）</option>
+        <option value="W">执白（后手）</option>
+      </select>
+    </div>
+    <div class="row">
+      <label>AI 分析强度（模拟次数）</label>
+      <select id="visits">
+        <option value="50">快速 ~50</option>
+        <option value="200" selected>标准 ~200</option>
+        <option value="600">精细 ~600</option>
+      </select>
+    </div>
+    <div class="row btns">
+      <button class="btn primary" onclick="aiAnalyze()">AI 推荐下一步</button>
+      <button class="btn" onclick="undo()">悔棋</button>
+      <button class="btn" onclick="clearBoard()">清空</button>
+      <button class="btn" onclick="flipBoard()">翻转</button>
+    </div>
+    <div class="status" id="status">准备就绪</div>
+    <div class="thinking" id="thinking">KataGo 分析中…</div>
+    <div class="row" style="margin-top:12px">
+      <label>推荐落点（当前行棋方）</label>
+      <div id="cands"></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/go.js"></script>
+<script src="js/motion.js"></script>
+<script>
+  Motion.initCursorLine();
+  Motion.initRipple();
+  Motion.staggerEnter();
+  document.querySelectorAll("[data-nav]").forEach(a => {
+    a.addEventListener("click", e => { e.preventDefault(); Motion.sliceRoute(a.getAttribute("href")); });
+  });
+</script>
+</body>
+</html>

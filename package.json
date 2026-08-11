@@ -1,0 +1,8 @@
+{
+  "name": "star-ai-board",
+  "version": "1.0.0",
+  "description": "围棋(KataGo) + 国际象棋(Stockfish) AI 下一步推荐",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": { "ws": "^8.18.0" }
+}

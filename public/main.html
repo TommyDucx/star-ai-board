@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.T.A.R. — 围棋 & 国际象棋 AI 推荐</title>
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/motion.css">
+<style>
+  .hero { max-width: 900px; margin: 0 auto; padding: 70px 20px 40px; text-align: center; position: relative; }
+  .hero::before { content:""; position:absolute; inset:-60px 0 0; z-index:-1;
+    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 80px 80px; opacity: .4;
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 60% 40%, black, transparent 75%);
+    mask-image: radial-gradient(ellipse 80% 70% at 60% 40%, black, transparent 75%);
+    transform: translate(calc(var(--shift-x,0)*-12px), calc(var(--shift-y,0)*-12px)); transition: transform .5s var(--ease-out); }
+  .hero .kicker { font-family: ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: .3em; color: var(--signal); }
+  .hero h1 { font-size: clamp(38px, 7vw, 76px); font-weight: 800; letter-spacing: .04em; line-height: 1; margin: 18px 0 14px; }
+  .hero h1 .outline { color: transparent; -webkit-text-stroke: 1px var(--paper); }
+  .hero p { color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.8; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 820px; margin: 44px auto 60px; padding: 0 20px; }
+  .card { border: 1px solid var(--line); background: var(--surface); padding: 30px 26px; text-decoration: none; color: inherit; transition: .18s; position: relative; }
+  .card:hover { border-color: var(--signal); }
+  .card .tag { font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: .2em; color: var(--signal); }
+  .card h2 { font-size: 26px; margin: 14px 0 8px; }
+  .card p { color: var(--muted); font-size: 13.5px; line-height: 1.7; }
+  .card .go { margin-top: 18px; font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--paper); }
+  .card:hover .go { color: var(--signal); }
+  @media (max-width: 700px) { .cards { grid-template-columns: 1fr; } }
+  .foot { text-align: center; font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--faint); letter-spacing: .2em; padding-bottom: 40px; }
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="pixel-fault" aria-hidden="true"></div>
+
+<!-- boot 启动 -->
+<div class="boot" aria-hidden="true">
+  <div class="boot-word"><span class="w-p">PROJECT</span><span class="w-s">S.T.A.R.</span></div>
+  <div class="boot-meta">GO · CHESS / AI SUGGEST NEXT MOVE</div>
+  <div class="boot-rules"></div>
+  <div class="boot-skip">点击任意处 跳过 · CLICK TO SKIP</div>
+</div>
+<div class="topbar">
+  <span class="logo">S.T.A.R.</span>
+  <span class="crumb">GO · CHESS / AI SUGGEST NEXT MOVE</span>
+  <span class="flex1"></span>
+  <span class="mono" style="font-size:10px;color:var(--faint);letter-spacing:.2em">KATAGO · STOCKFISH</span>
+</div>
+
+<div class="hero" data-parallax>
+  <div class="kicker">LOCAL ENGINE · 本地引擎驱动</div>
+  <h1>下一手 <span class="outline glitch" data-text="下哪？">下哪？</span></h1>
+  <p>根据对方的落子，AI 实时分析局面并推荐你下一步的最佳落点。围棋由 <b style="color:var(--signal)">KataGo</b> 驱动，国际象棋由 <b style="color:var(--signal)">Stockfish</b> 驱动，全部在本机计算。</p>
+</div>
+
+<div class="cards">
+  <a class="card magnetic ripple-host" href="go.html" data-nav>
+    <span class="tag">GO / KATAGO</span>
+    <h2>围棋</h2>
+    <p>点击棋盘落子，落子后自动分析当前局面，用数字标出 Top 候选点与胜率目差。</p>
+    <div class="go">进入棋盘 →</div>
+  </a>
+  <a class="card magnetic ripple-host" href="chess.html" data-nav>
+    <span class="tag">CHESS / STOCKFISH</span>
+    <h2>国际象棋</h2>
+    <p>拖拽走棋，AI 实时推荐下一步最佳走法并给出评估分与候选列表。</p>
+    <div class="go">进入棋盘 →</div>
+  </a>
+</div>
+
+<div class="foot">PROJECT S.T.A.R. · KATAGO + STOCKFISH · 本地对弈分析</div>
+
+<script src="js/motion.js"></script>
+<script>
+  Motion.runBoot();
+  Motion.initCursorLine();
+  Motion.initMagnetic();
+  Motion.initRipple();
+  Motion.initParallax();
+  // 卡片进入 → 用 handoff 斜线光束过渡
+  document.querySelectorAll("[data-nav]").forEach(a => {
+    a.addEventListener("click", e => {
+      e.preventDefault();
+      Motion.handoff(a.getAttribute("href"));
+    });
+  });
+</script>
+</body>
+</html>

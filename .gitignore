@@ -1,0 +1,10 @@
+# 依赖与运行产物
+node_modules/
+.npmc/
+*.log
+
+# 引擎二进制（需自行获取，见 README）
+public/stockfish
+
+# 系统文件
+.DS_Store

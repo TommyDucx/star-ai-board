@@ -1,0 +1,28 @@
+/* S.T.A.R. 站点共享样式（Kylin 暗色主题） */
+:root {
+  --ink: #080a09; --surface: #121612; --surface2: #1a201b;
+  --paper: #eff2e8; --muted: #8a9288; --faint: #788179;
+  --line: #eff2e824; --lineStrong: #eff2e84d;
+  --signal: #d7ff3f; --cyan: #2ed3ff; --amber: #ffcc45; --coral: #ff6d64;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--ink); color: var(--paper); font-family: -apple-system, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; min-height: 100vh; }
+.topbar { height: 64px; display: flex; align-items: center; gap: 20px; padding: 0 26px; border-bottom: 1px solid var(--line); background: var(--ink); position: sticky; top: 0; z-index: 10; }
+.topbar .logo { font-weight: 800; letter-spacing: .08em; color: var(--signal); text-decoration: none; font-size: 18px; }
+.topbar .crumb { font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: .2em; color: var(--muted); text-transform: uppercase; }
+.topbar .flex1 { flex: 1; }
+.btn { font-family: ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: .08em; border: 1px solid var(--lineStrong); padding: 8px 14px; color: var(--paper); text-decoration: none; cursor: pointer; background: none; transition: .15s; }
+.btn:hover { border-color: var(--signal); color: var(--signal); }
+.btn.primary { background: var(--signal); color: var(--ink); border-color: var(--signal); font-weight: 700; }
+.btn.primary:hover { filter: brightness(1.05); }
+.mono { font-family: ui-monospace, Menlo, monospace; }
+.row { margin-bottom: 14px; }
+.row label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+select, input[type=range] { width: 100%; padding: 8px 10px; border: 1px solid var(--lineStrong); border-radius: 0; background: var(--ink); color: var(--paper); font-size: 13px; }
+button { font-family: inherit; }
+.btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.status { font-size: 14px; font-weight: 600; padding: 9px 12px; background: var(--surface); border: 1px solid var(--line); color: var(--signal); }
+.status.alert { background: #ff54491a; color: var(--coral); border-color: #ff544966; }
+.thinking { display: none; font-size: 12px; color: var(--muted); margin-top: 6px; }
+.thinking.on { display: block; }
+.panel { width: 300px; }

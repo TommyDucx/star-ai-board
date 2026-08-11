@@ -1,0 +1,93 @@
+/* =============================================================================
+   S.T.A.R. motion 层 —— 与原错题系统一致的视觉效果
+   boot 启动 / slice 切换 / handoff 光束 / 磁吸 / 涟漪 / glitch / 像素故障 /
+   scanlines / 视差 / 光标绿色拖尾(canvas, 见 motion.js)
+   ============================================================================= */
+:root { --ease: cubic-bezier(.76,0,.24,1); --ease-out: cubic-bezier(.16,1,.3,1); }
+
+/* scanlines 覆盖层 */
+.scanlines { pointer-events: none; position: fixed; inset: 0; z-index: 60;
+  background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(0,0,0,.12) 3px 4px);
+  mix-blend-mode: overlay; opacity: .55; }
+
+/* 全屏像素故障 */
+.pixel-fault { position: fixed; inset: 0; z-index: 55; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(215,255,63,.05) 2px 3px);
+  animation: pixelFault 9s steps(1,end) infinite; }
+@keyframes pixelFault { 0%,91.99%,100%{opacity:0;transform:translate(0);}
+  92%{opacity:.35;transform:translate(6px,-2px);} 93%{opacity:.18;transform:translate(-4px,1px);} 94%{opacity:0;transform:translate(2px,3px);} }
+
+/* ---- boot 启动 ----
+   .boot 覆盖层：PROJECT 左滑擦入 → 名称右滑擦入 → 信号线生长 → 3.4s 后向右擦出 */
+.boot { position: fixed; inset: 0; z-index: 300; background: var(--ink);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; cursor: pointer; }
+.boot .boot-word { font-family: ui-monospace, Menlo, monospace; font-weight: 800;
+  font-size: clamp(44px,9vw,104px); letter-spacing: .08em; line-height: 1; display: flex; gap: .2em; }
+.boot .boot-word .w-p { animation: bootProjectIn .82s var(--ease-out) .15s both; }
+.boot .boot-word .w-s { color: var(--signal); animation: bootKylinIn .94s var(--ease-out) .3s both; }
+.boot .boot-meta { font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: .3em;
+  color: var(--muted); text-transform: uppercase; animation: bootMetaIn .8s var(--ease-out) .55s both; }
+.boot .boot-rules { width: min(440px,62vw); height: 1px; background: var(--lineStrong); position: relative; overflow: hidden; }
+.boot .boot-rules::before { content:""; position:absolute; inset:0; background: var(--signal); transform-origin: left;
+  animation: bootRuleIn 1s var(--ease-out) .7s both; }
+.boot .boot-skip { position: absolute; bottom: 40px; left: 0; right: 0; text-align: center;
+  font-family: ui-monospace, Menlo, monospace; font-size: 9px; color: var(--faint); letter-spacing: .24em;
+  text-transform: uppercase; animation: bootMetaIn .6s var(--ease-out) 1.6s both; }
+.boot.exiting { animation: bootExit .65s var(--ease) forwards; }
+@keyframes bootProjectIn { 0%{opacity:0;clip-path:inset(0 100% 0 0);transform:translate(-90px);} to{opacity:1;clip-path:inset(0);transform:translate(0);} }
+@keyframes bootKylinIn { 0%{opacity:0;clip-path:inset(0 0 0 100%);transform:translate(120px);} to{opacity:1;clip-path:inset(0);transform:translate(0);} }
+@keyframes bootMetaIn { 0%{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+@keyframes bootRuleIn { 0%{transform:scaleX(0);} to{transform:scaleX(1);} }
+@keyframes bootExit { 0%,60%{clip-path:inset(0);} to{clip-path:inset(0 100% 0 0);} }
+
+/* ---- slice 页面切换 ---- */
+.route-slice { position: fixed; inset: 0; z-index: 250; pointer-events: none; }
+.route-slice i { position: absolute; inset: 0; background: var(--surface2);
+  animation: slicePass .95s var(--ease) both; }
+.route-slice .shutter { background: var(--signal); animation: shutterPass .8s var(--ease) .12s both; }
+@keyframes slicePass { 0%{transform:translateX(110%);} 46%{transform:translateX(0);} 100%{transform:translateX(-110%);} }
+@keyframes shutterPass { 0%{transform:translateX(110%);} 42%,60%{transform:translateX(0);} 100%{transform:translateX(-110%);} }
+
+/* ---- handoff 斜线光束（进入页面） ---- */
+.handoff { position: fixed; inset: 0; z-index: 260; pointer-events: none; overflow: hidden; }
+.handoff .beam { position:absolute; top:-12%; bottom:-12%; left:0; width:48vw;
+  background: linear-gradient(90deg, transparent 0%, var(--signal) 50%, transparent 100%);
+  transform: skew(-19deg) translateX(-100vw); animation: handoffBeam .9s var(--ease) both; }
+.handoff .cover { position:absolute; inset:0; background: var(--signal);
+  clip-path: inset(0 100% 0 0); animation: handoffCover .35s var(--ease-out) .55s forwards; }
+@keyframes handoffBeam { 0%{transform:skew(-19deg) translateX(-100vw);} 100%{transform:skew(-19deg) translateX(120vw);} }
+@keyframes handoffCover { to{clip-path:inset(0);} }
+
+/* ---- 进场 stagger ---- */
+.enter-node { animation: nodeEnter .6s var(--ease-out) both; }
+@keyframes nodeEnter { 0%{opacity:0;clip-path:inset(0 0 100% 0);transform:translateY(18px);}
+  to{opacity:1;clip-path:inset(0);transform:translateY(0);} }
+
+/* ---- 磁吸 ---- */
+.magnetic { transition: transform .12s var(--ease-out), box-shadow .12s var(--ease-out); will-change: transform; }
+
+/* ---- 点击涟漪 ---- */
+.ripple-host { position: relative; overflow: hidden; }
+.ripple { position:absolute; width:8px; height:8px; border:1px solid var(--signal); border-radius:50%;
+  pointer-events:none; transform:translate(-50%,-50%); animation: ripplePulse .85s var(--ease-out) forwards; z-index:6; }
+@keyframes ripplePulse { to{opacity:0;width:150px;height:150px;} }
+
+/* ---- 标题 glitch（主页 hero） ---- */
+.glitch { position: relative; display: inline-block; }
+.glitch::before,.glitch::after { content: attr(data-text); position:absolute; inset:0; pointer-events:none; opacity:0; }
+.glitch::before { color: var(--coral); animation: glitchRed 6.5s steps(1,end) infinite; }
+.glitch::after { color: var(--cyan); animation: glitchCyan 7.4s steps(1,end) infinite; }
+@keyframes glitchRed { 0%,90.9%,100%{opacity:0;transform:translate(0);} 91%{opacity:.55;transform:translate(-3px,-2px);} 92%{opacity:.22;transform:translate(2px,1px);} 93%{opacity:0;} }
+@keyframes glitchCyan { 0%,92.9%,100%{opacity:0;transform:translate(0);} 93%{opacity:.55;transform:translate(3px,2px);} 94%{opacity:.2;transform:translate(-2px,-1px);} 95%{opacity:0;} }
+
+/* ---- 视差网格 ---- */
+.grid-parallax { transform: translate(calc(var(--shift-x,0)*-12px), calc(var(--shift-y,0)*-12px)); transition: transform .5s var(--ease-out); }
+
+/* 光标 canvas（JS 全屏） */
+.cursor-line { position: fixed; top:0; left:0; pointer-events:none; z-index: 9999; }
+
+@media (prefers-reduced-motion: reduce) {
+  .boot,.route-slice i,.route-slice .shutter,.handoff .beam,.handoff .cover,
+  .enter-node,.ripple,.glitch::before,.glitch::after,.pixel-fault,.scanlines { animation:none !important; }
+  .boot{display:none;} .scanlines{display:none;}
+}
