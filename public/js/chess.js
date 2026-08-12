@@ -196,7 +196,6 @@
       renderCands(cands, r.bestmove);
       updateEval(cands[0]);
       const mv = r.bestmove ? san(r.bestmove) : "—";
-      setStatus(`[${engineName}] ${sideName}行棋 · AI 落子：${mv}`, false);
       if (r.bestmove) {
         const done = game.move({ from: r.bestmove.slice(0, 2), to: r.bestmove.slice(2, 4), promotion: "q" });
         if (done) {
@@ -204,7 +203,7 @@
           updateStatus();
           const nextSide = game.turn() === "w" ? "白方" : "黑方";
           setStatus(`[${engineName}] AI 落子：${mv} · 轮到 ${nextSide}`, false);
-          // 落子后重绘棋盘会重建格子 DOM；延迟到重绘完成后高亮，保证与棋子位置一致
+          // 高亮 AI 刚走的一步（from→to），保证高亮位置与移动的棋子一致
           setTimeout(() => highlightBest([r.bestmove]), 150);
         }
       }
@@ -234,10 +233,10 @@
     const flip = orient === "black";
     [pv[0].slice(0, 2), pv[0].slice(2, 4)].forEach((sq, i) => {
       const f = sq.charCodeAt(0) - 97;
-      let rank = +sq[1] - 1;
-      if (flip) rank = 7 - rank;               // 黑方在下时翻转
+      let row = 8 - +sq[1];               // 白方朝下：rank1 在底部
+      if (flip) row = +sq[1] - 1;         // 黑方朝下：rank1 在顶部
       const el = document.createElement("div");
-      el.style.cssText = `position:fixed;left:${r.left + f * size}px;top:${r.top + rank * size}px;` +
+      el.style.cssText = `position:fixed;left:${r.left + f * size}px;top:${r.top + row * size}px;` +
         `width:${size}px;height:${size}px;background:rgba(215,255,63,${i === 0 ? 0.28 : 0.42});` +
         `pointer-events:none;z-index:90;`;
       document.body.appendChild(el);
