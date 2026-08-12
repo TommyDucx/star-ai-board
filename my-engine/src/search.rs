@@ -1,6 +1,7 @@
 //! α-β 搜索 + 迭代加深 + MVV-LVA / 杀手走法 / 历史启发表 / Zobrist 换位表
 
 use crate::eval;
+use crate::policy::Policy;
 use chess::{Board, BoardStatus, ChessMove, File, MoveGen, Piece, Piece::*, Rank, Square};
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
@@ -77,6 +78,7 @@ pub struct Searcher {
     tt: TranspositionTable,
     history: [i32; 4096],
     killer: [[Option<ChessMove>; 2]; MAX_DEPTH],
+    policy: Option<Policy>,
 }
 
 impl Default for Searcher {
@@ -90,6 +92,7 @@ impl Default for Searcher {
             tt: TranspositionTable::default(),
             history: [0; 4096],
             killer: [[None; 2]; MAX_DEPTH],
+            policy: Policy::load("./policy.bin"),
         }
     }
 }
@@ -157,10 +160,11 @@ impl Searcher {
         self.history = [0; 4096];
         self.killer = [[None; 2]; MAX_DEPTH];
 
+        let pol = self.policy.as_ref().map(|p| p.predict(board));
         let mut best = legals[0];
         for d in 1..=self.max_depth {
             let root = board.clone();
-            let (score, mv) = self.root_search(&root, d);
+            let (score, mv) = self.root_search(&root, d, pol.as_ref());
             self.nodes += 1;
             if self.stopped.load(Ordering::Relaxed) {
                 break;
@@ -180,7 +184,7 @@ impl Searcher {
         Some(best)
     }
 
-    fn root_search(&mut self, board: &Board, depth: u32) -> (i32, ChessMove) {
+    fn root_search(&mut self, board: &Board, depth: u32, pol: Option<&[f32; 4096]>) -> (i32, ChessMove) {
         let mut alpha = i32::MIN + MATE;
         let beta = i32::MAX - MATE;
         let mut best_score = i32::MIN + MATE;
@@ -195,7 +199,16 @@ impl Searcher {
                 None
             }
         });
-        let scores: Vec<i32> = moves.iter().map(|&m| self.order_score(board, m, hash_move, 0)).collect();
+        let scores: Vec<i32> = moves
+            .iter()
+            .map(|&m| {
+                let base = self.order_score(board, m, hash_move, 0);
+                match pol {
+                    Some(p) => base + (p[pack_move(m) as usize] * 1000.0) as i32,
+                    None => base,
+                }
+            })
+            .collect();
         let mut idx: Vec<usize> = (0..moves.len()).collect();
         idx.sort_by_key(|&i| std::cmp::Reverse(scores[i]));
 

@@ -2,6 +2,7 @@
 //! Searcher 在搜索线程中使用并在完成后归还，保证换位表跨步复用。
 
 mod eval;
+mod policy;
 mod search;
 
 use chess::{Board, ChessMove, Color};
