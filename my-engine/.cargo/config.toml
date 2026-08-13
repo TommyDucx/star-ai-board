@@ -1,0 +1,11 @@
+# 编译期 rustflags。注意：target-cpu=native 绑定到「编译机」的 CPU 架构——
+# 本引擎最终在树莓派 aarch64 上编译部署，native 会启用 ARM 原生指令集(NEON 等)；
+# 本地 Mac 编译仅用于测试，native 无副作用。
+[build]
+rustflags = ["-C", "target-cpu=native"]
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+strip = true

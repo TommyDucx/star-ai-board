@@ -17,7 +17,10 @@ const MAX_DEPTH: usize = 64;
 /// 乘以该系数后落在 0..20000，低于 killer(70000)/吃子(100000+) 的量级，
 /// 只在“安静走法”之间起排序作用。
 const POLICY_PRIOR_SCALE: f32 = 20000.0;
-const TT_SIZE: usize = 1 << 20;
+const TT_SIZE: usize = 1 << 22;
+/// qsearch 的 SEE 弃子门槛：允许净损失不超过 1 个兵量级的吃子进入静态搜索
+/// （主动弃子战术），超过则剪掉（明显亏本换子）。
+const SEE_SAC_LIMIT: i32 = -120;
 
 // —— 换位表 ——
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -81,17 +84,35 @@ impl TranspositionTable {
         let i = self.index(key);
         let g = self.age;
         let e = &mut self.entries[i];
-        // 替换策略：原来是「空槽 or depth >= 已有 depth」，缺了“老化”这一环——
-        // 一旦某个深条目占了槽位，后续**不同局面**的浅条目永远顶不掉它（连 key 都没比），
-        // 于是一整局下来深条目把表占死，新局面反复写不进去，命中率持续下降。
-        // 加上代号后：上一步残留的条目一律可被顶掉，同代内才比深度。
-        let replace = e.key == 0        // 空槽
-            || e.key == key             // 同一局面，直接更新
-            || e.age != g               // 上一步(或更早)的陈旧条目，直接淘汰
-            || depth >= e.depth;        // 同代同槽，深的优先
+        // 替换策略（含“代”间隔）：
+        // 原来的「空槽 or depth >= 已有 depth」缺了老化——深条目占死槽位、不同局面
+        // 的浅条目永远顶不掉它，整局下来命中率持续下降。
+        // 现在按代间隔分级：
+        //   - 空槽 / 同一局面：直接更新
+        //   - 代差 >= 2（两代前的陈旧条目）：无条件淘汰
+        //   - 代差 == 1（上一代）：仅当明显更深才顶，保留上一代有价值的深度结果
+        //     （迭代加深每轮换代后，上一轮的最佳走法/分值仍留在表里供本轮复用）
+        //   - 同代：深者优先
+        let gap = g.wrapping_sub(e.age);
+        let replace = e.key == 0
+            || e.key == key
+            || gap >= 2
+            || (gap == 1 && depth >= e.depth + 2)
+            || (gap == 0 && depth >= e.depth);
         if replace {
             *e = TTEntry { key, depth, flag, score, mv: packed, promo, age: g };
         }
+    }
+
+    /// 按 UCI Hash 值（MB）重设表大小。条目数 = MB×1MiB / 单条字节数，向上取 2 的幂。
+    fn resize(&mut self, mb: usize) {
+        let n = ((mb as usize) * 1024 * 1024) / std::mem::size_of::<TTEntry>();
+        let n = n.max(1024).next_power_of_two().min(1 << 26);
+        self.entries = vec![
+            TTEntry { key: 0, depth: 0, flag: 0, score: 0, mv: 0, promo: 0, age: 0 };
+            n
+        ];
+        self.age = 0;
     }
 }
 
@@ -102,10 +123,17 @@ pub struct Searcher {
     time_ms: u128,
     max_depth: u32,
     tt: TranspositionTable,
+    hash_mb: usize,
     history: [i32; 4096],
     killer: [[Option<ChessMove>; 2]; MAX_DEPTH],
     policy: Option<Policy>,
     policy_on: bool,
+    /// Policy 进攻性 0..100：0=保守信任手工eval，100=极致弃子进攻。
+    /// 动态缩放 policy 先验注入历史表的幅度与根节点 policy 加权。
+    agg: u8,
+    /// 拒和倾向：重复局面时若行棋方静态评估明显占优（eval > contempt），
+    /// 把该重复局面记为 -contempt，促使引擎继续进攻而非主动寻求重复。
+    contempt: i32,
     /// 本局历史局面键（自最后一次不可逆走法——吃子/走兵——之后的全部局面，含根局面）。
     /// 由 UCI 层 `position ... moves ...` 重建；chess 3.2.0 的 Board 不保存历史，
     /// 不传进来引擎就完全**看不见重复局面**：赢势下会自己走回头路被判和，
@@ -128,10 +156,13 @@ impl Default for Searcher {
             time_ms: 1000,
             max_depth: 6,
             tt: TranspositionTable::default(),
+            hash_mb: 96,
             history: [0; 4096],
             killer: [[None; 2]; MAX_DEPTH],
             policy: Policy::load("./policy.bin"),
             policy_on: true,
+            agg: 50,
+            contempt: 50,
             game_hist: Vec::new(),
             path: Vec::with_capacity(MAX_DEPTH + 8),
             null_ply: 0,
@@ -205,6 +236,41 @@ impl Searcher {
         self.policy_on = on;
     }
 
+    /// 运行时调整进攻性档位（UCI PolicyAggressiveness）
+    pub fn set_agg(&mut self, v: u8) {
+        self.agg = v.min(100);
+    }
+
+    /// 运行时调整置换表大小（UCI Hash，MB）
+    pub fn set_hash_mb(&mut self, mb: usize) {
+        self.hash_mb = mb.max(1);
+        self.tt.resize(self.hash_mb);
+    }
+
+    /// 运行时调整拒和倾向（UCI Contempt，0..200）
+    pub fn set_contempt(&mut self, v: i32) {
+        self.contempt = v.clamp(0, 200);
+    }
+
+    /// Policy 进攻性缩放系数（0.5..1.5）：agg=50 时为 1.0（等同原行为）。
+    fn agg_f(&self) -> f32 {
+        0.5 + self.agg as f32 / 100.0
+    }
+
+    /// policy 先验注入历史表的缩放系数，按游戏阶段动态化：
+    /// 中局(phase>=12) 放大到 1.6× 强化进攻走子优先级；残局(phase<=6) 缩到 0.4×，
+    /// 信任手工残局 eval；中间线性插值。再叠进攻性档位。
+    fn policy_scale(&self, phase: i32) -> f32 {
+        let phase_f = if phase >= 12 {
+            1.6
+        } else if phase <= 6 {
+            0.4
+        } else {
+            0.4 + (phase as f32 - 6.0) / 6.0 * 1.2
+        };
+        POLICY_PRIOR_SCALE * phase_f * self.agg_f()
+    }
+
     /// `game_hist`：自最后一次不可逆走法之后的全部历史局面键（含根局面），由 UCI 层重建。
     /// `halfmove`：根局面的半步计数（50 步规则），同样由 UCI 层重建。
     pub fn search(
@@ -230,23 +296,26 @@ impl Searcher {
         self.stopped.store(false, Ordering::Relaxed);
         self.history = [0; 4096];
         self.killer = [[None; 2]; MAX_DEPTH];
-        // 换代：本步的写入标记为新一代，上一步残留条目变成可淘汰
-        self.tt.new_generation();
 
         let pol = self.policy.as_ref().filter(|_| self.policy_on).map(|p| p.predict(board));
         // Policy 先验注入历史启发表：policy 的 4096 输出恰好是 from*64+to，
         // 与 history 表下标同构。只做 1 次前向，却让 policy 在**所有层**参与走法排序，
         // 而不是像原来只影响根节点（根节点排序早被 TT hash move 支配 → policy 几乎无效）。
-        // 量级控制在 killer(70000) 之下，避免压过战术性排序信号。
+        // 量级按游戏阶段 + 进攻性档位缩放，中局放大、残局收敛，且压在 killer 之下，
+        // 不压过战术性排序信号。
         if let Some(p) = pol.as_ref() {
+            let pscale = self.policy_scale(eval::game_phase(board));
             for i in 0..4096 {
-                self.history[i] = (p[i] * POLICY_PRIOR_SCALE) as i32;
+                self.history[i] = (p[i] * pscale) as i32;
             }
         }
         let mut best = legals[0];
         let full_alpha = i32::MIN + MATE;
         let full_beta = i32::MAX - MATE;
         for d in 1..=self.max_depth {
+            // 每次迭代加深换代：上一轮的深度条目保留给本轮复用（代差1仅限更深覆盖），
+            // 两代前的陈旧条目可被自由淘汰，命中率与新鲜度兼顾。
+            self.tt.new_generation();
             let root = board.clone();
             // ⚠️ 渴望窗口 (aspiration window) 实测无效，已回退，勿再加：
             // 固定深度 9 的 5 局面基准 1,471,136 vs 1,473,920 节点（−0.2%），耗时/走法完全一致。
@@ -300,7 +369,7 @@ impl Searcher {
             .map(|&m| {
                 let base = self.order_score(board, m, hash_move, 0);
                 match pol {
-                    Some(p) => base + (p[pack_move(m) as usize] * 1000.0) as i32,
+                    Some(p) => base + (p[pack_move(m) as usize] * 1000.0 * self.agg_f()) as i32,
                     None => base,
                 }
             })
@@ -380,10 +449,11 @@ impl Searcher {
         if self.killer[depth][1] == Some(mv) {
             return 70_000;
         }
-        // 历史分必须夹在 killer(70000) 之下：history 上限是 1<<24(≈1678万)，
+        // 历史分 + 进攻增益，必须夹在 killer(70000) 之下：history 上限是 1<<24(≈1678万)，
         // 若直接返回，累积够多截断的安静走法会排到吃子(10万)/杀手/甚至 hash move(100万) 之前，
         // 破坏整套排序层级。夹取后仅在安静走法内部起区分作用。
-        self.history[pack_move(mv) as usize].min(60_000)
+        // 进攻增益是等价重排序（不改变任何走法是否被搜），故可用固定深度节点基准做有效性代理。
+        (self.history[pack_move(mv) as usize] + attack_bonus(board, mv)).min(60_000)
     }
 
     /// 静态搜索（quiescence）：在搜索叶节点继续搜索所有吃子/升变/吃过路兵，
@@ -405,7 +475,7 @@ impl Searcher {
         let in_check = board.checkers().popcnt() > 0;
         let stand_pat = eval::eval_stm(board);
         // 安全上限，避免极端连将链导致过深递归
-        if ply > 48 {
+        if ply > 60 {
             return stand_pat;
         }
         // 被将军时不能 stand-pat（必须先应将），否则会漏掉被将死的局面
@@ -424,10 +494,11 @@ impl Searcher {
             legal
                 .into_iter()
                 .filter(|&m| self.is_tactical(board, m))
-                // SEE 裁剪：静态兑换算下来必亏的吃子直接不搜。qsearch 的分枝大头正是
-                // 这类"用后吃有兵保护的子"式垃圾吃子，它们既不会被采纳又要展开整棵子树。
-                // 升变例外（SEE 对升变只是粗略近似，别误剪）。
-                .filter(|&m| m.get_promotion().is_some() || see(board, m) >= 0)
+                // SEE 裁剪：静态兑换算下来"明显必亏"(净损失 > SEE_SAC_LIMIT)的吃子不搜。
+                // 原来的门槛是 >=0，即任何净亏的吃子都剪掉——那会连主动弃子战术都剪没。
+                // 放宽到允许亏 1 个兵量级(120cp)的弃子进 qsearch：契合凶悍引擎主动弃子、
+                // 靠后续牵制/杀棋威胁赚回的风格。升变例外（SEE 对升变只是粗略近似，别误剪）。
+                .filter(|&m| m.get_promotion().is_some() || see(board, m) >= SEE_SAC_LIMIT)
                 .collect()
         };
         let scores: Vec<i32> = tacticals
@@ -508,16 +579,28 @@ impl Searcher {
         // 用 truncate 而非成对 push/pop：本函数有 5 处 return，逐个配 pop 极易漏；
         // 兄弟子树留下的更深残留会在这里自动被截掉。
         self.path.truncate(ply as usize);
-        if ply > 0 && self.null_ply == 0 && (halfmove >= 100 || self.is_repetition(key)) {
-            return 0;
+        if ply > 0 && self.null_ply == 0 {
+            if halfmove >= 100 {
+                return 0;
+            }
+            if self.is_repetition(key) {
+                // 拒和（contempt）：行棋方静态评估明显占优时，重复局面给 -contempt，
+                // 促使引擎主动求胜而非寻求三次重复。劣势/均势方仍按和棋 0 分，
+                // 保住了"输棋找重复求和"的正确行为（不会被一刀切拒和误伤）。
+                let c = self.contempt;
+                if c > 0 && eval::eval_stm(board) > c {
+                    return -c;
+                }
+                return 0;
+            }
         }
         self.path.push(key);
 
         let in_check = board.checkers().popcnt() > 0;
         // 将军延伸：搜索前沿(即将进入静态搜索)仍被将军时多搜一层，
-        // 以发现强制战术/将杀，避免 horizon effect。受 ply<48 上限约束防失控。
+        // 以发现强制战术/将杀，避免 horizon effect。受 ply<60 上限约束防失控。
         if depth <= 0 {
-            if in_check && ply < 48 {
+            if in_check && ply < 60 {
                 depth = 1;
             } else {
                 return self.quiesce(board, alpha, beta, ply);
@@ -553,9 +636,16 @@ impl Searcher {
         }
         // 空着裁剪 (null-move pruning)：在充分深、非将军、非 zugzwang 易发局面，
         // 试探性“跳过一手”。若对手仍能守住 beta，则本节点可安全剪枝。
+        // R 值按游戏阶段动态化：中局(phase>=6) 剪更深(R=2/3) 快速滤掉平稳局面，
+        // 残局(phase<6) 收敛到 R=2，避免少子局逼和/误剪。
         if !in_check && depth >= 3 && self.has_non_pawn_material(board, board.side_to_move()) {
             if let Some(nb) = board.null_move() {
-                let r = if depth >= 6 { 3 } else { 2 };
+                let phase = eval::game_phase(board);
+                let r = if phase >= 6 {
+                    if depth >= 6 { 3 } else { 2 }
+                } else {
+                    2
+                };
                 // 空着子树内关闭重复/50步判定（空着不是真实走法，其“重复”无棋局意义）
                 self.null_ply += 1;
                 let nm_score =
@@ -788,6 +878,56 @@ pub fn next_halfmove(board: &Board, mv: ChessMove, hm: u32) -> u32 {
     } else {
         hm + 1
     }
+}
+
+/// 某 file 上是否存在任意一方的兵（用于判断"开放线 / 半开放线"）。
+fn file_has_pawn(board: &Board, file: File) -> bool {
+    let pawns = board.pieces(Piece::Pawn);
+    for r in 0..8 {
+        let sq = Square::make_square(Rank::from_index(r), file);
+        if (pawns & BitBoard::from_square(sq)) != chess::EMPTY {
+            return true;
+        }
+    }
+    false
+}
+
+/// 安静走法的进攻增益（等价重排序，不改变任何走法是否被搜，可用节点基准验证）：
+/// - 兵突破进入对方半场（白 rank>=5 / 黑 rank<=2）→ 优先推进，制造通路兵/攻势；
+/// - 车/后进入开放线或半开放线 → 抢占强攻线；
+/// - 马/象逼近对方王城（3×3）→ 组织王翼进攻。
+/// 量级压在 killer(70_000) 之下，只影响"安静走法"之间的相对排序。
+fn attack_bonus(board: &Board, mv: ChessMove) -> i32 {
+    let pc = board.piece_on(mv.get_source());
+    let dest = mv.get_dest();
+    let stm = board.side_to_move();
+    let mut b = 0;
+    match pc {
+        Some(Piece::Pawn) => {
+            let r = dest.get_rank().to_index();
+            let advanced = if stm == Color::White { r >= 5 } else { r <= 2 };
+            if advanced {
+                b += 8000;
+            }
+        }
+        Some(Piece::Rook) | Some(Piece::Queen) => {
+            if !file_has_pawn(board, dest.get_file()) {
+                b += 8000;
+            }
+        }
+        Some(Piece::Knight) | Some(Piece::Bishop) => {
+            let ok = board.king_square(!stm);
+            let fi = dest.get_file().to_index() as i32;
+            let ri = dest.get_rank().to_index() as i32;
+            let kf = ok.get_file().to_index() as i32;
+            let kr = ok.get_rank().to_index() as i32;
+            if (fi - kf).abs() <= 2 && (ri - kr).abs() <= 2 {
+                b += 6000;
+            }
+        }
+        _ => {}
+    }
+    b
 }
 
 fn adjust_mate(score: i32, ply: i32) -> i32 {

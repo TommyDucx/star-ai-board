@@ -49,6 +49,9 @@ fn main() {
                 println!("id name MyEngine 0.2.0");
                 println!("id author STAR");
                 println!("option name Policy type check default true");
+                println!("option name PolicyAggressiveness type spin default 50 min 0 max 100");
+                println!("option name Hash type spin default 96 min 1 max 2048");
+                println!("option name Contempt type spin default 50 min 0 max 200");
                 println!("uciok");
                 io::stdout().flush().ok();
             }
@@ -101,10 +104,22 @@ fn main() {
             }
             "setoption" => {
                 if let Some((name, value)) = parse_setoption(&parts) {
-                    if name.eq_ignore_ascii_case("policy") {
-                        let on = !(value.eq_ignore_ascii_case("false") || value == "0");
-                        if let Some(s) = searcher.as_mut() {
+                    if let Some(s) = searcher.as_mut() {
+                        if name.eq_ignore_ascii_case("policy") {
+                            let on = !(value.eq_ignore_ascii_case("false") || value == "0");
                             s.set_policy(on);
+                        } else if name.eq_ignore_ascii_case("policyaggressiveness") {
+                            if let Ok(v) = value.parse::<u8>() {
+                                s.set_agg(v);
+                            }
+                        } else if name.eq_ignore_ascii_case("hash") {
+                            if let Ok(v) = value.parse::<usize>() {
+                                s.set_hash_mb(v);
+                            }
+                        } else if name.eq_ignore_ascii_case("contempt") {
+                            if let Ok(v) = value.parse::<i32>() {
+                                s.set_contempt(v);
+                            }
                         }
                     }
                 }

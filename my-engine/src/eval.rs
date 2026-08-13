@@ -124,7 +124,25 @@ const PST_KING_EG: [i32; 64] = [
 const PHASE_MAX: i32 = 24;
 
 /// 通路兵奖励，下标 = 已推进的行数（0 = 仍在起始行）。越靠近升变越值钱。
-const PASSED_BONUS: [i32; 8] = [0, 5, 10, 20, 35, 60, 100, 0];
+/// 七线通路兵 100→140（残局几乎是必胜资源，也鼓励中局制造通路兵）。
+const PASSED_BONUS: [i32; 8] = [0, 5, 10, 20, 35, 60, 140, 0];
+
+/// 游戏阶段（与 evaluate 内部计算一致）：非兵子力 N/B=1、R=2、Q=4，上限 PHASE_MAX。
+/// 供搜索层按 phase 动态调整 policy 权重 / 空着裁剪 R 值。
+pub fn game_phase(board: &Board) -> i32 {
+    let mut phase = 0i32;
+    for sq in ALL_SQUARES {
+        if let Some(p) = board.piece_on(sq) {
+            match p {
+                Piece::Knight | Piece::Bishop => phase += 1,
+                Piece::Rook => phase += 2,
+                Piece::Queen => phase += 4,
+                _ => {}
+            }
+        }
+    }
+    phase.min(PHASE_MAX)
+}
 
 fn king_shield(board: &Board, color: Color) -> i32 {
     let king = board.king_square(color);
@@ -163,6 +181,10 @@ pub fn evaluate(board: &Board) -> i32 {
     let mut bishops = [0i32; 2];
     let mut rook_files = [[0i32; 8]; 2];
     let mut king_sq = [Square::A1, Square::A1];
+    // 王翼进攻分（按色累计，正值=该色对对方王城的压力），按 phase 缩放后计入总分
+    let mut kattack = [0i32; 2];
+    let wk = board.king_square(Color::White);
+    let bk = board.king_square(Color::Black);
 
     for sq in ALL_SQUARES {
         if let Some(p) = board.piece_on(sq) {
@@ -183,6 +205,32 @@ pub fn evaluate(board: &Board) -> i32 {
                 Piece::Rook => rook_files[ci][f] += 1,
                 Piece::King => king_sq[ci] = sq,
                 _ => {}
+            }
+
+            // 王翼进攻：子力贴近对方王 3×3 王城 = 压力；对敌方王所在线/邻线的推进兵 = 冲锋。
+            // （进攻对象必须是"对方王"——奖励朝敌方王发起冲击，而非自己王前推兵送掉王盾）
+            if p != Piece::King {
+                let ok = if color == Color::White { bk } else { wk };
+                let fi = f as i32;
+                let ri = r as i32;
+                let kf = ok.get_file().to_index() as i32;
+                let kr = ok.get_rank().to_index() as i32;
+                if (fi - kf).abs() <= 2 && (ri - kr).abs() <= 2 {
+                    kattack[ci] += match p {
+                        Piece::Queen => 6,
+                        Piece::Rook => 4,
+                        Piece::Knight => 3,
+                        Piece::Bishop => 2,
+                        Piece::Pawn => 1,
+                        Piece::King => 0,
+                    };
+                }
+                if p == Piece::Pawn {
+                    let adv = if color == Color::White { ri } else { 7 - ri };
+                    if (fi - kf).abs() <= 1 && adv >= 4 {
+                        kattack[ci] += 3; // 兵冲锋
+                    }
+                }
             }
 
             // 王的位置分依赖 phase（需要整盘扫完），循环后单独结算，这里只记子力
@@ -207,6 +255,8 @@ pub fn evaluate(board: &Board) -> i32 {
         let eg = PST_KING_EG[widx];
         let mut v = (mg * phase + eg * (PHASE_MAX - phase)) / PHASE_MAX;
         v += king_shield(board, color) * phase / PHASE_MAX;
+        // 王翼进攻压力同样随 phase 缩放（残局攻击王城无意义）
+        v += kattack[ci] * phase / PHASE_MAX;
         if color == Color::Black {
             v = -v;
         }
@@ -260,7 +310,7 @@ pub fn evaluate(board: &Board) -> i32 {
         if bishops[ci] >= 2 {
             s += 30;
         }
-        // 车占开放线(+20) / 半开放线(+10)
+        // 车占开放线(+20) / 半开放线(+10)；同线叠车再 +15（强攻线）
         for f in 0..8usize {
             let rc = rook_files[ci][f];
             if rc == 0 {
@@ -275,7 +325,8 @@ pub fn evaluate(board: &Board) -> i32 {
             } else {
                 0
             };
-            s += bonus * rc;
+            let stacked = if rc >= 2 && own == 0 { 30 } else { 0 };
+            s += bonus * rc + stacked;
         }
 
         if color == Color::Black {
