@@ -75,14 +75,14 @@ def step_train(epochs):
     return 0
 
 
-def step_eval(match_games, movetime):
+def step_eval(match_games, movetime, concurrency=4):
     print(f"\n[步骤4] 新旧 policy 对弈（{match_games} 局）", flush=True)
     old = ROOT / "data" / "policy_old.bin"
     new = POLICY_DIR / "policy.bin"
     out = ROOT / "data" / "rl_match_report.json"
     cmd = (f"{SYS_PY} \"{ROOT}/match.py\" --eng \"{ENGINE}\" "
            f"--policy-a \"{old}\" --policy-b \"{new}\" "
-           f"--games {match_games} --concurrency 2 --movetime {movetime} "
+           f"--games {match_games} --concurrency {concurrency} --movetime {movetime} "
            f"--threads-a 1 --threads-b 1 "
            f"--name-a old --name-b new --out \"{out}\"")
     if run(cmd) != 0:
@@ -105,6 +105,7 @@ def main():
     ap.add_argument("--epochs", type=int, default=40, help="训练轮数")
     ap.add_argument("--match-games", type=int, default=200, help="评估对局数(正式1000)")
     ap.add_argument("--match-movetime", type=int, default=300, help="评估每步 ms")
+    ap.add_argument("--match-concurrency", type=int, default=4, help="评估并行槽位数")
     args = ap.parse_args()
 
     history = []
@@ -134,7 +135,7 @@ def main():
             break
 
         # 5. 评估（旧 policy_old.bin vs 新 policy/policy.bin）
-        ev = step_eval(args.match_games, args.match_movetime)
+        ev = step_eval(args.match_games, args.match_movetime, args.match_concurrency)
         if ev is None:
             print("评估失败，恢复旧 policy，终止本轮", flush=True)
             shutil.copy(old_policy, POLICY_BIN)
