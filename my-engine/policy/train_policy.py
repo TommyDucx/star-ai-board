@@ -9,8 +9,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import chess
 
-DATA = "/Users/tommydu/Documents/Default Project/data/final_dataset.jsonl"
-OUT_DIR = "/Users/tommydu/Documents/Default Project/star/my-engine/policy"
+DATA = "/Users/tommydu/Documents/Star Chess/data/final_dataset.jsonl"
+OUT_DIR = "/Users/tommydu/Documents/Star Chess/my-engine/policy"
 SEED = 42
 random.seed(SEED)
 torch.manual_seed(SEED)

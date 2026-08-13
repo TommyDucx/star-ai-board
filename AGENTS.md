@@ -154,12 +154,19 @@ git push "https://x-access-token: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@github
 ## 六、自研引擎 my-engine 说明
 
 - **棋力定位**：入门级（vs Stockfish Elo 800 约 50-77 步落败）
-- **搜索**：迭代加深 α-β + Zobrist 换位表(1M) + 杀手 + 历史启发 + MVV-LVA + **qsearch(SEE)** + 将军/重复局面/50步规则
-- **Policy 引导**：8×8×13 输入（12 棋子色块+轮走方），2×Conv3×3 + 2×FC → 4096 走法概率；Rust 手写推理（零依赖），root 走法按 `概率×1000 + 原排序` 加权
+- **搜索**：迭代加深 α-β + Zobrist 换位表(4M) + 杀手 + 历史启发 + MVV-LVA + **qsearch(SEE)** + 将军/重复局面/50步规则 + **Lazy SMP 多线程**
+- **多线程（Lazy SMP）**：`Threads` 参数控制；TT 用 `Arc<RwLock>` 共享、Policy 用 `Arc` 共享，每线程独立 history/killer/path；实测 4 线程 vs 单线程 **+51 Elo**（96 局，LOS 95.4%）
+- **进攻排序**：`order_score` 对安静走法加进攻增益（兵突破 +8000 / 车后进开放线 +8000 / 马象逼近对方王城 +6000），夹在 killer(70000) 之下，属等价重排序
+- **Policy 引导**：8×8×13 输入（12 棋子色块+轮走方），2×Conv3×3 + 2×FC → 4096 走法概率；Rust 手写推理（零依赖），policy 概率注入**整张 history 表**（全局排序）+ root 加权；每 `go` 只前向 1 次（约 0.12ms）
 - **模型文件**：`policy.bin`（33.6 万参数，1.34MB，float32 拼接，顺序：conv1_w/b、conv2_w/b、fc1_w/b、fc2_w/b）
 - **Policy 加载**：优先二进制同目录 → `./policy.bin` → `my-engine/policy.bin` → `my-engine/policy/policy.bin`
-- **UCI 特性**：`info` 走 stderr（`eprintln`），`bestmove` 走 stdout
-- **重新训练**：`python3 my-engine/policy/train_policy.py`（读取 data/final_dataset.jsonl），导出 `policy.bin` 用 `export_weights.py`；训练依赖 torch 2.2.2 + onnx + onnxruntime
+- **UCI 参数**：`Policy`(bool, default true) / `PolicyAggressiveness`(0~100, default 50) / `Hash`(MB, default 96) / `Contempt`(0~200, default 50) / `Threads`(1~16, default 1)；`info` 走 stderr（`eprintln`），`bestmove` 走 stdout
+- **重新训练**：`python3 my-engine/policy/train_policy.py`（读取 data/final_dataset.jsonl），导出 `policy.bin` 用 `export_weights.py`；训练依赖 torch + onnx + onnxruntime（本地用 miniconda `pfllib` 环境）
+
+> ⚠️ 已实验并否定的方向（勿重复尝试，详见 memory 日志 2026-08-13）：
+> - **残差 CNN + 数据加权重训**：实测 −40 Elo，消融定位为「数据过滤+加权」和「残差+FC96」双双负贡献，已回滚到无残差 FC64 + 原数据；
+> - **INT8 量化**：Policy 每步仅前向 0.12ms（占搜索 <0.1%），量化收益可忽略，不值得做；
+> - **LMP / 前向 futility**：实测 −69.7 Elo（代码注释留档），勿加回。
 
 ---
 
@@ -191,6 +198,8 @@ git push "https://x-access-token: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@github
 8. **本地 Rust**：rustc/cargo 1.97 在 `/usr/local/bin`；树莓派用 rustup 装 1.97（`/home/pi/.cargo/bin`，非交互 shell 要 export PATH）
 9. **前端 JS 缓存**：改 JS 后记得在 index.html/chess.html 里加 `?v=N` 版本号
 10. **首页磁吸**：由 motion.js 的 `.magnetic` class 控制（hover 才磁吸，离开回正）；演示盘已移除磁吸
+11. **git stash 回滚陷阱**（2026-08-13 踩过）：源码可能被意外 `git stash` 导致工作区回退到旧 HEAD，表现为「改完的代码消失、编译产物变小、UCI option 变少」。排查：`git stash list`，用 `git show stash@{0}:<文件>` 看 stash 内容，`git checkout stash@{0} -- <文件>` 恢复。**改完代码后先 `git status` 确认源码在 modified 列表，再编译**，否则会拿旧代码编译+对弈、得出错误结论
+12. **match.py 线程参数**：已支持 `--threads-a/--threads-b`（默认 1）；对比多线程收益时注意 `concurrency × Threads ≤ 物理核数`，否则线程争抢 CPU 会污染测量
 
 ---
 
@@ -207,9 +216,19 @@ git push "https://x-access-token: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@github
 
 ---
 
-## 十、下一步建议（供新对话参考）
+## 十、棋力提升记录与下一步建议
 
-- 引擎棋力严谨评估（多局固定开局 vs Stockfish 分级）
-- Policy 数据质量提升（用更高深度自对弈/教师数据重新训练，缓解开局 b1c3 偏置）
-- 网页端"我的引擎"专属对战页 / 攻防分析
-- 残局库 / Value 网络（原方案的阶段 4 长期目标）
+### 已完成的棋力提升（2026-08-13，均有 git 标签可回滚）
+
+| 标签 | 内容 | 结果 |
+|---|---|---|
+| `v1_baseline` | 第一批安全优化：进攻走子排序加分、双车叠开放线、TT 扩容 4M、native 编译、Hash 默认 96 | 无回归 |
+| `v2_smp`（当前 HEAD） | **Lazy SMP 多线程搜索**（TT/Policy 共享、Threads 参数、fork 辅助线程） | 96 局 **+51 Elo / LOS 95.4%** |
+| 第三批（已回滚） | 残差 CNN + 数据加权重训 Policy | **−40 Elo，消融否定** |
+
+### 下一步建议
+
+- 引擎棋力严谨评估（多局固定开局 vs Stockfish 分级，验证 +51 Elo 的绝对棋力）
+- 高风险实验模块（LMR 分层 / 反向 futility 动态化，做成 UCI 开关 + ≥500 局验证，有 −69.7 Elo 前车之鉴）
+- 自博弈强化学习闭环（多线程引擎大批量自对弈 → 筛选战术局 → 重训 → 千局对战 >56% 替换）
+- 残局库 / Value 网络（长期目标）

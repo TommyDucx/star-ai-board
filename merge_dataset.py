@@ -20,7 +20,7 @@ from pathlib import Path
 
 import chess
 
-DATA = Path("/Users/tommydu/Documents/Default Project/data")
+DATA = Path("/Users/tommydu/Documents/Star Chess/data")
 
 
 def load_jsonl(p: Path):
