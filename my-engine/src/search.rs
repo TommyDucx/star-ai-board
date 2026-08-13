@@ -8,7 +8,7 @@ use chess::{
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 use std::time::Instant;
 
 pub const MATE: i32 = 100_000;
@@ -122,11 +122,13 @@ pub struct Searcher {
     start: Instant,
     time_ms: u128,
     max_depth: u32,
-    tt: TranspositionTable,
+    /// 换位表：Lazy SMP 多线程共享（读写锁）。辅助线程与主线程共用同一张表交换搜索信息。
+    tt: Arc<RwLock<TranspositionTable>>,
     hash_mb: usize,
     history: [i32; 4096],
     killer: [[Option<ChessMove>; 2]; MAX_DEPTH],
-    policy: Option<Policy>,
+    /// Policy 网络只读推理（predict 为 &self），多线程共享，无需克隆。
+    policy: Option<Arc<Policy>>,
     policy_on: bool,
     /// Policy 进攻性 0..100：0=保守信任手工eval，100=极致弃子进攻。
     /// 动态缩放 policy 先验注入历史表的幅度与根节点 policy 加权。
@@ -134,6 +136,8 @@ pub struct Searcher {
     /// 拒和倾向：重复局面时若行棋方静态评估明显占优（eval > contempt），
     /// 把该重复局面记为 -contempt，促使引擎继续进攻而非主动寻求重复。
     contempt: i32,
+    /// 搜索线程数（Lazy SMP）。1 = 单线程（原行为），>1 = 主线程 + 辅助线程共享 TT。
+    threads: usize,
     /// 本局历史局面键（自最后一次不可逆走法——吃子/走兵——之后的全部局面，含根局面）。
     /// 由 UCI 层 `position ... moves ...` 重建；chess 3.2.0 的 Board 不保存历史，
     /// 不传进来引擎就完全**看不见重复局面**：赢势下会自己走回头路被判和，
@@ -155,14 +159,15 @@ impl Default for Searcher {
             start: Instant::now(),
             time_ms: 1000,
             max_depth: 6,
-            tt: TranspositionTable::default(),
+            tt: Arc::new(RwLock::new(TranspositionTable::default())),
             hash_mb: 96,
             history: [0; 4096],
             killer: [[None; 2]; MAX_DEPTH],
-            policy: Policy::load("./policy.bin"),
+            policy: Policy::load("./policy.bin").map(Arc::new),
             policy_on: true,
             agg: 50,
             contempt: 50,
+            threads: 1,
             game_hist: Vec::new(),
             path: Vec::with_capacity(MAX_DEPTH + 8),
             null_ply: 0,
@@ -228,7 +233,7 @@ fn piece_val(p: Piece) -> i32 {
 
 impl Searcher {
     pub fn clear_tt(&mut self) {
-        self.tt.clear();
+        self.tt.write().unwrap().clear();
     }
 
     /// 运行时开关 Policy 引导（用于 policy-on / policy-off 对照实验）
@@ -244,12 +249,41 @@ impl Searcher {
     /// 运行时调整置换表大小（UCI Hash，MB）
     pub fn set_hash_mb(&mut self, mb: usize) {
         self.hash_mb = mb.max(1);
-        self.tt.resize(self.hash_mb);
+        self.tt.write().unwrap().resize(self.hash_mb);
     }
 
     /// 运行时调整拒和倾向（UCI Contempt，0..200）
     pub fn set_contempt(&mut self, v: i32) {
         self.contempt = v.clamp(0, 200);
+    }
+
+    /// 运行时调整搜索线程数（UCI Threads，1..16）
+    pub fn set_threads(&mut self, n: usize) {
+        self.threads = n.clamp(1, 16);
+    }
+
+    /// 从当前配置 fork 出一个线程私有实例，用于 Lazy SMP 辅助线程。
+    /// 共享：换位表(Arc<RwLock>) + policy(Arc) + 各 UCI 配置；私有：history/killer/path/nodes 等搜索态。
+    fn fork(&self, stopped: Arc<AtomicBool>) -> Searcher {
+        Searcher {
+            tt: self.tt.clone(),
+            policy: self.policy.clone(),
+            policy_on: self.policy_on,
+            agg: self.agg,
+            contempt: self.contempt,
+            hash_mb: self.hash_mb,
+            threads: 1, // 辅助线程不再 fork 子线程
+            nodes: 0,
+            stopped,
+            start: Instant::now(),
+            time_ms: 1000,
+            max_depth: 6,
+            history: [0; 4096],
+            killer: [[None; 2]; MAX_DEPTH],
+            game_hist: Vec::new(),
+            path: Vec::with_capacity(MAX_DEPTH + 8),
+            null_ply: 0,
+        }
     }
 
     /// Policy 进攻性缩放系数（0.5..1.5）：agg=50 时为 1.0（等同原行为）。
@@ -281,6 +315,47 @@ impl Searcher {
         game_hist: &[u64],
         halfmove: u32,
     ) -> Option<ChessMove> {
+        // 无棋可走（将死/逼和）直接返回，避免白启动线程
+        if MoveGen::new_legal(board).next().is_none() {
+            return None;
+        }
+        // 搜索开始：重置停止标志（只做一次，多线程共享同一 AtomicBool）
+        self.stopped.store(false, Ordering::Relaxed);
+
+        let n = self.threads.max(1);
+        if n <= 1 {
+            return self.search_single(board, depth, time_ms, game_hist, halfmove);
+        }
+
+        // Lazy SMP：主线程 + (n-1) 个辅助线程，共享 TT(Arc<RwLock>) 与 stopped(Arc<AtomicBool>)，
+        // 各自独立 history/killer/path 等搜索态，靠共享 TT 交换信息。
+        let mut handles = Vec::with_capacity(n - 1);
+        for _ in 1..n {
+            let mut s = self.fork(self.stopped.clone());
+            let b = board.clone();
+            let h = game_hist.to_vec();
+            let hm = halfmove;
+            let d = depth;
+            let t = time_ms;
+            handles.push(std::thread::spawn(move || s.search_single(&b, d, t, &h, hm)));
+        }
+        // 主线程用自身实例搜索（保留其已有 TT/状态），返回其 bestmove。
+        let best = self.search_single(board, depth, time_ms, game_hist, halfmove);
+        for h in handles {
+            let _ = h.join();
+        }
+        best
+    }
+
+    /// 单次完整搜索（迭代加深 + 根节点 + 策略注入）。Lazy SMP 下主/辅线程各跑一份。
+    fn search_single(
+        &mut self,
+        board: &Board,
+        depth: u32,
+        time_ms: u64,
+        game_hist: &[u64],
+        halfmove: u32,
+    ) -> Option<ChessMove> {
         let legals: Vec<ChessMove> = MoveGen::new_legal(board).collect();
         if legals.is_empty() {
             return None;
@@ -293,7 +368,7 @@ impl Searcher {
         self.time_ms = time_ms as u128;
         self.start = Instant::now();
         self.nodes = 0;
-        self.stopped.store(false, Ordering::Relaxed);
+        // 注意：stopped.store(false) 已上移到外层 search()，多线程共享时不在此重置
         self.history = [0; 4096];
         self.killer = [[None; 2]; MAX_DEPTH];
 
@@ -315,7 +390,7 @@ impl Searcher {
         for d in 1..=self.max_depth {
             // 每次迭代加深换代：上一轮的深度条目保留给本轮复用（代差1仅限更深覆盖），
             // 两代前的陈旧条目可被自由淘汰，命中率与新鲜度兼顾。
-            self.tt.new_generation();
+            self.tt.write().unwrap().new_generation();
             let root = board.clone();
             // ⚠️ 渴望窗口 (aspiration window) 实测无效，已回退，勿再加：
             // 固定深度 9 的 5 局面基准 1,471,136 vs 1,473,920 节点（−0.2%），耗时/走法完全一致。
@@ -357,7 +432,7 @@ impl Searcher {
         let moves: Vec<ChessMove> = MoveGen::new_legal(board).collect();
 
         let key = board_key(board);
-        let hash_move = self.tt.probe(key).and_then(|e| {
+        let hash_move = self.tt.read().unwrap().probe(key).and_then(|e| {
             if e.mv != 0 {
                 Some(unpack_move(e.mv, e.promo))
             } else {
@@ -411,7 +486,7 @@ impl Searcher {
         } else {
             0
         };
-        self.tt.store(key, depth as u8, flag, best_score, Some(bm));
+        self.tt.write().unwrap().store(key, depth as u8, flag, best_score, Some(bm));
         (best_score, bm)
     }
 
@@ -608,7 +683,7 @@ impl Searcher {
         }
 
         let mut hash_move = None;
-        if let Some(e) = self.tt.probe(key) {
+        if let Some(e) = self.tt.read().unwrap().probe(key) {
             if e.depth as i32 >= depth {
                 let score = adjust_mate(e.score, ply);
                 match e.flag {
@@ -774,7 +849,7 @@ impl Searcher {
         };
         // 仅在未被时间打断时写入 TT，避免污染
         if !self.stopped.load(Ordering::Relaxed) {
-            self.tt.store(key, depth as u8, flag, adjust_mate_store(best, ply), best_move);
+            self.tt.write().unwrap().store(key, depth as u8, flag, adjust_mate_store(best, ply), best_move);
         }
         best
     }

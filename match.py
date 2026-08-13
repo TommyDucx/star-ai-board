@@ -86,7 +86,7 @@ def validated_openings():
 
 
 class UCIEngine:
-    def __init__(self, eng_path, workdir, policy_path=None, policy_on=True):
+    def __init__(self, eng_path, workdir, policy_path=None, policy_on=True, threads=1):
         self.eng = eng_path
         self.workdir = workdir
         os.makedirs(workdir, exist_ok=True)
@@ -105,6 +105,7 @@ class UCIEngine:
         self._read_until("uciok", 10)
         if not policy_on:
             self._send("setoption name Policy value false")
+        self._send(f"setoption name Threads value {threads}")
         self._send("isready")
         self._read_until("readyok", 10)
 
@@ -230,6 +231,8 @@ def main():
     ap.add_argument("--policy-b", default=None, help="B 侧 policy.bin（缺省=无策略）")
     ap.add_argument("--disable-a", action="store_true", help="A 侧关闭策略(setoption Policy false)")
     ap.add_argument("--disable-b", action="store_true", help="B 侧关闭策略")
+    ap.add_argument("--threads-a", type=int, default=1, help="A 侧搜索线程数(setoption Threads)")
+    ap.add_argument("--threads-b", type=int, default=1, help="B 侧搜索线程数(setoption Threads)")
     ap.add_argument("--games", type=int, default=40)
     ap.add_argument("--movetime", type=int, default=300, help="每步思考时间(ms)")
     ap.add_argument("--concurrency", type=int, default=1, help="并行对局数（<= 物理核数）")
@@ -297,8 +300,8 @@ def main():
     def worker(slot, indices):
         wa = os.path.join(base, f"A{slot}")
         wb = os.path.join(base, f"B{slot}")
-        engA = UCIEngine(args.eng_a, wa, args.policy_a, policy_on=not args.disable_a)
-        engB = UCIEngine(args.eng_b, wb, args.policy_b, policy_on=not args.disable_b)
+        engA = UCIEngine(args.eng_a, wa, args.policy_a, policy_on=not args.disable_a, threads=args.threads_a)
+        engB = UCIEngine(args.eng_b, wb, args.policy_b, policy_on=not args.disable_b, threads=args.threads_b)
         try:
             for g in indices:
                 # 成对对局：相邻两局用同一条开局，交换先后手

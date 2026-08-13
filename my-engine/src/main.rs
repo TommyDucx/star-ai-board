@@ -52,6 +52,7 @@ fn main() {
                 println!("option name PolicyAggressiveness type spin default 50 min 0 max 100");
                 println!("option name Hash type spin default 96 min 1 max 2048");
                 println!("option name Contempt type spin default 50 min 0 max 200");
+                println!("option name Threads type spin default 1 min 1 max 16");
                 println!("uciok");
                 io::stdout().flush().ok();
             }
@@ -119,6 +120,10 @@ fn main() {
                         } else if name.eq_ignore_ascii_case("contempt") {
                             if let Ok(v) = value.parse::<i32>() {
                                 s.set_contempt(v);
+                            }
+                        } else if name.eq_ignore_ascii_case("threads") {
+                            if let Ok(v) = value.parse::<usize>() {
+                                s.set_threads(v);
                             }
                         }
                     }
