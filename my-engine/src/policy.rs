@@ -21,6 +21,11 @@ impl Policy {
         if let Ok(exe) = std::env::current_exe() {
             if let Some(dir) = exe.parent() {
                 candidates.push(dir.join("policy.bin").to_string_lossy().into_owned());
+                // 随源码仓库管理的模型文件（target/release 的上级目录）
+                if let Some(parent) = dir.parent() {
+                    candidates.push(parent.join("policy.bin").to_string_lossy().into_owned());
+                    candidates.push(parent.join("policy").join("policy.bin").to_string_lossy().into_owned());
+                }
             }
         }
         for c in candidates {

@@ -17,11 +17,13 @@ const PORT = process.env.PORT || 8765;
 const PUBLIC_DIR = path.join(__dirname, "public");
 const STOCKFISH = path.join(__dirname, "public", "stockfish");
 const RECKLESS = path.join(__dirname, "public", "reckless");
+const MY_ENGINE = path.join(__dirname, "my-engine", "target", "release", "my-engine");
 
 // 引擎表：key → 二进制路径（含提示/能力标记）
 const ENGINES = {
-  stockfish: { path: STOCKFISH, elo: true },   // 支持 UCI_LimitStrength/UCI_Elo
-  reckless:  { path: RECKLESS, elo: false },   // 不支持 Elo option（自带棋力）
+  stockfish:  { path: STOCKFISH, elo: true },   // 支持 UCI_LimitStrength/UCI_Elo
+  reckless:   { path: RECKLESS, elo: false },   // 不支持 Elo option（自带棋力）
+  "my-engine":{ path: MY_ENGINE, elo: false },  // 自研 Rust 引擎（Policy 策略模型引导搜索）
 };
 // 启动时检测引擎二进制是否存在（前端据此只显示可用引擎）
 Object.entries(ENGINES).forEach(([k, cfg]) => {
@@ -69,7 +71,8 @@ class ChessEngine {
   }
   _ensureAlive() {
     if (!this.proc || this.proc.exitCode !== null) {
-      this.proc = spawn(this.path, [], { stdio: ["pipe", "pipe", "ignore"] });
+      // cwd 设为引擎所在目录：自研引擎据此定位同目录的 policy.bin（策略模型）
+      this.proc = spawn(this.path, [], { stdio: ["pipe", "pipe", "ignore"], cwd: path.dirname(this.path) });
       this.buf = "";
       this._uci = false;
       this.proc.stdout.setEncoding("utf8");
@@ -140,6 +143,22 @@ class ChessEngine {
           if (s) { cur.evalCp = +s[1]; cur.mate = null; }
           if (m) { cur.mate = +m[1]; cur.evalCp = null; }
           candidates[pvN - 1] = cur;
+        }
+      }
+      // 无 multipv 的引擎（自研 my-engine）降级解析 info/pv（取最后一个=最深层）
+      if (!candidates.filter(Boolean).length) {
+        let l = null;
+        for (const x of lines) {
+          if (x.startsWith("info") && x.includes(" pv ")) l = x;
+        }
+        if (l) {
+          const s = l.match(/score cp (-?\d+)/);
+          const m = l.match(/score mate (-?\d+)/);
+          const pv = (l.match(/ pv (.+)$/) || [])[1] || "";
+          cur = { pv: pv.split(/\s+/).slice(0, 2), depth: +(l.match(/depth (\d+)/) || [])[1] || 0, evalCp: null, mate: null };
+          if (s) { cur.evalCp = +s[1]; }
+          if (m) { cur.mate = +m[1]; }
+          candidates.push(cur);
         }
       }
       return { bestmove, candidates: candidates.filter(Boolean) };

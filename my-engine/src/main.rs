@@ -16,6 +16,10 @@ use std::thread;
 fn main() {
     let stdin = io::stdin();
     let mut board = Board::default();
+    // 本局历史局面键 + 半步计数：chess 3.2.0 的 Board 不保存这两样，
+    // 必须在 UCI 层从 `position ... moves ...` 重建后喂给搜索，否则引擎看不见重复局面/50步和棋。
+    let mut hist: Vec<u64> = vec![search::board_key(&board)];
+    let mut halfmove: u32 = 0;
     let mut searcher: Option<Searcher> = Some(Searcher::default());
     let mut search_join: Option<thread::JoinHandle<Searcher>> = None;
     let mut stop_flag: Option<Arc<AtomicBool>> = None;
@@ -44,6 +48,7 @@ fn main() {
             "uci" => {
                 println!("id name MyEngine 0.2.0");
                 println!("id author STAR");
+                println!("option name Policy type check default true");
                 println!("uciok");
                 io::stdout().flush().ok();
             }
@@ -54,13 +59,18 @@ fn main() {
             "ucinewgame" => {
                 stop_search(&mut search_join, &mut searcher, &mut stop_flag);
                 board = Board::default();
+                hist = vec![search::board_key(&board)];
+                halfmove = 0;
                 if let Some(s) = searcher.as_mut() {
                     s.clear_tt();
                 }
             }
             "position" => {
                 stop_search(&mut search_join, &mut searcher, &mut stop_flag);
-                board = parse_position(&parts);
+                let (b, h, hm) = parse_position(&parts);
+                board = b;
+                hist = h;
+                halfmove = hm;
             }
             "go" => {
                 stop_search(&mut search_join, &mut searcher, &mut stop_flag);
@@ -68,10 +78,12 @@ fn main() {
                 let flag = Arc::new(AtomicBool::new(false));
                 stop_flag = Some(flag.clone());
                 let root = board.clone();
+                let hist_snapshot = hist.clone();
+                let hm_snapshot = halfmove;
                 let mut s = searcher.take().unwrap_or_default();
                 s.stopped = flag.clone();
                 let handle = thread::spawn(move || {
-                    let mv = s.search(&root, depth, time_ms);
+                    let mv = s.search(&root, depth, time_ms, &hist_snapshot, hm_snapshot);
                     match mv {
                         Some(m) => println!("bestmove {}", m.to_string()),
                         None => println!("bestmove 0000"),
@@ -87,7 +99,16 @@ fn main() {
                 }
                 stop_search(&mut search_join, &mut searcher, &mut stop_flag);
             }
-            "setoption" | "ponderhit" => {}
+            "setoption" => {
+                if let Some((name, value)) = parse_setoption(&parts) {
+                    if name.eq_ignore_ascii_case("policy") {
+                        let on = !(value.eq_ignore_ascii_case("false") || value == "0");
+                        if let Some(s) = searcher.as_mut() {
+                            s.set_policy(on);
+                        }
+                    }
+                }
+            }
             "quit" => {
                 if let Some(f) = &stop_flag {
                     f.store(true, Ordering::Relaxed);
@@ -118,39 +139,77 @@ fn stop_search(
     *flag = None;
 }
 
-fn parse_position(parts: &[&str]) -> Board {
+fn parse_setoption(parts: &[&str]) -> Option<(String, String)> {
+    let mut name: Option<String> = None;
+    let mut value: Option<String> = None;
     let mut i = 1;
+    while i < parts.len() {
+        match parts[i] {
+            "name" => {
+                i += 1;
+                name = parts.get(i).map(|s| s.to_string());
+            }
+            "value" => {
+                i += 1;
+                value = parts.get(i).map(|s| s.to_string());
+            }
+            _ => {}
+        }
+        i += 1;
+    }
+    match (name, value) {
+        (Some(n), Some(v)) => Some((n, v)),
+        _ => None,
+    }
+}
+
+/// 返回 (根局面, 自最后一次不可逆走法后的历史局面键(含根局面), 根局面半步计数)
+fn parse_position(parts: &[&str]) -> (Board, Vec<u64>, u32) {
+    let mut i = 1;
+    let mut halfmove: u32 = 0;
     let mut board = if parts.get(i) == Some(&"startpos") {
         i += 1;
         Board::default()
     } else if parts.get(i) == Some(&"fen") {
         i += 1;
-        let mut fen = String::new();
+        let mut fields: Vec<&str> = Vec::new();
         while i < parts.len() && parts[i] != "moves" {
-            fen.push_str(parts[i]);
-            fen.push(' ');
+            fields.push(parts[i]);
             i += 1;
         }
-        Board::from_str(fen.trim()).unwrap_or_default()
+        // FEN 第 5 个字段(下标 4)是半步计数；chess crate 解析后并不保留，这里自己取
+        if let Some(v) = fields.get(4).and_then(|s| s.parse::<u32>().ok()) {
+            halfmove = v;
+        }
+        Board::from_str(fields.join(" ").trim()).unwrap_or_default()
     } else {
         Board::default()
     };
+    let mut hist: Vec<u64> = vec![search::board_key(&board)];
     if parts.get(i) == Some(&"moves") {
         i += 1;
         while i < parts.len() {
             if let Ok(mv) = ChessMove::from_str(parts[i]) {
                 if board.legal(mv.clone()) {
+                    let nhm = search::next_halfmove(&board, mv, halfmove);
                     board = board.make_move_new(mv);
+                    if nhm == 0 {
+                        // 不可逆走法(吃子/走兵)：之前的局面永不可能再现，历史可以整段丢弃
+                        hist.clear();
+                    }
+                    halfmove = nhm;
+                    hist.push(search::board_key(&board));
                 }
             }
             i += 1;
         }
     }
-    board
+    (board, hist, halfmove)
 }
 
 fn parse_go(parts: &[&str], board: &Board) -> (u32, u64) {
     let mut depth: u32 = 6;
+    let mut has_depth = false;
     let mut movetime: u64 = 0;
     let mut wtime: u64 = 0;
     let mut btime: u64 = 0;
@@ -162,6 +221,7 @@ fn parse_go(parts: &[&str], board: &Board) -> (u32, u64) {
             "depth" => {
                 i += 1;
                 depth = parts.get(i).and_then(|s| s.parse().ok()).unwrap_or(6);
+                has_depth = true;
             }
             "movetime" => {
                 i += 1;
@@ -202,5 +262,8 @@ fn parse_go(parts: &[&str], board: &Board) -> (u32, u64) {
             1000
         }
     };
-    (depth, time_ms)
+    // 仅给定 movetime（未显式指定 depth）时，用足够大的深度上限让迭代加深吃满时间预算，
+    // 否则会卡在 depth 6 白白浪费思考时间。
+    let eff_depth = if movetime > 0 && !has_depth { 64 } else { depth };
+    (eff_depth, time_ms)
 }

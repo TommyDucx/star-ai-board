@@ -87,12 +87,44 @@ const PST: [[i32; 64]; 6] = [
     ],
 ];
 
-/// 白方视角位置分；黑方镜像（63-idx）
+/// 位置分查表。
+///
+/// ⚠️ 关键：PST 表是「按视觉顺序」书写的 —— 第 0 行 = rank8（黑方底线），
+/// 第 7 行 = rank1（白方底线）。而 chess crate 的 `Square::to_index()`
+/// = rank*8 + file，且 `Rank::First`(rank1) = 0，即 **a1 = 0**。
+/// 所以白方必须用 `63 - idx` 做垂直翻转才能对上表的书写顺序；黑方直接用 idx。
+/// （所有 PST 表左右对称，故 `63 - idx`（180°旋转）等价于垂直翻转。）
+///
+/// 原实现把两者写反了（白方用 idx、黑方用 63-idx），导致整张位置表上下颠倒：
+/// 白兵待在 e2 得 +50、推到 e7 反而 -20（奖励不推兵）；
+/// 白王在 e1 得 -50、跑到 g8 却得 +30（中局把王往敌方阵地送）。
+/// 兵形与王安全是 PST 里权重最大的两项，方向错了等于positional 理解整体反向。
 fn pst_val(p: Piece, sq: Square, color: Color) -> i32 {
     let idx = sq.to_index();
-    let widx = if color == Color::White { idx } else { 63 - idx };
+    let widx = if color == Color::White { 63 - idx } else { idx };
     PST[piece_idx(p)][widx]
 }
+
+/// 残局王位置表（同样按视觉顺序书写：第 0 行 = rank8）。
+/// 中局王要躲在角落（PST[5]），残局王必须**抢中心**并支援兵的推进 ——
+/// 只用一张中局表会让引擎在残局把王死死钉在底线，是典型的残局无力来源。
+const PST_KING_EG: [i32; 64] = [
+    -50, -40, -30, -20, -20, -30, -40, -50,
+    -30, -20, -10, 0, 0, -10, -20, -30,
+    -30, -10, 20, 30, 30, 20, -10, -30,
+    -30, -10, 30, 40, 40, 30, -10, -30,
+    -30, -10, 30, 40, 40, 30, -10, -30,
+    -30, -10, 20, 30, 30, 20, -10, -30,
+    -30, -30, 0, 0, 0, 0, -30, -30,
+    -50, -30, -30, -30, -30, -30, -30, -50,
+];
+
+/// 游戏阶段满值：非兵子力 N/B=1、R=2、Q=4，双方合计开局 = 2*(2+2+4+4) = 24。
+/// 24 = 纯中局，0 = 纯残局，中间线性插值（tapered eval）。
+const PHASE_MAX: i32 = 24;
+
+/// 通路兵奖励，下标 = 已推进的行数（0 = 仍在起始行）。越靠近升变越值钱。
+const PASSED_BONUS: [i32; 8] = [0, 5, 10, 20, 35, 60, 100, 0];
 
 fn king_shield(board: &Board, color: Color) -> i32 {
     let king = board.king_square(color);
@@ -119,42 +151,139 @@ fn king_shield(board: &Board, color: Color) -> i32 {
     shield
 }
 
-fn pawn_structure(board: &Board, color: Color) -> i32 {
-    // 孤兵减分：同一行无相邻兵
-    let mut files: [bool; 8] = [false; 8];
-    for sq in ALL_SQUARES {
-        if board.piece_on(sq) == Some(Piece::Pawn) && board.color_on(sq) == Some(color) {
-            files[sq.get_file().to_index()] = true;
-        }
-    }
-    let mut score = 0;
-    for f in 0usize..8 {
-        if !files[f] {
-            continue;
-        }
-        let has_neighbor = (f > 0 && files[f - 1]) || (f < 7 && files[f + 1]);
-        if !has_neighbor {
-            score -= 20;
-        }
-    }
-    score
-}
-
-/// 白方视角局面评估
+/// 白方视角局面评估（单遍扫描收集全部特征，避免多次遍历棋盘）
+///
+/// 组成：子力 + PST + 渐变王位置分(tapered) + 王翼掩护(按阶段缩放)
+///     + 兵形(叠兵/孤兵/通路兵) + 双象 + 车占开放线
 pub fn evaluate(board: &Board) -> i32 {
     let mut score = 0i32;
+    let mut phase = 0i32;
+    // pawn_mask[color][file]：第 r 位置 1 表示该色在 (file, rank_index=r) 有兵
+    let mut pawn_mask = [[0u8; 8]; 2];
+    let mut bishops = [0i32; 2];
+    let mut rook_files = [[0i32; 8]; 2];
+    let mut king_sq = [Square::A1, Square::A1];
+
     for sq in ALL_SQUARES {
         if let Some(p) = board.piece_on(sq) {
             let color = board.color_on(sq).unwrap_or(Color::White);
-            let mut v = PIECE_VALUES[piece_idx(p)] + pst_val(p, sq, color);
+            let ci = if color == Color::White { 0usize } else { 1usize };
+            let f = sq.get_file().to_index();
+            let r = sq.get_rank().to_index();
+
+            match p {
+                Piece::Knight | Piece::Bishop => phase += 1,
+                Piece::Rook => phase += 2,
+                Piece::Queen => phase += 4,
+                _ => {}
+            }
+            match p {
+                Piece::Pawn => pawn_mask[ci][f] |= 1u8 << r,
+                Piece::Bishop => bishops[ci] += 1,
+                Piece::Rook => rook_files[ci][f] += 1,
+                Piece::King => king_sq[ci] = sq,
+                _ => {}
+            }
+
+            // 王的位置分依赖 phase（需要整盘扫完），循环后单独结算，这里只记子力
+            let mut v = PIECE_VALUES[piece_idx(p)];
+            if p != Piece::King {
+                v += pst_val(p, sq, color);
+            }
             if color == Color::Black {
                 v = -v;
             }
             score += v;
         }
     }
-    score += king_shield(board, Color::White) - king_shield(board, Color::Black);
-    score += pawn_structure(board, Color::White) - pawn_structure(board, Color::Black);
+    let phase = phase.min(PHASE_MAX);
+
+    // ── 王：中局表与残局表按阶段线性插值；王翼掩护同样只在中局重要 ──
+    for ci in 0..2usize {
+        let color = if ci == 0 { Color::White } else { Color::Black };
+        let idx = king_sq[ci].to_index();
+        let widx = if color == Color::White { 63 - idx } else { idx };
+        let mg = PST[5][widx];
+        let eg = PST_KING_EG[widx];
+        let mut v = (mg * phase + eg * (PHASE_MAX - phase)) / PHASE_MAX;
+        v += king_shield(board, color) * phase / PHASE_MAX;
+        if color == Color::Black {
+            v = -v;
+        }
+        score += v;
+    }
+
+    // ── 兵形 / 双象 / 车线 ──
+    for ci in 0..2usize {
+        let color = if ci == 0 { Color::White } else { Color::Black };
+        let opp = 1 - ci;
+        let mut s = 0i32;
+
+        for f in 0..8usize {
+            let m = pawn_mask[ci][f];
+            if m == 0 {
+                continue;
+            }
+            let n = m.count_ones() as i32;
+            // 叠兵
+            if n > 1 {
+                s -= 15 * (n - 1);
+            }
+            // 孤兵：左右相邻行都没有己方兵
+            let left = if f > 0 { pawn_mask[ci][f - 1] } else { 0 };
+            let right = if f < 7 { pawn_mask[ci][f + 1] } else { 0 };
+            if left == 0 && right == 0 {
+                s -= 20;
+            }
+            // 通路兵：本行及左右相邻行，前方均无敌兵
+            for r in 0..8usize {
+                if m & (1u8 << r) == 0 {
+                    continue;
+                }
+                // “前方”的行掩码（白方 = rank 更大，黑方 = rank 更小）
+                let ahead: u8 = if color == Color::White {
+                    if r >= 7 { 0 } else { 0xFFu8 << (r + 1) }
+                } else {
+                    if r == 0 { 0 } else { (1u8 << r) - 1 }
+                };
+                let enemy = pawn_mask[opp][f]
+                    | if f > 0 { pawn_mask[opp][f - 1] } else { 0 }
+                    | if f < 7 { pawn_mask[opp][f + 1] } else { 0 };
+                if enemy & ahead == 0 {
+                    let adv = if color == Color::White { r } else { 7 - r };
+                    s += PASSED_BONUS[adv];
+                }
+            }
+        }
+
+        // 双象加成
+        if bishops[ci] >= 2 {
+            s += 30;
+        }
+        // 车占开放线(+20) / 半开放线(+10)
+        for f in 0..8usize {
+            let rc = rook_files[ci][f];
+            if rc == 0 {
+                continue;
+            }
+            let own = pawn_mask[ci][f];
+            let their = pawn_mask[opp][f];
+            let bonus = if own == 0 && their == 0 {
+                20
+            } else if own == 0 {
+                10
+            } else {
+                0
+            };
+            s += bonus * rc;
+        }
+
+        if color == Color::Black {
+            s = -s;
+        }
+        score += s;
+    }
+
     score
 }
 

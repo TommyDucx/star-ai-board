@@ -1,0 +1,8 @@
+{
+  "output_file": "../data/test_selfplay.jsonl",
+  "num_games": 3,
+  "total_records": 1200,
+  "engine": "/Users/tommydu/Documents/Default Project/star/my-engine/target/release/my-engine",
+  "depth": 4,
+  "movetime_ms": 200
+}

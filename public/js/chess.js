@@ -30,14 +30,15 @@
     });
   }
 
-  // 动态填充可用引擎（Reckless 二进制未就位时不显示）
+  // 动态填充可用引擎（Reckless/自研引擎二进制未就位时不显示）
   async function loadEngines() {
     try {
       const r = await rpc("engines", {});
       const sel = document.getElementById("engine");
       if (!sel || !r.engines) return;
+      const names = { stockfish: "Stockfish 18", reckless: "Reckless 0.10", "my-engine": "MyEngine 0.2.0（自研策略模型）" };
       sel.innerHTML = r.engines.filter(e => e.available)
-        .map(e => `<option value="${e.key}">${e.key === "reckless" ? "Reckless 0.10" : "Stockfish 18"}</option>`)
+        .map(e => `<option value="${e.key}">${names[e.key] || e.key}</option>`)
         .join("") || `<option value="stockfish">Stockfish 18</option>`;
     } catch (e) { /* 默认保留静态选项 */ }
   }
@@ -307,11 +308,12 @@
     applyOrientation();
   });
   document.getElementById("engine").addEventListener("change", e => {
-    // Reckless 不支持 Elo 分级：切换时提示
+    // Reckless / 自研引擎不支持 Elo 分级：切换时禁用难度
+    const noElo = e.target.value === "reckless" || e.target.value === "my-engine";
     const levelSel = document.getElementById("level");
-    levelSel.disabled = e.target.value === "reckless";
+    levelSel.disabled = noElo;
     document.getElementById("level").parentElement.querySelector("label").textContent =
-      e.target.value === "reckless" ? "难度（Reckless 自带棋力，忽略此设置）" : "难度（引擎棋力）";
+      noElo ? "难度（该引擎自带棋力，忽略此设置）" : "难度（引擎棋力）";
   });
   document.getElementById("movetime").addEventListener("input", e => {
     document.getElementById("mtlbl").textContent = e.target.value;

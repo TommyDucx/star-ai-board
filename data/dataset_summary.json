@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-08-12T04:22:47.402930+00:00",
+  "components": [
+    {
+      "type": "selfplay",
+      "engine": "/Users/tommydu/Documents/Default Project/star/my-engine/target/release/my-engine",
+      "engine_name": "MyEngine 0.2.0",
+      "requested_games": 5,
+      "kept_games": 4,
+      "discarded_drawish": 1,
+      "discarded_short": 0,
+      "total_positions": 154,
+      "depth": 4,
+      "movetime_ms": 200,
+      "max_plies": 40,
+      "pgn_file": "/Users/tommydu/Documents/Default Project/data/selfplay.pgn",
+      "jsonl_file": "/Users/tommydu/Documents/Default Project/data/selfplay.jsonl",
+      "pgn_size_mb": 0.0,
+      "jsonl_size_mb": 0.04,
+      "avg_score_cp": 138.4,
+      "generated_at": "2026-08-12T04:22:47.402299+00:00"
+    }
+  ],
+  "totals": {
+    "total_positions": 154,
+    "total_kept_games": 4,
+    "selfplay_pct": 80,
+    "lichess_pct": 20
+  }
+}

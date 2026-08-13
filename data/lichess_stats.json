@@ -1,0 +1,27 @@
+{
+  "type": "lichess_puzzles",
+  "total_puzzles_db": 16749,
+  "filtered_count": 5000,
+  "min_rating": 1600,
+  "theme_distribution": {
+    "crushing": 3386,
+    "hangingPiece": 231,
+    "middlegame": 3172,
+    "advantage": 2572,
+    "short": 2745,
+    "interference": 47,
+    "skewer": 99,
+    "fork": 659,
+    "pin": 565,
+    "discoveredAttack": 342,
+    "sacrifice": 709,
+    "mate": 548,
+    "attraction": 317,
+    "trappedPiece": 91,
+    "doubleCheck": 45,
+    "backRankMate": 8
+  },
+  "jsonl_file": "/Users/tommydu/Documents/Default Project/data/lichess_attacks.jsonl",
+  "jsonl_size_mb": 1.4,
+  "generated_at": "2026-08-12T04:28:57.486963+00:00"
+}

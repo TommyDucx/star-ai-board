@@ -1,0 +1,12 @@
+{
+  "total": 7383,
+  "selfplay": 5907,
+  "lichess": 1476,
+  "selfplay_ratio": 0.8001,
+  "lichess_ratio": 0.1999,
+  "selfplay_local_raw": 5907,
+  "selfplay_pi_raw": 0,
+  "lichess_raw": 5000,
+  "mode": "balanced_to_0.80",
+  "output": "/Users/tommydu/Documents/Default Project/data/final_dataset.jsonl"
+}

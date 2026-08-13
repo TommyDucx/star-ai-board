@@ -1,0 +1,39 @@
+{
+  "engine": "/Users/tommydu/Documents/Default Project/star/my-engine/target/release/my-engine",
+  "games": 40,
+  "movetime_ms": 300,
+  "names": {
+    "BEFORE": {
+      "policy": "/Users/tommydu/Documents/Default Project/star/my-engine/policy/policy_before.bin",
+      "disabled": false
+    },
+    "AFTER": {
+      "policy": "/Users/tommydu/Documents/Default Project/star/my-engine/policy/policy.bin",
+      "disabled": false
+    }
+  },
+  "results": {
+    "BEFORE": 10,
+    "draw": 21,
+    "AFTER": 9
+  },
+  "score_A": 0.5125,
+  "elo_diff_A_minus_B": 8.7,
+  "elo_95ci": [
+    -101.76561012870069,
+    120.98806802779805
+  ],
+  "per_color": {
+    "BEFORE": {
+      "w": 10,
+      "d": 21,
+      "l": 9
+    },
+    "AFTER": {
+      "w": 9,
+      "d": 21,
+      "l": 10
+    }
+  },
+  "duration_s": 619.5
+}
