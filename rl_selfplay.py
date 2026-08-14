@@ -9,7 +9,7 @@ RL 自对弈生成器：多进程并行 + 高 PolicyAggressiveness（强制进�
   4. 输出 selfplay_rl.jsonl（dataset_gen 兼容格式，交给 merge_dataset.py 合并）。
 
 用法:
-  python rl_selfplay.py --games 2000 --workers 4 --depth 6 --movetime 500 --agg 90
+  python rl_selfplay.py --games 2000 --workers 8 --depth 6 --movetime 500 --agg 90
   python rl_selfplay.py --games 8 --workers 2 --depth 3 --movetime 150 --agg 90   # 快速冒烟
 """
 import argparse
@@ -79,7 +79,7 @@ def _worker(args):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--games", "-n", type=int, default=500, help="自对弈总局数")
-    ap.add_argument("--workers", "-w", type=int, default=4, help="并行进程数")
+    ap.add_argument("--workers", "-w", type=int, default=8, help="并行进程数（8核服务器=8进程）")
     ap.add_argument("--depth", "-d", type=int, default=6, help="搜索深度")
     ap.add_argument("--movetime", "-t", type=int, default=500, help="每步思考时间 ms")
     ap.add_argument("--max-plies", type=int, default=60, help="每局最大回合数")

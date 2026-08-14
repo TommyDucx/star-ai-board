@@ -11,7 +11,7 @@ RL 自博弈强化学习闭环主循环
   6. 新版胜率 >56% → 替换为主版本；否则回滚，结束本轮（避免越训越差）
 
 用法:
-  python rl_loop.py --rounds 5 --games 500 --workers 4 --agg 90 --match-games 200
+  python rl_loop.py --rounds 5 --games 500 --workers 8 --agg 90 --match-games 200
   python rl_loop.py --rounds 1 --games 8 --workers 2 --depth 3 --movetime 150 --epochs 2 --match-games 12  # 冒烟
 """
 import argparse
@@ -98,7 +98,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--rounds", type=int, default=5, help="迭代轮数")
     ap.add_argument("--games", type=int, default=500, help="每轮自对弈局数")
-    ap.add_argument("--workers", type=int, default=4, help="自对弈并发进程数")
+    ap.add_argument("--workers", type=int, default=8, help="自对弈并发进程数（8核=8进程）")
     ap.add_argument("--depth", type=int, default=6, help="自对弈搜索深度")
     ap.add_argument("--movetime", type=int, default=500, help="自对弈每步思考 ms")
     ap.add_argument("--agg", type=int, default=90, help="PolicyAggressiveness")
