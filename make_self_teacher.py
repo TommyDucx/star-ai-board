@@ -31,9 +31,9 @@ import sys
 import threading
 import time
 
-ROOT = "/Users/tommydu/Documents/Default Project"
+ROOT = "/Users/tommydu/Documents/Star Chess"
 DATA = os.path.join(ROOT, "data")
-ENGINE = os.path.join(ROOT, "star", "my-engine", "target", "release", "my-engine")
+ENGINE = os.path.join(ROOT, "my-engine", "target", "release", "my-engine")
 DEFAULT_IN = os.path.join(DATA, "final_dataset.jsonl")
 DEFAULT_OUT = os.path.join(DATA, "self_teacher_dataset.jsonl")
 
