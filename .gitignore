@@ -9,3 +9,12 @@ public/stockfish
 # 系统文件
 .DS_Store
 public/reckless
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# RL 中间产物（已追加进 final_dataset / 评估明细，无需跟踪）
+data/selfplay_rl.jsonl
+data/policy_old.bin
+data/rl_match_report.pgn
