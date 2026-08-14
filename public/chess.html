@@ -14,6 +14,9 @@
   #board { width: 460px; max-width: 100%; }
   #evalwrap { width: 16px; border-radius: 4px; overflow: hidden; border: 1px solid #3a4048; display: flex; flex-direction: column; background: #2b2b2b; }
   #evalfill { background: #f2f2f2; width: 100%; height: 50%; transition: height .35s ease; }
+  .eval-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .eval-col #evalwrap { flex: 1; }
+  #evalpct { font-size: 11px; font-family: ui-monospace, Menlo, monospace; color: var(--muted); white-space: nowrap; }
   .panel { width: 300px; }
   .cand { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); margin-bottom: 8px; background: var(--surface); }
   .cand .n { width: 22px; height: 22px; border-radius: 50%; background: var(--signal); color: #080a09; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 12px; flex: 0 0 22px; }
@@ -44,7 +47,10 @@
 
 <div class="chess-wrap enter-node">
   <div class="board-card" style="display:flex;gap:10px;align-items:stretch">
-    <div id="evalwrap"><div id="evalfill"></div></div>
+    <div class="eval-col">
+      <div id="evalpct">白 50.0%</div>
+      <div id="evalwrap"><div id="evalfill"></div></div>
+    </div>
     <div id="board"></div>
   </div>
 
@@ -78,9 +84,8 @@
     </div>
     <div class="status" id="status">准备就绪</div>
     <div class="thinking" id="thinking">Stockfish 分析中…</div>
-    <div class="row" style="margin-top:12px"><label>胜率评估</label>
-      <div class="wrbar"><span id="wrfill" style="width:50%"></span></div>
-      <div class="wrmono" id="wrlabel">白 50.0% · 黑 50.0%</div>
+    <div class="row" style="margin-top:12px"><label>胜率走势（全程）</label>
+      <canvas id="evalchart" style="width:100%;height:120px;display:block;border:1px solid var(--line);border-radius:4px;background:#1a1d21;"></canvas>
     </div>
     <div class="row" style="margin-top:12px"><label>推荐走法（当前行棋方）</label><div id="cands"></div></div>
     <div class="row"><div id="evaltxt" style="font-size:13px;color:var(--muted);font-family:monospace">评估：—</div></div>

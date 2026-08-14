@@ -9,6 +9,7 @@
   let myColor = "white";
   let ws = null, wsReady = false, msgId = 0, pending = new Map();
   let lastCandidates = [];
+  let evalHistory = [];   // 全程白方胜率历史（用于折线图）
 
   /* ---------------- WS 连接 ---------------- */
   function connect() {
@@ -178,6 +179,7 @@
     document.addEventListener("pointerup", boardPointer);
     applyOrientation();
     updateStatus();
+    scheduleEval();   // 初始局面也评估一次，让折线图从开局就有胜率点
   }
 
   /* ---------------- 引擎分析（点击「推荐下一步」→ 自动走出该步） ---------------- */
@@ -270,15 +272,64 @@
       txt = `白方 +${(c.evalCp / 100).toFixed(2)}`;
       wpct = 1 / (1 + Math.pow(10, -c.evalCp / 400)) * 100;  // logistic 换算白方胜率
     }
+    wpct = Math.min(100, Math.max(0, wpct));
     if (el) el.textContent = "评估：" + txt + "（深度 " + c.depth + "）";
-    // 左侧竖条（相对白方）
-    const pct = c.mate != null ? wpct : Math.min(100, Math.max(0, 50 + (c.evalCp / 100) * 5));
-    document.getElementById("evalfill").style.height = pct + "%";
-    // 右侧胜率条（白左 / 黑右）
-    const wf = document.getElementById("wrfill");
-    if (wf) wf.style.width = wpct.toFixed(1) + "%";
-    const wl = document.getElementById("wrlabel");
-    if (wl) wl.textContent = `白 ${wpct.toFixed(1)}% · 黑 ${(100 - wpct).toFixed(1)}% · ${c.mate != null ? "mate" : (c.evalCp / 100 >= 0 ? "+" : "") + (c.evalCp / 100).toFixed(2)}`;
+    // 左侧竖条 + 胜率具体数值（白方视角，统一用 logistic 胜率）
+    document.getElementById("evalfill").style.height = wpct + "%";
+    const pctEl = document.getElementById("evalpct");
+    if (pctEl) pctEl.textContent = `白 ${wpct.toFixed(1)}%`;
+    // 记录全程胜率历史并重绘折线图
+    evalHistory.push(wpct);
+    drawEvalChart();
+  }
+
+  // 全程胜率折线图（canvas，白方胜率 0~100%，100% 在顶部）
+  function drawEvalChart() {
+    const cv = document.getElementById("evalchart");
+    if (!cv) return;
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = cv.clientWidth || 280, cssH = 120;
+    if (cv.width !== Math.round(cssW * dpr) || cv.height !== Math.round(cssH * dpr)) {
+      cv.width = Math.round(cssW * dpr);
+      cv.height = Math.round(cssH * dpr);
+    }
+    const ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cssW, cssH);
+    // 背景
+    ctx.fillStyle = "#1a1d21";
+    ctx.fillRect(0, 0, cssW, cssH);
+    // 50% 中线
+    ctx.strokeStyle = "#3a4048";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, cssH / 2); ctx.lineTo(cssW, cssH / 2); ctx.stroke();
+    const n = evalHistory.length;
+    if (!n) return;
+    const pt = (i) => {
+      const x = n === 1 ? cssW / 2 : (i / (n - 1)) * cssW;
+      const y = ((100 - evalHistory[i]) / 100) * cssH;
+      return [x, y];
+    };
+    // 折线
+    ctx.strokeStyle = "#d7ff3f";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const [x, y] = pt(i);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    // 最新点
+    const [lx, ly] = pt(n - 1);
+    ctx.fillStyle = "#d7ff3f";
+    ctx.beginPath(); ctx.arc(lx, ly, 2.5, 0, Math.PI * 2); ctx.fill();
+  }
+
+  function resetEvalUI() {
+    document.getElementById("evalfill").style.height = "50%";
+    const pctEl = document.getElementById("evalpct");
+    if (pctEl) pctEl.textContent = "白 50.0%";
+    drawEvalChart();
   }
 
   function updateStatus() {
@@ -294,8 +345,8 @@
   function setThinking(on) { document.getElementById("thinking").classList.toggle("on", on); }
 
   /* ---------------- 按钮 ---------------- */
-  function newGame() { game.reset(); board.position("start"); lastCandidates = []; updateStatus(); }
-  function undo() { game.undo(); board.position(game.fen()); updateStatus(); }
+  function newGame() { game.reset(); board.position("start"); lastCandidates = []; evalHistory = []; resetEvalUI(); updateStatus(); }
+  function undo() { game.undo(); board.position(game.fen()); if (evalHistory.length) evalHistory.pop(); drawEvalChart(); updateStatus(); }
   function flipBoard() { board.flip(); }
 
   // 依据"我执的棋"决定棋盘朝向：所选颜色在下方，另一色在上方
