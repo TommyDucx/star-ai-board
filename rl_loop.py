@@ -16,6 +16,7 @@ RL 自博弈强化学习闭环主循环
 """
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -29,8 +30,8 @@ POLICY_DIR = ROOT / "my-engine" / "policy"              # 训练脚本目录
 DATA_FILE = ROOT / "data" / "final_dataset.jsonl"
 SELFPLAY_RL = ROOT / "data" / "selfplay_rl.jsonl"
 
-PY = "/Users/tommydu/miniconda3/envs/pfllib/bin/python3"  # python 3.11 + torch + chess，跑所有脚本
-SYS_PY = PY                                             # 统一用 pfllib（dataset_gen 需 3.10+ 语法）
+PY = os.environ.get("RL_PY", sys.executable)  # 默认用启动本脚本的 python（云/本地通用），可 RL_PY 覆盖
+SYS_PY = PY
 
 WIN_RATE_THRESHOLD = 0.56
 
