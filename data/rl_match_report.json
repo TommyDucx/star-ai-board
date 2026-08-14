@@ -1,0 +1,45 @@
+{
+  "engine": "/workspace/my-engine/target/release/my-engine",
+  "eng_a": "/workspace/my-engine/target/release/my-engine",
+  "eng_b": "/workspace/my-engine/target/release/my-engine",
+  "games": 300,
+  "movetime_ms": 300,
+  "concurrency": 4,
+  "openings": 30,
+  "names": {
+    "old": {
+      "policy": "/workspace/data/policy_old.bin",
+      "disabled": false
+    },
+    "new": {
+      "policy": "/workspace/my-engine/policy/policy.bin",
+      "disabled": false
+    }
+  },
+  "results": {
+    "old": 96,
+    "draw": 92,
+    "new": 112
+  },
+  "score_A": 0.4733,
+  "score_se": 0.024,
+  "elo_diff_A_minus_B": -18.5,
+  "elo_95ci": [
+    -51.631149727243354,
+    14.202515487963204
+  ],
+  "LOS_A_better": 0.1335,
+  "per_color": {
+    "old": {
+      "w": 96,
+      "d": 92,
+      "l": 112
+    },
+    "new": {
+      "w": 112,
+      "d": 92,
+      "l": 96
+    }
+  },
+  "duration_s": 3275.9
+}

@@ -3,14 +3,14 @@
 数据: 默认 data/final_dataset.jsonl；可用 --data 指定 Stockfish 教师标签集。
 增强: 8× D4 对称增广(旋转/镜像) + 合法着法过滤，标签同步变换。
 训练后导出 ONNX + policy.bin(Rust 手写推理读取)。"""
-import json, random, math, argparse
+import json, random, math, argparse, os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import chess
 
-DATA = "/Users/tommydu/Documents/Star Chess/data/final_dataset.jsonl"
-OUT_DIR = "/Users/tommydu/Documents/Star Chess/my-engine/policy"
+DATA = os.environ.get("RL_DATA", "/Users/tommydu/Documents/Star Chess/data/final_dataset.jsonl")
+OUT_DIR = os.environ.get("RL_OUTDIR", "/Users/tommydu/Documents/Star Chess/my-engine/policy")
 SEED = 42
 random.seed(SEED)
 torch.manual_seed(SEED)
