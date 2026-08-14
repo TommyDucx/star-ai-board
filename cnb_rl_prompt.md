@@ -1,38 +1,45 @@
-# CNB 云 Agent 提示词（第二轮 RL · 环境重启后完整版）
+# CNB 云 Agent 提示词（第二轮 RL · 严格标准流程版）
 
-> 复制以下整段给 CNB 云 agent 使用。云环境已重启，需从零拉取代码。
-> 这是**第二轮**：训练集已有 67383 条样本（第一轮沉淀 6 万条），从更大数据集起步。
+> 云环境已重启。请**严格按本提示词执行**，不要自行编写额外脚本、不要偏离流程。
+> 这是**第二轮**：训练集已有 67383 条样本（第一轮成果），从该数据集起步重训。
 
 ---
 
-你是一个国际象棋引擎开发助手。请在一个有足够 CPU（8 核）的云环境里，帮我跑**第二轮**自博弈强化学习（RL）迭代。
+你是一个国际象棋引擎开发助手。请在一个有 8 核 CPU 的云环境里，帮我跑**第二轮**自博弈强化学习（RL）迭代。
 
 ## 项目背景
-这是一个自研 Rust 国际象棋引擎（Policy 引导的 α-β 搜索，入门级棋力）。已搭好一套 RL 自博弈闭环脚本，核心逻辑：
-自对弈生成数据 → 追加到训练集 → 重训 Policy → 新旧 policy 对弈评估 → 新版胜率 >56% 就采纳，否则自动回滚。
+自研 Rust 国际象棋引擎（Policy 引导的 α-β 搜索）。仓库已内置 RL 闭环脚本 `rl_loop.py`，核心逻辑：
+自对弈生成数据 → 追加训练集 → 重训 Policy → 新旧 policy 对弈评估 → 新版胜率 >56% 采纳，否则自动回滚。
 
-**这是第二轮**：第一轮已跑完，训练集 `data/final_dataset.jsonl` 现有 **67383 条**样本（第一轮自对弈沉淀了 6 万条）。本轮从更大的数据集起步，重训出的 Policy 有望更强。
+**这是第二轮**：训练集 `data/final_dataset.jsonl` 现有 **67383 条**样本，本轮从该数据集起步重训 Policy。
 
-## 第 0 步：拉取最新代码（环境已重启，必须重新拉）
+## ⚠️ 重要约束（务必逐条遵守，这是本提示词的关键）
+1. **只用仓库自带的 `rl_loop.py` 跑迭代**，不要自己编写 supervisor / watcher / 备份等任何额外脚本。
+2. **不要改动任何脚本的路径或逻辑**——`rl_loop.py` 的解释器路径已用 `sys.executable` 自适应，`train_policy.py` 已支持环境变量覆盖，`rl_selfplay.py` 的 `--workers` 默认已是 8。**直接跑即可，无需任何代码修改。**
+3. 跑**一轮**即可（`--rounds 1`），不要自动跑多轮。
+4. 只提交本提示词第 5 步指定的结果文件，不要提交其他东西（`.gitignore` 已配好，正常 `git add` 不会误带缓存/中间产物）。
+
+## 第 0 步：获取干净代码（环境已重启）
+云工作区可能存在旧目录或分叉，请**新建一个干净目录重新 clone**（最稳妥）：
+
 ```bash
 git clone https://cnb.cool/duwenfeng/Star-Chess.git
 cd Star-Chess
 ```
-（如果目录已存在，则 `cd Star-Chess && git pull origin main`）
 
-代码已经是干净、可直接运行的状态，**不需要手动改任何路径**：
-- `rl_selfplay.py` / `rl_loop.py` 的 `--workers` 默认已是 **8**（8 核吃满）；
-- `rl_loop.py` 的解释器路径已改为 `sys.executable`（云/本地通用，不再硬编码 Mac 路径）；
-- `train_policy.py` 的数据/输出路径支持 `RL_DATA`/`RL_OUTDIR` 环境变量覆盖；
-- `.gitignore` 已配置好（会忽略 `__pycache__`、`*.pyc` 和 RL 中间产物）。
+> 如果 `Star-Chess` 目录已存在且报分叉错误，先强制对齐再拉取：
+> ```bash
+> cd Star-Chess && git reset --hard origin/main && git pull origin main
+> ```
 
-## 第 1 步：环境准备（按顺序执行）
+确认代码是最新且干净的：`git log --oneline -1` 应看到提交 `75cb528`（"docs: 更新云 agent 提示词为第二轮完整版"）。
+
+## 第 1 步：环境准备（按顺序）
 1. 编译引擎（产物 `my-engine/target/release/my-engine`）：
    ```bash
-   cd my-engine && cargo build --release
+   cd my-engine && cargo build --release && cd ..
    ```
-
-2. Python 必须是 **3.10 及以上**（`dataset_gen.py` 用了 `str | None` 类型语法，3.9 会报错）。安装依赖：
+2. Python 必须 **3.10 及以上**，安装依赖：
    ```bash
    pip install torch python-chess onnx onnxruntime
    ```
@@ -58,45 +65,39 @@ python3 rl_loop.py --rounds 1 --games 1000 --workers 8 --depth 6 --movetime 500 
 
 参数含义：
 - `games 1000`：自对弈局数（`workers 8` = 8 进程并行，正好吃满 8 核）
-- `depth 6` / `movetime 500`：自对弈的搜索深度和每步思考时间（毫秒）
-- `agg 90`：PolicyAggressiveness 进攻性（0~100，越大越凶悍爱弃子）
+- `depth 6` / `movetime 500`：自对弈搜索深度与每步思考时间（毫秒）
+- `agg 90`：PolicyAggressiveness 进攻性（0~100，越大越爱弃子进攻）
 - `epochs 40`：Policy 训练轮数
-- `match-games 300`：新旧 policy 评估对局数（机器快可加到 1000，胜率判断更可靠）
-- `match-concurrency 4`：评估并行槽位数（match.py 每个槽位开 2 个引擎进程，4 路 × 2 = 8 进程正好吃满 8 核，**勿改成 8**）
+- `match-games 300`：新旧 policy 评估对局数
+- `match-concurrency 4`：评估并行槽位（每槽位 2 个引擎进程，4 路 × 2 = 8 进程正好吃满 8 核，**勿改成 8**）
 
-一轮完整时间约 3.5 小时（自对弈约 1 小时 + 训练约 1.5 小时 + 评估约 1 小时）。建议后台运行并保留日志，例如：
+一轮约 3.5 小时（自对弈约 1h + 训练约 1.5h + 评估约 1h）。后台运行并保留日志：
 ```bash
 nohup python3 rl_loop.py --rounds 1 --games 1000 --workers 8 --depth 6 --movetime 500 \
   --agg 90 --epochs 40 --match-games 300 --match-concurrency 4 > rl.log 2>&1 &
 ```
 
 ## 第 5 步（必须执行）：跑完立即提交结果，否则会丢
-正式一轮跑完后，**立刻**执行以下三步，把结果写进 git 并回传：
+正式一轮跑完后，**立刻**把结果提交并推送（云环境的 origin 就是 CNB）：
 
-1. 把结果文件提交到 git（云环境的 origin 就是 CNB，`git push origin main` 即推回 CNB）：
-   ```bash
-   git add -A data/rl_loop_history.json data/rl_match_report.json \
-     data/final_dataset.jsonl my-engine/policy/
-   git commit -m "RL round 2: 自对弈+重训结果（胜率X.XX，是否采纳）"
-   git push origin main
-   ```
-   可以用一个 watcher 进程在 `rl_loop.py` 跑完瞬间自动执行上面的 commit + push（第一轮就是这么做的，避免结果随工作区关闭丢失）。
+```bash
+git add -A data/rl_loop_history.json data/rl_match_report.json \
+  data/final_dataset.jsonl my-engine/policy/
+git commit -m "RL round 2: 自对弈+重训结果（胜率X.XX，是否采纳）"
+git push origin main
+```
 
-2. 读取并粘贴结果内容到回复里：
-   ```bash
-   cat data/rl_loop_history.json
-   cat data/rl_match_report.json
-   ```
+然后读取结果并粘贴到回复里：
+```bash
+cat data/rl_loop_history.json
+cat data/rl_match_report.json
+```
 
-3. 在回复中明确告诉我：
-   - 新版 policy 的胜率是多少（如 0.58）
-   - 有没有被采纳（>56% 采纳，否则回滚）
-   - Elo 差是多少、置信区间多少
-   - 自对弈样本量、训练最终 val_top1
+并在回复中明确告诉我：新版 policy 胜率、是否采纳（>56% 采纳否则回滚）、Elo 差与置信区间、自对弈样本量、训练最终 val_top1。
 
 ## 注意事项
-1. 路径含空格 "Star Chess"，脚本内部已用双引号处理好；你自己拼 shell 命令时也要给路径加引号。
-2. `match-concurrency` 保持 4（每槽位 2 引擎进程 × 4 路 = 8 进程 = 8 核），改成 8 会 16 进程超订阅、反而不会更快。
-3. 引擎是入门级，自对弈走法质量有限；这是 RL 迭代的第二轮，第一轮胜率 52.67% 未达阈值已回滚，本轮期望从更大数据集中练出更强的 Policy，但仍可能不达 56%，属正常。
-4. 如果新版胜率不达标，脚本会自动回滚 `policy.bin`，但 `final_dataset.jsonl` 的新增样本会保留（数据是增量累积的，这是预期行为）。
-5. **不要省略第 5 步**——上一轮因未提交结果丢失过一次，这是本次流程的关键。
+1. 路径含空格 "Star Chess"，脚本内部已处理；你自己拼 shell 命令时也要给路径加引号。
+2. `match-concurrency` 保持 4，改成 8 会超订阅、不会更快。
+3. 这是第二轮：第一轮胜率 52.67% 未达阈值已回滚，本轮从更大的 67383 样本起步，期望更强，但**仍可能不达 56%**，属正常。
+4. 若新版胜率不达标，脚本会自动回滚 `policy.bin`，但 `final_dataset.jsonl` 的新增样本会保留（增量累积，这是预期行为）。
+5. **不要省略第 5 步**；**不要做本提示词之外的任何事**（不写脚本、不改代码、不多跑轮次）。
