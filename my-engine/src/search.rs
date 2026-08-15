@@ -322,6 +322,11 @@ impl Searcher {
         // 搜索开始：重置停止标志（只做一次，多线程共享同一 AtomicBool）
         self.stopped.store(false, Ordering::Relaxed);
 
+        // 每走一步棋换一代：age 只在每次 go 开始时 +1（而非每次迭代加深、更非每线程各自 +1）。
+        // 否则 Lazy SMP 下多线程重复换代会让 age 快速递增（u8 回绕）、老化窗口变短、
+        // 有效条目被过早淘汰，命中率下降。
+        self.tt.write().unwrap().new_generation();
+
         let n = self.threads.max(1);
         if n <= 1 {
             return self.search_single(board, depth, time_ms, game_hist, halfmove);
@@ -388,9 +393,6 @@ impl Searcher {
         let full_alpha = i32::MIN + MATE;
         let full_beta = i32::MAX - MATE;
         for d in 1..=self.max_depth {
-            // 每次迭代加深换代：上一轮的深度条目保留给本轮复用（代差1仅限更深覆盖），
-            // 两代前的陈旧条目可被自由淘汰，命中率与新鲜度兼顾。
-            self.tt.write().unwrap().new_generation();
             let root = board.clone();
             // ⚠️ 渴望窗口 (aspiration window) 实测无效，已回退，勿再加：
             // 固定深度 9 的 5 局面基准 1,471,136 vs 1,473,920 节点（−0.2%），耗时/走法完全一致。
