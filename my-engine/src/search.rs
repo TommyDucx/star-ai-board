@@ -701,6 +701,26 @@ impl Searcher {
                 hash_move = Some(unpack_move(e.mv, e.promo));
             }
         }
+
+        // IID (内部迭代加深)：PV 节点（全窗 beta-alpha>1）且 TT 无 hash move 时，
+        // 先用浅深度搜一遍，把浅搜索得到的“临时最佳走法”填进走法排序，大幅改善
+        // 全窗搜索的走法排序质量（否则全窗节点只能靠 MVV-LVA/killer/history 盲搜）。
+        // 只在非将军、足够深时触发：零窗口节点排序收益低、浅层再浅搜意义不大、
+        // 将军局面已由将军延伸处理。浅搜索会把 best move 写回 TT，此处重新 probe 取到即可。
+        // 浅搜索与主搜索同一局面(同一 key)，path 截断后重 push 的是同一键，不变量不受影响；
+        // 其 history/killer 更新对主搜索反而是额外收益。
+        if beta - alpha > 1 && hash_move.is_none() && !in_check && depth >= 4 {
+            self.alpha_beta(board, depth - 2, alpha, beta, ply, halfmove);
+            if self.stopped.load(Ordering::Relaxed) {
+                return 0;
+            }
+            if let Some(e) = self.tt.read().unwrap().probe(key) {
+                if e.mv != 0 {
+                    hash_move = Some(unpack_move(e.mv, e.promo));
+                }
+            }
+        }
+
         // 反向无效裁剪 (reverse futility / static null move)：浅层非将军节点，
         // 若静态评估扣掉一个保守 margin 后仍 >= beta，说明本节点几乎必然失败高位，直接返回。
         // 排除接近将杀的分值，避免剪掉将杀线。
