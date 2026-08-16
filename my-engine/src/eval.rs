@@ -5,6 +5,22 @@ use chess::{ALL_SQUARES, Board, Color, Piece, Square};
 
 const PIECE_VALUES: [i32; 6] = [100, 320, 330, 500, 900, 20000];
 
+// ── 可调标量参数（Texel tuning 目标，集中在顶部便于调参脚本写回）──
+const DOUBLED_PENALTY: i32 = -15;
+const ISOLATED_PENALTY: i32 = -20;
+const BISHOP_PAIR_BONUS: i32 = 30;
+const ROOK_OPEN_BONUS: i32 = 20;
+const ROOK_HALF_OPEN_BONUS: i32 = 10;
+const ROOK_STACKED_BONUS: i32 = 30;
+const SHIELD_NEAR: i32 = 12;
+const SHIELD_FAR: i32 = 8;
+const KATTACK_QUEEN: i32 = 6;
+const KATTACK_ROOK: i32 = 4;
+const KATTACK_KNIGHT: i32 = 3;
+const KATTACK_BISHOP: i32 = 2;
+const KATTACK_PAWN: i32 = 1;
+const PAWN_STORM_BONUS: i32 = 3;
+
 fn piece_idx(p: Piece) -> usize {
     match p {
         Piece::Pawn => 0,
@@ -162,7 +178,7 @@ fn king_shield(board: &Board, color: Color) -> i32 {
             }
             let sq = Square::make_square(chess::Rank::from_index(rf as usize), chess::File::from_index(nf as usize));
             if board.piece_on(sq) == Some(Piece::Pawn) && board.color_on(sq) == Some(color) {
-                shield += if step == 1 { 12 } else { 8 };
+                shield += if step == 1 { SHIELD_NEAR } else { SHIELD_FAR };
             }
         }
     }
@@ -217,18 +233,18 @@ pub fn evaluate(board: &Board) -> i32 {
                 let kr = ok.get_rank().to_index() as i32;
                 if (fi - kf).abs() <= 2 && (ri - kr).abs() <= 2 {
                     kattack[ci] += match p {
-                        Piece::Queen => 6,
-                        Piece::Rook => 4,
-                        Piece::Knight => 3,
-                        Piece::Bishop => 2,
-                        Piece::Pawn => 1,
+                        Piece::Queen => KATTACK_QUEEN,
+                        Piece::Rook => KATTACK_ROOK,
+                        Piece::Knight => KATTACK_KNIGHT,
+                        Piece::Bishop => KATTACK_BISHOP,
+                        Piece::Pawn => KATTACK_PAWN,
                         Piece::King => 0,
                     };
                 }
                 if p == Piece::Pawn {
                     let adv = if color == Color::White { ri } else { 7 - ri };
                     if (fi - kf).abs() <= 1 && adv >= 4 {
-                        kattack[ci] += 3; // 兵冲锋
+                        kattack[ci] += PAWN_STORM_BONUS; // 兵冲锋
                     }
                 }
             }
@@ -277,13 +293,13 @@ pub fn evaluate(board: &Board) -> i32 {
             let n = m.count_ones() as i32;
             // 叠兵
             if n > 1 {
-                s -= 15 * (n - 1);
+                s += DOUBLED_PENALTY * (n - 1);
             }
             // 孤兵：左右相邻行都没有己方兵
             let left = if f > 0 { pawn_mask[ci][f - 1] } else { 0 };
             let right = if f < 7 { pawn_mask[ci][f + 1] } else { 0 };
             if left == 0 && right == 0 {
-                s -= 20;
+                s += ISOLATED_PENALTY;
             }
             // 通路兵：本行及左右相邻行，前方均无敌兵
             for r in 0..8usize {
@@ -308,7 +324,7 @@ pub fn evaluate(board: &Board) -> i32 {
 
         // 双象加成
         if bishops[ci] >= 2 {
-            s += 30;
+            s += BISHOP_PAIR_BONUS;
         }
         // 车占开放线(+20) / 半开放线(+10)；同线叠车再 +15（强攻线）
         for f in 0..8usize {
@@ -319,13 +335,13 @@ pub fn evaluate(board: &Board) -> i32 {
             let own = pawn_mask[ci][f];
             let their = pawn_mask[opp][f];
             let bonus = if own == 0 && their == 0 {
-                20
+                ROOK_OPEN_BONUS
             } else if own == 0 {
-                10
+                ROOK_HALF_OPEN_BONUS
             } else {
                 0
             };
-            let stacked = if rc >= 2 && own == 0 { 30 } else { 0 };
+            let stacked = if rc >= 2 && own == 0 { ROOK_STACKED_BONUS } else { 0 };
             s += bonus * rc + stacked;
         }
 
