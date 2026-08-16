@@ -18,3 +18,6 @@ __pycache__/
 data/selfplay_rl.jsonl
 data/policy_old.bin
 data/rl_match_report.pgn
+
+# CCRL 原始下载（.7z/.pgn 大文件，只跟踪清洗后的 texel 数据）
+data/ccrl/
