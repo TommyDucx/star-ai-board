@@ -86,7 +86,7 @@ def build_matrix(fens, quiet=True):
     return np.array(rows, dtype=np.float64)
 
 
-def adam_tune(X, y, epochs, lr, w_init, bounds, seed=42):
+def adam_tune(X, y, epochs, lr, w_init, bounds, freeze_mask, seed=42):
     np.random.seed(seed)
     w = w_init.copy()
     m = np.zeros_like(w)
@@ -104,6 +104,7 @@ def adam_tune(X, y, epochs, lr, w_init, bounds, seed=42):
             p = sigmoid(eval_cp)
             d = -2.0 * (yb - p) * p * (1.0 - p) * LOG10_OVER_400  # dloss/deval
             grad = Xb.T @ d / len(ids)
+            grad = np.where(freeze_mask, 0.0, grad)  # 冻结参数：梯度置 0
             m = beta1 * m + (1 - beta1) * grad
             v = beta2 * v + (1 - beta2) * (grad * grad)
             mhat = m / (1 - beta1 ** (epoch + 1))
@@ -124,7 +125,16 @@ def main():
     ap.add_argument("--lr", type=float, default=0.1)
     ap.add_argument("--out", default="tuned_params.json")
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--freeze", default="katt_queen,katt_rook,katt_knight,katt_bishop,katt_pawn,pawn_storm",
+                    help="逗号分隔的冻结参数名（不更新梯度）。默认冻结全部攻王/兵冲锋，"
+                         "规避上次「攻王过拟合」(-61 Elo) 的失败模式")
     args = ap.parse_args()
+
+    freeze_names = {x.strip() for x in args.freeze.split(",") if x.strip()}
+    freeze_mask = np.array([name in freeze_names for name in FEATURE_NAMES], dtype=bool)
+    n_frozen = int(freeze_mask.sum())
+    print(f"冻结 {n_frozen} 个参数: {[n for n, m in zip(FEATURE_NAMES, freeze_mask) if m]}",
+          file=sys.stderr, flush=True)
 
     fens, y = load_data(args.data)
     print(f"数据 {len(fens)} 条（result 均值 {y.mean():.4f}）", file=sys.stderr, flush=True)
@@ -132,13 +142,14 @@ def main():
     assert X.shape[1] == len(INIT_PARAMS), f"特征维 {X.shape[1]} != {len(INIT_PARAMS)}"
 
     print(f"初始 loss {np.mean((y - sigmoid(X @ INIT_PARAMS)) ** 2):.6f}", file=sys.stderr, flush=True)
-    w = adam_tune(X, y, args.epochs, args.lr, INIT_PARAMS, BOUNDS, args.seed)
+    w = adam_tune(X, y, args.epochs, args.lr, INIT_PARAMS, BOUNDS, freeze_mask, args.seed)
 
-    # 输出结果（对比初始值）
+    # 输出结果（对比初始值，标注冻结）
     print("\n=== 调参结果（初始 → 调后）===")
     out = {"params": w.round().astype(int).tolist(), "names": FEATURE_NAMES}
-    for name, a, b in zip(FEATURE_NAMES, INIT_PARAMS, w):
-        print(f"  {name:12s} {int(a):6d} -> {int(round(b)):6d}")
+    for name, a, b, frozen in zip(FEATURE_NAMES, INIT_PARAMS, w, freeze_mask):
+        tag = "  [冻结]" if frozen else ""
+        print(f"  {name:12s} {int(a):6d} -> {int(round(b)):6d}{tag}")
     with open(args.out, "w") as f:
         json.dump(out, f, indent=2)
     print(f"\n已写入 {args.out}")
