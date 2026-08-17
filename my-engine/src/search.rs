@@ -322,11 +322,6 @@ impl Searcher {
         // 搜索开始：重置停止标志（只做一次，多线程共享同一 AtomicBool）
         self.stopped.store(false, Ordering::Relaxed);
 
-        // 每走一步棋换一代：age 只在每次 go 开始时 +1（而非每次迭代加深、更非每线程各自 +1）。
-        // 否则 Lazy SMP 下多线程重复换代会让 age 快速递增（u8 回绕）、老化窗口变短、
-        // 有效条目被过早淘汰，命中率下降。
-        self.tt.write().unwrap().new_generation();
-
         let n = self.threads.max(1);
         if n <= 1 {
             return self.search_single(board, depth, time_ms, game_hist, halfmove);
@@ -393,6 +388,9 @@ impl Searcher {
         let full_alpha = i32::MIN + MATE;
         let full_beta = i32::MAX - MATE;
         for d in 1..=self.max_depth {
+            // 每次迭代加深换代：上一轮的深度条目保留给本轮复用（代差1仅限更深覆盖），
+            // 两代前的陈旧条目可被自由淘汰，命中率与新鲜度兼顾。
+            self.tt.write().unwrap().new_generation();
             let root = board.clone();
             // ⚠️ 渴望窗口 (aspiration window) 实测无效，已回退，勿再加：
             // 固定深度 9 的 5 局面基准 1,471,136 vs 1,473,920 节点（−0.2%），耗时/走法完全一致。
@@ -701,26 +699,6 @@ impl Searcher {
                 hash_move = Some(unpack_move(e.mv, e.promo));
             }
         }
-
-        // IID (内部迭代加深)：PV 节点（全窗 beta-alpha>1）且 TT 无 hash move 时，
-        // 先用浅深度搜一遍，把浅搜索得到的“临时最佳走法”填进走法排序，大幅改善
-        // 全窗搜索的走法排序质量（否则全窗节点只能靠 MVV-LVA/killer/history 盲搜）。
-        // 只在非将军、足够深时触发：零窗口节点排序收益低、浅层再浅搜意义不大、
-        // 将军局面已由将军延伸处理。浅搜索会把 best move 写回 TT，此处重新 probe 取到即可。
-        // 浅搜索与主搜索同一局面(同一 key)，path 截断后重 push 的是同一键，不变量不受影响；
-        // 其 history/killer 更新对主搜索反而是额外收益。
-        if beta - alpha > 1 && hash_move.is_none() && !in_check && depth >= 4 {
-            self.alpha_beta(board, depth - 2, alpha, beta, ply, halfmove);
-            if self.stopped.load(Ordering::Relaxed) {
-                return 0;
-            }
-            if let Some(e) = self.tt.read().unwrap().probe(key) {
-                if e.mv != 0 {
-                    hash_move = Some(unpack_move(e.mv, e.promo));
-                }
-            }
-        }
-
         // 反向无效裁剪 (reverse futility / static null move)：浅层非将军节点，
         // 若静态评估扣掉一个保守 margin 后仍 >= beta，说明本节点几乎必然失败高位，直接返回。
         // 排除接近将杀的分值，避免剪掉将杀线。
