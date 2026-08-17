@@ -1,7 +1,7 @@
 # STAR 系统架构与工作流程交接文档
 
 > 用途：让新对话（agent）快速了解现有系统，按相同步骤继续开发。
-> 更新日期：2026-08-13
+> 更新日期：2026-08-17
 
 ---
 
@@ -163,10 +163,22 @@ git push "https://x-access-token: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@github
 - **UCI 参数**：`Policy`(bool, default true) / `PolicyAggressiveness`(0~100, default 50) / `Hash`(MB, default 96) / `Contempt`(0~200, default 50) / `Threads`(1~16, default 1)；`info` 走 stderr（`eprintln`），`bestmove` 走 stdout
 - **重新训练**：`python3 my-engine/policy/train_policy.py`（读取 data/final_dataset.jsonl），导出 `policy.bin` 用 `export_weights.py`；训练依赖 torch + onnx + onnxruntime（本地用 miniconda `pfllib` 环境）
 
-> ⚠️ 已实验并否定的方向（勿重复尝试，详见 memory 日志 2026-08-13）：
-> - **残差 CNN + 数据加权重训**：实测 −40 Elo，消融定位为「数据过滤+加权」和「残差+FC96」双双负贡献，已回滚到无残差 FC64 + 原数据；
-> - **INT8 量化**：Policy 每步仅前向 0.12ms（占搜索 <0.1%），量化收益可忽略，不值得做；
-> - **LMP / 前向 futility**：实测 −69.7 Elo（代码注释留档），勿加回。
+> ⚠️ 已实验并否定的方向（**9 连败，勿重试**，详见 memory 日志 2026-08-13 ~ 08-17）：
+
+**数据侧/评估侧 7 连败**（根因：静态 eval/Policy 拟合对局结果 ≠ 搜索棋力，eval 与剪枝耦合）：
+> - 残差 CNN + 数据加权重训：−40 Elo（消融定位为「数据过滤+加权」与「残差+FC96」双负贡献，已回滚到无残差 FC64 + 原数据）
+> - LMP / 前向 futility：−69.7 Elo（代码注释留档）
+> - Stockfish 教师标签：−34.9 Elo（外来标签与引擎 eval 不自洽）
+> - 纯 α-β 自蒸馏标签：−34.9 Elo
+> - deep 自洽标签（policy 开 + 深搜索）：−6.1 Elo（400 局，未复现 96 局 +47）
+> - Texel tuning（self-play 数据）：−61.4 Elo（攻王过拟合，katt_ 暴涨）
+> - Texel tuning（CCRL 116 万数据 + 冻结攻王）：**−110.4 Elo**（scale 漂移，子力值砍半/通路兵王盾归零）
+
+**搜索侧精细化 2 连败**：
+> - IID 内部迭代加深：−20 Elo（浅搜索引擎 300ms 仅 10-11 层，浅搜成本收益比不划算）
+> - TT age 换代上移：−38.4 Elo（迭代加深每次换代是「清旧促新」的特性，不是 bug）
+
+**铁律**：任何影响「走法排序 / eval / 剪枝」的改动，只能用对局验证（500+ 局），不能用 loss/val_top1/节点数代理，也不能用「理论分析」判定某处是 bug/优化。小样本 Elo 不可信（+47 都可能是噪声）。
 
 ---
 
@@ -216,19 +228,28 @@ git push "https://x-access-token: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@github
 
 ---
 
-## 十、棋力提升记录与下一步建议
+## 十、棋力提升记录与结论（2026-08-17 定论）
 
-### 已完成的棋力提升（2026-08-13，均有 git 标签可回滚）
+### 唯一净收益：Lazy SMP 多线程 +51 Elo
 
 | 标签 | 内容 | 结果 |
 |---|---|---|
 | `v1_baseline` | 第一批安全优化：进攻走子排序加分、双车叠开放线、TT 扩容 4M、native 编译、Hash 默认 96 | 无回归 |
-| `v2_smp`（当前 HEAD） | **Lazy SMP 多线程搜索**（TT/Policy 共享、Threads 参数、fork 辅助线程） | 96 局 **+51 Elo / LOS 95.4%** |
-| 第三批（已回滚） | 残差 CNN + 数据加权重训 Policy | **−40 Elo，消融否定** |
+| `v2_smp`（**最终版**） | Lazy SMP 多线程搜索（TT/Policy 共享、Threads 参数、fork 辅助线程） | 96 局 **+51 Elo / LOS 95.4%**，已部署树莓派 |
 
-### 下一步建议
+### 9 连败记录（全部否定，勿重试）
 
-- 引擎棋力严谨评估（多局固定开局 vs Stockfish 分级，验证 +51 Elo 的绝对棋力）
-- 高风险实验模块（LMR 分层 / 反向 futility 动态化，做成 UCI 开关 + ≥500 局验证，有 −69.7 Elo 前车之鉴）
-- 自博弈强化学习闭环（多线程引擎大批量自对弈 → 筛选战术局 → 重训 → 千局对战 >56% 替换）
-- 残局库 / Value 网络（长期目标）
+| 方向 | 结果 |
+|---|---|
+| 数据侧 7 连败（重训/换血/Texel×2） | 残差 CNN −40 / LMP −69.7 / SF 标签 −34.9 / αβ蒸馏 −34.9 / deep自洽 −6.1 / Texel(self-play) −61.4 / Texel(CCRL+冻结) −110.4 |
+| 搜索侧 2 连败 | IID −20 / TT age −38.4 |
+
+### 结论
+
+- 入门级引擎在「手工启发式 eval + α-β」框架下已到**实际天花板**，唯一净收益 = Lazy SMP +51 Elo。
+- **数据侧 / 评估侧 / 搜索侧精细化全部封板**，不要再投入。`search.rs` 已回滚到 `v2_smp` 状态。
+
+### 长期方向（需先补数据管线课，不是下一步）
+
+- **NNUE 代际跃迁**：需要「搜索后 self-play 标签」+ 增量更新（HalfKP/HalfKA），而非「静态局面 + 对局结果」。当前 9 次数据实验全败证明数据管线能力不足，这是「先补课」的长期目标。
+- 若继续，唯一可能有效的是换数据范式（教师引擎深度搜索打标签 + NNUE 架构），而非在现有 eval/CNN 上继续调参。
