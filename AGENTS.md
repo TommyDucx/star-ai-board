@@ -51,12 +51,12 @@ GitHub：github.com/TommyDucx/star-ai-board  ← 两目录共用的远程仓库
 
 | 项目 | 值 |
 |---|---|
-| 树莓派 SSH | `ssh pi@192.168.0.107`，密码 `n8imativ` |
+| 树莓派 SSH | `ssh pi@192.168.0.107`，密码见环境变量 `$PI_PASS`（勿写回文档） |
 | 树莓派主机名 | `pi-wildlife2`（Debian 13 aarch64） |
 | 网站地址 | `http://192.168.0.107:8765` |
 | 网站服务 | `systemctl restart star-ai-board`（systemd） |
 | GitHub 仓库 | `https://github.com/TommyDucx/star-ai-board.git` |
-| GitHub 推送 Token | `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` |
+| GitHub 推送 Token | 本机凭据存储（`git credential` / keychain），命令里用 `$GITHUB_TOKEN`，勿写回文档 |
 | 本地代理（访问 GitHub 等国外站） | `export http_proxy=http://127.0.0.1:1087; export https_proxy=http://127.0.0.1:1087` |
 | 树莓派访问 GitHub | ❌ 不通（国内网络），源码/权重需本地中转 |
 | 树莓派默认网关/DNS | 192.168.0.1 / 120.196.165.24 |
@@ -76,21 +76,21 @@ GitHub：github.com/TommyDucx/star-ai-board  ← 两目录共用的远程仓库
 set timeout 60
 spawn ssh -o StrictHostKeyChecking=no -o ConnectTimeout=8 pi@192.168.0.107 {*}$argv
 expect {
-  "*password:" { send "n8imativ\r"; exp_continue }
+  "*password:" { send "$env(PI_PASS)\r"; exp_continue }
   "*yes/no*" { send "yes\r"; exp_continue }
   eof
 }
 ```
-用法：`expect /tmp/rc.exp "systemctl is-active star-ai-board"`
+用法：`PI_PASS=xxxx expect /tmp/rc.exp "systemctl is-active star-ai-board"`
 
 ```bash
 # /tmp/scp.exp —— 传文件
 #!/usr/bin/expect -f
 set timeout 300
 spawn scp -o StrictHostKeyChecking=no <本地文件> pi@192.168.0.107:<目标路径>
-expect { "*password:" { send "n8imativ\r"; exp_continue } eof }
+expect { "*password:" { send "$env(PI_PASS)\r"; exp_continue } eof }
 ```
-用法：`expect /tmp/scp.exp`
+用法：`PI_PASS=xxxx expect /tmp/scp.exp`
 
 > 坑：expect 脚本的 cwd 与 shell 不同，scp 源文件必须用**绝对路径**。
 
@@ -129,15 +129,19 @@ expect /tmp/rc.exp "journalctl -u star-ai-board -n 5 --no-pager | grep -iE '引�
 ### 5. 页面功能验证（CDP 无头 Chrome 测试）
 用 headless Chrome + WebSocket CDP 写 JS 脚本验证（模式见下）。
 
-### 6. 提交并推送 GitHub
+### 6. 提交并双端推送（cnb + GitHub）
 ```bash
 cd "/Users/tommydu/Documents/Star Chess"
 git add <文件>
 git commit -m "..."
-# 先直连试，失败用代理：
+# ① 推送 cnb（云端 agent 同步源）
+git push cnb main
+# ② 推送 GitHub：先直连试，失败用代理（token 在本机凭据存储，勿写进命令/文档）
 export http_proxy=http://127.0.0.1:1087 https_proxy=http://127.0.0.1:1087
-git push "https://x-access-token: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@github.com/TommyDucx/star-ai-board.git" main
+git push origin main
+# ⚠️ 两端口径以本地 commit 为准；若任一端 push 失败，另一端也先别重试（避免分叉），先排查
 ```
+> 凭据管理：`git push cnb main` / `git push origin main` 走本机凭据存储（osxkeychain / `~/.git-credentials`），token 不在仓库里明文出现。
 
 ---
 

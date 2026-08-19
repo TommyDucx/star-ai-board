@@ -57,7 +57,7 @@
 - **本地 commit 不影响云 agent**（可随时做）。
 - **云 agent 跑实验期间，本地避免 push CNB**——push 会让 CNB main 前进，云 agent 跑完 `git push` 会 non-fast-forward 冲突。改为：本地先 commit 暂存，云 agent push 后本地 `git pull --rebase cnb main` 合并，再统一 push。
 - GitHub push 用代理：`export http_proxy=http://127.0.0.1:1087; export https_proxy=http://127.0.0.1:1087`（直连失败/超时）。
-- ⚠️ AGENTS.md 含明文凭据（PAT + 树莓派 SSH 密码），触发 GitHub secret scanning 拦截 push，需在 GitHub 端 unblock 或剥离凭据。
+- ⚠️ 凭据一律走环境变量/本机凭据存储，**禁止写回 AGENTS.md / 提示词 / 任何仓库文件**（明文 PAT 会被 GitHub secret scanning 发现并自动吊销）。
 
 ## 七、环境速查
 

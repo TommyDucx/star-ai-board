@@ -5,7 +5,7 @@
 #   bash "/Users/tommydu/Documents/Default Project/star/sync_to_pi.sh" [GAMES]
 #   GAMES 默认 2000 局（自对弈数量）
 #
-# 运行时会按提示输入树莓派密码（n8imativ）。
+# 运行时会按提示输入树莓派密码（环境变量 PI_PASS，勿写回脚本）。
 # 若想免密，可在 Mac 上执行: ssh-copy-id pi@192.168.0.107
 set -euo pipefail
 
