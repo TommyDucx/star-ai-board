@@ -277,8 +277,9 @@ Lichess/chess-position-evaluations (HF, parquet, 957M 行, cp/mate 均白方视�
 - 入门级引擎在「手工启发式 eval + α-β」框架下已到**实际天花板**，唯一净收益 = Lazy SMP +51 Elo。
 - **数据侧 / 评估侧 / 搜索侧精细化全部封板**，不要再投入。`search.rs` 已回滚到 `v2_smp` 状态。
 
-### 长期方向（NNUE 数据管线已跑通 M0–M2，下一步 M3 引擎集成）
+### 长期方向（M0–M4 已跑通，结论：静态 CNN 太慢，下一步增量推理）
 
-- **数据闭环已就绪**（2026-08-19）：5.66M 安静局面 + HalfK-768 + 标量 eval 网络已可训练。下一步 M3：`nnue.rs` 静态推理接入 `eval.rs`（golden test 对 PyTorch 逐位一致，UCI 加 `Eval` 开关），M4：match.py 500+ 局 vs v2_smp 基线验证 Elo。
-- 最终标签源仍是「搜索后 self-play 标签 + 增量更新（HalfKP/HalfKA）」，现阶段的 SF eval 数据是补数据管线课、打通闭环的必经一步。
-- 若继续，唯一可能有效的是换数据范式（教师引擎深度搜索打标签 + NNUE 架构），而非在现有 eval/CNN 上继续调参。
+- **数据闭环已就绪**（2026-08-19）：5.66M 安静局面 + HalfK-768 + 标量 eval 网络已可训练；教师深搜 eval 标签（40 万行）→ data-etl `--stm-cp` → 30.2 万唯一局面。
+- **M3 引擎集成完成**：`nnue.rs` 静态 CNN 推理接入 `eval.rs`（UCI `Eval` 开关，默认手写），golden test 对 PyTorch 逐位一致（PASS）。
+- **M4 对局验证完成**：pilot 40 局 **0-40**（LOS=1.0）。根因 = 静态 NNUE eval ~100x 慢 → 搜索深度塌陷。**静态推理已封板**（深度受限，棋力必输），不要用静态 CNN 跑正式 500 局。
+- 下一步 = **NNUE 增量推理**（HalfKP 特征增量更新 + 王桶，eval 成本降到 µs 级）才能真正谈棋力；标签源最终仍是「搜索后 self-play 标签 + 增量更新（HalfKP/HalfKA）」。
