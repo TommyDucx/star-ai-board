@@ -5,6 +5,7 @@ node_modules/
 
 # 引擎二进制（需自行获取，见 README）
 public/stockfish
+public/nn-*.nnue
 
 # 系统文件
 .DS_Store
@@ -21,3 +22,10 @@ data/rl_match_report.pgn
 
 # CCRL 原始下载（.7z/.pgn 大文件，只跟踪清洗后的 texel 数据）
 data/ccrl/
+
+# NNUE 数据管线产物（.scnn 训练集 / sidecar / stats，体积大不入库）
+data/nnue/
+my-engine/policy/policy_nnue.pt
+my-engine/policy/policy_nnue.onnx
+my-engine/policy/nnue.bin
+data-etl/target/
