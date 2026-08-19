@@ -67,6 +67,7 @@ fn main() {
     let mut max_material: u32 = 30;
     let mut clamp: i32 = 2000;
     let mut subsample: u64 = 1;
+    let mut stm_cp: bool = false;
 
     while let Some(a) = args.next() {
         match a.as_str() {
@@ -78,6 +79,7 @@ fn main() {
             "--max-material" => max_material = args.next().unwrap().parse().unwrap(),
             "--clamp" => clamp = args.next().unwrap().parse().unwrap(),
             "--hash-subsample" => subsample = args.next().unwrap().parse().unwrap(),
+            "--stm-cp" => stm_cp = true,
             _ => {
                 eprintln!("未知参数: {a}");
                 std::process::exit(2);
@@ -128,19 +130,33 @@ fn main() {
         stats.total += 1;
 
         let cols: Vec<&str> = line.split('\t').collect();
-        if cols.len() < 4 {
+        if cols.len() < 2 {
             stats.parse_err += 1;
             continue;
         }
         let fen = cols[0];
-        let depth: i32 = match cols[3].trim().parse() {
-            Ok(d) => d,
-            Err(_) => {
+        // stm_cp 模式（教师标签 `FEN\tcp_stm`）：cp 已是行棋方视角，无 mate/depth。
+        // 否则为 Lichess 官方格式 `FEN\tcp_white\tmate\tdepth`。
+        let (cp_white, mate, depth) = if stm_cp {
+            (
+                cols[1].trim().parse().unwrap_or(0),
+                None,
+                i32::MAX,
+            )
+        } else {
+            if cols.len() < 4 {
                 stats.parse_err += 1;
                 continue;
             }
+            let depth: i32 = match cols[3].trim().parse() {
+                Ok(d) => d,
+                Err(_) => {
+                    stats.parse_err += 1;
+                    continue;
+                }
+            };
+            (cols[1].trim().parse().unwrap_or(0), cols[2].trim().parse::<i32>().ok(), depth)
         };
-        let mate: Option<i32> = cols[2].trim().parse().ok();
 
         // 原始轮走方（用于 cp/mate 视角转换；规范化后恒为 White）
         let stm_white = fen
@@ -181,8 +197,11 @@ fn main() {
         }
 
         // 4. 标签（轮走方视角）与可比分数
-        let cp_white: i32 = cols[1].trim().parse().unwrap_or(0);
-        let (cp_stm, comparable) = if let Some(m) = mate {
+        let (cp_stm, comparable) = if stm_cp {
+            // 教师标签：cp 已是行棋方视角，直接使用
+            let cp = cp_white;
+            (cp, cp)
+        } else if let Some(m) = mate {
             // mate 为白方视角：正=白将杀。轮走方视角：白走取原值，黑走取反。
             let m_stm = if stm_white { m } else { -m };
             let comp = if m_stm > 0 {

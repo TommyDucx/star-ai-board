@@ -86,7 +86,8 @@ def validated_openings():
 
 
 class UCIEngine:
-    def __init__(self, eng_path, workdir, policy_path=None, policy_on=True, threads=1):
+    def __init__(self, eng_path, workdir, policy_path=None, policy_on=True, threads=1,
+                 nnue_path=None, eval_mode="handcrafted"):
         self.eng = eng_path
         self.workdir = workdir
         os.makedirs(workdir, exist_ok=True)
@@ -95,6 +96,10 @@ class UCIEngine:
         if policy_path and os.path.isfile(policy_path):
             shutil.copy(policy_path, self.policy_file)
         self.policy_on = policy_on
+        # 把 nnue.bin 放进工作目录（引擎启动时按候选路径加载）
+        if nnue_path and os.path.isfile(nnue_path):
+            shutil.copy(nnue_path, os.path.join(workdir, "nnue.bin"))
+        self.eval_mode = eval_mode
         self.proc = subprocess.Popen(
             [eng_path], cwd=workdir,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
@@ -106,6 +111,8 @@ class UCIEngine:
         if not policy_on:
             self._send("setoption name Policy value false")
         self._send(f"setoption name Threads value {threads}")
+        if eval_mode == "nnue":
+            self._send("setoption name Eval value nnue")
         self._send("isready")
         self._read_until("readyok", 10)
 
@@ -233,6 +240,12 @@ def main():
     ap.add_argument("--disable-b", action="store_true", help="B 侧关闭策略")
     ap.add_argument("--threads-a", type=int, default=1, help="A 侧搜索线程数(setoption Threads)")
     ap.add_argument("--threads-b", type=int, default=1, help="B 侧搜索线程数(setoption Threads)")
+    ap.add_argument("--nnue-a", default=None, help="A 侧 nnue.bin 路径（拷入工作目录供引擎加载）")
+    ap.add_argument("--nnue-b", default=None, help="B 侧 nnue.bin 路径（拷入工作目录供引擎加载）")
+    ap.add_argument("--eval-a", default="handcrafted", choices=["handcrafted", "nnue"],
+                    help="A 侧 Eval 模式(setoption Eval)")
+    ap.add_argument("--eval-b", default="handcrafted", choices=["handcrafted", "nnue"],
+                    help="B 侧 Eval 模式(setoption Eval)")
     ap.add_argument("--games", type=int, default=40)
     ap.add_argument("--movetime", type=int, default=300, help="每步思考时间(ms)")
     ap.add_argument("--concurrency", type=int, default=1, help="并行对局数（<= 物理核数）")
@@ -300,8 +313,10 @@ def main():
     def worker(slot, indices):
         wa = os.path.join(base, f"A{slot}")
         wb = os.path.join(base, f"B{slot}")
-        engA = UCIEngine(args.eng_a, wa, args.policy_a, policy_on=not args.disable_a, threads=args.threads_a)
-        engB = UCIEngine(args.eng_b, wb, args.policy_b, policy_on=not args.disable_b, threads=args.threads_b)
+        engA = UCIEngine(args.eng_a, wa, args.policy_a, policy_on=not args.disable_a, threads=args.threads_a,
+                         nnue_path=args.nnue_a, eval_mode=args.eval_a)
+        engB = UCIEngine(args.eng_b, wb, args.policy_b, policy_on=not args.disable_b, threads=args.threads_b,
+                         nnue_path=args.nnue_b, eval_mode=args.eval_b)
         try:
             for g in indices:
                 # 成对对局：相邻两局用同一条开局，交换先后手

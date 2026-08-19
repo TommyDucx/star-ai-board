@@ -189,6 +189,50 @@ fn king_shield(board: &Board, color: Color) -> i32 {
 ///
 /// 组成：子力 + PST + 渐变王位置分(tapered) + 王翼掩护(按阶段缩放)
 ///     + 兵形(叠兵/孤兵/通路兵) + 双象 + 车占开放线
+///
+/// NNUE 集成（M3，UCI `Eval` 开关，默认手写）：`eval_stm` 在 NNUE 加载且
+/// 开启时改用 NNUE 静态推理（stm 视角 cp）。全局开关便于对照实验，search.rs
+/// 调用点不变。
+
+use crate::nnue::Nnue;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, OnceLock};
+
+static NNUE: OnceLock<Option<Arc<Nnue>>> = OnceLock::new();
+static NNUE_ON: AtomicBool = AtomicBool::new(false);
+
+/// 启动时尝试加载 NNUE 权重（候选路径与 Policy 相同：exe 同目录 / 上级 / policy/）。
+pub fn init_nnue() -> bool {
+    let nnue = Nnue::load("./nnue.bin").map(Arc::new);
+    let ok = nnue.is_some();
+    let _ = NNUE.set(nnue);
+    ok
+}
+
+/// UCI `Eval` 开关：true = eval_stm 走 NNUE，false = 手写启发式。
+pub fn set_nnue(on: bool) {
+    NNUE_ON.store(on, Ordering::Relaxed);
+}
+
+pub fn nnue_enabled() -> bool {
+    NNUE_ON.load(Ordering::Relaxed) && NNUE.get().is_some_and(|o| o.is_some())
+}
+
+/// 行棋方视角评估（用于 negamax 叶子）
+pub fn eval_stm(board: &Board) -> i32 {
+    if nnue_enabled() {
+        if let Some(nnue) = NNUE.get().unwrap().as_deref() {
+            return nnue.predict_cp(board);
+        }
+    }
+    let s = evaluate(board);
+    if board.side_to_move() == Color::White {
+        s
+    } else {
+        -s
+    }
+}
+
 pub fn evaluate(board: &Board) -> i32 {
     let mut score = 0i32;
     let mut phase = 0i32;
@@ -352,14 +396,4 @@ pub fn evaluate(board: &Board) -> i32 {
     }
 
     score
-}
-
-/// 行棋方视角评估（用于 negamax 叶子）
-pub fn eval_stm(board: &Board) -> i32 {
-    let s = evaluate(board);
-    if board.side_to_move() == Color::White {
-        s
-    } else {
-        -s
-    }
 }

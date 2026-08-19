@@ -2,6 +2,7 @@
 //! Searcher 在搜索线程中使用并在完成后归还，保证换位表跨步复用。
 
 mod eval;
+mod nnue;
 mod policy;
 mod search;
 
@@ -14,6 +15,7 @@ use std::sync::Arc;
 use std::thread;
 
 fn main() {
+    let _ = eval::init_nnue();
     let stdin = io::stdin();
     let mut board = Board::default();
     // 本局历史局面键 + 半步计数：chess 3.2.0 的 Board 不保存这两样，
@@ -52,6 +54,7 @@ fn main() {
                 println!("option name PolicyAggressiveness type spin default 50 min 0 max 100");
                 println!("option name Hash type spin default 96 min 1 max 2048");
                 println!("option name Contempt type spin default 50 min 0 max 200");
+                println!("option name Eval type combo default handcrafted var handcrafted var nnue");
                 println!("option name Threads type spin default 1 min 1 max 16");
                 println!("uciok");
                 io::stdout().flush().ok();
@@ -125,6 +128,8 @@ fn main() {
                             if let Ok(v) = value.parse::<usize>() {
                                 s.set_threads(v);
                             }
+                        } else if name.eq_ignore_ascii_case("eval") {
+                            eval::set_nnue(value.eq_ignore_ascii_case("nnue"));
                         }
                     }
                 }
