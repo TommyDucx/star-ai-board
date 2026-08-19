@@ -1,7 +1,9 @@
 # STAR 系统架构与工作流程交接文档
 
 > 用途：让新对话（agent）快速了解现有系统，按相同步骤继续开发。
-> 更新日期：2026-08-17
+> 更新日期：2026-08-19
+>
+> 📌 **先读 `WORKING_PRINCIPLES.md`** —— 本地 agent ↔ 云 agent 协作规范（什么时候只写提示词交云 agent、什么时候本地跑、实验验证铁律、git 协作）。
 
 ---
 
@@ -17,8 +19,9 @@
 │    │   ├─ src/search.rs  α-β + TT + killer + 历史 + qsearch + SEE  │
 │    │   ├─ src/policy.rs  手写 CNN 推理（8×8×13→4096 走法概率）     │
 │    │   ├─ src/main.rs    UCI 协议                                   │
-│    │   └─ policy/        policy.bin/onnx/pt（策略模型）             │
-│    ├─ data/              训练数据集（final_dataset.jsonl 等）       │
+│    │   └─ policy/        policy.bin/onnx/pt + NNUE 训练脚本         │
+│    ├─ data-etl/          NNUE 数据 ETL（Rust：清洗+HalfK-768+.scnn）│
+│    ├─ data/              训练数据集（final_dataset.jsonl / nnue/）  │
 │    ├─ dataset_gen.py / selfplay.py / make_teacher.py / match.py    │
 │    └─ train_pipeline.sh / train_self.sh   训练/自对弈脚本           │
 │                                                                      │
@@ -196,6 +199,23 @@ git push "https://x-access-token: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@github
 
 数据管道：`dataset_gen.py`（或 `selfplay.py`）→ `merge_dataset.py` → `final_dataset.jsonl` → `train_policy.py` → `policy.pt/onnx` → `export_weights.py` → `policy.bin`
 
+### NNUE 数据管线（2026-08-19 新闭环，M0–M2 完成）
+
+```
+Lichess/chess-position-evaluations (HF, parquet, 957M 行, cp/mate 均白方视角)
+  → parquet_dump.py (pyarrow 流式, 深度≥15 预滤)
+  → data-etl (Rust, 清洗+去重+HalfK-768+.scnn)
+  → train_nnue.py (memmap 训练, 12×8×8→标量 eval)
+  → policy_nnue.pt / nnue.bin
+```
+
+- **数据源**：HF `Lichess/chess-position-evaluations`（官方 lichess 分析板 SF 评估）。下载走本地代理，**hf.co CDN 实测 22MB/s**。单个 data_0000.parquet 54M 行 / 2.1GB；全量 42GB（20 文件）不必全下。
+- **schema 实测**：cp 与 mate 都是**白方视角**（正=白优/白将杀），已用本地 SF 交叉验证；FEN 只有 4 字段（无 fullmove/半步行数）。
+- **清洗（data-etl 全阈值 CLI 化）**：depth≥15 / 子力≤30（ply 过滤的替代，因 FEN 无 fullmove）/ 去将军 / 去可升变 / 按 Zobrist 去重（MultiPV 多行取**最优线** = 对行棋方最有利的 comparable 分）/ 可选 hash 空间下采样。mate→cp：`sign*(30000-2|m|)` 再 clamp ±2000。输出 `.scnn`（magic SCNN + u32 v + u64 N + u32 768 + N×(768×u8 特征 + f32 cp_stm + f32 result_stm=NaN)）。
+- **特征编码 HalfK-768**：12 通道×64 格，**stm 视角**（黑走时颜色互换，不镜像棋盘）。SF 实测：棋盘旋转/镜像**不保持 eval**（rot90 可 519→-74），故**训练无 D4 增广**，仅颜色互换规范化合法。
+- **golden test**：`qa_nnue.py` 用 python-chess 逐位比对特征（1500/1500 一致）+ 最优线标签验证 + 分布统计。
+- **训练**：`train_nnue.py` memmap 读 .scnn，标签 T=sigmoid(cp_stm/400)，MSE，135K 参数 CNN（无增广）。当前数据：5.66M 唯一局面（hash 下采样 2，.scnn 4.4GB）。
+
 ---
 
 ## 八、常见坑与经验
@@ -212,6 +232,10 @@ git push "https://x-access-token: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@github
 10. **首页磁吸**：由 motion.js 的 `.magnetic` class 控制（hover 才磁吸，离开回正）；演示盘已移除磁吸
 11. **git stash 回滚陷阱**（2026-08-13 踩过）：源码可能被意外 `git stash` 导致工作区回退到旧 HEAD，表现为「改完的代码消失、编译产物变小、UCI option 变少」。排查：`git stash list`，用 `git show stash@{0}:<文件>` 看 stash 内容，`git checkout stash@{0} -- <文件>` 恢复。**改完代码后先 `git status` 确认源码在 modified 列表，再编译**，否则会拿旧代码编译+对弈、得出错误结论
 12. **match.py 线程参数**：已支持 `--threads-a/--threads-b`（默认 1）；对比多线程收益时注意 `concurrency × Threads ≤ 物理核数`，否则线程争抢 CPU 会污染测量
+13. **ETL 子力计数坑**：`material_count(fen)` 若直接数整行字节会连 `" b - -"` 的 6 个 token 一起算，导致实际 24 子以上的局面全被误删（drop_material 从 6 万虚增到 13 万）。**只数 `fen.split()[0]`**。修这类"丢弃率异常高"先怀疑计数范围
+14. **eval 增广铁律**：SF eval 在棋盘旋转/镜像下**不保持**（rot90 实测 519→-74，rot180 也漂移），NNUE 训练**禁止 D4 增广**，唯一合法规范化是颜色互换（黑走互换后 stm 恒为白，eval 严格保持）
+15. **chess crate 比 python-chess 更严**：`Board::from_str` 会拒绝「轮不到走的一方被将军」等非法 FEN（Lichess 数据 0.1~0.4% 非法），这是正确丢弃不是 bug
+16. **Lichess eval 视角**：HF `Lichess/chess-position-evaluations` 的 cp/mate 都是**白方视角**；MultiPV 反规范化使数据 ~6 倍冗余（1M 行仅 17% 唯一），必须按 FEN 去重取对行棋方最优线
 
 ---
 
@@ -249,7 +273,8 @@ git push "https://x-access-token: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@github
 - 入门级引擎在「手工启发式 eval + α-β」框架下已到**实际天花板**，唯一净收益 = Lazy SMP +51 Elo。
 - **数据侧 / 评估侧 / 搜索侧精细化全部封板**，不要再投入。`search.rs` 已回滚到 `v2_smp` 状态。
 
-### 长期方向（需先补数据管线课，不是下一步）
+### 长期方向（NNUE 数据管线已跑通 M0–M2，下一步 M3 引擎集成）
 
-- **NNUE 代际跃迁**：需要「搜索后 self-play 标签」+ 增量更新（HalfKP/HalfKA），而非「静态局面 + 对局结果」。当前 9 次数据实验全败证明数据管线能力不足，这是「先补课」的长期目标。
+- **数据闭环已就绪**（2026-08-19）：5.66M 安静局面 + HalfK-768 + 标量 eval 网络已可训练。下一步 M3：`nnue.rs` 静态推理接入 `eval.rs`（golden test 对 PyTorch 逐位一致，UCI 加 `Eval` 开关），M4：match.py 500+ 局 vs v2_smp 基线验证 Elo。
+- 最终标签源仍是「搜索后 self-play 标签 + 增量更新（HalfKP/HalfKA）」，现阶段的 SF eval 数据是补数据管线课、打通闭环的必经一步。
 - 若继续，唯一可能有效的是换数据范式（教师引擎深度搜索打标签 + NNUE 架构），而非在现有 eval/CNN 上继续调参。
