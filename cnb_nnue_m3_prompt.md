@@ -10,7 +10,7 @@
   - `my-engine/src/nnue.rs`：HalfK-768→logit 手写 CNN 前向（与 `train_nnue.py` 的 EvalNet 结构逐层一致），加载 `nnue.bin`（`policy/export` 格式）。
   - `eval.rs`：`UCI Eval` 开关（`handcrafted` 默认 / `nnue`），`eval_stm` 切换。
   - `match.py`：新增 `--nnue-a/b --eval-a/b` 支持 A/B 对照。
-  - `golden_nnue.py` + `src/bin/nnue_eval`：Rust vs PyTorch 逐位一致验证（随机权重本地已 PASS，max_diff=0.0）。
+  - `golden_nnue.py` + `my-engine/nnue/src/bin/nnue_eval`：Rust vs PyTorch 逐位一致验证（随机权重本地已 PASS，max_diff=0.0）。
 - **已知风险（务必如实汇报）**：静态 NNUE 推理每个节点约 23ms（vs 手写 eval 快几百倍），搜索深度会大幅下降（本地实测 depth3 需 66s）。**先跑小样本 pilot 对局测量深度差距，再决定是否跑 500 局**——不要盲目跑 500 局。
 
 ## ⚠️ 约束
@@ -32,8 +32,8 @@ ls data/eval_labels.txt.gz
 cd /workspace
 # Rust 环境：若无 cargo，按 `curl https://sh.rustup.rs -sSf | sh` 安装后 source ~/.cargo/env
 cd data-etl && cargo build --release && cd ..
-cd my-engine && cargo build --release && cargo build --release --bin nnue_eval && cd ..
-ls -la data-etl/target/release/data-etl my-engine/target/release/my-engine my-engine/target/release/nnue_eval
+cd my-engine/handcrafted && cargo build --release && cd ../nnue && cargo build --release --bin nnue_eval && cd ..
+ls -la data-etl/target/release/data-etl my-engine/handcrafted/target/release/my-engine my-engine/nnue/target/release/nnue_eval
 ```
 > 编译若因缺依赖失败，把报错贴回来。
 
@@ -65,7 +65,7 @@ cd /workspace
 python3 my-engine/policy/golden_nnue.py \
   --nnue my-engine/policy/nnue.bin \
   --fens my-engine/policy/golden_fens.txt \
-  --rust-bin my-engine/target/release/nnue_eval
+  --rust-bin my-engine/nnue/target/release/nnue_eval
 ```
 **必须输出 `GOLDEN TEST PASS`**（max_abs_diff 应 <1e-3）。若 FAIL，把 mismatch 行贴回来，**不要继续**。
 
@@ -81,7 +81,7 @@ rm -f nnue.bin
 ## 第 6 步：Pilot 对局（40 局，测深度差距，决定是否 500 局）
 ```bash
 cd /workspace
-python3 match.py --eng my-engine/target/release/my-engine \
+python3 match.py --eng my-engine/handcrafted/target/release/my-engine \
   --name-a v2_smp --name-b nnue \
   --nnue-b my-engine/policy/nnue.bin --eval-b nnue \
   --games 40 --movetime 300 --concurrency 8 --threads-a 1 --threads-b 1 \
@@ -94,7 +94,7 @@ cat match_nnue_pilot.json
 - 若 NNUE 在 pilot 中**显著落后**（Elo 差 >100 或完全被压制）且明显是搜索深度塌陷所致 → 这就是「静态推理太慢」的预期结果，**不要**再跑 500 局浪费核时。汇报结论：M3 闭环跑通（数据→训练→golden→集成→对局全链路 OK），但静态 NNUE 因深度受限棋力不足，下一步需增量推理。
 - 若 NNUE 与基线接近（Elo 差 <100，LOS 不一边倒）→ 继续跑 500 局验证：
 ```bash
-python3 match.py --eng my-engine/target/release/my-engine \
+python3 match.py --eng my-engine/handcrafted/target/release/my-engine \
   --name-a v2_smp --name-b nnue \
   --nnue-b my-engine/policy/nnue.bin --eval-b nnue \
   --games 500 --movetime 300 --concurrency 8 --threads-a 1 --threads-b 1 \

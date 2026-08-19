@@ -50,7 +50,7 @@ import chess.svg
 
 # ── 路径常量 ──────────────────────────────────────────
 SCRIPT_DIR = Path(__file__).resolve().parent
-ENGINE_BIN = SCRIPT_DIR / "my-engine" / "target" / "release" / "my-engine"
+ENGINE_BIN = SCRIPT_DIR / "handcrafted" / "target" / "release" / "my-engine"
 DATA_DIR = SCRIPT_DIR.parent / "data"
 
 # ── 开局库（UCI 格式）── 随机化开局增加多样性 ────────

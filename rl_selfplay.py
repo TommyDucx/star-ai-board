@@ -22,7 +22,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from dataset_gen import UCIClient, OPENING_BOOK, play_one_game  # noqa: E402
 
-ENGINE_BIN = Path(__file__).resolve().parent / "my-engine" / "target" / "release" / "my-engine"
+ENGINE_BIN = Path(__file__).resolve().parent / "handcrafted" / "target" / "release" / "my-engine"
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
 

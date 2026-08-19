@@ -14,12 +14,14 @@
 │  /Users/tommydu/Documents/Star Chess      ← 唯一权威工作目录        │
 │    ├─ server.js          Node WebSocket 服务（围棋+国际象棋引擎网关）│
 │    ├─ public/            前端页面（index/chess/go/review.html）     │
-│    ├─ my-engine/         自研 Rust 国际象棋引擎（Policy 引导 α-β）  │
-│    │   ├─ src/eval.rs    评估：子力+PST+王盾+兵结构（PST 已修复）   │
-│    │   ├─ src/search.rs  α-β + TT + killer + 历史 + qsearch + SEE  │
-│    │   ├─ src/policy.rs  手写 CNN 推理（8×8×13→4096 走法概率）     │
-│    │   ├─ src/main.rs    UCI 协议                                   │
-│    │   └─ policy/        policy.bin/onnx/pt + NNUE 训练脚本         │
+│    ├─ my-engine/         自研 Rust 引擎目录（两条技术路线隔离，互不覆盖）│
+│    │   ├─ handcrafted/   手写启发式 eval 路线（= 原 v2_smp 引擎，原样保留）│
+│    │   │   ├─ src/       eval(子力+PST+王盾+兵形) + search(α-β+TT+killer+SEE)│
+│    │   │   │             + policy(8×8×13→4096 手写 CNN) + main(UCI)       │
+│    │   │   └─ policy.bin 策略模型                                        │
+│    │   ├─ nnue/          NNUE 路线（M3 静态 CNN 已接入，增量推理进行中）  │
+│    │   │   └─ src/       main/eval(含 UCI Eval 开关)/search/policy/nnue   │
+│    │   └─ policy/        NNUE 训练脚本（train_nnue/qa_nnue/golden_nnue）  │
 │    ├─ data-etl/          NNUE 数据 ETL（Rust：清洗+HalfK-768+.scnn）│
 │    ├─ data/              训练数据集（final_dataset.jsonl / nnue/）  │
 │    ├─ dataset_gen.py / selfplay.py / make_teacher.py / match.py    │
@@ -33,7 +35,7 @@
 │  主机：pi-wildlife2    IP：192.168.0.107（已固定静态 IP，netplan）  │
 │  /home/pi/star-ai-board                  ← 运行中的网站+服务        │
 │    ├─ server.js / public/（与本地同步）                              │
-│    ├─ my-engine/target/release/my-engine  ← aarch64 编译的自研引擎  │
+│    ├─ my-engine/handcrafted/target/release/my-engine  ← aarch64 编译的自研引擎  │
 │    ├─ my-engine/policy.bin                ← 策略模型（引擎自动加载）│
 │    ├─ public/stockfish    (78MB)                                    │
 │    ├─ public/reckless     (65MB, Reckless 0.10，源码编译)           │
@@ -99,14 +101,14 @@ expect { "*password:" { send "$env(PI_PASS)\r"; exp_continue } eof }
 ## 四、标准工作流程（按此步骤执行）
 
 ### 1. 本地开发
-在 `~/Documents/Star Chess` 修改代码（前端 public/、服务 server.js、引擎 my-engine/src/）。
+在 `~/Documents/Star Chess` 修改代码（前端 public/、服务 server.js、引擎 my-engine/handcrafted/src/）。
 
 ### 2. 同步到树莓派
 ```bash
 cd "/Users/tommydu/Documents/Star Chess"
 # 全量同步（排除大二进制/数据/缓存）
 tar czf /tmp/star-chess.tar.gz --exclude=.git --exclude=node_modules \
-  --exclude=my-engine/target --exclude=data \
+  --exclude=my-engine/handcrafted/target --exclude=my-engine/nnue/target --exclude=data \
   --exclude=public/stockfish --exclude=public/reckless --exclude=public/katago .
 expect /tmp/scp.exp   # 传到 /home/pi/star-chess.tar.gz
 expect /tmp/rc.exp "tar xzf /home/pi/star-chess.tar.gz -C /home/pi/star-ai-board"
@@ -115,7 +117,7 @@ expect /tmp/rc.exp "tar xzf /home/pi/star-chess.tar.gz -C /home/pi/star-ai-board
 
 ### 3. 编译自研引擎（树莓派 aarch64）
 ```bash
-expect /tmp/rc.exp "cd /home/pi/star-ai-board/my-engine && \
+expect /tmp/rc.exp "cd /home/pi/star-ai-board/my-engine/handcrafted && \
   export PATH=/home/pi/.cargo/bin:\$PATH CARGO_BUILD_JOBS=4 && cargo build --release"
 ```
 

@@ -21,7 +21,7 @@
 git clone https://cnb.cool/duwenfeng/Star-Chess.git
 cd Star-Chess
 # 装 Rust（若环境没有）：curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-cd my-engine && cargo build --release && cd ..
+cd my-engine/handcrafted && cargo build --release && cd ../..
 ```
 
 ### 第 1 步：环境准备
@@ -32,7 +32,7 @@ pip install python-chess numpy
 ### 第 2 步：自对弈生成数据（约 2 小时，核心耗时步骤）
 用引擎自己 vs 自己下 5000 局（浅搜索即可，目的是产生多样化的安静局面，不需要下得很好）：
 ```bash
-python3 match.py --eng ./my-engine/target/release/my-engine \
+python3 match.py --eng ./my-engine/handcrafted/target/release/my-engine \
   --games 5000 --concurrency 8 --movetime 200 \
   --name-a a --name-b b --out /tmp/texel_selfplay.json
 ```
@@ -53,15 +53,15 @@ python3 texel_tune.py --data /tmp/texel_data.txt --epochs 200 --lr 0.1 --out /tm
 ### 第 5 步：写回 eval.rs + 编译新引擎
 ```bash
 python3 texel_apply.py --params /tmp/tuned_params.json --eval-rs my-engine/src/eval.rs
-cd my-engine && cargo build --release && cd ..
-cp my-engine/target/release/my-engine /tmp/my-engine_tuned
+cd my-engine/handcrafted && cargo build --release && cd ../..
+cp my-engine/handcrafted/target/release/my-engine /tmp/my-engine_tuned
 ```
 
 ### 第 6 步：编译旧引擎（调参前的父提交，作为对照）
 ```bash
 git worktree add /tmp/star-old HEAD~1
 cd /tmp/star-old/my-engine && cargo build --release && cd -
-cp /tmp/star-old/my-engine/target/release/my-engine /tmp/my-engine_old
+cp /tmp/star-old/my-engine/handcrafted/target/release/my-engine /tmp/my-engine_old
 ```
 
 ### 第 7 步：对弈验证（新旧 eval，400 局，约 1 小时）

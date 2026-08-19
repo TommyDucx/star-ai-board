@@ -24,7 +24,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-ENGINE = ROOT / "my-engine" / "target" / "release" / "my-engine"
+ENGINE = ROOT / "handcrafted" / "target" / "release" / "my-engine"
 POLICY_BIN = ROOT / "my-engine" / "policy.bin"          # 部署/运行所用的策略（权威）
 POLICY_DIR = ROOT / "my-engine" / "policy"              # 训练脚本目录
 DATA_FILE = ROOT / "data" / "final_dataset.jsonl"

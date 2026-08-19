@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 8765;
 const PUBLIC_DIR = path.join(__dirname, "public");
 const STOCKFISH = path.join(__dirname, "public", "stockfish");
 const RECKLESS = path.join(__dirname, "public", "reckless");
-const MY_ENGINE = path.join(__dirname, "my-engine", "target", "release", "my-engine");
+const MY_ENGINE = path.join(__dirname, "my-engine", "handcrafted", "target", "release", "my-engine");
 
 // 引擎表：key → 二进制路径（含提示/能力标记）
 const ENGINES = {

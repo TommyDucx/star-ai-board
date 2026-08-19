@@ -2,7 +2,7 @@
 """把 texel_tune.py 的输出写回 eval.rs 的常量（25 个标量参数）。
 
 用法：
-  python3 texel_apply.py --params tuned_params.json --eval-rs my-engine/src/eval.rs
+  python3 texel_apply.py --params tuned_params.json --eval-rs my-engine/handcrafted/src/eval.rs
 """
 import argparse
 import json
@@ -12,7 +12,7 @@ import re
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--params", required=True, help="tuned_params.json")
-    ap.add_argument("--eval-rs", default="my-engine/src/eval.rs")
+    ap.add_argument("--eval-rs", default="my-engine/handcrafted/src/eval.rs")
     args = ap.parse_args()
 
     d = json.load(open(args.params))

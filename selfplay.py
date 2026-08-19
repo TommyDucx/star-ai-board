@@ -28,7 +28,7 @@ import time
 from pathlib import Path
 
 # ── 常量 ──────────────────────────────────────────────
-ENGINE_BIN = Path(__file__).resolve().parent / "my-engine" / "target" / "release" / "my-engine"
+ENGINE_BIN = Path(__file__).resolve().parent / "handcrafted" / "target" / "release" / "my-engine"
 
 # 常用开局走法库（UCI 格式），用于随机化开局增加数据多样性
 OPENING_BOOK = [

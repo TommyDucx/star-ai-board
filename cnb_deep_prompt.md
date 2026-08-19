@@ -20,7 +20,7 @@
 ```bash
 git clone https://cnb.cool/duwenfeng/Star-Chess.git
 cd Star-Chess
-cd my-engine && cargo build --release && cd ..
+cd my-engine/handcrafted && cargo build --release && cd ../..
 ```
 代码已是干净状态，包含新增的 `deep_label.py`（深搜索自洽标签生成器）和修复路径后的 `make_self_teacher.py`，**不需要改任何代码/路径**。
 
@@ -50,7 +50,7 @@ cd ../..
 ### 第 4 步：大样本对弈（核心验证，约 1 小时）
 对比 **旧 policy（`my-engine/policy.bin`，仓库里已有的权威版）** vs **新 deep policy（`my-engine/policy/policy.bin`）**：
 ```bash
-python3 match.py --eng ./my-engine/target/release/my-engine \
+python3 match.py --eng ./my-engine/handcrafted/target/release/my-engine \
   --policy-a ./my-engine/policy.bin \
   --policy-b ./my-engine/policy/policy.bin \
   --games 400 --concurrency 4 --movetime 300 \

@@ -20,21 +20,21 @@ cd "$WORKER_DIR" || { echo "无法进入 $WORKER_DIR"; exit 1; }
 ENGINE=""
 
 # a) 之前部署过的 star 项目里的二进制
-LEGACY="/home/pi/Documents/Default Project/star/my-engine/target/release/my-engine"
+LEGACY="/home/pi/Documents/Default Project/star/my-engine/handcrafted/target/release/my-engine"
 if [ -x "$LEGACY" ] && printf 'uci\nquit\n' | timeout 15 "$LEGACY" >/dev/null 2>&1; then
   ENGINE="$LEGACY"
   echo "使用已有部署的引擎: $ENGINE"
 fi
 
 # b) worker 目录里已编译好的二进制
-if [ -z "$ENGINE" ] && [ -x "$WORKER_DIR/my-engine/target/release/my-engine" ]; then
-  ENGINE="$WORKER_DIR/my-engine/target/release/my-engine"
+if [ -z "$ENGINE" ] && [ -x "$WORKER_DIR/my-engine/handcrafted/target/release/my-engine" ]; then
+  ENGINE="$WORKER_DIR/my-engine/handcrafted/target/release/my-engine"
   echo "使用已编译引擎: $ENGINE"
 fi
 
 # c) 从源码编译（Pi 是 ARM，Mac 的 x86_64 二进制跑不了，必须本地编译）
 if [ -z "$ENGINE" ]; then
-  if [ -f "$WORKER_DIR/my-engine/Cargo.toml" ]; then
+  if [ -f "$WORKER_DIR/my-engine/handcrafted/Cargo.toml" ]; then
     echo "从源码编译 my-engine（Pi 上可能需要几分钟）..."
     if ! command -v cargo >/dev/null 2>&1; then
       echo "未找到 cargo，安装 Rust 工具链..."
@@ -42,8 +42,8 @@ if [ -z "$ENGINE" ]; then
       # shellcheck disable=SC1091
       source "$HOME/.cargo/env"
     fi
-    (cd "$WORKER_DIR/my-engine" && cargo build --release) || { echo "编译失败"; exit 1; }
-    ENGINE="$WORKER_DIR/my-engine/target/release/my-engine"
+    (cd "$WORKER_DIR/my-engine/handcrafted" && cargo build --release) || { echo "编译失败"; exit 1; }
+    ENGINE="$WORKER_DIR/my-engine/handcrafted/target/release/my-engine"
   else
     echo "错误：既无 my-engine 二进制也无源码。请先部署 star 项目或把 my-engine/ 源码放到 $WORKER_DIR。"
     exit 1

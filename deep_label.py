@@ -17,7 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from make_self_teacher import UCIClient  # noqa: E402
 
-ENGINE = str(Path(__file__).resolve().parent / "my-engine" / "target" / "release" / "my-engine")
+ENGINE = str(Path(__file__).resolve().parent / "handcrafted" / "target" / "release" / "my-engine")
 
 
 def worker(args):

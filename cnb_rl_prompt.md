@@ -35,9 +35,9 @@ cd Star-Chess
 确认代码是最新且干净的：`git log --oneline -1` 应看到提交 `75cb528`（"docs: 更新云 agent 提示词为第二轮完整版"）。
 
 ## 第 1 步：环境准备（按顺序）
-1. 编译引擎（产物 `my-engine/target/release/my-engine`）：
+1. 编译引擎（产物 `my-engine/handcrafted/target/release/my-engine`）：
    ```bash
-   cd my-engine && cargo build --release && cd ..
+   cd my-engine/handcrafted && cargo build --release && cd ../..
    ```
 2. Python 必须 **3.10 及以上**，安装依赖：
    ```bash

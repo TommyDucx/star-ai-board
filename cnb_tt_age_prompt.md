@@ -21,8 +21,8 @@
 git clone https://cnb.cool/duwenfeng/Star-Chess.git
 cd Star-Chess
 # 装 Rust（若环境没有）：curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-cd my-engine && cargo build --release && cd ..
-cp my-engine/target/release/my-engine /tmp/my-engine_new
+cd my-engine/handcrafted && cargo build --release && cd ../..
+cp my-engine/handcrafted/target/release/my-engine /tmp/my-engine_new
 ```
 （新引擎 = 当前 HEAD，已包含 TT age 优化。）
 
@@ -30,7 +30,7 @@ cp my-engine/target/release/my-engine /tmp/my-engine_new
 ```bash
 git worktree add /tmp/star-old HEAD~1
 cd /tmp/star-old/my-engine && cargo build --release && cd -
-cp /tmp/star-old/my-engine/target/release/my-engine /tmp/my-engine_old
+cp /tmp/star-old/my-engine/handcrafted/target/release/my-engine /tmp/my-engine_old
 ```
 （旧引擎 = HEAD~1，即优化前的版本。`HEAD~1` 是"TT age 优化"的父提交，两版唯一差异就是这处优化。）
 

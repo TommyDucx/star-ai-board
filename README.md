@@ -21,7 +21,7 @@ node server.js     # → http://localhost:8765
 `/chess.html` 面板顶部可选择引擎：
 - **Stockfish 18**：支持 Elo 分级（难度下拉可选）
 - **Reckless 0.10**：自带棋力，难度下拉忽略
-- **MyEngine 0.2.0**：自研 Rust 引擎（`my-engine/`），由**自训练策略模型**（`my-engine/policy/policy.bin`，8×8×13 CNN）引导搜索；难度下拉忽略。`cargo build --release` 后在 `my-engine/target/release/my-engine`
+- **MyEngine 0.2.0**：自研 Rust 引擎（`my-engine/`），由**自训练策略模型**（`my-engine/policy/policy.bin`，8×8×13 CNN）引导搜索；难度下拉忽略。`cargo build --release` 后在 `my-engine/handcrafted/target/release/my-engine`
 
 ## 国际象棋复盘（chess.com 风格）
 对局结束后点「结束复盘」，跳转到独立复盘页：
