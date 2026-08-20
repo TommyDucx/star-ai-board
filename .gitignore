@@ -29,4 +29,5 @@ my-engine/nnue/policy/nnue.bin
 my-engine/policy/policy_nnue.pt
 my-engine/policy/policy_nnue.onnx
 my-engine/policy/policy_nnue_inc.pt
+my-engine/policy/policy_nnue_hkp.pt
 data-etl/target/

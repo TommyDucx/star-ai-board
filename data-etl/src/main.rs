@@ -21,10 +21,13 @@ use std::collections::HashMap;
 use std::io::{BufRead, BufWriter, Write};
 
 mod halfk;
+mod halfkp;
 
 const MAGIC: &[u8; 4] = b"SCNN";
 const VERSION: u32 = 1;
 const FEATURE_DIM: u32 = 768;
+const HKP_VERSION: u32 = 2; // HalfKP 稀疏格式
+const HKP_MAX_FEATURES: u32 = halfkp::MAX_FEATURES as u32;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 struct Label {
@@ -69,6 +72,7 @@ fn main() {
     let mut subsample: u64 = 1;
     let mut stm_cp: bool = false;
     let mut fixed_color: bool = false;
+    let mut halfkp: bool = false;
 
     while let Some(a) = args.next() {
         match a.as_str() {
@@ -82,6 +86,7 @@ fn main() {
             "--hash-subsample" => subsample = args.next().unwrap().parse().unwrap(),
             "--stm-cp" => stm_cp = true,
             "--fixed-color" => fixed_color = true,
+            "--halfkp" => halfkp = true,
             _ => {
                 eprintln!("未知参数: {a}");
                 std::process::exit(2);
@@ -253,9 +258,14 @@ fn main() {
         sidecar.map(|p| BufWriter::new(std::fs::File::create(p).unwrap()));
 
     out.write_all(MAGIC).unwrap();
-    out.write_all(&VERSION.to_le_bytes()).unwrap();
+    out.write_all(&(if halfkp { HKP_VERSION } else { VERSION }).to_le_bytes()).unwrap();
     out.write_all(&(dedup.len() as u64).to_le_bytes()).unwrap();
-    out.write_all(&FEATURE_DIM.to_le_bytes()).unwrap();
+    if halfkp {
+        out.write_all(&(halfkp::FEATURE_SPACE as u32).to_le_bytes()).unwrap();
+        out.write_all(&HKP_MAX_FEATURES.to_le_bytes()).unwrap();
+    } else {
+        out.write_all(&FEATURE_DIM.to_le_bytes()).unwrap();
+    }
 
     for (_, (label, fen, depth)) in &dedup {
         let board = match halfk::parse_board(fen) {
@@ -269,7 +279,6 @@ fn main() {
             .unwrap_or(true);
         // --fixed-color：特征不按轮走方翻色（增量 NNUE 需要）；标签转 eval_white。
         // 默认（stm 视角）：特征翻色使 stm 恒为 White，标签为 cp_stm。
-        let feat = halfk::encode(&board, if fixed_color { true } else { stm_white });
         let eval = if fixed_color {
             if stm_white {
                 label.cp_stm
@@ -281,7 +290,18 @@ fn main() {
         };
         // mate→cp 已在 Label 处理；clamp 到 ±clamp
         let cp_clamped = eval.clamp(-clamp, clamp);
-        out.write_all(&feat).unwrap();
+        if halfkp {
+            // 定长稀疏 HalfKP 记录：u32 count + MAX_FEATURES×u32（不足补0）+ f32 eval_white + f32 result
+            let feats = halfkp::feature_indices(&board);
+            out.write_all(&(feats.len() as u32).to_le_bytes()).unwrap();
+            for i in 0..halfkp::MAX_FEATURES {
+                let v = if i < feats.len() { feats[i] } else { 0 };
+                out.write_all(&v.to_le_bytes()).unwrap();
+            }
+        } else {
+            let feat = halfk::encode(&board, if fixed_color { true } else { stm_white });
+            out.write_all(&feat).unwrap();
+        }
         out.write_all(&(cp_clamped as f32).to_le_bytes()).unwrap();
         out.write_all(&f32::NAN.to_le_bytes()).unwrap();
         if let Some(w) = sidecar_w.as_mut() {
