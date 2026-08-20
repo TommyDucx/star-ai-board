@@ -17,29 +17,29 @@
     }
   },
   "results": {
-    "handcrafted": 40,
+    "handcrafted": 36,
     "draw": 0,
-    "nnue": 0
+    "nnue": 4
   },
-  "score_A": 1.0,
-  "score_se": 0.0,
-  "elo_diff_A_minus_B": null,
+  "score_A": 0.9,
+  "score_se": 0.048,
+  "elo_diff_A_minus_B": 381.7,
   "elo_95ci": [
-    1599.9826273520962,
-    1599.9826273520962
+    247.24078100768713,
+    892.2784306376914
   ],
   "LOS_A_better": 1.0,
   "per_color": {
     "handcrafted": {
-      "w": 40,
+      "w": 36,
       "d": 0,
-      "l": 0
+      "l": 4
     },
     "nnue": {
-      "w": 0,
+      "w": 4,
       "d": 0,
-      "l": 40
+      "l": 36
     }
   },
-  "duration_s": 72.9
+  "duration_s": 143.3
 }
