@@ -31,6 +31,7 @@ ls data-etl/src/halfkp.rs my-engine/policy/train_nnue_halfkp.py
 cd /workspace
 cd data-etl && cargo build --release && cd ..
 ```
+> ⚠️ 注意：第一轮结果 corr 0.21 是 **bug**（标签视角与 fixed-color 特征错配，已修复并本地复现 corr 0.26@80K）。请用**最新 HEAD**（含修复的 data-etl）重跑本提示词，标签现在正确。
 
 ## 第 2 步：准备 HF 数据 → HalfKP .scnn
 > 若 Phase 4 下载的 `data_0000.parquet` 还在工作区（约 2.1GB），直接复用；否则重新下载：

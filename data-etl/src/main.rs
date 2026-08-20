@@ -277,9 +277,9 @@ fn main() {
             .nth(1)
             .map(|a| a == "w")
             .unwrap_or(true);
-        // --fixed-color：特征不按轮走方翻色（增量 NNUE 需要）；标签转 eval_white。
+        // --fixed-color / --halfkp：特征不按轮走方翻色（增量 NNUE / HalfKP 需要）；标签转 eval_white。
         // 默认（stm 视角）：特征翻色使 stm 恒为 White，标签为 cp_stm。
-        let eval = if fixed_color {
+        let eval = if fixed_color || halfkp {
             if stm_white {
                 label.cp_stm
             } else {
