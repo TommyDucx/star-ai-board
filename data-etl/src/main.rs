@@ -68,6 +68,7 @@ fn main() {
     let mut clamp: i32 = 2000;
     let mut subsample: u64 = 1;
     let mut stm_cp: bool = false;
+    let mut fixed_color: bool = false;
 
     while let Some(a) = args.next() {
         match a.as_str() {
@@ -80,6 +81,7 @@ fn main() {
             "--clamp" => clamp = args.next().unwrap().parse().unwrap(),
             "--hash-subsample" => subsample = args.next().unwrap().parse().unwrap(),
             "--stm-cp" => stm_cp = true,
+            "--fixed-color" => fixed_color = true,
             _ => {
                 eprintln!("未知参数: {a}");
                 std::process::exit(2);
@@ -265,9 +267,20 @@ fn main() {
             .nth(1)
             .map(|a| a == "w")
             .unwrap_or(true);
-        let feat = halfk::encode(&board, stm_white);
+        // --fixed-color：特征不按轮走方翻色（增量 NNUE 需要）；标签转 eval_white。
+        // 默认（stm 视角）：特征翻色使 stm 恒为 White，标签为 cp_stm。
+        let feat = halfk::encode(&board, if fixed_color { true } else { stm_white });
+        let eval = if fixed_color {
+            if stm_white {
+                label.cp_stm
+            } else {
+                -label.cp_stm
+            }
+        } else {
+            label.cp_stm
+        };
         // mate→cp 已在 Label 处理；clamp 到 ±clamp
-        let cp_clamped = label.cp_stm.clamp(-clamp, clamp);
+        let cp_clamped = eval.clamp(-clamp, clamp);
         out.write_all(&feat).unwrap();
         out.write_all(&(cp_clamped as f32).to_le_bytes()).unwrap();
         out.write_all(&f32::NAN.to_le_bytes()).unwrap();
