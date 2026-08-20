@@ -95,6 +95,8 @@ def main():
     opt = torch.optim.Adam(model.parameters(), lr=args.lr)
     sched = torch.optim.lr_scheduler.StepLR(opt, step_size=12, gamma=0.5)
     batch = args.batch
+    best_val = float("inf")
+    best_state = None
 
     for epoch in range(args.epochs):
         model.train()
@@ -122,7 +124,17 @@ def main():
                 p = torch.sigmoid(model(xb))
                 errs.append((p - torch.from_numpy(labels[ids])).pow(2).sum().item())
             val_mse = sum(errs) / len(va)
-        print(f"epoch {epoch:2d} train_mse {loss_sum/tot:.6f} val_mse {val_mse:.6f}", flush=True)
+        # 早停：val_mse 触底后回升（过拟合），保存最佳权重供导出
+        if val_mse < best_val:
+            best_val = val_mse
+            best_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
+            tag = " *"
+        else:
+            tag = ""
+        print(f"epoch {epoch:2d} train_mse {loss_sum/tot:.6f} val_mse {val_mse:.6f}{tag}", flush=True)
+    if best_state is not None:
+        model.load_state_dict(best_state)
+    print(f"best val_mse = {best_val:.6f}（已恢复到最佳权重）", flush=True)
 
     # 验证集统计
     model.eval()

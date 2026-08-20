@@ -1,6 +1,7 @@
 //! α-β 搜索 + 迭代加深 + MVV-LVA / 杀手走法 / 历史启发表 / Zobrist 换位表
 
 use crate::eval;
+use crate::nnue::{ACC_DIM, Nnue};
 use crate::policy::Policy;
 use chess::{
     BitBoard, Board, BoardStatus, ChessMove, Color, File, MoveGen, Piece, Piece::*, Rank, Square,
@@ -149,6 +150,13 @@ pub struct Searcher {
     /// 不构成棋局意义上的重复，必须临时关闭重复/50步判定，否则会产生假和分值
     /// 污染空着裁剪的截断判断。
     null_ply: u32,
+    /// NNUE 增量评估（v2 累加器）：nnue_on 时 eval 走累加器小头网络（~5K MACs）。
+    nnue: Option<Arc<Nnue>>,
+    nnue_on: bool,
+    /// 累加器栈：acc_stack[ply] = 第 ply 层局面的累加器，随递归 push/pop。
+    /// 不变量：进入 alpha_beta/quiesce/root_search 时 acc_stack.last() 即当前局面累加器；
+    /// 每个函数入口 truncate(ply+1) 自愈（多 return 点不依赖逐点配对的 pop）。
+    acc_stack: Vec<[f32; ACC_DIM]>,
 }
 
 impl Default for Searcher {
@@ -171,6 +179,9 @@ impl Default for Searcher {
             game_hist: Vec::new(),
             path: Vec::with_capacity(MAX_DEPTH + 8),
             null_ply: 0,
+            nnue: Nnue::load("./nnue.bin").map(Arc::new),
+            nnue_on: false,
+            acc_stack: Vec::new(),
         }
     }
 }
@@ -262,6 +273,38 @@ impl Searcher {
         self.threads = n.clamp(1, 16);
     }
 
+    /// 运行时切换 Eval 模式（UCI Eval：nnue / handcrafted）。未加载模型时自动回退手写。
+    pub fn set_nnue(&mut self, on: bool) {
+        self.nnue_on = on && self.nnue.is_some();
+    }
+
+    /// 行棋方视角评估：NNUE 模式读累加器栈小头网络输出（白方视角 cp，按 stm 取负）；
+    /// 否则回退手写 eval。累加器栈为空（如 nnue 关闭）时也回退手写。
+    fn eval_stm(&self, board: &Board) -> i32 {
+        if self.nnue_on {
+            if let Some(acc) = self.acc_stack.last() {
+                let cp_white = self.nnue.as_ref().unwrap().predict_cp_white(acc);
+                return if board.side_to_move() == Color::White {
+                    cp_white
+                } else {
+                    -cp_white
+                };
+            }
+        }
+        eval::eval_stm(board)
+    }
+
+    /// 计算子节点累加器并 push（父累加器 + 走子增量）。
+    fn push_child_acc(&mut self, board: &Board, mv: ChessMove) {
+        let d = self.nnue.as_ref().unwrap().delta(board, mv);
+        let parent = *self.acc_stack.last().unwrap();
+        let mut ca = parent;
+        for j in 0..ACC_DIM {
+            ca[j] += d[j];
+        }
+        self.acc_stack.push(ca);
+    }
+
     /// 从当前配置 fork 出一个线程私有实例，用于 Lazy SMP 辅助线程。
     /// 共享：换位表(Arc<RwLock>) + policy(Arc) + 各 UCI 配置；私有：history/killer/path/nodes 等搜索态。
     fn fork(&self, stopped: Arc<AtomicBool>) -> Searcher {
@@ -283,6 +326,9 @@ impl Searcher {
             game_hist: Vec::new(),
             path: Vec::with_capacity(MAX_DEPTH + 8),
             null_ply: 0,
+            nnue: self.nnue.clone(),
+            nnue_on: self.nnue_on,
+            acc_stack: Vec::new(),
         }
     }
 
@@ -371,6 +417,12 @@ impl Searcher {
         // 注意：stopped.store(false) 已上移到外层 search()，多线程共享时不在此重置
         self.history = [0; 4096];
         self.killer = [[None; 2]; MAX_DEPTH];
+        // 累加器栈初始化：根局面全量计算一次（NNUE 模式下）。
+        self.acc_stack.clear();
+        if self.nnue_on {
+            self.acc_stack
+                .push(self.nnue.as_ref().unwrap().accumulator(board));
+        }
 
         let pol = self.policy.as_ref().filter(|_| self.policy_on).map(|p| p.predict(board));
         // Policy 先验注入历史启发表：policy 的 4096 输出恰好是 from*64+to，
@@ -455,11 +507,18 @@ impl Searcher {
         // 根局面入路径：这样子节点走回根局面时能被识别为重复
         self.path.clear();
         self.path.push(key);
+        self.acc_stack.truncate(1); // 根节点：确保累加器栈长度为 1
         for &i in &idx {
             let mv = moves[i];
             let nb = board.make_move_new(mv.clone());
             let chm = next_halfmove(board, mv, halfmove);
+            if self.nnue_on {
+                self.push_child_acc(board, mv);
+            }
             let score = -self.alpha_beta(&nb, depth as i32 - 1, -beta, -alpha, 1, chm);
+            if self.nnue_on {
+                self.acc_stack.pop();
+            }
             if self.stopped.load(Ordering::Relaxed) {
                 self.path.clear();
                 return (best_score, best_move.unwrap_or(moves[idx[0]]));
@@ -547,8 +606,9 @@ impl Searcher {
             BoardStatus::Stalemate => return 0,
             BoardStatus::Ongoing => {}
         }
+        self.acc_stack.truncate(ply as usize + 1); // 自愈：当前局面累加器必在栈顶
         let in_check = board.checkers().popcnt() > 0;
-        let stand_pat = eval::eval_stm(board);
+        let stand_pat = self.eval_stm(board);
         // 安全上限，避免极端连将链导致过深递归
         if ply > 60 {
             return stand_pat;
@@ -585,7 +645,13 @@ impl Searcher {
         for &i in &idx {
             let mv = tacticals[i];
             let nb = board.make_move_new(mv.clone());
+            if self.nnue_on {
+                self.push_child_acc(board, mv);
+            }
             let score = -self.quiesce(&nb, -beta, -alpha, ply + 1);
+            if self.nnue_on {
+                self.acc_stack.pop();
+            }
             // 时间到：子搜索返回的是哨兵 0（非真实分值），绝不能用于更新 alpha/触发截断
             if self.stopped.load(Ordering::Relaxed) {
                 return alpha;
@@ -654,6 +720,7 @@ impl Searcher {
         // 用 truncate 而非成对 push/pop：本函数有 5 处 return，逐个配 pop 极易漏；
         // 兄弟子树留下的更深残留会在这里自动被截掉。
         self.path.truncate(ply as usize);
+        self.acc_stack.truncate(ply as usize + 1); // 自愈：本节点累加器在栈顶
         if ply > 0 && self.null_ply == 0 {
             if halfmove >= 100 {
                 return 0;
@@ -663,7 +730,7 @@ impl Searcher {
                 // 促使引擎主动求胜而非寻求三次重复。劣势/均势方仍按和棋 0 分，
                 // 保住了"输棋找重复求和"的正确行为（不会被一刀切拒和误伤）。
                 let c = self.contempt;
-                if c > 0 && eval::eval_stm(board) > c {
+                if c > 0 && self.eval_stm(board) > c {
                     return -c;
                 }
                 return 0;
@@ -703,7 +770,7 @@ impl Searcher {
         // 若静态评估扣掉一个保守 margin 后仍 >= beta，说明本节点几乎必然失败高位，直接返回。
         // 排除接近将杀的分值，避免剪掉将杀线。
         if !in_check && depth <= 4 && beta.abs() < MATE - 1000 {
-            let static_eval = eval::eval_stm(board);
+            let static_eval = self.eval_stm(board);
             let margin = 110 * depth;
             if static_eval - margin >= beta {
                 return static_eval - margin;
@@ -723,8 +790,15 @@ impl Searcher {
                 };
                 // 空着子树内关闭重复/50步判定（空着不是真实走法，其“重复”无棋局意义）
                 self.null_ply += 1;
+                // 空着不改变棋盘 → 累加器不变，直接复用栈顶（NNUE 模式）
+                if self.nnue_on {
+                    self.acc_stack.push(*self.acc_stack.last().unwrap());
+                }
                 let nm_score =
                     -self.alpha_beta(&nb, depth - 1 - r, -beta, -beta + 1, ply + 1, halfmove + 1);
+                if self.nnue_on {
+                    self.acc_stack.pop();
+                }
                 self.null_ply -= 1;
                 // 时间到：nm_score 是哨兵 0，用它判断截断会造成完全错误的剪枝
                 if self.stopped.load(Ordering::Relaxed) {
@@ -770,6 +844,9 @@ impl Searcher {
             // 教训：凡是改变“哪些走法会被搜”的改动，只能用对局验证；节点基准只对
             //   走法排序 / 置换表 / 静态搜索过滤这类“等价改写”有效。
             mv_count += 1;
+            if self.nnue_on {
+                self.push_child_acc(board, mv);
+            }
             let score = if mv_count == 1 {
                 -self.alpha_beta(&nb, depth - 1, -beta, -alpha, ply + 1, chm)
             } else {
@@ -795,6 +872,9 @@ impl Searcher {
                 }
                 sc
             };
+            if self.nnue_on {
+                self.acc_stack.pop();
+            }
             // 时间到：立刻向上传播，且不得把哨兵分值写进 TT。
             // 迭代加深总是在某一层被时间打断，若不拦截，垃圾分值会污染置换表并
             // 一直残留到本局结束（TT 仅在 ucinewgame 清空），搜索越深污染越严重。

@@ -25,6 +25,7 @@ data/ccrl/
 
 # NNUE 数据管线产物（.scnn 训练集 / sidecar / stats，体积大不入库）
 data/nnue/
+my-engine/nnue/policy/nnue.bin
 my-engine/policy/policy_nnue.pt
 my-engine/policy/policy_nnue.onnx
 my-engine/policy/policy_nnue_inc.pt

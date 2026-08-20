@@ -15,7 +15,6 @@ use std::sync::Arc;
 use std::thread;
 
 fn main() {
-    let _ = eval::init_nnue();
     let stdin = io::stdin();
     let mut board = Board::default();
     // 本局历史局面键 + 半步计数：chess 3.2.0 的 Board 不保存这两样，
@@ -129,7 +128,7 @@ fn main() {
                                 s.set_threads(v);
                             }
                         } else if name.eq_ignore_ascii_case("eval") {
-                            eval::set_nnue(value.eq_ignore_ascii_case("nnue"));
+                            s.set_nnue(value.eq_ignore_ascii_case("nnue"));
                         }
                     }
                 }

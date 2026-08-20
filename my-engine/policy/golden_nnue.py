@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
-"""NNUE golden test —— nnue.rs（Rust 手写前向）vs PyTorch EvalNet 逐位一致。
+"""NNUE golden test —— nnue.rs v2 增量架构（Rust 手写前向）vs PyTorch 逐位一致。
 
-1. 读 nnue.bin（export_bin 格式：NNUE + u32/u32 + float32 参数，顺序 = model.parameters()），
-   重建 EvalNet 权重。
-2. 对每行 FEN 用 PyTorch 算 logit（输入编码 = HalfK-768，stm 视角颜色互换）。
+1. 读 nnue_inc.bin（v2：NNUE + u32/u32 + float32 参数，顺序 = NnueInc.parameters()）。
+2. 对每行 FEN 用 PyTorch 算 logit（输入 = HalfK-768 **fixed-color**，不按 stm 翻色）。
 3. 调用 my-engine 的 nnue_eval 二进制算 Rust logit。
 4. 比对（float32 累加顺序差异允许小容差）。
 
 用法:
   cargo build --release --bin nnue_eval
-  python3 golden_nnue.py --nnue my-engine/policy/nnue.bin \
+  python3 golden_nnue.py --nnue my-engine/policy/nnue_inc.bin \
       --fens my-engine/policy/golden_fens.txt \
-      --rust-bin my-engine/target/release/nnue_eval
+      --rust-bin my-engine/nnue/target/release/nnue_eval
 """
 import argparse
 import struct
@@ -21,7 +20,7 @@ import sys
 import numpy as np
 import torch
 
-from train_nnue import EvalNet  # 复用网络结构（同目录）
+from train_nnue_incremental import NnueInc  # 复用增量架构（同目录）
 
 TOL = 1e-3
 
@@ -30,7 +29,7 @@ def load_into_model(path, model):
     raw = open(path, "rb").read()
     assert raw[:4] == b"NNUE", "bad magic"
     ver, n = struct.unpack("<II", raw[4:12])
-    assert ver == 1
+    assert ver == 2, f"需要 v2 增量架构，got {ver}"
     flat = np.frombuffer(raw[12:12 + n * 4], dtype="<f4")
     off = 0
     for p in model.parameters():
@@ -40,28 +39,14 @@ def load_into_model(path, model):
     assert off == n, f"param count mismatch {off} != {n}"
 
 
-def pytorch_logits(model, fens):
-    model.eval()
-    out = []
-    with torch.no_grad():
-        for fen in fens:
-            b = torch.zeros(1, 12, 8, 8)
-            pieces, stm = parse_fen(fen)
-            for sq, (color, pc) in pieces.items():
-                eff = color if stm == "w" else (not color)
-                ch = (0, 1, 2, 3, 4, 5)[pc] + (0 if eff else 6)
-                b[0, ch, sq // 8, sq % 8] = 1.0
-            out.append(model(b).item())
-    return out
-
-
-def parse_fen(fen):
-    board, active = fen.split()[:2]
+def parse_fen_fixed(fen):
+    """fixed-color：白=0-5/黑=6-11，不按 stm 翻色。"""
+    board, _ = fen.split()[:2]
     sym = {"P": (True, 0), "N": (True, 1), "B": (True, 2), "R": (True, 3),
            "Q": (True, 4), "K": (True, 5),
            "p": (False, 0), "n": (False, 1), "b": (False, 2), "r": (False, 3),
            "q": (False, 4), "k": (False, 5)}
-    pieces = {}
+    feats = {}
     r = 7
     for row in board.split("/"):
         c = 0
@@ -69,12 +54,25 @@ def parse_fen(fen):
             if ch.isdigit():
                 c += int(ch)
             else:
-                color, pc = sym[ch]
-                sq = r * 8 + c  # a1=0..h8=63, row7=a8
-                pieces[sq] = (color, pc)
+                is_white, pc = sym[ch]
+                sq = r * 8 + c
+                feats[sq] = (is_white, pc)
                 c += 1
         r -= 1
-    return pieces, active
+    return feats
+
+
+def pytorch_logits(model, fens):
+    model.eval()
+    out = []
+    with torch.no_grad():
+        for fen in fens:
+            x = torch.zeros(1, 768)
+            for sq, (is_white, pc) in parse_fen_fixed(fen).items():
+                ch = pc + (0 if is_white else 6)
+                x[0, ch * 64 + sq] = 1.0
+            out.append(model(x).item())
+    return out
 
 
 def main():
@@ -85,7 +83,7 @@ def main():
     args = ap.parse_args()
 
     fens = [l.strip() for l in open(args.fens) if l.strip()]
-    model = EvalNet()
+    model = NnueInc()
     load_into_model(args.nnue, model)
 
     py = pytorch_logits(model, fens)
