@@ -1,13 +1,13 @@
 {
-  "engine": "my-engine/target/release/my-engine",
-  "eng_a": "/workspace/my-engine/target/release/my-engine",
-  "eng_b": "/workspace/my-engine/target/release/my-engine",
+  "engine": "my-engine/nnue/target/release/my-engine-nnue",
+  "eng_a": "/workspace/my-engine/nnue/target/release/my-engine-nnue",
+  "eng_b": "/workspace/my-engine/nnue/target/release/my-engine-nnue",
   "games": 40,
   "movetime_ms": 300,
   "concurrency": 8,
   "openings": 30,
   "names": {
-    "v2_smp": {
+    "handcrafted": {
       "policy": null,
       "disabled": false
     },
@@ -17,7 +17,7 @@
     }
   },
   "results": {
-    "v2_smp": 40,
+    "handcrafted": 40,
     "draw": 0,
     "nnue": 0
   },
@@ -30,7 +30,7 @@
   ],
   "LOS_A_better": 1.0,
   "per_color": {
-    "v2_smp": {
+    "handcrafted": {
       "w": 40,
       "d": 0,
       "l": 0
@@ -41,5 +41,5 @@
       "l": 40
     }
   },
-  "duration_s": 150.2
+  "duration_s": 72.9
 }
