@@ -1,0 +1,45 @@
+{
+  "engine": "/Users/tommydu/Documents/Star Chess/mcts/target/release/mcts-uci",
+  "eng_a": "/Users/tommydu/Documents/Star Chess/mcts/target/release/mcts-uci",
+  "eng_b": "/Users/tommydu/Documents/Star Chess/mcts/target/release/mcts-uci",
+  "games": 4,
+  "movetime_ms": 800,
+  "concurrency": 4,
+  "openings": 30,
+  "names": {
+    "cand1": {
+      "policy": null,
+      "disabled": false
+    },
+    "best": {
+      "policy": null,
+      "disabled": false
+    }
+  },
+  "results": {
+    "cand1": 0,
+    "draw": 4,
+    "best": 0
+  },
+  "score_A": 0.5,
+  "score_se": 0.0,
+  "elo_diff_A_minus_B": 0.0,
+  "elo_95ci": [
+    0.0,
+    0.0
+  ],
+  "LOS_A_better": 0.0,
+  "per_color": {
+    "cand1": {
+      "w": 0,
+      "d": 4,
+      "l": 0
+    },
+    "best": {
+      "w": 0,
+      "d": 4,
+      "l": 0
+    }
+  },
+  "duration_s": 134.2
+}

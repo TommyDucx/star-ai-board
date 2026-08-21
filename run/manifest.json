@@ -1,0 +1,6 @@
+{
+ "iter": 1,
+ "best": "nets/net_best.pt",
+ "curve": [],
+ "minutes": 6.2
+}
