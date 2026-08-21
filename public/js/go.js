@@ -85,14 +85,23 @@
           <title>${gtp(r, c)}</title></circle>`;
       }
     }
-    // 推荐点（数字 + 胜率）
+    // 推荐点（高亮 + 序号标注推荐程度：第1名带光晕，全部带粗体数字）
     candidates.forEach((cd, i) => {
       if (i >= 5) return;
       const { r, c } = fromGtp(cd.move);
       const x = PAD + c * CELL, y = PAD + r * CELL;
-      html += `<circle cx="${x}" cy="${y}" r="12" fill="#d7ff3f" fill-opacity="0.92"></circle>`;
-      html += `<text x="${x}" y="${y + 4}" font-size="12" font-weight="700" fill="#080a09" text-anchor="middle">${i + 1}</text>`;
-      html += `<title>${cd.move} 胜率${(cd.winrate * 100).toFixed(1)}% 目差${cd.scoreLead >= 0 ? "+" : ""}${cd.scoreLead.toFixed(1)}</title>`;
+      const isTop = i === 0;
+      // 第一名外发光圈（更醒目）
+      if (isTop) {
+        html += `<circle cx="${x}" cy="${y}" r="20" fill="none" stroke="#d7ff3f" stroke-opacity="0.45" stroke-width="3"></circle>`;
+      }
+      // 实心圆底（黄绿信号色，深色描边提高对比）
+      html += `<circle cx="${x}" cy="${y}" r="${isTop ? 15 : 12}" fill="#d7ff3f" fill-opacity="0.95"
+        stroke="${isTop ? "#e6c200" : "#9db314"}" stroke-width="${isTop ? 2.5 : 1.5}"></circle>`;
+      // 序号（第1名更大）
+      html += `<text x="${x}" y="${y + (isTop ? 6 : 4.5)}" font-size="${isTop ? 16 : 13}" font-weight="800"
+        fill="#080a09" text-anchor="middle" style="pointer-events:none">${i + 1}</text>`;
+      html += `<title>第${i + 1}推荐 ${cd.move} · 胜率${(cd.winrate * 100).toFixed(1)}% · 目差${cd.scoreLead >= 0 ? "+" : ""}${cd.scoreLead.toFixed(1)}</title>`;
     });
     // 最后一手标记
     if (moveLog.length) {
