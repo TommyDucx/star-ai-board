@@ -38,6 +38,12 @@
 
   <div class="panel-go">
     <div class="row">
+      <label>AI 引擎 / 模型</label>
+      <select id="goengine">
+        <option value="">加载中…</option>
+      </select>
+    </div>
+    <div class="row">
       <label>棋盘大小</label>
       <select id="size">
         <option value="9">9 路</option>
@@ -78,7 +84,7 @@
   </div>
 </div>
 
-<script src="js/go.js?v=6"></script>
+<script src="js/go.js?v=7"></script>
 <script src="js/motion.js?v=5"></script>
 <script>
   Motion.initCursorLine();

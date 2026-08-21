@@ -46,11 +46,105 @@ Object.entries(ENGINES).forEach(([k, cfg]) => {
   cfg.available = fs.existsSync(cfg.path);
 });
 
-// ---- 围棋引擎（KataGo）配置 ----
+// ---- 围棋引擎配置（多引擎）----
 const KATAGO = process.env.KATAGO || "/usr/local/bin/katago";
-const GO_MODEL = process.env.GO_MODEL ||
-  "/Users/tommydu/WorkBuddy/2026-08-01-22-35-01/goeye/models/g170e-b10c128.txt.gz";
-const GO_TMP = path.join(os.tmpdir(), "star-katago");
+const GO_MODELS_DIR = process.env.GO_MODELS_DIR || path.join(__dirname, "models");
+const GO_TMP = path.join(os.tmpdir(), "star-go");
+
+function whichPath(bin) {
+  const cands = [bin];
+  for (const d of ["/usr/local/bin", "/usr/bin", "/usr/local/games", "/usr/games",
+                   path.join(__dirname, "engines", "go")]) {
+    cands.push(path.join(d, bin));
+  }
+  for (const c of cands) { try { if (fs.existsSync(c)) return c; } catch (e) {} }
+  return null;
+}
+function findGoScript(name) {
+  for (const d of [path.join(__dirname, "engines", "go"), "/usr/local/share/michi", "/opt/michi"]) {
+    const p = path.join(d, name);
+    try { if (fs.existsSync(p)) return p; } catch (e) {}
+  }
+  return null;
+}
+
+function goKataLabel(tag) {
+  const map = {
+    "b10c128": "KataGo b10c128（快速·默认）",
+    "b10c384h6nbttflrs": "KataGo b10c384（新架构·快）",
+    "b15c192": "KataGo b15c192（快）",
+    "b18c384nbt": "KataGo b18c384（强）",
+    "b20c256": "KataGo b20c256（强）",
+    "b40c256x2": "KataGo b40c256（最强·慢）",
+    "b18c384nbt-humanv0": "KataGo b18 人类棋风",
+    "b18c384nbt-optimisticv13-s5971M": "KataGo b18 乐观版",
+    "b18c384nbt-uec": "KataGo b18 UEC 冠军",
+    "kata9x9-b18c384nbt-20231025": "KataGo 9×9 专用",
+    "b10c512h8nbt3tflrs-fson-silu-rsnh": "KataGo b10c512（新架构·强）",
+    "b11c768h12nbt3tflrs-fson-silu": "KataGo b11c768（超大·慢）",
+    "g170-b30c320x2-s4824661760-d1229536699": "KataGo g170-b30（强）",
+    "g170-b40c256x2-s5095420928-d1229425124": "KataGo g170-b40（最强·慢）",
+    "g170e-b20c256x2-s5303129600-d1228401921": "KataGo g170e-b20",
+  };
+  return map[tag] || "KataGo " + tag;
+}
+
+// 下拉速度序（越靠前越快，作为默认优先）
+const KATA_SPEED_ORDER = [
+  "g170e-b10c128", "b10c384h6nbttflrs", "g170e-b20c256x2-s5303129600-d1228401921",
+  "b18c384nbt-humanv0", "b18c384nbt-uec", "b18c384nbt-optimisticv13-s5971M",
+  "b10c512h8nbt3tflrs-fson-silu-rsnh", "g170-b30c320x2-s4824661760-d1229536699",
+  "g170-b40c256x2-s5095420928-d1229425124", "kata9x9-b18c384nbt-20231025",
+  "b11c768h12nbt3tflrs-fson-silu",
+];
+
+// 围棋引擎注册表：type=kata（analysis JSON）/ gtp（标准 GTP）
+function discoverGoEngines() {
+  const out = {};
+  const katas = [];
+  try {
+    for (const f of fs.readdirSync(GO_MODELS_DIR)) {
+      const m = /^katago-(.+)\.(bin\.gz|txt\.gz)$/.exec(f);
+      if (m) {
+        const tag = m[1];
+        const key = "katago-" + tag;
+        katas.push(key);
+        out[key] = {
+          type: "kata", label: goKataLabel(tag),
+          binary: KATAGO, model: path.join(GO_MODELS_DIR, f),
+        };
+      }
+    }
+  } catch (e) { /* models dir 不存在 */ }
+  // 按速度序重建插入顺序（前端默认第一个）
+  const order = (a) => {
+    const t = a.replace("katago-", "");
+    const i = KATA_SPEED_ORDER.indexOf(t);
+    return i >= 0 ? i : KATA_SPEED_ORDER.length;
+  };
+  const sorted = [...katas].sort((a, b) => order(a) - order(b));
+  const ordered = {};
+  for (const k of sorted) ordered[k] = out[k];
+  for (const k of Object.keys(out)) if (!ordered[k]) ordered[k] = out[k];
+  // GTP 引擎（探测二进制；脚本类走 python）
+  const gtpDefs = [
+    { key: "gnugo", label: "GNU Go（经典棋风）", cmd: whichPath("gnugo"), args: ["--mode", "gtp", "--level", "10"], scoreCmd: "estimate_score" },
+    { key: "pachi", label: "Pachi（MCTS）", cmd: whichPath("pachi"), args: [], scoreCmd: null },
+    { key: "fuego", label: "Fuego（UCT）", cmd: whichPath("fuego"), args: ["--quiet"], scoreCmd: "estimate_score" },
+    { key: "michi", label: "Michi（神经 MCTS）", cmd: findGoScript("michi.py") ? "python3" : null, script: findGoScript("michi.py"), args: [], scoreCmd: null },
+    { key: "mogo", label: "MoGo（老牌 MCTS）", cmd: whichPath("mogo"), args: [], scoreCmd: null },
+  ];
+  for (const g of gtpDefs) {
+    if (!g.cmd) continue;
+    const args = g.script ? [g.script].concat(g.args) : g.args;
+    ordered[g.key] = { type: "gtp", ...g, cmd: g.cmd, args };
+    delete ordered[g.key].script;
+  }
+  return ordered;
+}
+const GO_ENGINES = discoverGoEngines();
+const GO_KEYS = Object.keys(GO_ENGINES);
+const GO_DEFAULT = GO_KEYS.find(k => k.startsWith("katago-")) || GO_KEYS[0] || null;
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -208,7 +302,7 @@ class ChessEngine {
   }
 }
 
-/* ===================== 围棋：KataGo (analysis JSON) ===================== */
+/* ===================== 围棋：KataGo (analysis JSON) + GTP 引擎 ===================== */
 function writeGoConfig(backend, logDir) {
   const cfg = path.join(GO_TMP, `analysis-${backend}.cfg`);
   const body = [
@@ -225,19 +319,20 @@ function writeGoConfig(backend, logDir) {
   return cfg;
 }
 
-class GoEngine {
-  constructor() {
+class KataGoEngine {
+  constructor(cfg) {
+    this.cfg = cfg;
     this.proc = null;
     this.buf = "";
     this.pending = new Map();
     this.counter = 0;
+    this.dead = false;
     this.backend = "";
   }
   async start() {
     fs.mkdirSync(path.join(GO_TMP, "logs"), { recursive: true });
     let lastErr = "";
-    // 本机（Intel 无 GPU 加速）直接用 eigen(CPU)；加载成功即视为可用
-    for (const [backend, timeout] of [["eigen", 90]]) {
+    for (const [backend, timeout] of [["eigen", 120], ["opencl", 120]]) {
       try {
         await this._spawnAndReady(backend, timeout);
         this.backend = backend;
@@ -249,7 +344,7 @@ class GoEngine {
   _spawnAndReady(backend, timeout) {
     return new Promise((resolve, reject) => {
       const cfg = writeGoConfig(backend, path.join(GO_TMP, "logs"));
-      this.proc = spawn(KATAGO, ["analysis", "-model", GO_MODEL, "-config", cfg], { stdio: ["pipe", "pipe", "pipe"] });
+      this.proc = spawn(this.cfg.binary, ["analysis", "-model", this.cfg.model, "-config", cfg], { stdio: ["pipe", "pipe", "pipe"] });
       this.buf = "";
       this.proc.stdout.setEncoding("utf8");
       this.proc.stdout.on("data", d => this._onData(d));
@@ -260,7 +355,6 @@ class GoEngine {
       this.proc.stderr.on("data", d => {
         errBuf += d;
         if (errBuf.length > 60000) errBuf = errBuf.slice(-30000);
-        // 就绪行出现即可用（已用独立进程实测：就绪后可正常分析）
         if (/ready to begin|Started, ready/.test(errBuf) && !settled) {
           settled = true;
           resolve();
@@ -289,9 +383,9 @@ class GoEngine {
   }
   analyze(stones, side, opts = {}) {
     return new Promise((resolve, reject) => {
-      if (!this.proc) return reject(new Error("engine not running"));
+      if (!this.proc) { this.dead = true; return reject(new Error("KataGo 未运行")); }
       const id = "g" + (++this.counter);
-      const timer = setTimeout(() => { this.pending.delete(id); reject(new Error("KataGo 超时")); }, opts.timeout || 30000);
+      const timer = setTimeout(() => { this.pending.delete(id); reject(new Error("KataGo 超时")); }, opts.timeout || 120000);
       this.pending.set(id, m => { clearTimeout(timer); resolve(m); });
       const req = {
         id, moves: [],
@@ -308,6 +402,145 @@ class GoEngine {
   stop() { this._kill(); }
 }
 
+const GTP_LETTERS = "ABCDEFGHJKLMNOPQRST"; // GTP 列（无 I）
+function gtpMoveToCoord(move, N) {
+  if (!move || move === "pass" || move === "resign") return "pass";
+  const col = GTP_LETTERS.indexOf(move[0]);
+  const row = parseInt(move.slice(1), 10);
+  if (col < 0 || isNaN(row)) return "pass";
+  return move;
+}
+
+class GtpEngine {
+  constructor(cfg) {
+    this.cfg = cfg;
+    this.proc = null;
+    this.buf = "";
+    this.readyQ = [];
+    this.busy = false;
+    this.dead = false;
+    this.counter = 0;
+  }
+  async start() {
+    const me = this;
+    return new Promise((resolve, reject) => {
+      this.proc = spawn(this.cfg.cmd, this.cfg.args || [], { stdio: ["pipe", "pipe", "pipe"] });
+      this.buf = "";
+      this.proc.stdout.setEncoding("utf8");
+      this.proc.stdout.on("data", d => this._onData(d));
+      let errBuf = "";
+      this.proc.stderr.setEncoding("utf8");
+      this.proc.stderr.on("data", d => errBuf += d);
+      const fail = (m) => { this.dead = true; reject(new Error(m + " " + errBuf.slice(-200))); };
+      this.proc.on("error", e => fail("GTP 启动失败: " + e.message));
+      this.proc.on("exit", () => { this.proc = null; if (!this._ready) this.dead = true; });
+      setTimeout(() => fail("GTP 启动超时: " + errBuf.slice(-200)), 15000);
+      // 握手：protocol_version 应答 = x 即就绪
+      this._cmdRaw("protocol_version").then(() => { this._ready = true; resolve(); }).catch(fail);
+    });
+  }
+  _onData(d) {
+    this.buf += d;
+    let i;
+    while ((i = this.buf.indexOf("\n")) >= 0) {
+      const line = this.buf.slice(0, i);
+      this.buf = this.buf.slice(i + 1);
+      if (this.readyQ.length && this._lineComplete(line)) {
+        const w = this.readyQ.shift();
+        w(line);
+      }
+    }
+  }
+  _lineComplete(line) {
+    const t = line.trim();
+    return t === "" || t.startsWith("= ") || t.startsWith("? ") || t.startsWith("=") || t.startsWith("?");
+  }
+  _cmdRaw(cmd) {
+    return new Promise((resolve, reject) => {
+      if (!this.proc) return reject(new Error("gtp not running"));
+      const timer = setTimeout(() => { this.dead = true; reject(new Error("GTP 命令超时: " + cmd)); }, 60000);
+      this.readyQ.push(line => {
+        clearTimeout(timer);
+        const t = line.trim();
+        if (t.startsWith("?") && !t.startsWith("= ")) return reject(new Error("GTP 错误: " + t));
+        resolve(t.replace(/^= ?/, ""));
+      });
+      this.proc.stdin.write(cmd + "\n");
+    });
+  }
+  async cmd(cmd) {
+    // 串行化命令
+    const prev = this._chain || Promise.resolve();
+    const run = prev.then(() => this._cmdRaw(cmd));
+    this._chain = run.catch(() => {});
+    return run;
+  }
+  async analyze(stones, side, opts = {}) {
+    const N = opts.boardSize || 19;
+    await this.cmd(`boardsize ${N}`);
+    await this.cmd("clear_board");
+    await this.cmd(`komi ${opts.komi ?? 7.5}`);
+    for (const [color, mv] of stones) {
+      await this.cmd(`play ${color} ${mv}`);
+    }
+    const mv = await this.cmd(`genmove ${side}`);
+    let lead = null;
+    if (this.cfg.scoreCmd) {
+      try {
+        const sc = await this.cmd(this.cfg.scoreCmd);
+        lead = parseScore(sc);
+      } catch (e) { /* 无分差 */ }
+    }
+    const move = gtpMoveToCoord(mv, N);
+    // 由分差估算胜率（黑方视角 lead → 当前行棋方视角）
+    let winrate = 0.5;
+    if (lead != null) {
+      const leadStm = side === "B" ? lead : -lead;
+      winrate = 1 / (1 + Math.pow(10, -leadStm / 15));
+      winrate = Math.min(0.99, Math.max(0.01, winrate));
+    }
+    return {
+      moveInfos: [{ move, winrate, scoreLead: lead == null ? null : (side === "B" ? lead : -lead), visits: 1, order: 0, pv: [move] }],
+      rootInfo: { winrate, scoreLead: lead == null ? null : (side === "B" ? lead : -lead) },
+    };
+  }
+  stop() {
+    if (this.proc) { try { this.proc.stdin.write("quit\n"); setTimeout(() => { try { this.proc.kill(); } catch (e) {} }, 500); } catch (e) {} this.proc = null; }
+  }
+}
+
+function parseScore(s) {
+  // "B+12.5" / "W+3.5" / "-1.5"（黑负）→ 黑方视角目差
+  const m = /([BW])\+([\d.]+)/.exec(s || "");
+  if (m) return m[1] === "B" ? parseFloat(m[2]) : -parseFloat(m[2]);
+  const n = parseFloat(s);
+  if (!isNaN(n)) return n;
+  return null;
+}
+
+// 引擎池：懒启动 + 空闲回收（4 核 pi 内存有限，不能同时驻留多个 KataGo）
+const goPool = new Map();
+const GO_IDLE_MS = 10 * 60 * 1000;
+async function goAnalyze(engineKey, stones, side, opts) {
+  const cfg = GO_ENGINES[engineKey];
+  if (!cfg) throw new Error("未知围棋引擎: " + engineKey);
+  let pool = goPool.get(engineKey);
+  if (!pool || pool.eng.dead) {
+    const eng = cfg.type === "kata" ? new KataGoEngine(cfg) : new GtpEngine(cfg);
+    pool = { eng, lastUse: Date.now() };
+    goPool.set(engineKey, pool);
+    await eng.start();
+  }
+  pool.lastUse = Date.now();
+  return pool.eng.analyze(stones, side, opts);
+}
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, p] of goPool) {
+    if (now - p.lastUse > GO_IDLE_MS) { try { p.eng.stop(); } catch (e) {} goPool.delete(k); }
+  }
+}, 60 * 1000);
+
 /* ===================== 启动 + WebSocket ===================== */
 const chessEngines = {};
 Object.entries(ENGINES).forEach(([key, cfg]) => {
@@ -317,12 +550,7 @@ function engineFor(name) {
   const key = ENGINES[name] ? name : "stockfish";
   return { key, cfg: ENGINES[key], eng: chessEngines[key] };
 }
-const go = new GoEngine();
-
-(async () => {
-  try { await go.start(); console.log("[go] KataGo 就绪 (" + go.backend + ")"); }
-  catch (e) { console.error("[go] " + e.message); }
-})();
+const go = { available: GO_KEYS.length > 0, list: Object.entries(GO_ENGINES).map(([k, c]) => ({ key: k, label: c.label })) };
 
 const wss = new WebSocketServer({ server });
 wss.on("connection", ws => {
@@ -350,13 +578,17 @@ wss.on("connection", ws => {
       }
     } else if (msg.type === "go") {
       try {
-        const r = await go.analyze(msg.stones || [], msg.side || "B", {
-          komi: msg.komi, boardSize: msg.boardSize || 19, maxVisits: msg.maxVisits || 200, timeout: 30000,
+        const engKey = GO_ENGINES[msg.engine] ? msg.engine : (GO_DEFAULT || null);
+        if (!engKey) return ws.send(JSON.stringify({ type: "error", id: msg.id, message: "未部署围棋引擎" }));
+        const r = await goAnalyze(engKey, msg.stones || [], msg.side || "B", {
+          komi: msg.komi, boardSize: msg.boardSize || 19, maxVisits: msg.maxVisits || 200, timeout: 120000,
         });
-        ws.send(JSON.stringify({ ...r, type: "go", id: msg.id, backend: go.backend }));
+        ws.send(JSON.stringify({ ...r, type: "go", id: msg.id, engine: engKey }));
       } catch (e) {
         ws.send(JSON.stringify({ type: "error", id: msg.id, message: String(e) }));
       }
+    } else if (msg.type === "goengines") {
+      ws.send(JSON.stringify({ type: "goengines", id: msg.id, engines: go.list, available: go.available }));
     }
   });
 });
@@ -364,5 +596,5 @@ wss.on("connection", ws => {
 server.listen(PORT, () => {
   console.log(`S.T.A.R. AI 推荐已启动: http://localhost:${PORT}`);
   console.log(`  国际象棋引擎: ${Object.keys(ENGINES).join(" / ")}`);
-  console.log(`  围棋分析引擎: ${KATAGO}`);
+  console.log(`  围棋引擎: ${GO_KEYS.length ? GO_KEYS.join(" / ") : "(无，检查 models/ 目录)"}`);
 });

@@ -35,3 +35,6 @@ data-etl/target/
 # 插件维护的记忆文件 / NNUE 大模型产物（不入库）
 PROJECT_MEMORY.md
 my-engine/policy/nnue_hkp.bin
+
+# 围棋模型（树莓派部署用，不入库）
+models/

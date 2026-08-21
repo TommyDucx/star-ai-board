@@ -29,7 +29,7 @@
       // 公网是 HTTPS：必须用 wss://，ws:// 会被浏览器拦截并抛异常
       const proto = location.protocol === "https:" ? "wss:" : "ws:";
       ws = new WebSocket(`${proto}//${location.host}`);
-      ws.onopen = () => { wsReady = true; sendQueue.splice(0).forEach(fn => fn()); };
+      ws.onopen = () => { wsReady = true; sendQueue.splice(0).forEach(fn => fn()); loadGoEngines(); };
       ws.onclose = () => { wsReady = false; setTimeout(connect, 2000); };
       ws.onmessage = e => {
         const m = JSON.parse(e.data);
@@ -48,6 +48,21 @@
       const send = () => ws.send(JSON.stringify({ type, id, ...payload }));
       if (wsReady) send(); else sendQueue.push(send);
     });
+  }
+
+  /* ---------------- 引擎下拉 ---------------- */
+  let goEngines = [];
+  async function loadGoEngines() {
+    try {
+      const m = await rpc("goengines", {});
+      goEngines = (m && m.engines) || [];
+      const sel = document.getElementById("goengine");
+      if (!sel) return;
+      sel.innerHTML = goEngines.length
+        ? goEngines.map(e => `<option value="${e.key}">${e.label}</option>`).join("")
+        : `<option value="">未部署引擎</option>`;
+      if (goEngines.length) sel.selectedIndex = 0;
+    } catch (e) { /* ws 未就绪，稍后重试 */ }
   }
 
   /* ---------------- 棋盘渲染 ---------------- */
@@ -101,7 +116,9 @@
       // 序号（第1名更大）
       html += `<text x="${x}" y="${y + (isTop ? 6 : 4.5)}" font-size="${isTop ? 16 : 13}" font-weight="800"
         fill="#080a09" text-anchor="middle" style="pointer-events:none">${i + 1}</text>`;
-      html += `<title>第${i + 1}推荐 ${cd.move} · 胜率${(cd.winrate * 100).toFixed(1)}% · 目差${cd.scoreLead >= 0 ? "+" : ""}${cd.scoreLead.toFixed(1)}</title>`;
+      const wrTxt = cd.winrate != null ? (cd.winrate * 100).toFixed(1) + "%" : "--";
+      const ldTxt = cd.scoreLead != null ? (cd.scoreLead >= 0 ? "+" : "") + cd.scoreLead.toFixed(1) : "--";
+      html += `<title>第${i + 1}推荐 ${cd.move} · 胜率${wrTxt} · 目差${ldTxt}</title>`;
     });
     // 最后一手标记
     if (moveLog.length) {
@@ -151,17 +168,19 @@
     render();
   }
 
-  /* ---------------- KataGo 分析 ---------------- */
+  /* ---------------- 引擎分析 ---------------- */
   async function aiAnalyze(auto) {
     const stones = [];
     for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
       if (board[r][c]) stones.push([colorChar(board[r][c]), gtp(r, c)]);
     const side = moveLog.length % 2 === 0 ? "B" : "W";
     const visits = +document.getElementById("visits").value;
+    const engine = document.getElementById("goengine").value;
+    const engLabel = document.getElementById("goengine").selectedOptions[0]?.textContent || engine;
     setThinking(true);
-    setStatus("KataGo 分析中…");
+    setStatus(`${engLabel} 分析中…`);
     try {
-      const m = await rpc("go", { stones, side, boardSize: N, maxVisits: visits });
+      const m = await rpc("go", { engine, stones, side, boardSize: N, maxVisits: visits });
       candidates = (m.moveInfos || []).map(info => ({
         move: info.move, winrate: info.winrate, scoreLead: info.scoreLead,
         visits: info.visits, pv: (info.pv || []).join(" "),
@@ -180,30 +199,35 @@
   function renderWinbar(side, m) {
     const wr = m.rootInfo && m.rootInfo.winrate;
     const lead = m.rootInfo && m.rootInfo.scoreLead;
+    const leadTxt = lead != null ? (lead >= 0 ? "+" : "") + lead.toFixed(1) : "--";
     if (wr != null) {
       const pct = side === "B" ? wr * 100 : (1 - wr) * 100;
       document.getElementById("winw").style.width = pct + "%";
       document.getElementById("winb").style.width = (100 - pct) + "%";
       const label = document.getElementById("winlabel");
-      label.textContent = `${side === "B" ? "黑" : "白"}胜率 ${(Math.max(wr, 1 - wr) * 100).toFixed(1)}% · 目差 ${lead >= 0 ? "+" : ""}${lead.toFixed(1)}`;
+      label.textContent = `${side === "B" ? "黑" : "白"}胜率 ${(Math.max(wr, 1 - wr) * 100).toFixed(1)}% · 目差 ${leadTxt}`;
     }
     // 右侧胜率条（黑左 / 白右）——KataGo winrate 为当前行棋方视角，换算成黑方
     const blackWr = side === "B" ? (wr || 0.5) : 1 - (wr || 0.5);
     const g = document.getElementById("gwrfill");
     if (g) g.style.width = (blackWr * 100).toFixed(1) + "%";
     const gl = document.getElementById("gwrlabel");
-    if (gl) gl.textContent = `黑 ${(blackWr * 100).toFixed(1)}% · 白 ${((1 - blackWr) * 100).toFixed(1)}% · 目差 ${lead >= 0 ? "+" : ""}${(lead || 0).toFixed(1)}`;
+    if (gl) gl.textContent = `黑 ${(blackWr * 100).toFixed(1)}% · 白 ${((1 - blackWr) * 100).toFixed(1)}% · 目差 ${leadTxt}`;
   }
 
   function renderCands() {
     const el = document.getElementById("cands");
-    el.innerHTML = candidates.slice(0, 5).map((cd, i) => `
+    el.innerHTML = candidates.slice(0, 5).map((cd, i) => {
+      const wrTxt = cd.winrate != null ? (cd.winrate * 100).toFixed(1) + "%" : "--";
+      const ldTxt = cd.scoreLead != null ? (cd.scoreLead >= 0 ? "+" : "") + cd.scoreLead.toFixed(1) : "--";
+      return `
       <div class="cand">
         <span class="n">${i + 1}</span>
         <span style="font-size:14px">${cd.move}</span>
         <span class="pv">${cd.pv}</span>
-        <span class="wr">${(cd.winrate * 100).toFixed(1)}% · ${cd.scoreLead >= 0 ? "+" : ""}${cd.scoreLead.toFixed(1)}</span>
-      </div>`).join("") || '<div style="color:#788179;font-size:12px">暂无推荐（先落几手）</div>';
+        <span class="wr">${wrTxt} · ${ldTxt}</span>
+      </div>`;
+    }).join("") || '<div style="color:#788179;font-size:12px">暂无推荐（先落几手）</div>';
   }
 
   function setStatus(txt, alert) {
