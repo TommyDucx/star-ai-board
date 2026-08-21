@@ -37,7 +37,7 @@
       const r = await rpc("engines", {});
       const sel = document.getElementById("engine");
       if (!sel || !r.engines) return;
-      const names = { stockfish: "Stockfish 18", reckless: "Reckless 0.10", "my-engine": "MyEngine 0.2.0（自研策略模型）" };
+      const names = { stockfish: "Stockfish 18", reckless: "Reckless 0.10", "my-engine": "MyEngine 0.2.0（手写eval）", "my-engine-nnue": "MyEngine NNUE（增量评估）" };
       sel.innerHTML = r.engines.filter(e => e.available)
         .map(e => `<option value="${e.key}">${names[e.key] || e.key}</option>`)
         .join("") || `<option value="stockfish">Stockfish 18</option>`;
@@ -360,7 +360,7 @@
   });
   document.getElementById("engine").addEventListener("change", e => {
     // Reckless / 自研引擎不支持 Elo 分级：切换时禁用难度
-    const noElo = e.target.value === "reckless" || e.target.value === "my-engine";
+    const noElo = ["reckless", "my-engine", "my-engine-nnue"].includes(e.target.value);
     const levelSel = document.getElementById("level");
     levelSel.disabled = noElo;
     document.getElementById("level").parentElement.querySelector("label").textContent =

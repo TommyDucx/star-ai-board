@@ -18,12 +18,17 @@ const PUBLIC_DIR = path.join(__dirname, "public");
 const STOCKFISH = path.join(__dirname, "public", "stockfish");
 const RECKLESS = path.join(__dirname, "public", "reckless");
 const MY_ENGINE = path.join(__dirname, "my-engine", "handcrafted", "target", "release", "my-engine");
+const MY_ENGINE_NNUE = path.join(__dirname, "my-engine", "nnue", "target", "release", "my-engine-nnue");
 
 // 引擎表：key → 二进制路径（含提示/能力标记）
 const ENGINES = {
   stockfish:  { path: STOCKFISH, elo: true },   // 支持 UCI_LimitStrength/UCI_Elo
   reckless:   { path: RECKLESS, elo: false },   // 不支持 Elo option（自带棋力）
-  "my-engine":{ path: MY_ENGINE, elo: false },  // 自研 Rust 引擎（Policy 策略模型引导搜索）
+  "my-engine":{ path: MY_ENGINE, elo: false },  // 手写 eval 路线（v2_smp，Policy 引导搜索）
+  "my-engine-nnue": {
+    path: MY_ENGINE_NNUE, elo: false,           // NNUE 增量路线（Eval=nnue，增量累加器）
+    options: [{ name: "Eval", value: "nnue" }],
+  },
 };
 // 启动时检测引擎二进制是否存在（前端据此只显示可用引擎）
 Object.entries(ENGINES).forEach(([k, cfg]) => {
@@ -61,8 +66,9 @@ const server = http.createServer((req, res) => {
 
 /* ===================== 国际象棋：UCI 引擎（Stockfish / Reckless） ===================== */
 class ChessEngine {
-  constructor(enginePath) {
+  constructor(enginePath, options = []) {
     this.path = enginePath;
+    this.options = options;
     this.proc = null;
     this.buf = "";
     this.waiters = [];
@@ -109,6 +115,10 @@ class ChessEngine {
       this._send("uci");
       await uci;
       this._uci = true;
+      // 引擎级 UCI 选项（如 NNUE 引擎的 Eval=nnue）
+      for (const o of this.options) {
+        this._send(`setoption name ${o.name} value ${o.value}`);
+      }
     }
     const ready = this._waitFor(l => l === "readyok");
     this._send("isready");
@@ -269,7 +279,7 @@ class GoEngine {
 /* ===================== 启动 + WebSocket ===================== */
 const chessEngines = {};
 Object.entries(ENGINES).forEach(([key, cfg]) => {
-  chessEngines[key] = new ChessEngine(cfg.path);
+  chessEngines[key] = new ChessEngine(cfg.path, cfg.options || []);
 });
 function engineFor(name) {
   const key = ENGINES[name] ? name : "stockfish";
