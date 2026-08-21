@@ -19,6 +19,7 @@ const STOCKFISH = path.join(__dirname, "public", "stockfish");
 const RECKLESS = path.join(__dirname, "public", "reckless");
 const MY_ENGINE = path.join(__dirname, "my-engine", "handcrafted", "target", "release", "my-engine");
 const MY_ENGINE_NNUE = path.join(__dirname, "my-engine", "nnue", "target", "release", "my-engine-nnue");
+const ENGINES_DIR = path.join(__dirname, "public", "engines");
 
 // 引擎表：key → 二进制路径（含提示/能力标记）
 const ENGINES = {
@@ -29,6 +30,17 @@ const ENGINES = {
     path: MY_ENGINE_NNUE, elo: false,           // NNUE 增量路线（Eval=nnue，增量累加器）
     options: [{ name: "Eval", value: "nnue" }],
   },
+  // ── CCRL 顶级引擎（2026 排名，public/engines/ 下有二进制即自动可用）──
+  plentychess: { path: path.join(ENGINES_DIR, "plentychess"), elo: false },  // CCRL #3
+  viridithas:  { path: path.join(ENGINES_DIR, "viridithas"),  elo: false },  // CCRL #7
+  pawnocchio:  { path: path.join(ENGINES_DIR, "pawnocchio"),  elo: false },  // CCRL #12
+  obsidian:    { path: path.join(ENGINES_DIR, "obsidian"),    elo: false },  // CCRL #5
+  alexandria:  { path: path.join(ENGINES_DIR, "alexandria"),  elo: false },  // CCRL #6
+  quanticade:  { path: path.join(ENGINES_DIR, "quanticade"),  elo: false },  // CCRL #9
+  caissa:      { path: path.join(ENGINES_DIR, "caissa"),      elo: false },  // CCRL #10
+  halogen:     { path: path.join(ENGINES_DIR, "halogen"),     elo: false },  // CCRL #11
+  clover:      { path: path.join(ENGINES_DIR, "clover"),      elo: false },  // CCRL #13
+  berserk:     { path: path.join(ENGINES_DIR, "berserk"),     elo: false },  // CCRL #14
 };
 // 启动时检测引擎二进制是否存在（前端据此只显示可用引擎）
 Object.entries(ENGINES).forEach(([k, cfg]) => {
