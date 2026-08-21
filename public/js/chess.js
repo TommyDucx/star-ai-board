@@ -12,14 +12,21 @@
 
   /* ---------------- WS 连接 ---------------- */
   function connect() {
-    ws = new WebSocket(`ws://${location.host}`);
-    ws.onopen = () => { wsReady = true; };
-    ws.onclose = () => { wsReady = false; setTimeout(connect, 2000); };
-    ws.onmessage = e => {
-      const m = JSON.parse(e.data);
-      const p = pending.get(m.id);
-      if (p) { pending.delete(m.id); m.err ? p.rej(new Error(m.message)) : p.res(m); }
-    };
+    try {
+      // 公网是 HTTPS：必须用 wss://，ws:// 会被浏览器拦截并抛异常
+      const proto = location.protocol === "https:" ? "wss:" : "ws:";
+      ws = new WebSocket(`${proto}//${location.host}`);
+      ws.onopen = () => { wsReady = true; };
+      ws.onclose = () => { wsReady = false; setTimeout(connect, 2000); };
+      ws.onmessage = e => {
+        const m = JSON.parse(e.data);
+        const p = pending.get(m.id);
+        if (p) { pending.delete(m.id); m.err ? p.rej(new Error(m.message)) : p.res(m); }
+      };
+    } catch (e) {
+      // ws 失败不影响棋盘渲染，稍后重试
+      setTimeout(connect, 2000);
+    }
   }
   function rpc(type, payload) {
     return new Promise((res, rej) => {
