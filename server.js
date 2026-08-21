@@ -22,25 +22,24 @@ const MY_ENGINE_NNUE = path.join(__dirname, "my-engine", "nnue", "target", "rele
 const ENGINES_DIR = path.join(__dirname, "public", "engines");
 
 // 引擎表：key → 二进制路径（含提示/能力标记）
+// ⚠️ 顺序即前端引擎下拉顺序：BiaoZi 两个自研引擎置顶
 const ENGINES = {
-  stockfish:  { path: STOCKFISH, elo: true },   // 支持 UCI_LimitStrength/UCI_Elo
-  reckless:   { path: RECKLESS, elo: false },   // 不支持 Elo option（自带棋力）
-  "my-engine":{ path: MY_ENGINE, elo: false },  // 手写 eval 路线（v2_smp，Policy 引导搜索）
+  "my-engine":{ path: MY_ENGINE, elo: false },  // BiaoZi 手写 eval 路线（v2_smp，Policy 引导搜索）
   "my-engine-nnue": {
-    path: MY_ENGINE_NNUE, elo: false,           // NNUE 增量路线（Eval=nnue，增量累加器）
+    path: MY_ENGINE_NNUE, elo: false,           // BiaoZi NNUE 增量路线（Eval=nnue，增量累加器）
     options: [{ name: "Eval", value: "nnue" }],
   },
+  stockfish:  { path: STOCKFISH, elo: true },   // 支持 UCI_LimitStrength/UCI_Elo
+  reckless:   { path: RECKLESS, elo: false },   // 不支持 Elo option（自带棋力）
   // ── CCRL 顶级引擎（2026 排名，public/engines/ 下有二进制即自动可用）──
   plentychess: { path: path.join(ENGINES_DIR, "plentychess"), elo: false },  // CCRL #3
-  viridithas:  { path: path.join(ENGINES_DIR, "viridithas"),  elo: false },  // CCRL #7
-  pawnocchio:  { path: path.join(ENGINES_DIR, "pawnocchio"),  elo: false },  // CCRL #12
-  obsidian:    { path: path.join(ENGINES_DIR, "obsidian"),    elo: false },  // CCRL #5
   alexandria:  { path: path.join(ENGINES_DIR, "alexandria"),  elo: false },  // CCRL #6
+  viridithas:  { path: path.join(ENGINES_DIR, "viridithas"),  elo: false },  // CCRL #7
   quanticade:  { path: path.join(ENGINES_DIR, "quanticade"),  elo: false },  // CCRL #9
-  caissa:      { path: path.join(ENGINES_DIR, "caissa"),      elo: false },  // CCRL #10
   halogen:     { path: path.join(ENGINES_DIR, "halogen"),     elo: false },  // CCRL #11
   clover:      { path: path.join(ENGINES_DIR, "clover"),      elo: false },  // CCRL #13
   berserk:     { path: path.join(ENGINES_DIR, "berserk"),     elo: false },  // CCRL #14
+  ethereal:    { path: path.join(ENGINES_DIR, "ethereal"),    elo: false },  // CCRL #26（无 NNUE 降级版）
 };
 // 启动时检测引擎二进制是否存在（前端据此只显示可用引擎）
 Object.entries(ENGINES).forEach(([k, cfg]) => {
@@ -90,11 +89,24 @@ class ChessEngine {
   _ensureAlive() {
     if (!this.proc || this.proc.exitCode !== null) {
       // cwd 设为引擎所在目录：自研引擎据此定位同目录的 policy.bin（策略模型）
-      this.proc = spawn(this.path, [], { stdio: ["pipe", "pipe", "ignore"], cwd: path.dirname(this.path) });
+      // stderr 也接管：自研引擎（BiaoZi）的 info 行走 stderr，不读就解析不到评估分数
+      this.proc = spawn(this.path, [], { stdio: ["pipe", "pipe", "pipe"], cwd: path.dirname(this.path) });
       this.buf = "";
+      this.errBuf = "";
+      this.errLines = [];
       this._uci = false;
       this.proc.stdout.setEncoding("utf8");
       this.proc.stdout.on("data", d => this._onData(d));
+      this.proc.stderr.setEncoding("utf8");
+      this.proc.stderr.on("data", d => {
+        this.errBuf += d;
+        let i;
+        while ((i = this.errBuf.indexOf("\n")) >= 0) {
+          const l = this.errBuf.slice(0, i).trim();
+          this.errBuf = this.errBuf.slice(i + 1);
+          if (l) this.errLines.push(l);
+        }
+      });
       this.proc.on("exit", () => { this.proc = null; });
     }
   }
@@ -149,13 +161,17 @@ class ChessEngine {
       this._send(`setoption name MultiPV value ${multipv}`);
       this._send(`position fen ${fen}`);
       const done = this._waitFor(l => l.startsWith("bestmove"));
+      this.errLines = [];   // 本轮搜索前清空 stderr 收集（自研引擎 info 在 stderr）
       this._send(`go movetime ${movetime}`);
       const lines = await done;
-      const bestmove = (lines.find(l => l.startsWith("bestmove")) || "").split(/\s+/)[1] || null;
+      // 合并 stderr 的 info 行（BiaoZi 自研引擎 info 走 stderr）：稍等残留输出
+      await new Promise(r => setTimeout(r, 30));
+      const allLines = [...lines, ...this.errLines.filter(l => l.startsWith("info"))];
+      const bestmove = (allLines.find(l => l.startsWith("bestmove")) || "").split(/\s+/)[1] || null;
       // 解析多条 PV（MultiPV）：score + 走法
       const candidates = [];
       let cur = null;
-      for (const l of lines) {
+      for (const l of allLines) {
         if (l.startsWith("info") && l.includes("multipv")) {
           const pvN = +(l.match(/multipv (\d+)/) || [])[1] || 0;
           const s = l.match(/score cp (-?\d+)/);
@@ -170,7 +186,7 @@ class ChessEngine {
       // 无 multipv 的引擎（自研 my-engine）降级解析 info/pv（取最后一个=最深层）
       if (!candidates.filter(Boolean).length) {
         let l = null;
-        for (const x of lines) {
+        for (const x of allLines) {
           if (x.startsWith("info") && x.includes(" pv ")) l = x;
         }
         if (l) {

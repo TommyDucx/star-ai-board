@@ -39,8 +39,10 @@
 │    ├─ my-engine/policy.bin                ← 策略模型（引擎自动加载）│
 │    ├─ public/stockfish    (78MB)                                    │
 │    ├─ public/reckless     (65MB, Reckless 0.10，源码编译)           │
+│    ├─ public/engines/     ← CCRL 顶级引擎目录（8 个，见第九节清单） │
 │    └─ public/katago                                                   │
 │  /home/pi/reckless        Reckless 源码（含 networks/*.nnue 权重）  │
+│  /home/pi/engines/        CCRL 引擎源码+构建产物（可复编）          │
 │  systemd 服务：star-ai-board（端口 8765）                           │
 └──────────────────────────────────────────────────────────────────────┘
 
@@ -250,14 +252,35 @@ Lichess/chess-position-evaluations (HF, parquet, 957M 行, cp/mate 均白方视�
 | 页面 | URL | 说明 |
 |---|---|---|
 | 首页 | `/` | 围棋+国际象棋 AI 演示 |
-| 国际象棋 | `/chess.html` | Stockfish / Reckless / **BiaoZi 手写eval** / **BiaoZi NNUE**，点击式+拖拽下棋、AI 推荐高亮 |
+| 国际象棋 | `/chess.html` | **BiaoZi 手写eval** / **BiaoZi NNUE** / Stockfish / Reckless / 8 个 CCRL 顶级引擎（见下方清单），点击式+拖拽下棋、AI 推荐高亮、实时胜率折线图 |
 | 围棋 | `/go.html` | KataGo 推荐 |
 | 复盘 | `/review.html` | 走法复盘 |
 
-双自研引擎已上线 `chess.html` 引擎下拉：
+双自研引擎已上线 `chess.html` 引擎下拉（**BiaoZi 两个置顶**，server.js ENGINES 对象顺序即下拉顺序）：
 - `my-engine`（**BiaoZi 手写eval**）→ `my-engine/handcrafted/`，v2_smp 生产引擎
 - `my-engine-nnue`（**BiaoZi NNUE（增量评估）**）→ `my-engine/nnue/`，NNUE 增量累加器（`Eval=nnue`，server.js 引擎级 option 注入）
 - NNUE 模型 `my-engine/policy/nnue.bin`（v2，Phase4 HF 200万 best-val，corr 0.75）随部署拷到 `nnue/target/nnue.bin`
+
+### 完整引擎清单（下拉顺序 = server.js ENGINES 顺序）
+
+| key | 显示名 | 棋力定位 | 获取方式 |
+|---|---|---|---|
+| `my-engine` | BiaoZi 手写eval | 自研 v2_smp（Lazy SMP +51 Elo） | 源码编译（aarch64） |
+| `my-engine-nnue` | BiaoZi NNUE（增量评估） | 自研 NNUE 增量路线 | 源码编译（aarch64） |
+| `stockfish` | Stockfish 18 | CCRL #1，支持 UCI_Elo 限强 | 预编译 |
+| `reckless` | Reckless 0.10 | CCRL #2，激进风格 | 源码编译 |
+| `plentychess` | PlentyChess 8.0 | CCRL #3 | aarch64 预编译 |
+| `alexandria` | Alexandria 9 | CCRL #6 | 源码编译 |
+| `viridithas` | Viridithas 20 | CCRL #7 | aarch64 预编译 |
+| `quanticade` | Quanticade Cronus 3.0 | CCRL #9 | C 源码编译 |
+| `halogen` | Halogen 15 | CCRL #11 | C++ 编译（ARM NEON） |
+| `clover` | Clover 9.1 | CCRL #13 | C++ 编译（修 x86 flag） |
+| `berserk` | Berserk 13 | CCRL #14 | C 源码编译 |
+| `ethereal` | Ethereal 14 | CCRL #26（无 NNUE 降级版） | C 源码编译 |
+
+- 可用性：server.js 启动时 `fs.existsSync` 检测 `public/engines/<key>` 二进制，不存在的前端自动隐藏。
+- 权重文件：`hati.nnue`(quanticade)、`quantised.nnue`(clover)、`nn.net`(alexandria)、`berserk-*.nn` 与二进制同目录。
+- 未能部署：pawnocchio（Zig 运行时 `InvalidSyscall`）、obsidian（x86 专属头文件 `nmmintrin.h`）、caissa（缺权重 `eval-82-383B.pnn`）。
 
 ---
 
