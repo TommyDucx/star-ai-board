@@ -10,6 +10,7 @@
   let flipped = false;
   let candidates = [];   // KataGo moveInfos
   let ws = null, wsReady = false, msgId = 0, pending = new Map();
+  const sendQueue = [];   // ws 未就绪时排队的请求（onopen 统一发送，重连不丢）
 
   const svg = document.getElementById("board");
   const CELL = 27, PAD = 26;
@@ -28,7 +29,7 @@
       // 公网是 HTTPS：必须用 wss://，ws:// 会被浏览器拦截并抛异常
       const proto = location.protocol === "https:" ? "wss:" : "ws:";
       ws = new WebSocket(`${proto}//${location.host}`);
-      ws.onopen = () => { wsReady = true; };
+      ws.onopen = () => { wsReady = true; sendQueue.splice(0).forEach(fn => fn()); };
       ws.onclose = () => { wsReady = false; setTimeout(connect, 2000); };
       ws.onmessage = e => {
         const m = JSON.parse(e.data);
@@ -45,7 +46,7 @@
       const id = "c" + (++msgId);
       pending.set(id, { res, rej });
       const send = () => ws.send(JSON.stringify({ type, id, ...payload }));
-      if (wsReady) send(); else ws.onopen = () => { wsReady = true; send(); };
+      if (wsReady) send(); else sendQueue.push(send);
     });
   }
 
