@@ -250,11 +250,14 @@ Lichess/chess-position-evaluations (HF, parquet, 957M 行, cp/mate 均白方视�
 | 页面 | URL | 说明 |
 |---|---|---|
 | 首页 | `/` | 围棋+国际象棋 AI 演示 |
-| 国际象棋 | `/chess.html` | Stockfish / Reckless / **MyEngine**（自研），点击式+拖拽下棋、AI 推荐高亮 |
+| 国际象棋 | `/chess.html` | Stockfish / Reckless / **MyEngine 手写eval** / **MyEngine NNUE**，点击式+拖拽下棋、AI 推荐高亮 |
 | 围棋 | `/go.html` | KataGo 推荐 |
 | 复盘 | `/review.html` | 走法复盘 |
 
-自研引擎目前已上线 `chess.html` 引擎下拉（`MyEngine 0.2.0（自研策略模型）`）。
+双自研引擎已上线 `chess.html` 引擎下拉：
+- `my-engine`（**MyEngine 0.2.0（手写eval）**）→ `my-engine/handcrafted/`，v2_smp 生产引擎
+- `my-engine-nnue`（**MyEngine NNUE（增量评估）**）→ `my-engine/nnue/`，NNUE 增量累加器（`Eval=nnue`，server.js 引擎级 option 注入）
+- NNUE 模型 `my-engine/policy/nnue.bin`（v2，Phase4 HF 200万 best-val，corr 0.75）随部署拷到 `nnue/target/nnue.bin`
 
 ---
 
