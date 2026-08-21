@@ -288,7 +288,7 @@
     const cv = document.getElementById("evalchart");
     if (!cv) return;
     const dpr = window.devicePixelRatio || 1;
-    const cssW = cv.clientWidth || 280, cssH = 120;
+    const cssW = cv.clientWidth || 280, cssH = cv.clientHeight || 110;
     if (cv.width !== Math.round(cssW * dpr) || cv.height !== Math.round(cssH * dpr)) {
       cv.width = Math.round(cssW * dpr);
       cv.height = Math.round(cssH * dpr);

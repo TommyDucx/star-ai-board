@@ -46,12 +46,18 @@
 </div>
 
 <div class="chess-wrap enter-node">
-  <div class="board-card" style="display:flex;gap:10px;align-items:stretch">
-    <div class="eval-col">
-      <div id="evalpct">白 50.0%</div>
-      <div id="evalwrap"><div id="evalfill"></div></div>
+  <div class="board-card">
+    <div style="display:flex;gap:10px;align-items:stretch">
+      <div class="eval-col">
+        <div id="evalpct">白 50.0%</div>
+        <div id="evalwrap"><div id="evalfill"></div></div>
+      </div>
+      <div id="board"></div>
     </div>
-    <div id="board"></div>
+    <!-- 胜率走势图：棋盘正下方，宽度与棋盘对齐 -->
+    <div style="margin-top:10px">
+      <canvas id="evalchart" style="width:100%;height:110px;display:block;border:1px solid var(--line);border-radius:4px;background:#1a1d21;"></canvas>
+    </div>
   </div>
 
   <div class="panel">
@@ -85,9 +91,6 @@
     </div>
     <div class="status" id="status">准备就绪</div>
     <div class="thinking" id="thinking">Stockfish 分析中…</div>
-    <div class="row" style="margin-top:12px"><label>胜率走势（全程）</label>
-      <canvas id="evalchart" style="width:100%;height:120px;display:block;border:1px solid var(--line);border-radius:4px;background:#1a1d21;"></canvas>
-    </div>
     <div class="row" style="margin-top:12px"><label>推荐走法（当前行棋方）</label><div id="cands"></div></div>
     <div class="row"><div id="evaltxt" style="font-size:13px;color:var(--muted);font-family:monospace">评估：—</div></div>
     <div class="row moves"><table id="movelist"><tbody></tbody></table></div>
