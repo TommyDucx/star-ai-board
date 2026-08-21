@@ -22,34 +22,19 @@
 - 对弈：`concurrency × Threads ≤ 物理核数`（本机 8 核）。
 - 已封板方向（勿重试）见 `AGENTS.md` 第六节 + `MEMORY.md`：数据/评估侧 7 连败 + 搜索侧 2 连败；**唯一净收益 = Lazy SMP +51 Elo（v2_smp，已部署树莓派）**。
 
-## 三、当前进度
+## 三、当前进度（2026-08-21 快照）
 
-> ⚡ 最新：M6/MCTS iter1: 回滚；门禁 cand 得分 0.500 (回滚)
+> ⚡ 最新：**BiaoZi MCTS（AlphaZero 式）P0/P1 完成**——Rust 自博弈 crate + Python 推理/训练器 + rl_mcts.py 断点续跑主循环已落地并通过本地全链路冒烟（自博弈→训练→门禁→git 落盘）。**下一步 = 云端开跑 v1 战役**：
+> ```
+> cd /workspace && git fetch origin && git reset --hard origin/main
+> pip install --break-system-packages torch --index-url https://download.pytorch.org/whl/cpu
+> cargo build --release --manifest-path mcts/Cargo.toml
+> python3 rl_mcts.py --session-hours 16 --workers 6 --games-per-iter 1500 \
+>     --playouts 300 --steps 4000 --gate-games 200 --bench-every 3 --bench-games 200
+> ```
+> 每轮迭代自动落盘+push；会话被杀后重开会话重跑同一命令即断点续跑。
+> 预算：每 18h 会话约 2-3 个迭代；预计第 3-5 个会话出强度拐点。门禁≥55% 晋级；vs 手写eval 500 局铁律定论。
 
-
-### 3.1 技术路线
-- **handcrafted/**（生产路线）：手写 eval + α-β + Lazy SMP，= v2_smp，已部署树莓派（http://192.168.0.107:8765）。**已封板，不再投入。**
-- **nnue/**（实验路线）：NNUE 增量推理。当前推进到 **M6（HalfKP 王桶耦合特征）**。
-
-### 3.2 NNUE 里程碑一览（详见 `cnb_nnue_incremental_design.md`）
-| 里程碑 | 状态 | 结论 |
-|---|---|---|
-| M0–M2 数据管线 | ✅ | HF Lichess → parquet_dump.py → data-etl(HalfK-768 .scnn) → train_nnue.py；5.66M 唯一局面 |
-| M3 静态 CNN 接入 | ✅ | nnue.rs 静态推理 + UCI `Eval` 开关 + golden PASS |
-| M4 静态对局 | ✅ 完成，❌ 结论 | pilot **0-40**（静态 eval ~100x 慢 → 深度塌陷），**静态 CNN 封板** |
-| M5 增量推理 | ✅ 完成，❌ 结论 | nnue.rs v2 增量累加器 + golden 0 diff；corr 0.75（HF 200 万）→ pilot **4-36**（仍输 381 Elo）。引擎本体正确，**eval 质量是瓶颈**，判定 **fixed-color HalfK-768（无王格耦合）= 架构硬瓶颈** |
-| M6 HalfKP 王桶 | 🔄 **进行中（数据侧已出，结论待汇报）** | 见下 |
-
-### 3.3 M6 HalfKP 现状（关键，下一步从这里接）
-- **已实现**：`data-etl/src/halfkp.rs`（王桶 B=32，每桶 704 槽 = us 白非王 320 + them 黑含王 384，特征空间 22528）+ `train_nnue_halfkp.py`（稀疏 → acc128 → 32→32→1，标签 eval_white）。
-- **HEAD** = `67ebb8f` `fix(M6): HalfKP 标签视角 bug —— halfkp 强制 eval_white`。
-- **已跑（未汇报）**：用修复后 HEAD 重训完 HalfKP（5M 样本源，`data/nnue/train_hkp.scnn`），产出 `my-engine/policy/nnue_hkp.bin`（version=3，2,888,929 参数，~11.6MB）+ `policy_nnue_hkp.pt`。
-- **⚠️ 缺口**：修复后**新 corr 未知**（第一次 buggy 标签跑出 corr 0.21 已作废）。`nnue_hkp.bin` 存在但**质量未评估、未 commit**。
-- **下一步（按序）**：
-  1. 评估 `nnue_hkp.bin` 的 val **corr**（复现 train_nnue_halfkp.py 的 val 划分：seed=42 / 前 5M / 5% val；sigmoid 空间相关性）。
-  2. 决策门：**corr > 0.80** → 投入引擎集成（nnue.rs v3 读 version=3 + search.rs 王桶边界 / 白王换桶全量重算）；**corr ≤ 0.75** → 王格耦合没救回，停，待指示。
-  3. corr 达标才做引擎集成 + golden test（PyTorch vs Rust 逐位）+ pilot 40 局（看深度是否恢复）。
-- 参考对比：M5 HalfK 200 万 corr=0.75；M6 目标 >0.80。
 
 ## 四、环境速查（云端 /workspace）
 - 8 核 / 16GB 内存；`cargo` 可用；Python 3.12。

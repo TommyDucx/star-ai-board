@@ -38,3 +38,8 @@ my-engine/policy/nnue_hkp.bin
 
 # 围棋模型（树莓派部署用，不入库）
 models/
+
+# MCTS 自博弈（run 下 nets/games/bench/manifest 入库，样本与构建产物不入库）
+mcts/target/
+run/samples/
+run/**/worker*.log
