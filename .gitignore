@@ -31,3 +31,7 @@ my-engine/policy/policy_nnue.onnx
 my-engine/policy/policy_nnue_inc.pt
 my-engine/policy/policy_nnue_hkp.pt
 data-etl/target/
+
+# 插件维护的记忆文件 / NNUE 大模型产物（不入库）
+PROJECT_MEMORY.md
+my-engine/policy/nnue_hkp.bin
