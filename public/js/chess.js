@@ -37,7 +37,7 @@
       const r = await rpc("engines", {});
       const sel = document.getElementById("engine");
       if (!sel || !r.engines) return;
-      const names = { stockfish: "Stockfish 18", reckless: "Reckless 0.10", "my-engine": "MyEngine 0.2.0（手写eval）", "my-engine-nnue": "MyEngine NNUE（增量评估）" };
+      const names = { stockfish: "Stockfish 18", reckless: "Reckless 0.10", "my-engine": "BiaoZi 手写eval", "my-engine-nnue": "BiaoZi NNUE（增量评估）" };
       sel.innerHTML = r.engines.filter(e => e.available)
         .map(e => `<option value="${e.key}">${names[e.key] || e.key}</option>`)
         .join("") || `<option value="stockfish">Stockfish 18</option>`;

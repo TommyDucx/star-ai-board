@@ -46,7 +46,7 @@ fn main() {
         let parts: Vec<&str> = trimmed.split_whitespace().collect();
         match parts[0] {
             "uci" => {
-                println!("id name MyEngine 0.2.0");
+                println!("id name BiaoZi 手写eval");
                 println!("id author STAR");
                 println!("option name Policy type check default true");
                 println!("option name PolicyAggressiveness type spin default 50 min 0 max 100");
