@@ -9,7 +9,6 @@
   let myColor = "white";
   let ws = null, wsReady = false, msgId = 0, pending = new Map();
   let lastCandidates = [];
-  let evalHistory = [];   // 全程白方胜率历史（用于折线图）
 
   /* ---------------- WS 连接 ---------------- */
   function connect() {
@@ -278,58 +277,12 @@
     document.getElementById("evalfill").style.height = wpct + "%";
     const pctEl = document.getElementById("evalpct");
     if (pctEl) pctEl.textContent = `白 ${wpct.toFixed(1)}%`;
-    // 记录全程胜率历史并重绘折线图
-    evalHistory.push(wpct);
-    drawEvalChart();
-  }
-
-  // 全程胜率折线图（canvas，白方胜率 0~100%，100% 在顶部）
-  function drawEvalChart() {
-    const cv = document.getElementById("evalchart");
-    if (!cv) return;
-    const dpr = window.devicePixelRatio || 1;
-    const cssW = cv.clientWidth || 280, cssH = cv.clientHeight || 110;
-    if (cv.width !== Math.round(cssW * dpr) || cv.height !== Math.round(cssH * dpr)) {
-      cv.width = Math.round(cssW * dpr);
-      cv.height = Math.round(cssH * dpr);
-    }
-    const ctx = cv.getContext("2d");
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, cssW, cssH);
-    // 背景
-    ctx.fillStyle = "#1a1d21";
-    ctx.fillRect(0, 0, cssW, cssH);
-    // 50% 中线
-    ctx.strokeStyle = "#3a4048";
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(0, cssH / 2); ctx.lineTo(cssW, cssH / 2); ctx.stroke();
-    const n = evalHistory.length;
-    if (!n) return;
-    const pt = (i) => {
-      const x = n === 1 ? cssW / 2 : (i / (n - 1)) * cssW;
-      const y = ((100 - evalHistory[i]) / 100) * cssH;
-      return [x, y];
-    };
-    // 折线
-    ctx.strokeStyle = "#d7ff3f";
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    for (let i = 0; i < n; i++) {
-      const [x, y] = pt(i);
-      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    // 最新点
-    const [lx, ly] = pt(n - 1);
-    ctx.fillStyle = "#d7ff3f";
-    ctx.beginPath(); ctx.arc(lx, ly, 2.5, 0, Math.PI * 2); ctx.fill();
   }
 
   function resetEvalUI() {
     document.getElementById("evalfill").style.height = "50%";
     const pctEl = document.getElementById("evalpct");
     if (pctEl) pctEl.textContent = "白 50.0%";
-    drawEvalChart();
   }
 
   function updateStatus() {
@@ -345,8 +298,8 @@
   function setThinking(on) { document.getElementById("thinking").classList.toggle("on", on); }
 
   /* ---------------- 按钮 ---------------- */
-  function newGame() { game.reset(); board.position("start"); lastCandidates = []; evalHistory = []; resetEvalUI(); updateStatus(); }
-  function undo() { game.undo(); board.position(game.fen()); if (evalHistory.length) evalHistory.pop(); drawEvalChart(); updateStatus(); }
+  function newGame() { game.reset(); board.position("start"); lastCandidates = []; resetEvalUI(); updateStatus(); }
+  function undo() { game.undo(); board.position(game.fen()); updateStatus(); }
   function flipBoard() { board.flip(); }
 
   // 依据"我执的棋"决定棋盘朝向：所选颜色在下方，另一色在上方
@@ -372,7 +325,13 @@
 
   connect();
   loadEngines();
-  initBoard();
+  // 延迟到 window.load：公网/慢网络下 jQuery/chessboard.min.js 可能未就绪，
+  // 立即执行会测到 #board=0 高度导致棋盘消失。所有资源就绪后再初始化。
+  if (document.readyState === "complete") {
+    initBoard();
+  } else {
+    window.addEventListener("load", initBoard, { once: true });
+  }
   window.engineThink = engineThink;
   window.newGame = newGame;
   window.undo = undo;
