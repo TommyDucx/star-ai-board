@@ -44,7 +44,20 @@
       const r = await rpc("engines", {});
       const sel = document.getElementById("engine");
       if (!sel || !r.engines) return;
-      const names = { stockfish: "Stockfish 18", reckless: "Reckless 0.10", "my-engine": "BiaoZi 手写eval", "my-engine-nnue": "BiaoZi NNUE（增量评估）" };
+      const names = {
+        stockfish: "Stockfish 18（≈3640·世界最强）",
+        reckless: "Reckless 0.10（≈3600·顶级）",
+        plentychess: "PlentyChess 8.0（≈3590·顶级）",
+        alexandria: "Alexandria 9（≈3560·顶级）",
+        viridithas: "Viridithas 20（≈3550·顶级）",
+        quanticade: "Quanticade Cronus 3.0（≈3520·强）",
+        halogen: "Halogen 15（≈3500·强）",
+        clover: "Clover 9.1（≈3490·强）",
+        berserk: "Berserk 13（≈3460·强）",
+        ethereal: "Ethereal 14（≈3420·强）",
+        "my-engine": "BiaoZi 手写eval（≈800·入门）",
+        "my-engine-nnue": "BiaoZi NNUE（≈500·实验）",
+      };
       sel.innerHTML = r.engines.filter(e => e.available)
         .map(e => `<option value="${e.key}">${names[e.key] || e.key}</option>`)
         .join("") || `<option value="stockfish">Stockfish 18</option>`;
@@ -321,7 +334,7 @@
   });
   document.getElementById("engine").addEventListener("change", e => {
     // Reckless / 自研引擎不支持 Elo 分级：切换时禁用难度
-    const noElo = ["reckless", "my-engine", "my-engine-nnue"].includes(e.target.value);
+    const noElo = e.target.value !== "stockfish"; // 仅 Stockfish 支持 UCI_Elo 限强
     const levelSel = document.getElementById("level");
     levelSel.disabled = noElo;
     document.getElementById("level").parentElement.querySelector("label").textContent =
