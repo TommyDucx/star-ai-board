@@ -1,0 +1,45 @@
+{
+  "engine": null,
+  "eng_a": "/workspace/my-engine/handcrafted/target/release/my-engine",
+  "eng_b": "/workspace/mcts/target/release/mcts-uci",
+  "games": 100,
+  "movetime_ms": 800,
+  "concurrency": 4,
+  "openings": 30,
+  "names": {
+    "handcrafted": {
+      "policy": null,
+      "disabled": false
+    },
+    "mcts_iter1": {
+      "policy": null,
+      "disabled": false
+    }
+  },
+  "results": {
+    "handcrafted": 100,
+    "draw": 0,
+    "mcts_iter1": 0
+  },
+  "score_A": 1.0,
+  "score_se": 0.0,
+  "elo_diff_A_minus_B": null,
+  "elo_95ci": [
+    1599.9826273520962,
+    1599.9826273520962
+  ],
+  "LOS_A_better": 1.0,
+  "per_color": {
+    "handcrafted": {
+      "w": 100,
+      "d": 0,
+      "l": 0
+    },
+    "mcts_iter1": {
+      "w": 0,
+      "d": 0,
+      "l": 100
+    }
+  },
+  "duration_s": 883.7
+}

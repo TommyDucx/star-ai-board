@@ -1,0 +1,1100 @@
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "1"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 e7e5 g1f3 b8c6"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 d6 4. d4 Kd7 5. d5 Ne7 6. dxc6+ Ke8 7. cxb7+ Qd7 8. Bxd7+ Kd8 9. bxa8=Q Kxd7 10. Nxe5+ Ke8 11. Nc6 Ng6 12. Qxc8# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "2"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 e7e5 g1f3 b8c6"]
+
+1. e4 e5 2. Nf3 Nc6 3. Nxe5 Nxe5 4. f3 Nc6 5. Ke2 d5 6. d3 Nf6 7. Ke3 dxe4 8. fxe4 Qd4+ 9. Kf3 Bg4+ 10. Kg3 Bxd1 11. Kh4 Nxe4 12. Rg1 Ng3+ 13. Kxg3 Bd6+ 14. Bf4 Qxf4+ 15. Kh3 Qxh2# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "3"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 e7e5 b1c3 g8f6"]
+
+1. e4 e5 2. Nc3 Nf6 3. Nf3 Ng4 4. h3 d6 5. hxg4 Be6 6. d4 Kd7 7. d5 Ke8 8. dxe6 Qe7 9. Nd5 Rg8 10. Nxe7 Nc6 11. Nxg8 Rb8 12. exf7+ Kd7 13. Qd5 Nd4 14. Nxd4 Kd8 15. Bg5+ Be7 16. f8=Q+ Kd7 17. Qe6# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "4"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 e7e5 b1c3 g8f6"]
+
+1. e4 e5 2. Nc3 Nf6 3. Ke2 d5 4. Rb1 d4 5. Ra1 dxc3 6. f3 cxb2 7. Rb1 bxc1=Q 8. Qxc1 Bc5 9. Qe1 Nc6 10. Qh4 O-O 11. Qh5 Nxh5 12. Rb5 Nd4+ 13. Ke3 Nb3+ 14. d4 Qxd4+ 15. Ke2 Qd2# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "5"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 e7e5 g1f3 g8f6"]
+
+1. e4 e5 2. Nf3 Nf6 3. Nxe5 Ng4 4. Nxg4 d6 5. Nc3 Kd7 6. Be2 Ke8 7. O-O Kd7 8. d4 Ke8 9. Bf4 Qe7 10. Nd5 Kd7 11. Nxe7 Ke8 12. Nd5 Kd7 13. Ne5+ Kd8 14. Nxf7+ Kd7 15. Bg4+ Ke8 16. Nxh8 Be6 17. Bxe6 Nc6 18. Qh5+ g6 19. Qxh7 Ne5 20. Nxc7+ Kd8 21. Bg5+ Be7 22. Qxe7# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "6"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 e7e5 g1f3 g8f6"]
+
+1. e4 e5 2. Nf3 Nf6 3. Nxe5 Qe7 4. Ke2 Qxe5 5. h4 Qxe4# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "7"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 e7e5 f1c4 g8f6"]
+
+1. e4 e5 2. Bc4 Nf6 3. Nc3 Ng4 4. Qxg4 Qe7 5. Nd5 d6 6. Qxc8+ Qd8 7. Nxc7+ Ke7 8. Nd5+ Ke8 9. Bb5+ Nc6 10. Bxc6+ bxc6 11. Qxc6+ Qd7 12. Qxa8+ Qd8 13. Qxa7 Qa8 14. Qxa8+ Kd7 15. Qb7+ Kd8 16. Nb6 f6 17. Qd7# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "8"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 e7e5 f1c4 g8f6"]
+
+1. e4 e5 2. Bc4 Nf6 3. Ke2 Nxe4 4. h4 Bc5 5. Kf3 Qf6+ 6. Kg4 Nxf2+ 7. Kg3 Qf4# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "9"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 e7e5 d2d4 e5d4"]
+
+1. e4 e5 2. d4 exd4 3. Qxd4 Bb4+ 4. Qxb4 Ne7 5. Nc3 d6 6. Nf3 Kd7 7. Qb3 Qg8 8. Ng5 Ke8 9. Bc4 Kd7 10. Nxf7 Ke8 11. Nd5 Kd7 12. Qh3+ Ke8 13. Nxc7+ Kf8 14. Qf3 Be6 15. Bxe6 Nbc6 16. Nxh8+ Nf5 17. Qxf5+ Ke7 18. Bg5# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "10"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 e7e5 d2d4 e5d4"]
+
+1. e4 e5 2. d4 exd4 3. c3 Qe7 4. Bc4 Nf6 5. Ke2 Nxe4 6. Kf3 dxc3 7. Ke3 cxb2 8. Kd4 bxa1=Q+ 9. Ke3 Qc5+ 10. Kf3 Qxf2+ 11. Kg4 d5+ 12. Kh5 g6# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "11"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 c7c5 g1f3 d7d6"]
+
+1. e4 c5 2. Nf3 d6 3. Nc3 Qd7 4. d4 Qd8 5. dxc5 Kd7 6. Bb5+ Nc6 7. Ne5+ Ke8 8. Nxc6 Kd7 9. Qg4+ Ke8 10. Ne5+ Qd7 11. Bxd7+ Kd8 12. Bxc8 h6 13. Qd7# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "12"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 c7c5 g1f3 d7d6"]
+
+1. e4 c5 2. Nf3 d6 3. Bc4 Nf6 4. Ne5 dxe5 5. Ke2 Nxe4 6. f3 Nd6 7. Rf1 Nxc4 8. d3 Nd6 9. Ke3 Nc6 10. Kf2 Qb6 11. Ke2 e6 12. Ke3 c4+ 13. Kd2 cxd3 14. Kxd3 Qb5+ 15. Kc3 Ne4+ 16. fxe4 Bb4+ 17. Kb3 Na5# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "13"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 c7c5 b1c3 b8c6"]
+
+1. e4 c5 2. Nc3 Nc6 3. Bd3 Ne5 4. Be2 Qb6 5. Nf3 d6 6. Nxe5 Be6 7. Nc4 Kd7 8. Nxb6+ Kd8 9. Nxa8 Ke8 10. Nc7+ Kd7 11. Nxe6 Ke8 12. Bb5# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "14"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 c7c5 b1c3 b8c6"]
+
+1. e4 c5 2. Nc3 Nc6 3. Ke2 Nf6 4. Rb1 d5 5. f3 d4 6. Kf2 dxc3 7. Ke2 cxb2 8. Rxb2 e5 9. Rb6 axb6 10. Ke3 Qd4+ 11. Ke2 Rxa2 12. d3 Nb4 13. h4 Nh5 14. Rh3 Nxc2 15. Rh2 Ng3+ 16. Kd2 Qb4# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "15"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 e7e6 d2d4 d7d5"]
+
+1. e4 e6 2. d4 d5 3. e5 Qd6 4. exd6 Kd7 5. dxc7 Ke8 6. cxb8=Q Ne7 7. Bb5+ Kd8 8. Qd6+ Bd7 9. Qxd7# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "16"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 e7e6 d2d4 d7d5"]
+
+1. e4 e6 2. d4 d5 3. Be2 dxe4 4. Qd3 exd3 5. f3 dxc2 6. Ba6 Nxa6 7. Nd2 Qh4+ 8. Ke2 Qxd4 9. Rb1 Bc5 10. Ra1 Qe3+ 11. Kf1 Qf2# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "17"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 e7e6 d2d4 c7c5"]
+
+1. e4 e6 2. d4 c5 3. d5 Ne7 4. Nf3 d6 5. Nc3 Kd7 6. Bb5+ Kc7 7. Ng5 e5 8. Nxf7 Qd7 9. Bxd7 Ng6 10. Bxc8 Rg8 11. Be6 h6 12. Nxd6 Kd8 13. Nf7+ Ke7 14. Qg4 Kf6 15. Bg5+ hxg5 16. Qxg5# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "18"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 e7e6 d2d4 c7c5"]
+
+1. e4 e6 2. d4 c5 3. Be2 cxd4 4. Ba6 Nxa6 5. f3 Bc5 6. Kf2 Nf6 7. Ke2 d5 8. Kd3 dxe4+ 9. Kc4 Qd5+ 10. Kb5 Bb4+ 11. Ka4 b5# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "19"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 c7c6 d2d4 d7d5"]
+
+1. e4 c6 2. d4 d5 3. e5 c5 4. Nf3 Kd7 5. c4 Ke8 6. cxd5 Kd7 7. e6+ Ke8 8. Bb5+ Qd7 9. exd7+ Kd8 10. dxc8=Q+ Kxc8 11. Qc2 Kc7 12. Qxc5+ Kd8 13. Ne5 Nh6 14. Bxh6 Nd7 15. Bxd7 g6 16. Bb5 Rc8 17. Nxf7# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "20"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 c7c6 d2d4 d7d5"]
+
+1. e4 c6 2. d4 d5 3. exd5 cxd5 4. Ke2 Bg4+ 5. Ke3 Bxd1 6. Bc4 dxc4 7. Nd2 Nh6 8. Rb1 Nf5+ 9. Kf4 g5+ 10. Ke5 Qxd4+ 11. Kxf5 Qd5# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "21"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 d7d5 e4d5 d8d5"]
+
+1. e4 d5 2. exd5 Qxd5 3. Nf3 Qg5 4. Nxg5 Kd7 5. Nxf7 Ke8 6. Nxh8 Kd7 7. Qh5 Kd6 8. Nf7+ Ke6 9. Bc4+ Kd7 10. Qd5+ Ke8 11. Qd8# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "22"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 d7d5 e4d5 d8d5"]
+
+1. e4 d5 2. exd5 Qxd5 3. Qg4 Bxg4 4. Bc4 Qxg2 5. h4 Qxh1 6. h5 Qxg1+ 7. Bf1 Bh3 8. d3 Qxf1+ 9. Kd2 e5 10. f3 Qxf3 11. c3 Qf2+ 12. Kd1 Bg4# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "23"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 g8f6 e4e5 f6d5"]
+
+1. e4 Nf6 2. e5 Nd5 3. c4 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "24"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 g8f6 e4e5 f6d5"]
+
+1. e4 Nf6 2. e5 Nd5 3. Bc4 Nb6 4. Ke2 Nxc4 5. e6 dxe6 6. f3 Nc6 7. h4 Qd6 8. Rh2 Qxh2 9. h5 Qxg2+ 10. Kd3 Qf2 11. Kxc4 Qd4+ 12. Kb3 Qb4# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "25"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 d7d6 d2d4 g8f6"]
+
+1. e4 d6 2. d4 Nf6 3. Nc3 Qd7 4. Nf3 Qc6 5. Bb5 Ng4 6. d5 Ne5 7. Nxe5 Qd7 8. Nxd7 Rg8 9. Nxb8+ Bd7 10. Nxd7 O-O-O 11. Qg4 Rxd7 12. Qxd7+ Kb8 13. Qd8# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "26"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 d7d6 d2d4 g8f6"]
+
+1. e4 d6 2. d4 Nf6 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "27"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 g7g6 d2d4 f8g7"]
+
+1. e4 g6 2. d4 Bg7 3. Nf3 Bf8 4. Nc3 Bg7 5. Bc4 d6 6. O-O Kd7 7. Ng5 Ke8 8. Nxf7 Kd7 9. Nxd8 Ke8 10. Nf7 Bg4 11. Qxg4 Nc6 12. Nb5 Ne5 13. Nxc7+ Kf8 14. dxe5 g5 15. Nxg5 Re8 16. Nce6# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "28"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 g7g6 d2d4 f8g7"]
+
+1. e4 g6 2. d4 Bg7 3. Bc4 e6 4. Bxe6 dxe6 5. Ke2 Bxd4 6. Kf3 Qf6+ 7. Kg3 Bxf2+ 8. Kg4 e5+ 9. Qd7+ Bxd7# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "29"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 b8c6 d2d4 d7d5"]
+
+1. e4 Nc6 2. d4 d5 3. exd5 Ne5 4. dxe5 Kd7 5. e6+ Ke8 6. Qh5 Qd7 7. Qxf7+ Kd8 8. exd7 Kxd7 9. Qxf8 Kd6 10. Qxg7 Be6 11. Bf4+ Kd7 12. dxe6+ Ke8 13. Bxc7 Nh6 14. Bb5# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "30"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 b8c6 d2d4 d7d5"]
+
+1. e4 Nc6 2. d4 d5 3. Ke2 dxe4 4. f3 Nxd4+ 5. Ke3 e5 6. Kf2 Nf6 7. Bc4 Bf5 8. Qd3 exd3 9. Nd2 Nxc2 10. Rb1 Qd4+ 11. Kf1 Ne3+ 12. Kf2 Neg4+ 13. Kg3 Qf4+ 14. Kh4 Nf2+ 15. g4 g5# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "31"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "d2d4 d7d5 c2c4 e7e6"]
+
+1. d4 d5 2. c4 e6 3. cxd5 Nc6 4. dxc6 Qe7 5. cxb7 e5 6. bxa8=Q Kd7 7. dxe5+ Ke8 8. Qxc8+ Qd8 9. Qdxd8# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "32"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "d2d4 d7d5 c2c4 e7e6"]
+
+1. d4 d5 2. c4 e6 3. Qa4+ Bd7 4. Kd1 Bxa4+ 5. Kd2 dxc4 6. f3 Qxd4+ 7. Ke1 Qd1+ 8. Kf2 Qxc1 9. Nd2 Qxd2 10. Rb1 Bc5+ 11. Kg3 Qg5+ 12. Kh3 Qh6+ 13. Kg4 f5+ 14. Kg3 f4+ 15. Kg4 Nf6# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "33"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "d2d4 d7d5 c2c4 c7c6"]
+
+1. d4 d5 2. c4 c6 3. e3 Kd7 4. Nf3 Ke8 5. Nc3 Kd7 6. cxd5 Kd6 7. Ne5 Kc7 8. Nxf7 Qd7 9. e4 Qe8 10. Bf4+ Kb6 11. Na4+ Ka5 12. Bd2# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "34"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "d2d4 d7d5 c2c4 c7c6"]
+
+1. d4 d5 2. c4 c6 3. Nd2 Nf6 4. Rb1 Qa5 5. Ra1 dxc4 6. Rb1 Bf5 7. Ra1 c3 8. Rb1 c2 9. f3 cxb1=Q 10. h4 Bc2 11. h5 Bxd1 12. Rh2 Qxc1 13. a4 Qcxd2+ 14. Kf2 Qe1+ 15. Ke3 Qad2# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "35"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "d2d4 d7d5 g1f3 g8f6"]
+
+1. d4 d5 2. Nf3 Nf6 3. e3 Kd7 4. Bb5+ Kd6 5. Ng5 Qd7 6. Nxf7+ Ke6 7. Bxd7+ Kxf7 8. Bxc8 Ng4 9. Qxg4 Rg8 10. Be6+ Ke8 11. Qh5+ g6 12. Qxd5 Bg7 13. Qxb7 g5 14. Qc8# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "36"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "d2d4 d7d5 g1f3 g8f6"]
+
+1. d4 d5 2. Nf3 Nf6 3. Ng1 e6 4. f3 Nc6 5. c3 Be7 6. Qd2 O-O 7. Qd3 e5 8. dxe5 Nxe5 9. Kf2 Nxd3+ 10. Ke3 Nxc1 11. Kf2 Qe8 12. Nd2 Bc5+ 13. e3 Qxe3+ 14. Kg3 Qg5# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "37"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "d2d4 d7d5 c2c4 g8f6"]
+
+1. d4 d5 2. c4 Nf6 3. cxd5 Nc6 4. dxc6 Bg4 5. cxb7 Kd7 6. Qa4+ Kd6 7. Bf4+ Ke6 8. Qc6+ Kf5 9. bxa8=Q Qxa8 10. Qxa8 Kg6 11. Nd2 Rg8 12. Ngf3 Kf5 13. e3 Bh5 14. Bd3+ Ne4 15. Qxe4+ Kf6 16. Bg5# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "38"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "d2d4 d7d5 c2c4 g8f6"]
+
+1. d4 d5 2. c4 Nf6 3. h4 dxc4 4. f3 Nc6 5. Rh2 Qd6 6. Nd2 Qg3# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "39"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "d2d4 g8f6 c2c4 e7e6"]
+
+1. d4 Nf6 2. c4 e6 3. Nf3 Bb4+ 4. Nbd2 d6 5. a3 Kd7 6. axb4 Ng4 7. e4 Ke8 8. h3 Qd7 9. hxg4 Qe7 10. Ra5 e5 11. Qa4+ Kf8 12. dxe5 Kg8 13. Rxa7 Be6 14. Rxa8 Bf5 15. Rxb8+ Qf8 16. Qe8 h6 17. Qxf8+ Kh7 18. Qxh8+ Kg6 19. exf5# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "40"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "d2d4 g8f6 c2c4 e7e6"]
+
+1. d4 Nf6 2. c4 e6 3. d5 Na6 4. Qd2 Bb4 5. f3 Bxd2+ 6. Kf2 Bxc1 7. Nd2 Bxd2 8. Rb1 Ne4+ 9. fxe4 Qh4+ 10. g3 Qxe4 11. Rc1 Be3+ 12. Ke1 Bxc1 13. Bh3 Be3 14. Bf5 Qxf5 15. a4 Qb1# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "41"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "d2d4 g8f6 c2c4 g7g6"]
+
+1. d4 Nf6 2. c4 g6 3. Nf3 d6 4. Nc3 Bg4 5. e4 Kd7 6. e5 Be6 7. exf6 Bg7 8. fxg7 g5 9. gxh8=Q Qg8 10. Ne5+ dxe5 11. dxe5+ Kc6 12. Qa4+ Kc5 13. Be3# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "42"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "d2d4 g8f6 c2c4 g7g6"]
+
+1. d4 Nf6 2. c4 g6 3. h4 Bg7 4. Qd3 d5 5. Qxg6 hxg6 6. Rh3 Bxh3 7. f3 Be6 8. Kf2 dxc4 9. Nd2 Qxd4+ 10. e3 Qxh4+ 11. Ke2 c3 12. Rb1 cxd2 13. Ra1 Qe1+ 14. Kd3 d1=Q+ 15. Bd2 Qdxd2# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "43"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "d2d4 g8f6 g1f3 e7e6"]
+
+1. d4 Nf6 2. Nf3 e6 3. e3 d6 4. Bd3 Kd7 5. Nc3 Ke8 6. e4 Kd7 7. O-O Qe7 8. e5 Ke8 9. exf6 e5 10. fxe7 Bg4 11. exf8=N Rg8 12. Nxh7 Kd7 13. Nxe5+ Ke8 14. Qxg4 Nc6 15. Qd7# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "44"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "d2d4 g8f6 g1f3 e7e6"]
+
+1. d4 Nf6 2. Nf3 e6 3. Ne5 d5 4. h4 Nbd7 5. Rh2 Nxe5 6. dxe5 Ng4 7. f3 Nxh2 8. Kf2 Nxf1 9. Qd3 Qxh4+ 10. g3 Nxg3 11. Qc4 dxc4 12. Nd2 Qh2+ 13. Ke3 Bc5+ 14. Kf4 Qh4# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "45"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "d2d4 e7e6 c2c4 f8b4"]
+
+1. d4 e6 2. c4 Bb4+ 3. Bd2 Qe7 4. Qb3 d6 5. Bxb4 e5 6. dxe5 Kd7 7. exd6 Ke8 8. dxe7 Kd7 9. Qd3+ Ke6 10. Qe4+ Kf6 11. e8=N+ Kg5 12. Bd2+ Kh5 13. Nxg7# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "46"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "d2d4 e7e6 c2c4 f8b4"]
+
+1. d4 e6 2. c4 Bb4+ 3. Nd2 Nf6 4. Rb1 d5 5. Ra1 dxc4 6. Rb1 Qxd4 7. Ra1 c3 8. Rb1 Ne4 9. f3 Qf2# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "47"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "d2d4 d7d6 e2e4 g8f6"]
+
+1. d4 d6 2. e4 Nf6 3. Nc3 Kd7 4. e5 Ne8 5. Qf3 Rg8 6. Qf5+ Kc6 7. d5+ Kb6 8. Na4+ Ka5 9. Bd2+ Kxa4 10. Qe4# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "48"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "d2d4 d7d6 e2e4 g8f6"]
+
+1. d4 d6 2. e4 Nf6 3. Ke2 Nxe4 4. Kf3 Bg4+ 5. Ke3 Bxd1 6. Bc4 e5 7. Nd2 Qg5+ 8. Kd3 Nxf2+ 9. Kc3 Qe3+ 10. Bd3 Bxc2 11. Rb1 Qxd4+ 12. Kxc2 Qxd3# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "49"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "d2d4 f7f5 c2c4 g8f6"]
+
+1. d4 f5 2. c4 Nf6 3. Nf3 Kf7 4. d5 d6 5. Nc3 Kg8 6. Nd4 Ng4 7. e4 Kf7 8. exf5 Ne5 9. f4 Kg8 10. fxe5 Be6 11. fxe6 Qd7 12. exd7 Kf7 13. Qf3+ Kg8 14. d8=N h5 15. Qf7+ Kh7 16. Bd3# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "50"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "d2d4 f7f5 c2c4 g8f6"]
+
+1. d4 f5 2. c4 Nf6 3. h4 e6 4. Qd3 Be7 5. Qg3 Nc6 6. Qd6 Bxd6 7. Rh2 Nxd4 8. Nd2 Bxh2 9. Rb1 Bxg1 10. Ra1 Nc2+ 11. Kd1 Nxa1 12. f3 d5 13. Ne4 dxe4+ 14. Bd2 e3 15. Kc1 Qxd2+ 16. Kb1 Qd1# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "51"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "c2c4 e7e5 b1c3 g8f6"]
+
+1. c4 e5 2. Nc3 Nf6 3. Nf3 d6 4. e4 Qd7 5. Be2 Qe7 6. O-O Kd7 7. Nd5 Ke8 8. Nxe7 Kd7 9. Nxc8 Ke8 10. Qb3 Ng4 11. Qxb7 Kd7 12. c5 Ke8 13. Qxa8 Kd7 14. Qxb8 Ke8 15. Nxd6+ Ke7 16. Qxc7+ Kf6 17. Qxf7# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "52"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "c2c4 e7e5 b1c3 g8f6"]
+
+1. c4 e5 2. Nc3 Nf6 3. Rb1 Bb4 4. Ra1 Nc6 5. Rb1 O-O 6. Ra1 d6 7. Rb1 Re8 8. Ra1 e4 9. Rb1 Be6 10. Ra1 Bxc4 11. f3 Ne5 12. Rb1 exf3 13. d3 Nxd3+ 14. Kd2 Nf2 15. Ra1 Bxc3+ 16. Kc2 Nxd1 17. Rb1 Qd7 18. Kxd1 Qa4+ 19. b3 Qxa2 20. Rb2 Bxb3+ 21. Rxb3 Qxb3# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "53"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "c2c4 g8f6 b1c3 e7e6"]
+
+1. c4 Nf6 2. Nc3 e6 3. e4 Ng4 4. Qxg4 d6 5. d3 Kd7 6. Nf3 Ke8 7. Bg5 Kd7 8. Bxd8 Ke8 9. Bxc7 e5 10. Qxc8+ Ke7 11. Nd5# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "54"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "c2c4 g8f6 b1c3 e7e6"]
+
+1. c4 Nf6 2. Nc3 e6 3. f3 d5 4. Rb1 d4 5. Ra1 dxc3 6. Rb1 Ne4 7. fxe4 Qh4+ 8. g3 Qxe4 9. Ra1 c2 10. Bg2 cxd1=Q+ 11. Kf2 Bc5+ 12. e3 Bxe3+ 13. dxe3 Qec2+ 14. Bd2 Qcxd2+ 15. Ne2 Q2xe2# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "55"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "c2c4 c7c5 g1f3 g8f6"]
+
+1. c4 c5 2. Nf3 Nf6 3. Nc3 d6 4. e3 Kd7 5. d4 Ke8 6. Be2 Kd7 7. dxc5 Ke8 8. cxd6 Kd7 9. Qa4+ Kxd6 10. Qd1+ Ke6 11. Qxd8 Kf5 12. Qd3+ Ke6 13. Ng5+ Ke5 14. f4# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "56"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "c2c4 c7c5 g1f3 g8f6"]
+
+1. c4 c5 2. Nf3 Nf6 3. d3 Nc6 4. Ne5 Nxe5 5. f3 d5 6. Qd2 dxc4 7. Kf2 cxd3 8. Qf4 Qd4+ 9. Qe3 Neg4+ 10. Kg1 Nxe3 11. Kf2 Neg4+ 12. Kg3 Ne4+ 13. Kh4 Qf6+ 14. Bg5 Qxg5+ 15. Kh3 Ngf2# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "57"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "g1f3 g8f6 c2c4 e7e6"]
+
+1. Nf3 Nf6 2. c4 e6 3. d4 d6 4. Nc3 Kd7 5. e4 Ke8 6. Bd3 Qd7 7. e5 Qd8 8. exf6 Kd7 9. Qa4+ Nc6 10. d5 e5 11. dxc6+ Ke8 12. cxb7+ Qd7 13. bxa8=Q Qc6 14. Qxc8# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "58"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "g1f3 g8f6 c2c4 e7e6"]
+
+1. Nf3 Nf6 2. c4 e6 3. Ne5 d6 4. Rg1 dxe5 5. h4 Nc6 6. f3 Qd4 7. h5 Qxg1 8. d3 Nxh5 9. Qd2 Ng3 10. Kd1 Bc5 11. Qf4 Qxf1+ 12. Kd2 Qxe2+ 13. Kc3 Bb4+ 14. Kb3 Qd1# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "59"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "g1f3 d7d5 d2d4 g8f6"]
+
+1. Nf3 d5 2. d4 Nf6 3. e3 Kd7 4. Bb5+ Kd6 5. Ng5 Qd7 6. Nxf7+ Ke6 7. Bxd7+ Kxf7 8. Bxc8 Ne8 9. Qh5+ g6 10. Qxd5+ Kf6 11. Qe5+ Kf7 12. Be6# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "60"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "g1f3 d7d5 d2d4 g8f6"]
+
+1. Nf3 d5 2. d4 Nf6 3. Ne5 Nbd7 4. Nd2 e6 5. Rb1 Bd6 6. Ra1 Nxe5 7. Rb1 Nc6 8. f3 Nh5 9. Ra1 Qh4+ 10. g3 Bxg3+ 11. hxg3 Qxg3# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "61"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 e7e5 g1f3 b8c6"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 Na5 4. Nc3 Ne7 5. Nxe5 Ng6 6. Nxg6 Qe7 7. Nxe7 Nc4 8. Ned5 Ne5 9. Nxc7+ Ke7 10. Nxa8 Kd6 11. d4 h6 12. Qh5 Ng6 13. Qc5+ Ke6 14. Nc7+ Kf6 15. N3d5# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "62"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 e7e5 g1f3 b8c6"]
+
+1. e4 e5 2. Nf3 Nc6 3. Nxe5 Nxe5 4. Ke2 d5 5. f3 dxe4 6. fxe4 Bg4+ 7. Ke3 Qg5+ 8. Kd4 Bb4 9. d3 Rd8# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "63"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 e7e5 b1c3 g8f6"]
+
+1. e4 e5 2. Nc3 Nf6 3. Nf3 d6 4. d4 Kd7 5. dxe5 Ke8 6. exf6 Qe7 7. fxe7 Bg4 8. Nd5 Be6 9. exf8=Q+ Kd7 10. Qe7+ Kc6 11. Qxc7# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "64"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 e7e5 b1c3 g8f6"]
+
+1. e4 e5 2. Nc3 Nf6 3. Nb1 Nxe4 4. Bc4 d5 5. h4 dxc4 6. Ke2 Bc5 7. Rh2 Bxf2 8. Kf3 Qf6+ 9. Kxe4 Qf4+ 10. Kd5 Be6# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "65"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 e7e5 g1f3 g8f6"]
+
+1. e4 e5 2. Nf3 Nf6 3. Nc3 Nd5 4. Nxd5 Qe7 5. Nxe7 d6 6. Nxc8 Kd7 7. Ng5 Ke8 8. Qf3 Kd7 9. Qxf7+ Kd8 10. Ne6+ Kxc8 11. Qxc7# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "66"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 e7e5 g1f3 g8f6"]
+
+1. e4 e5 2. Nf3 Nf6 3. d3 Nc6 4. Nxe5 Nxe5 5. Ke2 d5 6. f3 dxe4 7. Ke3 exf3 8. Kf2 Qd4+ 9. Ke1 f2+ 10. Ke2 Bg4+ 11. Kd2 Nc4# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "67"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 e7e5 f1c4 g8f6"]
+
+1. e4 e5 2. Bc4 Nf6 3. Nc3 d6 4. Nf3 Qd7 5. Ng5 Qe7 6. Nxf7 Be6 7. Bxe6 Rg8 8. Bc4 Ng4 9. Qxg4 Nc6 10. Nxd6+ Kd8 11. Nxb7+ Ke8 12. Nd5 Qa3 13. Nxc7+ Ke7 14. Qe6# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "68"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 e7e5 f1c4 g8f6"]
+
+1. e4 e5 2. Bc4 Nf6 3. Qh5 Nxh5 4. f3 Qh4+ 5. Ke2 Ng3+ 6. Ke3 Nxh1 7. Kd3 Qxh2 8. Kc3 Qxg1 9. Kd3 Qd4+ 10. Ke2 Ng3+ 11. Ke1 Qg1+ 12. Bf1 Qxf1# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "69"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 e7e5 d2d4 e5d4"]
+
+1. e4 e5 2. d4 exd4 3. Qxd4 Ne7 4. Nc3 d6 5. Qe3 Kd7 6. Bc4 Ke8 7. Nf3 Qd7 8. Ng5 Qd8 9. Nxf7 Kd7 10. e5 Ke8 11. Nxd8 Kd7 12. Nf7 Ke8 13. Nxh8 Kd7 14. Qf3 Kd8 15. Qxf8+ Kd7 16. Be3 Kc6 17. Bb5# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "70"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 e7e5 d2d4 e5d4"]
+
+1. e4 e5 2. d4 exd4 3. Bc4 Nc6 4. Ke2 Qe7 5. Be6 Qxe6 6. f3 d5 7. Kd3 Nf6 8. Ke2 dxe4 9. fxe4 Qg4+ 10. Kd3 Qxe4+ 11. Kc4 d3+ 12. Kc3 Nd5+ 13. Kb3 Na5# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "71"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 c7c5 g1f3 d7d6"]
+
+1. e4 c5 2. Nf3 d6 3. Nc3 Kd7 4. Bb5+ Ke6 5. Nd4+ Ke5 6. Qh5+ f5 7. Nf3+ Kf6 8. Nd5+ Ke6 9. Qxf5# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "72"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 c7c5 g1f3 d7d6"]
+
+1. e4 c5 2. Nf3 d6 3. Bc4 Nf6 4. Ne5 dxe5 5. Ke2 Nxe4 6. Qg1 Nd6 7. Kf3 Nxc4 8. Ke4 Qd4+ 9. Kf3 Qg4# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "73"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 c7c5 b1c3 b8c6"]
+
+1. e4 c5 2. Nc3 Nc6 3. Bd3 f5 4. exf5 Ne5 5. Qh5+ Nf7 6. Bc4 d6 7. Bxf7+ Kd7 8. Bxg8 Kc7 9. Bxh7 Kb8 10. Nf3 Qd7 11. O-O Qe8 12. Qxe8 Rg8 13. Bxg8 e5 14. fxe6 c4 15. Qxf8 b5 16. e7 g6 17. e8=Q Kc7 18. Nd5+ Kb8 19. Qxc8# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "74"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 c7c5 b1c3 b8c6"]
+
+1. e4 c5 2. Nc3 Nc6 3. Ke2 Nf6 4. f3 d5 5. Ke3 d4+ 6. Kf2 dxc3 7. Ke2 cxb2 8. Rb1 bxc1=Q 9. Qxc1 e5 10. Qe1 Qc7 11. Ke3 Be6 12. Kf2 Bxa2 13. Ke2 Nd4+ 14. Ke3 Nxc2+ 15. Kf2 Nxe1 16. Ke2 Bxb1 17. d3 Qa5 18. Ke3 Nc2+ 19. Kf2 Qe1# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "75"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 e7e6 d2d4 d7d5"]
+
+1. e4 e6 2. d4 d5 3. e5 Qd7 4. Nf3 Qe7 5. Nc3 Kd7 6. Bb5+ Kd8 7. O-O Qa3 8. bxa3 Ne7 9. Ng5 Nbc6 10. Nxf7+ Kd7 11. Nxh8 Ke8 12. Qf3 Kd7 13. Qxf8 h6 14. Nf7 Ng8 15. Qd8# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "76"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 e7e6 d2d4 d7d5"]
+
+1. e4 e6 2. d4 d5 3. f3 dxe4 4. Bc4 Nc6 5. Ke2 Qxd4 6. Bxe6 Bxe6 7. fxe4 Bc4+ 8. Kf3 Qxd1+ 9. Kg3 Qxc1 10. Kh4 Qf4+ 11. Kh3 Be6+ 12. g4 Qxg4# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "77"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 e7e6 d2d4 c7c5"]
+
+1. e4 e6 2. d4 c5 3. d5 Ne7 4. Nf3 h6 5. Nc3 d6 6. Bb5+ Qd7 7. dxe6 Rh7 8. exd7+ Kd8 9. dxc8=Q+ Kxc8 10. Qxd6 Rh8 11. Bf4 Nd5 12. Qxd5 Rg8 13. Qxf7 Be7 14. Qxe7 Na6 15. Qd7# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "78"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 e7e6 d2d4 c7c5"]
+
+1. e4 e6 2. d4 c5 3. Ke2 cxd4 4. f3 Nc6 5. c3 e5 6. Nd2 dxc3 7. Rb1 c2 8. Ra1 cxd1=Q+ 9. Ke3 Qb6+ 10. Kd3 Qd4# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "79"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 c7c6 d2d4 d7d5"]
+
+1. e4 c6 2. d4 d5 3. e5 c5 4. Nf3 Kd7 5. c4 Ke8 6. cxd5 Be6 7. dxe6 Qd7 8. exd7+ Kxd7 9. Qb3 Ke8 10. Qxb7 Nc6 11. Bb5 Rd8 12. Bxc6+ Rd7 13. Qxd7# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "80"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 c7c6 d2d4 d7d5"]
+
+1. e4 c6 2. d4 d5 3. Bb5 cxb5 4. exd5 Nf6 5. Ke2 Nxd5 6. Kf3 e5 7. Ke4 Qf6 8. Kxd5 Bf5 9. b3 Qd6# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "81"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 d7d5 e4d5 d8d5"]
+
+1. e4 d5 2. exd5 Qxd5 3. Nf3 Qc5 4. d4 Kd7 5. dxc5+ Ke8 6. Bf4 Be6 7. Ng5 Bf5 8. Qd5 Bg6 9. Qxb7 Kd7 10. Qxc7+ Ke8 11. Qc8# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "82"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 d7d5 e4d5 d8d5"]
+
+1. e4 d5 2. exd5 Qxd5 3. Qg4 Bxg4 4. Bc4 Qxg2 5. f3 Qxh1 6. Ke2 Qxg1 7. Be6 Qg2+ 8. Ke1 Qh1+ 9. Ke2 Qxf3+ 10. Ke1 Qe2# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "83"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 g8f6 e4e5 f6d5"]
+
+1. e4 Nf6 2. e5 Nd5 3. c4 d6 4. cxd5 Kd7 5. Qa4+ Nc6 6. Bb5 Ke8 7. dxc6 Qd7 8. cxd7+ Bxd7 9. Bxd7+ Kd8 10. Be8 b5 11. Qxb5 Kc8 12. Qa6+ Kd8 13. Qc6 Kc8 14. Qxa8# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "84"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 g8f6 e4e5 f6d5"]
+
+1. e4 Nf6 2. e5 Nd5 3. e6 dxe6 4. Ke2 Nc6 5. f3 e5 6. d3 e6 7. h4 Bc5 8. Rh3 Bxg1 9. Qd2 Nf4+ 10. Ke1 Nxh3 11. Ke2 Nd4+ 12. Ke1 Qxh4+ 13. Kd1 Nf2+ 14. Ke1 b6 15. Qf4 Nxd3+ 16. Kd2 Qf2+ 17. Be2 Qxe2+ 18. Kc3 Qxc2# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "85"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 d7d6 d2d4 g8f6"]
+
+1. e4 d6 2. d4 Nf6 3. Nc3 Qd7 4. Nf3 Qc6 5. Bb5 Ng4 6. d5 Ne5 7. Nxe5 Qd7 8. Nxd7 Rg8 9. Nxb8+ Bd7 10. Nxd7 O-O-O 11. Qg4 Rxd7 12. Qxd7+ Kb8 13. Qd8# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "86"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 d7d6 d2d4 g8f6"]
+
+1. e4 d6 2. d4 Nf6 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "87"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 g7g6 d2d4 f8g7"]
+
+1. e4 g6 2. d4 Bg7 3. Nf3 g5 4. Bxg5 h6 5. Bf4 d6 6. Nc3 Kd7 7. Bb5+ Ke6 8. Ng5+ Kf6 9. Qh5 Be6 10. e5+ Kf5 11. Nh3# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "88"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 g7g6 d2d4 f8g7"]
+
+1. e4 g6 2. d4 Bg7 3. d5 e6 4. Ke2 exd5 5. Kf3 Qf6+ 6. Kg3 dxe4 7. Bc4 Ne7 8. f3 Nf5+ 9. Kf4 Qe5+ 10. Kg5 Qe7+ 11. Kf4 Bh6+ 12. Kg4 Qh4# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "89"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "e2e4 b8c6 d2d4 d7d5"]
+
+1. e4 Nc6 2. d4 d5 3. exd5 Ne5 4. dxe5 Kd7 5. e6+ Ke8 6. Qh5 Qd7 7. Qxf7+ Kd8 8. exd7 Kxd7 9. Qxf8 Kd6 10. Qxg7 Bg4 11. Bf4+ Kd7 12. Qxg4+ Kd8 13. Qg7 Kd7 14. Bb5+ c6 15. dxc6+ Ke6 16. Bc4+ Kf5 17. Qe5+ Kg6 18. Qg5# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "90"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "e2e4 b8c6 d2d4 d7d5"]
+
+1. e4 Nc6 2. d4 d5 3. Bc4 dxc4 4. Ke2 Nxd4+ 5. Ke3 e5 6. f3 Bc5 7. Kf2 Nxf3+ 8. Ke2 Nxg1+ 9. Ke1 Qh4+ 10. Kd2 Bb4+ 11. c3 Qf2+ 12. Qe2 Qxe2# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "91"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "d2d4 d7d5 c2c4 e7e6"]
+
+1. d4 d5 2. c4 e6 3. cxd5 Nc6 4. dxc6 Qd7 5. cxd7+ Ke7 6. dxc8=Q e5 7. Qxc7+ Kf6 8. Qxe5+ Kg6 9. Qg5# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "92"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "d2d4 d7d5 c2c4 e7e6"]
+
+1. d4 d5 2. c4 e6 3. Qa4+ Bd7 4. Qxa7 Rxa7 5. f3 Qh4+ 6. Kd1 Ba4+ 7. Kd2 Qxd4+ 8. Ke1 Qd1+ 9. Kf2 Qxc1 10. Nd2 Qxa1 11. Ne4 dxe4 12. fxe4 Qxb2 13. Kf3 Qf6+ 14. Kg3 Bd6+ 15. Kg4 Qf4+ 16. Kh3 Qh6+ 17. Kg4 Nf6+ 18. Kf3 Qf4# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "93"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "d2d4 d7d5 c2c4 c7c6"]
+
+1. d4 d5 2. c4 c6 3. Nd2 Kd7 4. e4 Kd6 5. Qh5 Kd7 6. Qxf7 Kc7 7. Qf4+ Kb6 8. c5+ Ka5 9. Qf3 Ka4 10. Qa3# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "94"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "d2d4 d7d5 c2c4 c7c6"]
+
+1. d4 d5 2. c4 c6 3. f3 dxc4 4. Kf2 e5 5. Nd2 exd4 6. Rb1 Bf5 7. Ra1 c3 8. Rb1 c2 9. Qe1 cxb1=Q 10. Ne4 Bxe4 11. Qa5 Qxa5 12. fxe4 Qxc1 13. Kf3 Qe3+ 14. Kg4 Qag5# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "95"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "d2d4 d7d5 g1f3 g8f6"]
+
+1. d4 d5 2. Nf3 Nf6 3. e3 h6 4. Bd3 Nh7 5. O-O Kd7 6. Nc3 Kd6 7. Ne5 Ke6 8. Qg4+ Kf6 9. Qf4+ Ke6 10. Qxf7+ Kd6 11. Qxd5# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "96"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "d2d4 d7d5 g1f3 g8f6"]
+
+1. d4 d5 2. Nf3 Nf6 3. Ne5 Nbd7 4. f3 e6 5. Qd3 Nxe5 6. Kf2 Nxd3+ 7. Kg1 Ne1 8. Kf2 Nxc2 9. Rg1 Nxa1 10. Nd2 c5 11. Ne4 dxe4 12. dxc5 Bxc5+ 13. Kg3 Bxg1 14. Kh4 Qc7 15. fxe4 Qxh2+ 16. Kg5 Qh6# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "97"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "d2d4 d7d5 c2c4 g8f6"]
+
+1. d4 d5 2. c4 Nf6 3. cxd5 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "98"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "d2d4 d7d5 c2c4 g8f6"]
+
+1. d4 d5 2. c4 Nf6 3. f3 Nc6 4. Qd2 dxc4 5. Kf2 Qxd4+ 6. e3 Qc5 7. Ke2 Bf5 8. Qd6 exd6 9. e4 Bg6 10. Nd2 d5 11. Rb1 dxe4 12. fxe4 Qe7 13. Ra1 Nxe4 14. Rb1 Nd4+ 15. Ke3 Qg5+ 16. Kxd4 Qc5# 0-1
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "99"]
+[White "handcrafted"]
+[Black "mcts_iter1"]
+[Result "1-0"]
+[Opening "d2d4 g8f6 c2c4 e7e6"]
+
+1. d4 Nf6 2. c4 e6 3. Nf3 b5 4. cxb5 d6 5. e3 Kd7 6. Bd3 Ke8 7. e4 Kd7 8. O-O Ng4 9. Ng5 Ne5 10. dxe5 Nc6 11. Nxf7 Nxe5 12. Nxd8 Ke8 13. Nc6 Rg8 14. Nxe5 dxe5 15. Qc2 Kd7 16. Qc6+ Kd8 17. b6 axb6 18. Bb5 Ke7 19. Bg5+ Kf7 20. Qe8# 1-0
+
+[Event "handcrafted vs mcts_iter1"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "100"]
+[White "mcts_iter1"]
+[Black "handcrafted"]
+[Result "0-1"]
+[Opening "d2d4 g8f6 c2c4 e7e6"]
+
+1. d4 Nf6 2. c4 e6 3. Nf3 Nc6 4. Ne5 Bb4+ 5. Nd2 Nxd4 6. Rb1 Bd6 7. Ra1 Bxe5 8. Rb1 d5 9. f3 Nh5 10. Kf2 Qh4+ 11. Kg1 Nxe2+ 12. Bxe2 Bd4+ 13. Kf1 Qf2# 0-1
+

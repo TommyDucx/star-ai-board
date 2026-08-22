@@ -1,6 +1,13 @@
 {
- "iter": 2,
+ "iter": 1,
  "best": "nets/net_best.pt",
- "curve": [],
- "minutes": 27.2
+ "curve": [
+  {
+   "iter": 1,
+   "handcrafted": 100,
+   "mcts": 0,
+   "elo_diff": null
+  }
+ ],
+ "minutes": 367.4
 }
