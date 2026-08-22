@@ -72,7 +72,10 @@ pub fn play_games(
                 }
                 BoardStatus::Ongoing => {}
             }
-            if halfmove >= 100 || hist.iter().filter(|&k| *k == *hist.last().unwrap()).count() >= 3 {
+            if halfmove >= 100
+                || moves.len() >= 300
+                || hist.iter().filter(|&k| *k == *hist.last().unwrap()).count() >= 3
+            {
                 winner = None;
                 break;
             }
