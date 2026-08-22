@@ -1,0 +1,1100 @@
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "1"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 e7e5 g1f3 b8c6"]
+
+1. e4 e5 2. Nf3 Nc6 3. d3 Nge7 4. Ng5 d6 5. c3 Kd7 6. Be2 Ke8 7. Kd2 Qd7 8. c4 Qd8 9. Kc3 Kd7 10. Nxh7 Ke8 11. Qa4 Qd7 12. g4 Qd8 13. Ng5 Kd7 14. h4 Ke8 15. Nh7 Qd7 16. Bh6 Qd8 17. Bd2 Qd7 18. Bg5 Ng6 19. Nxf8 Qe7 20. Bd2 Rg8 21. h5 Bxg4 22. Bh6 Bc8 23. a3 Bg4 24. f4 Bc8 25. Rh3 Rb8 26. Bg5 Bg4 27. Rh1 Bc8 28. Bf1 Be6 29. d4 Bf5 30. dxe5 Kxf8 31. Rh3 Ncxe5 32. h6 Rc8 33. Qc6 Re8 34. hxg7+ Kxg7 35. Qa4 Kf8 36. Qd1 Kg7 37. Qc2 Kf8 38. Bh6+ Rg7 39. Qd1 Kg8 40. Qa4 Qf8 41. Bd3 Rh7 42. Qd1 Qg7 43. Qf3 Qh8 44. Kd2 Rc8 45. Kd1 Qf6 46. Qe3 Qd8 47. Bg5 Qd7 48. Qd2 Qd8 49. Qa5 Qe7 50. Ke2 Qf8 51. Qa4 Qg7 52. Kf1 Qf8 53. Qa5 Qh6 54. b3 Kh8 55. Ke2 Qxg5 56. Qa4 Qh5+ 57. Rxh5 Kg8 58. Rh6 Re8 59. Bc2 Rxh6 60. Bd1 Re6 61. Nc3 Kg7 62. Ra2 Rh4 63. Nb1 Kf8 64. Rd2 Kg8 65. Kf1 Kg7 66. Rd4 Kh8 67. Qa5 Re8 68. a4 Kg8 69. Kf2 Rh5 70. Na3 Nd3+ 71. Kf3 b5 72. Qb6 bxa4 73. Nb1 Nb4 74. Nc3 Rxe4 75. Kf2 Re3 76. Rd3 Re6 77. Ne4 Re8 78. Rd4 Rxe4 79. Qxc7 Rh3 80. Qb6 Re5 81. Be2 Rd5 82. Qc7 Rh6 83. Qa5 Rh4 84. Qa6 Re5 85. Qb7 Re8 86. Rd3 Rh6 87. Qh1 Re4 88. Qg2 Rh4 89. Rd4 Rh5 90. Qg3 Kg7 91. Qh4 Kh8 92. Qg5 Kg8 93. Qf6 Rh3 94. Qe6 Re5 95. Bd1 Rd5 96. Qf6 Re5 97. Be2 Rd5 98. Bf1 Rc5 99. Bg2 Ra5 100. Bf3 Rh6 101. Bd5 Rh4 102. Bb7 Rd5 103. Ba6 Re5 104. Qe6 Rd5 105. Bb5 Re5 106. Bc6 Rd5 107. Qf6 Re5 108. c5 Rd5 109. Qe6 Re5 110. Qd5 Rxd5 111. Bb7 Re5 112. Bc6 Re6 113. Be4 Re8 114. Bd5 Rh5 115. Be6 Nd3+ 116. Ke2 Kh8 117. bxa4 Kg8 118. Re4 Nb4 119. Bxf5 Kg7 120. Be6 Rxe6 121. c6 Re8 122. Kf2 Rxe4 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "2"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 e7e5 g1f3 b8c6"]
+
+1. e4 e5 2. Nf3 Nc6 3. Nxe5 h5 4. Ke2 Nb8 5. Kf3 h4 6. Ke3 Rh6 7. d3 f6 8. Kd4 a5 9. Ke3 a4 10. Kf4 b5 11. Kf5 Ra7 12. Kg4 Ra6 13. f3 Be7 14. Rg1 Rh5 15. Kxh5 Bd6 16. Kg4 Bxe5 17. Qd2 h3 18. Kh5 Qe7 19. Kg4 Qe6+ 20. Kh5 d5 21. exd5 Qd6 22. Qf4 Be6 23. Qh6 Qxd5 24. Qxf6 Rc6 25. Kg6 Qc4 26. Kxg7 Bd6 27. dxc4 Ra6 28. Qh4 Nc6 29. Qe4 Ra8 30. Kh8 Nb4 31. Qd5 Nh6 32. Kh7 Bg4 33. Kxh6 Nxc2 34. Kg6 Rc8 35. Kf6 Ra8 36. Kg5 Ra7 37. Qc5 Kf7 38. Kh4 Ra6 39. Qa7 Bf5 40. Kh5 Bg6+ 41. Kg4 Be5 42. Qa8 Bxb2 43. Kg5 Rb6 44. Kh4 Rc6 45. Kg3 Ba3 46. Qxa4 Ke8 47. Kh4 Ne3 48. Kg3 Nxf1+ 49. Kh4 Bb2 50. Rxf1 Bxc1 51. Kg3 Rb6 52. Qd1 Rb7 53. Kh4 b4 54. Kg3 Rb5 55. Kh4 Rh5+ 56. Kg3 Rc5 57. Qxc1 Rc6 58. Kh4 Bc2 59. Kh5 Kd8 60. Kh4 Kc8 61. Kg3 Rb6 62. Kh4 Ra6 63. Kh5 Kd8 64. Kh4 Ke7 65. Kh5 Ke8 66. Kg4 Kf8 67. Kg3 Rc6 68. Qe1 Kf7 69. Kh4 Kf6 70. Kh5 Bg6+ 71. Kg4 Ra6 72. Qe8 Ra7 73. Kh4 Bc2 74. Kg3 Ra6 75. Kg4 Bxb1 76. Kh5 Bc2 77. Kg4 c6 78. Kh5 Ra4 79. Kh4 Bg6 80. Kg3 Bc2 81. Rab1 Ra5 82. Kh4 Ra4 83. Kh5 Bg6+ 84. Kh4 Rxa2 85. Kg3 Rd2 86. Kh4 Rc2 87. Kg3 Bh5 88. Qd7 Rd2 89. Qe8 b3 90. Kh4 b2 91. Kxh5 Rd5+ 92. Qe5+ Rxe5+ 93. Kg4 Rg5+ 94. Kxh3 Re5 95. Rxb2 Ke7 96. Kg4 Rg5+ 97. Kh3 Kd6 98. Re2 Kd7 99. Re8 Rd5 100. Kg4 Rg5+ 101. Kh3 Kd6 102. Rf8 Ke5 103. Rh8 Kd6 104. Rf2 Kd7 105. Rg8 Re5 106. Re2 Ke7 107. Ra2 Re4 108. Rg6 Rf4 109. Rh6 Kf7 110. Re6 Kf8 111. Re5 Rxc4 112. Rd5 Rc1 113. Kg4 cxd5 114. Kh5 d4 115. Kg4 Rd1 116. Kh5 Rd3 117. Kg4 Kf7 118. Kh5 Ke6 119. Kh6 Ke7 120. Kh7 Kd7 121. Kh8 Ke6 122. h4 Kf5 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "3"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 e7e5 b1c3 g8f6"]
+
+1. e4 e5 2. Nc3 Nf6 3. d4 Ng4 4. Qxg4 Qe7 5. d5 d6 6. Nge2 Be6 7. Nd4 Kd7 8. a4 Ke8 9. Ke2 Bf5 10. Ra3 g6 11. f3 Bg7 12. Qh3 g5 13. Qh4 Kf8 14. Ra1 Kg8 15. a5 Bf8 16. Ra4 Bh6 17. Ra2 Kg7 18. Ra3 Kf8 19. Ra1 Kg8 20. h3 Kg7 21. Ra4 Kg6 22. Ra2 Kf6 23. Qh5 Rg8 24. Qg4 Kg7 25. h4 Re8 26. Qxf5 Rc8 27. Qxc8 gxh4 28. g4 Kg6 29. Ra4 Kf6 30. Rb4 Kg7 31. Rb5 Kg6 32. Rg1 Kf6 33. Bg2 Qf8 34. Rb3 Kg7 35. Rb4 Kh8 36. Rb5 Kg8 37. g5 Bg7 38. g6 Qe8 39. Bf1 Qxc8 40. gxh7+ Kf8 41. Rg3 Ke8 42. Rg2 Kd7 43. Rg4 Ke8 44. Rb4 Qxg4 45. Rb5 Kd7 46. Be3 Ke8 47. Rb6 Kd7 48. h8=N Ke8 49. Rb5 Qc8 50. Rc5 Kd7 51. Rc4 Ke8 52. Rb4 Kd7 53. Bc1 Ke8 54. Rb5 Kd7 55. Rb6 Ke8 56. Rb4 Qg4 57. Rb5 Kd7 58. Rb6 Ke8 59. fxg4 Kd7 60. Rb5 Kd8 61. Rc5 Kd7 62. Rc4 Ke8 63. Bg2 Bxh8 64. Bf1 Kd7 65. Rb4 Ke8 66. Rb5 Kd7 67. Rc5 Kd8 68. Rc6 Ke7 69. Rxc7+ Kf8 70. Rxf7+ Kg8 71. Bg2 Kxf7 72. Bf1 Kg8 73. Bh3 Kg7 74. Bg2 Kg6 75. Bf1 Kf7 76. Bg2 Kg8 77. Ndb5 Kf7 78. Nc7 Kg6 79. Bg5 Nc6 80. Bf1 Kf7 81. Bxh4 Kg8 82. Bg5 Kg7 83. Bg2 Kg6 84. Bh6 Kf7 85. Bf8 Kg8 86. N7b5 Kf7 87. Bf1 Kg6 88. Bh3 Kf6 89. g5+ Kg6 90. Bd7 Kf7 91. Nd4 Kg8 92. g6 Re8 93. Ne6 Rc8 94. g7 Kf7 95. Nd4 Rc7 96. Ke1 Kg8 97. Ne6 Nd4 98. Bc8 Kf7 99. Kd2 Kg6 100. Kd3 Kf6 101. Nxd4 Kg6 102. Ke2 Re7 103. Nf5 Kf7 104. Nh6+ Kg6 105. Ng8 Kf7 106. Bxb7 Rc7 107. Bc8 Kxg8 108. Be6+ Rf7 109. Bd7 Kh7 110. Be8 Kh6 111. Bb5 Kg6 112. Bc6 Kg5 113. Ba8 Kg6 114. Bb7 Rc7 115. Bc6 Kg5 116. Be8 Re7 117. Bd7 Kh5 118. Bh3 Rxg7 119. Bf1 Kg4 120. Bg2 Kg5 121. Bf3 Rh7 122. Bg4 Rd7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "4"]
+[White "best"]
+[Black "cand2"]
+[Result "0-1"]
+[Opening "e2e4 e7e5 b1c3 g8f6"]
+
+1. e4 e5 2. Nc3 Nf6 3. Rb1 a5 4. Ra1 d5 5. Ke2 Bg4+ 6. Ke3 Nxe4 7. Rb1 c5 8. Ra1 Bf3 9. Rb1 Rg8 10. Kxf3 Ra6 11. Ke3 h6 12. Ra1 Ke7 13. Rb1 Qc7 14. Ra1 Qc6 15. Bc4 Qd7 16. Rb1 Qe8 17. f3 Qd8 18. Ra1 f5 19. Rb1 Kf6 20. Qe1 Qe7 21. d3 Qf7 22. Ra1 Qe7 23. Qe2 d4# 0-1
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "5"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 e7e5 g1f3 g8f6"]
+
+1. e4 e5 2. Nf3 Nf6 3. d3 d6 4. Nxe5 Qe7 5. Nd2 Rg8 6. Qh5 Ng4 7. Qxf7+ Kd8 8. b3 Nxe5 9. Qf6 Kd7 10. Qh6 Ke8 11. Qxg7 Kd7 12. Qf6 Ke8 13. Qh6 Kf7 14. Qg7+ Ke6 15. Qf6+ Kd7 16. g4 Ke8 17. Qf3 Bg7 18. Qf4 Bxg4 19. Qf5 Bh5 20. Qxh7 Bf7 21. Qh6 Kd7 22. Qxg7 Ke8 23. Qh6 Rg6 24. Qg7 Rxg7 25. d4 Bg8 26. Bc4 Kd7 27. d5 Ke8 28. Bb2 Kf7 29. Bxe5 Rg3 30. Bb5 Kg6 31. Ba4 Kf7 32. hxg3 Kg6 33. Bf6 Kf7 34. g4 Kg6 35. g5 Kf7 36. f3 Kg6 37. Bb5 Qg7 38. Bc4 Kf7 39. Kf2 Kg6 40. Rh4 Qe7 41. Rb1 Kf7 42. Bb2 Kg6 43. Ra1 Kxg5 44. b4 Kg6 45. Ba3 Kf7 46. Bc1 Qf8 47. Bb5 Kg6 48. Rh1 Kg7 49. Ke1 Kg6 50. Rb1 Kf7 51. Bd7 Kg6 52. Rb2 Kf7 53. Kf2 Kg6 54. a3 Kg7 55. Rh3 Bf7 56. Rh2 Bg6 57. Ba4 Qg8 58. Bb5 Qe8 59. Rb1 Qd7 60. Rg2 Qe8 61. Rg5 Qxb5 62. Rb2 Kh8 63. Rg4 Kh7 64. Rf4 Kh8 65. Rb1 Kg8 66. Ra1 Qa5 67. Ra2 Kg7 68. Rb2 Kh8 69. Ke1 Qxd5 70. Rf5 Qc5 71. Rf8+ Kh7 72. Rf5 Kh6 73. a4 Qxc2 74. Rxc2 Kh7 75. Ra2 Kh8 76. Bb2+ Kh7 77. Bd4 Kh6 78. Kd1 Bf7 79. Bg7+ Kg6 80. Rb2 Bg8 81. Re5 Kxg7 82. Kc2 Kf8 83. a5 Kg7 84. Kc3 Kg6 85. Kc2 Kf7 86. Re6 Nc6 87. Nb3 Ne5 88. Rf6+ Ke8 89. Rg6 Kd7 90. Nd2 Ke8 91. Rg4 Bf7 92. Rg8+ Kd7 93. Rg6 Ke8 94. Rf6 Bg8 95. Rf5 Ba2 96. Kc3 Kd7 97. Rf4 Kd8 98. Nf1 Bd5 99. Rc2 Kd7 100. b5 Ke8 101. Rf5 Kd7 102. Kd2 Kd8 103. Kc1 Kd7 104. Kb1 Ke8 105. Rg5 Rc8 106. Kc1 Kd7 107. Kd1 Kd8 108. Kd2 Kd7 109. f4 Ke8 110. Rc3 Kd7 111. Rf5 Ke8 112. Kc1 Kd7 113. Kd1 Kd8 114. Ke1 Ke8 115. Rd3 Kd7 116. Rd4 Ke8 117. Kd1 Be6 118. Rd3 Bxf5 119. Rc3 Kd7 120. Kc1 Kd8 121. Kc2 Ke7 122. Kc1 Kf8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "6"]
+[White "best"]
+[Black "cand2"]
+[Result "1-0"]
+[Opening "e2e4 e7e5 g1f3 g8f6"]
+
+1. e4 e5 2. Nf3 Nf6 3. Bc4 Qe7 4. Rf1 h6 5. Nxe5 a5 6. Ke2 Kd8 7. Kf3 Rg8 8. Kg3 Na6 9. Kh4 a4 10. Bxf7 Ra7 11. Kg3 Rh8 12. Kh4 Nh5+ 13. Kh3 Ng3 14. Kg4 b5 15. Rh1 Rh7 16. Kxg3 Nb4 17. Kf3 Qf6+ 18. Kg3 Nxa2 19. Kg4 Qc6 20. Kh5 Nxc1 21. Qg1 Qb6 22. Rxa4 Qe3 23. Ra1 Qxf2 24. Bg8 Rh8 25. d3 Rh7 26. Qf1 Qe1 27. Qxf8# 1-0
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "7"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 e7e5 f1c4 g8f6"]
+
+1. e4 e5 2. Bc4 Nf6 3. d4 Ng4 4. Bf1 Qe7 5. a3 d6 6. c4 Kd7 7. Nc3 Ke8 8. Rb1 Kd7 9. Qa4+ Kd8 10. Nb5 Kd7 11. d5 Ke8 12. Qd1 Kd7 13. Qxg4+ Ke8 14. Ne2 Qh4 15. Qg5 Bg4 16. a4 Kd7 17. a5 Ke8 18. Qf6 Kd7 19. Nec3 Be6 20. Qxe6+ Kd8 21. Ne2 Qh5 22. g3 Qh4 23. Ned4 Qh5 24. Bg2 g6 25. f3 Bg7 26. Bh3 g5 27. Bg2 Qh4 28. h3 Qh5 29. Rh2 Qg4 30. hxg4 Rg8 31. Bf1 Re8 32. Qe7+ Kxe7 33. Bg2 h6 34. Bf1 Kf8 35. Ke2 Kg8 36. b3 Kh8 37. Rh4 gxh4 38. Nxd6 Kg8 39. Ke1 Rf8 40. Ba3 Nc6 41. Ke2 Rfe8 42. Rb2 Rf8 43. Bg2 Rae8 44. Bb4 Rc8 45. Rd2 Rfe8 46. Kf2 Kh8 47. Re2 Kg8 48. Ke1 Bf8 49. Re3 Re6 50. Bf1 Re7 51. Ke2 Kh8 52. Bg2 Bg7 53. Ke1 Kg8 54. Ne6 Rce8 55. Bf1 Rxe6 56. Bg2 Rf8 57. Kd1 Ree8 58. Ke2 Kh8 59. Kf1 Kh7 60. Ke1 Kh8 61. Bf1 Rg8 62. Nxf7+ Kh7 63. Bg2 Rc8 64. d6 Rge8 65. Bf1 Nd4 66. Bc3 Re6 67. Bg2 Rg8 68. Bb2 Rge8 69. Ba3 Nxb3 70. d7 Kg8 71. Kf1 Kxf7 72. Kg1 Kg8 73. Bh1 Kf7 74. Re2 Kg8 75. gxh4 Kf7 76. f4 Kg8 77. Bg2 Kf7 78. fxe5 Rxe5 79. Bf3 Kg8 80. Kf2 Kf7 81. Ke1 Kg8 82. Kd1 Kf7 83. Re3 Kg8 84. Ke1 Kf7 85. Rd3 Kg8 86. Rd4 Rd5 87. Rd1 Kf7 88. Ra1 Rg5 89. Ra2 Kg8 90. Ke2 Kf7 91. Rb2 Rh5 92. Kd1 Kg8 93. Re2 Kf7 94. Ke1 Rhe5 95. Re3 Kg8 96. Kd1 Kf7 97. Rc3 Kg8 98. Bf8 Kf7 99. Ke2 Kg8 100. Ke1 Kf7 101. Re3 Kg8 102. Re2 Kf7 103. Bb4 Kg8 104. Kd1 Kf7 105. Be7 Kg6 106. Ke1 Rd5 107. d8=Q Kf7 108. Bf8 Kg8 109. Qg5 Rxg5 110. Re3 Kf7 111. Bg2 Kg8 112. Rc3 Rh5 113. Bf3 Kf7 114. Rc2 Kg6 115. Rh2 Kf6 116. Re2 Rhe5 117. Kf2 Kg6 118. Bxg7 Kxg7 119. Ke1 Kh8 120. Rg2 Kg8 121. Rg3 Kf7 122. Ke2 Kg8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "8"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 e7e5 f1c4 g8f6"]
+
+1. e4 e5 2. Bc4 Nf6 3. Ke2 a5 4. f3 g5 5. Ke3 Ng4+ 6. Ke2 Ne3 7. Kxe3 a4 8. Kf2 Rg8 9. Ke2 h6 10. Ke3 a3 11. Kf2 d6 12. Ke2 Bd7 13. Ke3 Bb5 14. Kf2 Bxc4 15. d3 Ke7 16. Ke2 Nc6 17. Ke3 b5 18. Kf2 Nd4 19. Nd2 Nxc2 20. Rb1 Bd5 21. exd5 e4 22. Ke2 Kd7 23. fxe4 Rc8 24. Kf3 Rg7 25. Kg3 Ra8 26. Kg4 Rb8 27. Kh5 Qc8 28. bxa3 Rg8 29. Kg4 Rb6 30. Kg3 b4 31. a4 Ra6 32. Kg4 Kd8+ 33. Kh5 Qd7 34. Qg4 Qf5 35. Qf4 Ra5 36. Qxf5 Nd4 37. Qe5 Ne2 38. Kg4 b3 39. Qc3 bxa2 40. Qc5 a1=Q 41. Qxa5 Qe5 42. Kh5 Qf5 43. Qa7 Qc8 44. Nb3 Nxc1 45. Rb2 Qd7 46. Re2 Qc6 47. Kg4 Qxa4 48. Kh5 Qd7 49. Na5 Qc6 50. Kg4 Qa4 51. Kh5 Ke7 52. Qa8 Qb3 53. Kg4 Qa2 54. Kh5 Kd7 55. Re3 Qxa5 56. Kg4 f5+ 57. Kg3 f4+ 58. Kf3 Bg7 59. Kf2 Bd4 60. Qxa5 Nxd3+ 61. Ke2 Bc3 62. Qa8 Bb4 63. Kf3 Rg7 64. Kg4 Bc3 65. Kh5 Rg8 66. Kg4 Ba5 67. Kh5 Rc8 68. Qa7 Rd8 69. Qa8 Rxa8 70. Kg4 Ra7 71. h4 Ra6 72. Kh5 Rc6 73. Rhh3 Rc4 74. Rh2 Bb6 75. Kg4 Bd4 76. h5 Bc3 77. Kh3 Ba5 78. g3 Rb4 79. Kg4 fxe3 80. Rb2 Rc4 81. Rb8 Rc5 82. Rf8 Rc6 83. Kh3 Rb6 84. Kh2 Rb3 85. Kg2 Rb2+ 86. Kf1 Rb4 87. Kg2 Rc4 88. Kf1 Rc5 89. Kg2 Bb4 90. Rg8 Rc6 91. Kf1 Rc4 92. Ke2 Ba5 93. Rg6 Rc5 94. Rf6 Rc6 95. Rf2 Rc4 96. Kf3 Rc5 97. Re2 Rc6 98. Kxe3 Rc4 99. Kf3 Rd4 100. Kg2 Ke7 101. Kh3 Rb4 102. Kh2 Rc4 103. Re3 Rd4 104. Kg2 Ke8 105. Kf1 Kd8 106. e5 Ke7 107. Kg2 Kd7 108. g4 Rc4 109. Kg3 Kd8 110. Kf3 Bb4 111. Kg3 Bc3 112. Kf3 Ba5 113. e6 Bb4 114. Kg3 Ba3 115. Re5 Kc8 116. Re2 Rc5 117. Re3 Rc4 118. Kf3 Kd8 119. Kg3 Ke7 120. Kf3 Bc1 121. Re5 Bf4 122. Rxg5 hxg5 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "9"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 e7e5 d2d4 e5d4"]
+
+1. e4 e5 2. d4 exd4 3. Qg4 Ne7 4. Nc3 d6 5. Nb5 Bxg4 6. b3 Be6 7. g4 Kd7 8. Bg2 Ke8 9. Bf3 Kd7 10. h3 Ke8 11. Ba3 Qd7 12. Bb2 Qc8 13. Na3 Kd7 14. Nb1 Bf5 15. Ba3 Ke8 16. c4 Kd7 17. Bb2 Ke8 18. Na3 Kd7 19. Nb5 Ke8 20. Ke2 Kd7 21. Kd1 Ke8 22. Na3 Qd7 23. Nb1 Qd8 24. Ba3 Kd7 25. Bc5 Ke8 26. Ne2 Ng6 27. Nf4 Kd7 28. Re1 Ke8 29. Re2 Kd7 30. Nc3 Ke8 31. Nb5 Qd7 32. e5 Qe7 33. Ng2 Kd7 34. Nxd6 Kd8 35. Bb6 Kd7 36. Rc1 Kd8 37. Re4 Kd7 38. Ke1 Kd8 39. Re2 Kd7 40. Kf1 Kd8 41. Rcc2 Kd7 42. Rcd2 Rg8 43. Re3 Kd8 44. Re4 Nxe5 45. Rde2 Kd7 46. a4 Kxd6 47. Ne1 Kd7 48. R2e3 Ke8 49. Ke2 Kd7 50. Kd2 Kd8 51. Re2 Ke8 52. Kd1 Kd7 53. Kc1 Ke8 54. R2e3 Kd7 55. Bg2 Ke8 56. Re2 Qc5 57. Bf1 Kd7 58. R2e3 Ke8 59. f3 Kd7 60. Be2 Qe7 61. Kd1 Ke8 62. Kd2 Kd7 63. Bf1 Kd6 64. Bg2 Ke6 65. Ke2 Kf6 66. Kf1 Kg6 67. Kf2 Kh6 68. Re2 Kg5 69. Kg3 Kg6 70. Rf2 Kh6 71. Ree2 Kg6 72. g5 Kxg5 73. Re3 Kg6 74. Rc2 Kg5 75. Ree2 Kh5 76. Rb2 Qa3 77. Ra2 Qxa4 78. Rxa4 h6 79. Bf1 Kg6 80. Kh4 Kf6 81. Ra5 axb6 82. Rd5 Ke7 83. Rb5 Kd7 84. Rxb6 Ke8 85. Rb5 Kd7 86. Rb4 Kd6 87. Kg3 Ke6 88. Rb5 Ke7 89. Bg2 Ke8 90. Kh4 Kd7 91. Bf1 Kd8 92. Rb4 Ke7 93. Rc2 Ra4 94. Rb5 Ra1 95. Re2 Kd7 96. Rb4 Kd6 97. Rb5 Ra7 98. Re3 Ra8 99. Be2 Kd7 100. Bf1 Ke8 101. Bg2 Ra4 102. bxa4 Kd7 103. Rd5+ Ke8 104. Re2 Bb4 105. Bf1 Bg6 106. f4 Kf8 107. a5 Ke8 108. Bg2 Bc3 109. Bh1 Nc6 110. Rb5 Kd7 111. Bg2 Ke8 112. Bf3 Kd7 113. Re3 Kd6 114. f5 Kd7 115. f6 Ke8 116. Re2 Bf5 117. Rc5 Kd7 118. fxg7 Ke8 119. Rb5 Kd7 120. Rd5+ Ke8 121. Rc5 Kd7 122. Rb5 Ke8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "10"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 e7e5 d2d4 e5d4"]
+
+1. e4 e5 2. d4 exd4 3. Bc4 Nf6 4. Ke2 h6 5. f3 Rg8 6. Be6 Nxe4 7. fxe4 Qh4 8. Bf5 Kd8 9. Kf3 Qh5+ 10. Kf2 d3 11. Bh7 a5 12. Qg4 Qxg4 13. Nd2 Na6 14. Rb1 a4 15. Ra1 Qh5 16. Nb3 Rb8 17. Rb1 Qg4 18. Na5 Ra8 19. Ra1 Nc5 20. Rb1 Qh5 21. Ra1 Nb3 22. Rb1 Rb8 23. Ra1 Qg4 24. Rb1 Ra8 25. c3 Qh5 26. Ra1 Rb8 27. Rb1 Qg4 28. a3 Qe6 29. Kf3 Qf5+ 30. Kg3 Qh3+ 31. Kf4 g6 32. Ra1 Rg7 33. Rb1 Ra8 34. Ke5 Qxh2+ 35. g3 Qh3 36. Kd5 Rb8 37. Ke5 Qh2 38. Rxh2 Ra8 39. Kd5 g5 40. Ke5 Rb8 41. Kd5 Rg6 42. Rg2 f6 43. Rf2 Bg7 44. Re2 Na1 45. Kc5 d6+ 46. Kc4 b6 47. Rxa1 Bh8 48. Re3 d5+ 49. Kb5 d4 50. Kc4 dxe3 51. Rb1 Be6+ 52. Kd4 Bd5 53. Kxd5 Kc8 54. Ra1 h5 55. Rb1 Ra8 56. Nb7 Ra7 57. Ke6 Ra6 58. Kf7 Bg7 59. Kg8 Rh6 60. Kf7 h4 61. Kg8 Rh5 62. Ra1 hxg3 63. Rb1 Rh6 64. Kf7 Kxb7 65. Kg8 d2 66. Kf7 Ka8 67. Ke6 Kb8 68. Kf5 Kb7 69. Ra1 Ka8 70. Ke6 Kb8 71. Rb1 Rh5 72. Kf7 Rh4 73. Kg8 b5 74. Kf7 Bh6 75. Kg8 Rg4 76. Kf7 Rc6 77. Kg8 b4 78. Kf7 bxc3 79. Kg8 Rc5 80. Kf7 Re5 81. Kg8 Kb7 82. Ra1 Rexe4 83. Rb1 Re5 84. Kf7 Ka6 85. Kg8 Bg7 86. Kf7 c6 87. Kg8 f5 88. Kf7 f4 89. Kg8 Bh6 90. Kf7 Ra5 91. Kg8 Rc5 92. Ra1 Rd5 93. Kf7 Rd4 94. Rb1 Rd3 95. Kg8 Kb7 96. Kf7 Ka8 97. Kg8 Bg7 98. Ra1 Bf6 99. Kf7 Bh8 100. Kg6 Bg7 101. Kf5 Bh6 102. Rb1 Ka7 103. Kg6 Ka6 104. Kf7 Kb6 105. Kg8 Kc7 106. Ra1 Kd7 107. Kf7 Kd6 108. Kg8 Kc5 109. Rb1 Kc4 110. Kf7 Kd5 111. Kg8 Bg7 112. Ra1 f3 113. Rb1 Rgd4 114. Kf7 Rh4 115. Kg8 c5 116. Kf7 c4 117. Kg8 Bh8 118. Ra1 Rh5 119. Kf7 Rh6 120. Rb1 Be5 121. Kg8 Bd6 122. Kf7 Bb8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "11"]
+[White "cand2"]
+[Black "best"]
+[Result "1-0"]
+[Opening "e2e4 c7c5 g1f3 d7d6"]
+
+1. e4 c5 2. Nf3 d6 3. d3 Kd7 4. Ne5+ Ke8 5. Qh5 Qd7 6. Qxf7+ Kd8 7. g3 Kc7 8. Nd2 Qe8 9. b4 Bg4 10. a4 Qd7 11. a5 Qe8 12. Qf6 Bc8 13. a6 Be6 14. Qh6 Qd7 15. Qxg7 Bxg7 16. Ng6 Qe8 17. b5 Kd8 18. Nxe7 Kd7 19. Nc8 Kd8 20. Rb1 Kd7 21. Rb2 Kd8 22. g4 Kd7 23. g5 Kd8 24. Rb1 Ba2 25. Ra1 Bb1 26. Rxb1 Kd7 27. Rb2 Kd8 28. Be2 Kd7 29. Kf1 Kd8 30. Ke1 Kd7 31. Rg1 Kd8 32. Rf1 Kd7 33. Rb1 Ne7 34. Ra1 Kd8 35. h4 Kd7 36. Ra4 Kc7 37. Ra5 Qxc8 38. Bd1 Qe8 39. Bh5 Qd7 40. Bg6 Qe8 41. Nb1 Qd7 42. Kd2 Qe8 43. Nc3 Qf8 44. Ne2 Qg8 45. Ng1 Qe8 46. Bf7 Qf8 47. g6 Qg8 48. Ba2 Qe8 49. Nf3 Kd8 50. Rh1 Kd7 51. Rh2 Kd8 52. Ne5 Qd7 53. Rh3 Qc8 54. b6 Qd7 55. Rh1 Qe8 56. Rh2 Qd7 57. Rb5 Qc8 58. Rb4 Qc7 59. Rd4 axb6 60. Rh3 Ke8 61. Rd5 Nxg6 62. Nxg6 Kd7 63. Bb2 Ke8 64. Bc3 Kd7 65. Bf6 Ke8 66. Bb2 Qe7 67. Bc3 Kd7 68. Bf6 Ke8 69. Ne5 Rg8 70. Kc3 Nc6 71. Bc4 Nxe5 72. Bxe7 Kd7 73. Bd8 Ke8 74. a7 Kd7 75. Bb5+ Kc8 76. Ba4 Re8 77. Be7 Kc7 78. Bf8 Kd8 79. Rf3 Re6 80. Rg3 Re7 81. Bb5 Rc7 82. Rg2 Rac8 83. Rg6 Re7 84. Ba4 Rcc7 85. f3 h6 86. Rf6 Re8 87. Rdxd6+ Nd7 88. Re6 c4 89. d4 Bh8 90. Rf7 Rxe6 91. Rg7 Re8 92. Rxd7+ Rxd7 93. e5 Rh7 94. Bb5 Bf6 95. e6 Rh8 96. Bd6 Bxd4+ 97. Kd2 Be3+ 98. Ke2 Bf2 99. c3 1-0
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "12"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 c7c5 g1f3 d7d6"]
+
+1. e4 c5 2. Nf3 d6 3. Bc4 b5 4. Ke2 g5 5. Ne5 bxc4 6. Qg1 dxe5 7. Kf3 Qd7 8. Ke3 Qb7 9. Qf1 h6 10. Qxc4 h5 11. Kf3 h4 12. Ke3 Rh5 13. Rg1 Qb5 14. Kf3 Qa5 15. Ke3 e6 16. Rf1 Ke7 17. Kf3 Qc3+ 18. Ke2 Nh6 19. Qd5 Nc6 20. Ke1 Nb4 21. Qxe5 Rb8 22. Ke2 Qxc2 23. Kf3 Rb5 24. Qb8 Rxb8 25. Ke3 Rb5 26. Rh1 Rb7 27. f3 Kd8 28. Kf2 Rb5 29. Ke2 Qxb2 30. Ke3 Rb8 31. Kf2 a6 32. Ke2 Ke8 33. Rg1 Ke7 34. Rf1 Kf6 35. Rh1 Be7 36. Ke3 Bd8 37. Kf2 a5 38. Ke2 g4 39. Rf1 Kg7 40. Ke3 Kh8 41. Kf2 Ra8 42. Ke2 f6 43. Ke3 c4 44. Kf2 Ra7 45. Rh1 Rc7 46. Ke2 Rb7 47. Ke3 Rb6 48. Kf2 Kg8 49. Ke2 Nc6 50. Rg1 Ne5 51. Ke3 Rb7 52. Kf2 Rb3 53. Ke2 Qxa2 54. Ba3 Qb2 55. Bb4 axb4 56. Ra7 Rxf3 57. Ra8 Rf4 58. Ke3 Nef7 59. Ra4 Ng5 60. d3 Rf1 61. Ra1 Qb3 62. Rxf1 c3 63. Kf2 Qc2+ 64. Ke1 Ba6 65. Rh1 Qb3 66. Ke2 Nf5 67. Rg1 Nd4+ 68. Ke3 Qc2 69. Rf1 Qb2 70. Rf2 Nf5+ 71. Kf4 Qd2+ 72. Kxg4 Nd4 73. Re2 Qc2 74. Ra4 Qb3 75. Ra1 Qb2 76. Ra4 Bb5 77. Ra1 h3 78. Kxh5 Qb3 79. Kg4 Qc2 80. Kh5 Qc1 81. Ra7 e5 82. Ra8 Kf7 83. Kg4 Qa3 84. Kg3 Qa4 85. Kh4 Qxa8 86. Kh5 Qa7 87. Kg4 Qa6 88. Kg3 Qd6 89. Kh4 Qc7 90. Kg3 Qa5 91. Re3 Qa8 92. Kh4 Ba4 93. Kh5 Ke7 94. Kg4 Nb3 95. Kg3 Qc8 96. Kh4 Nc1 97. Kh5 Qc7 98. Kh4 Qd6 99. Kg3 Qe6 100. Nd2 Qf7 101. Kh4 Qh7+ 102. Kg3 Qh6 103. Kg4 Qh8 104. Nf1 Qg8 105. Kg3 Ke8 106. Kh4 Be7 107. Kh5 Kd7 108. Kg4 Ne6+ 109. Kxh3 Nd8 110. Rf3 Nc6 111. Rxf6 Nb8 112. Rf2 Bc5 113. Re2 Nc6 114. Ne3 Be7 115. Nf5 Nb8 116. Re3 Bf6 117. Nh4 Bb3 118. Ng6 Bc2 119. Kg4 Bxd3 120. Kg3 Be2 121. Rf3 Bd8 122. Kg4 Ba6 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "13"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 c7c5 b1c3 b8c6"]
+
+1. e4 c5 2. Nc3 Nc6 3. Bc4 f5 4. d4 Ne5 5. Qd3 d6 6. Bb5+ Qd7 7. Qe2 Qc6 8. Bxc6+ Kf7 9. Qh5+ Kf6 10. Bf4 Be6 11. Bb5 Re8 12. Rb1 Bxa2 13. Bc6 Be6 14. Bxe5+ dxe5 15. Bb5 h6 16. Bc6 Rh7 17. d5 Rh8 18. Nh3 Rc8 19. f4 Rc7 20. g4 Rh7 21. Kd1 Rh8 22. Ke1 g6 23. Kd1 Rh7 24. Bd7 Bg7 25. Ke2 g5 26. Rbg1 Rh8 27. Qxh6+ Kf7 28. Qxg7+ Kxg7 29. Rc1 Kf8 30. Ke1 Rh7 31. Rd1 Rh6 32. Rd4 Kg7 33. Kf1 Rf6 34. Kg1 Kh8 35. fxe5 Kh7 36. Kf2 Kh8 37. Ke2 Kh7 38. Nf4 Kh6 39. h4 gxh4 40. Rg1 Kh7 41. Rg3 Kh8 42. Rg2 Rg6 43. Ke3 Rf6 44. Kd3 Kh7 45. Kc4 Kh6 46. Bxe6 Kg7 47. Bxf5 Kh8 48. Be6 Kh7 49. b3 Kh8 50. Nce2 Rg6 51. Kd3 Rf6 52. Nc1 Kh7 53. Ke2 Kh6 54. Rf2 Kg7 55. Rf3 Kh8 56. Rc3 Kh7 57. Rxc5 Kh8 58. Rb4 Kh7 59. Rbb5 Kh8 60. c3 Kh7 61. Rc4 Kh8 62. Rbb4 Rxc4 63. Rb5 Kh7 64. Na2 Kh8 65. Rb4 Rg6 66. Rxb7 Rf6 67. Rb5 Rd4 68. Nb4 Kh7 69. Na6 Kh8 70. Rb4 Rg6 71. c4 Rf6 72. Rb6 Kh7 73. Rb5 Kh8 74. Kf2 Rg6 75. Rb4 Rg5 76. Ra4 Rh5 77. Ke2 Rxe5 78. Ng6+ Kh7 79. Rb4 Rexd5 80. exd5 Kh6 81. Rb5 Kg7 82. Nb8 Kxg6 83. Rb4 Kg5 84. Ra4 Kg6 85. Ke1 Kf6 86. Kf2 Kg6 87. Rb4 Kh6 88. Rb5 Kg7 89. Ke1 Kg6 90. Ke2 Kg5 91. Kf2 Kh6 92. Kf3 Kh7 93. Kg2 Kh8 94. Rb4 Rxd5 95. Bxd5 Kh7 96. Kf1 Kh8 97. Rb5 Kh7 98. Ke2 Kh8 99. Rb4 Nf6 100. Kf2 Ne8 101. Rb5 Kh7 102. Kf1 Kh6 103. Rb4 Ng7 104. Kf2 Kg6 105. Ke1 Kh6 106. Kd1 Ne8 107. Bg2 Kg6 108. Bf1 Kf7 109. Ra4 Kg8 110. Nc6 Kf7 111. Rb4 Kg6 112. Ra4 Kh6 113. Bg2 Kg6 114. Nxe7+ Kf6 115. Ng8+ Kg6 116. Rb4 Kg7 117. Bd5 Kh8 118. Kc1 Kh7 119. Kd2 Kh8 120. Ke1 Ng7 121. Rb5 Ne8 122. Kd1 Ng7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "14"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 c7c5 b1c3 b8c6"]
+
+1. e4 c5 2. Nc3 Nc6 3. Ke2 Na5 4. Rb1 Qb6 5. Kf3 Qxb2 6. Rxb2 h6 7. Bc4 Nf6 8. Kg3 Nxc4 9. Kf3 Rh7 10. Kg3 a5 11. Kh4 Kd8 12. Kg3 Ke8 13. Kh4 Ra6 14. Rb6 Kd8 15. Kg3 e6 16. Kh4 Ke8 17. Kg3 Ke7 18. f3 Ne3 19. Kh4 g5+ 20. Kg3 c4 21. d3 Rh8 22. Qd2 a4 23. Qe2 Rh7 24. dxc4 d5 25. Rb2 dxc4 26. Qxc4 e5 27. Qd5 Nd7 28. Qxb7 Nf1+ 29. Kg4 Rh8 30. Kh5 Bg7 31. Qxc8 a3 32. Kg4 Rh7 33. Qc7 Bf6 34. Rb8 Rg7 35. Rg8 Rc6 36. Kh5 Rh7 37. Kg4 Rc5 38. Kh5 Rg7 39. Qb8 Rxg8 40. Kxh6 Rg7 41. Qh8 Rxc3 42. Qg8 Rh7+ 43. Kxh7 Bg7 44. h4 Bh8 45. Kxh8 gxh4 46. Kh7 h3 47. Kh8 hxg2 48. Kh7 f6 49. Kh8 Rc5 50. Qg6 Ra5 51. Kg8 f5 52. Kg7 f4 53. Qg5+ Nf6 54. Kh8 Ke8 55. Qf5 Ng4 56. Kg8 Ke7 57. Qg6 Kd7 58. Qf6 Ng3 59. Kg7 Ne3 60. Kh8 Nxc2 61. Qh4 Nb4 62. Rh2 Nxa2 63. Rxg2 Kc7 64. Kh7 Kb8 65. Kg8 Kb7 66. Kf7 Ka7 67. Kg8 Ka8 68. Rf2 Nh5 69. Re2 Kb8 70. Kf7 Kb7 71. Ke6 Ka7 72. Kf5 Ka8 73. Kg6 Kb7 74. Kf7 Ka7 75. Kg6 Ka8 76. Kh6 Kb8 77. Kg6 Ng3 78. Kf7 Ka8 79. Kg8 Nh5 80. Qe7 Nf6+ 81. Kf7 Ra4 82. Kg6 Ng4 83. Kf7 Ne3 84. Kg8 Ra5 85. Qc7 Ra6 86. Kf7 Ra4 87. Qe7 Ra5 88. Kg8 Nf1 89. Qg7 Kb8 90. Kf7 Kc8 91. Qg3 Kc7 92. Kg8 Kb8 93. Kg7 Ka8 94. Kh8 Kb7 95. Qh4 Kb8 96. Kh7 Ka8 97. Kh6 Kb7 98. Qd8 Ra4 99. Qg8 Ra5 100. Qe8 Ka7 101. Kh7 Kb6 102. Kh8 Kb7 103. Kg8 Kc7 104. Kf7 Kd6 105. Kg6 Ra4 106. Kf6 Ne3 107. Kg6 Ra5 108. Kf7 Ng4 109. Kg8 Kc5 110. Kf7 Ra6 111. Kg8 Rc6 112. Qc8 Nxc1 113. Kf7 Rc7+ 114. Kg8 Nf2 115. Qg4 Re7 116. Qg7 Kd4 117. Qg3 Na2 118. Qh4 Rd7 119. Qd8 Rd6 120. Kf7 Nd3 121. Qg8 Ndb4 122. Qe8 Rd7+ *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "15"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 e7e6 d2d4 d7d5"]
+
+1. e4 e6 2. d4 d5 3. Qh5 Kd7 4. Qxf7+ Kd6 5. g4 Ne7 6. Qf6 Kd7 7. Bh6 Kd6 8. Bh3 Kd7 9. Bc1 Ke8 10. Qh4 Kd7 11. Qh5 Kd6 12. Ne2 Qd7 13. Nec3 Qe8 14. Bf4+ Kd7 15. Be5 Kd8 16. Bf6 Kd7 17. Qf7 Kd6 18. g5 Qd7 19. Bf1 Qd8 20. e5+ Kd7 21. Rg1 Rg8 22. b3 Nc6 23. Bh3 Nxe5 24. Qxe6+ Ke8 25. Rh1 Bxe6 26. Kd1 Kf7 27. Kd2 Kg6 28. Kc1 Kf7 29. g6+ Kxg6 30. Kd2 Kf7 31. Bf1 Qd7 32. Bg2 Kg6 33. Ke1 Kf7 34. Be4 Qe8 35. Bxd5 Kg6 36. f3 Kxf6 37. Be4 Bc4 38. b4 Qb8 39. Kf2 Kg5 40. b5 Kh5 41. Bd5 Qc8 42. h3 Kh4 43. Rc1 Qe8 44. Nd1 Kh5 45. c3 Qd7 46. Be6 Qe8 47. Bf7+ Kh6 48. Bxg8 Kg6 49. b6 Kf6 50. Bf7 Qd7 51. Be8 Qd8 52. Kg2 Qxd4 53. Bc6 Nf7 54. Bb5 Qe5 55. Kf2 Qd5 56. Bc6 Qg5 57. Be8 Qh5 58. bxc7 Kg6 59. Ke1 Kg5 60. Kd2 Kf5 61. Bc6 Kg6 62. Ba4 Ne5 63. Bb5 Kf7 64. Bc6 Kg8 65. Be8 Qxe8 66. h4 Kf7 67. h5 Kg8 68. f4 Kf7 69. a3 Kg8 70. a4 Kh8 71. a5 Qc8 72. Ra4 Qxc7 73. Rb4 Qb8 74. Ke1 Bf7 75. Rb5 Kg8 76. Kf2 Bg6 77. hxg6 N7xg6 78. c4 Kf7 79. fxe5 Kg8 80. Nbc3 Kf7 81. Kg2 h6 82. e6+ Kg8 83. Kf2 Qc8 84. e7 Kf7 85. Rc2 Kg8 86. Re2 Qg4 87. Ke1 Qc8 88. Kf1 Qc7 89. Rh2 Kf7 90. Kf2 Kg8 91. Rh3 Qb8 92. Rh1 Kf7 93. Rh4 Kg8 94. Rxh6 Kf7 95. Rhh5 Kg8 96. Rh3 Kf7 97. Rh2 Kg8 98. Rh4 Kf7 99. Rh6 Kf6 100. Rhh5 Qc8 101. Rh8 Qc7 102. Ke2 Qb8 103. Kf1 Qh2 104. Ke1 Qxh8 105. Ke2 Qh4 106. Kf1 Qh5 107. Kf2 Qe5 108. Kg2 Qd5+ 109. Kg3 Qc5 110. Rb4 Kxe7 111. Ne4 Qxa5 112. Rxb7+ Ke6 113. Rc7 Kf5 114. Ng5 Ke5 115. Rb7 Qc7 116. Rb4 Qb8 117. Kf2 Kf4 118. Ra4 Kf5 119. Ke1 Ke5 120. Kf2 Qd6 121. Kf3 Qd7 122. Rb4 Qe8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "16"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 e7e6 d2d4 d7d5"]
+
+1. e4 e6 2. d4 d5 3. Ke2 g5 4. Kf3 Bb4 5. Kg4 Nh6+ 6. Kh5 Qd7 7. f3 Rg8 8. exd5 Rg7 9. Qd2 Ng4 10. Kxg4 f5+ 11. Kg3 Qd6+ 12. Qf4 Rg6 13. Qxd6 h6 14. Qxc7 Kf8 15. Qxb8 f4+ 16. Kg4 h5+ 17. Kh3 Ba3 18. Bc4 h4 19. Kg4 a6 20. Kh5 Ra7 21. Kxg6 Ke7 22. Kg7 b6 23. Kh8 exd5 24. Kg8 Rc7 25. Qxc8 Rc6 26. Kh8 a5 27. Qg4 Kf7 28. Qc8 Bd6 29. Kh7 Ke7 30. Kh8 b5 31. Kg8 Ba3 32. Kg7 Bb4 33. Kh8 Re6 34. Kg8 Rh6 35. Qg4 a4 36. Qc8 a3 37. Qg4 Rh5 38. Qc8 Bc3 39. Qg4 Rh6 40. Qc8 Rh7 41. Nd2 Rh5 42. Rb1 Bxd2 43. Qg4 Rh7 44. Ra1 Rh6 45. Kg7 Ke8 46. Qg3 Rh5 47. Kg6 Ke7 48. Qxh4 Bxc1 49. Kg7 Rxh4 50. Rb1 Rh7+ 51. Kg6 Rf7 52. Kxg5 Rg7+ 53. Kh5 Rh7+ 54. Kg4 Rh5 55. Ra1 Kf6 56. Rb1 Rg5+ 57. Kh3 Rg7 58. Ra1 Rb7 59. Kg4 Rb8 60. Kh5 Rh8+ 61. Kg4 Rf8 62. Rb1 Rg8+ 63. Kh3 Re8 64. Rxc1 Rc8 65. Kg4 Ra8 66. Re1 Ra5 67. Rb1 bxc4 68. Kh3 Ra7 69. g3 Rd7 70. Rf1 Re7 71. Rf2 Rc7 72. Rg2 Rd7 73. Rf2 Re7 74. Re2 Re8 75. Kg4 Rf8 76. Re3 Rf7 77. Kh3 Rh7+ 78. Kg4 Rxh2 79. Kxf4 Rh5 80. Re5 c3 81. Re2 Rh6 82. Re8 axb2 83. Re4 Rh5 84. g4 Rg5 85. Re3 Rg7 86. Kg3 Rxg4+ 87. Kh3 Rg5 88. Rd3 Rf5 89. Kh2 Rf4 90. Rd2 Rg4 91. Kh3 Ke7 92. Kh2 Rh4+ 93. Kg2 Kf6 94. Rd3 Rh7 95. Kf2 Rh2+ 96. Ke1 Rg2 97. Kd1 Rg6 98. Rd2 Rg3 99. Rd3 Ke6 100. Rxc3 Kf6 101. Rc5 b1=Q+ 102. Kd2 Qb5 103. Rh2 Qe8 104. Kd3 Qg6+ 105. Kc3 Qg4 106. Rd2 Qf4 107. Rd3 Rg2 108. Rc4 Qg3 109. Rc7 Qh4 110. Kb2 Qf4 111. Ka3 Qg3 112. Kb4 Qe1+ 113. Kb5 Qh4 114. Ka5 Qg4 115. Rh7 Qg3 116. Ka4 Rxc2 117. Kb5 Rc4 118. Kb6 Rc1 119. Ka7 Rc2 120. Ka8 Rc3 121. Rh8 Qg2 122. Rb8 Ke7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "17"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 e7e6 d2d4 c7c5"]
+
+1. e4 e6 2. d4 c5 3. Nc3 Ne7 4. g4 Rg8 5. Bh3 Ng6 6. d5 Qe7 7. Bf1 Nc6 8. Qe2 Nce5 9. Bh3 h6 10. Bf1 d6 11. Bh3 Kd7 12. Bf1 Ke8 13. Nh3 f5 14. Ng1 Kd7 15. f3 Ke8 16. Kd1 Kf7 17. Bg2 Kf6 18. Qd2 Rb8 19. Na4 Qc7 20. Qe3 Qe7 21. Nc3 Qd7 22. Qd3 Qe8 23. Qc4 Qd7 24. Na4 Qd8 25. Qd3 Kf7 26. Qc3 Qe7 27. Nh3 Ke8 28. Ke1 Kd7 29. Bf1 Kd8 30. Nf2 Ke8 31. Qd4 Kd8 32. Nc3 Ke8 33. Qd1 Nf7 34. Bh3 Nfe5 35. Na4 b5 36. Nxc5 Qc7 37. Nfd3 Qe7 38. a4 Qc7 39. Nf2 Qb6 40. Bg2 Kf7 41. Nh3 Kf6 42. Bf1 Ke7 43. Bc4 Bd7 44. Kf2 Be8 45. Bxb5 Qd8 46. Bc6 Qd7 47. Kg1 Qc8 48. Rb1 Qc7 49. Qd3 Kf7 50. Qb5 Qe7 51. Qa5 Qc7 52. f4 Qe7 53. Kf2 Qc7 54. Qd2 Qe7 55. Qc3 Kf6 56. Qd2 Rc8 57. Qa5 Rc7 58. Ke3 Rb7 59. Kd2 Qc7 60. Kc3 Qb8 61. Qb6 Rf7 62. Kd2 Qc8 63. Qb3 Qc7 64. Qb4 Qb8 65. Kc3 Qc8 66. Ba8 Qc7 67. Qb7 Qb8 68. Qb6 Qc8 69. Qb5 Qd7 70. Qb7 Qd8 71. Qc7 Qd7 72. Qa5 Qe7 73. Rd1 Bd7 74. Qb6 Be8 75. Qb5 Qc7 76. Qb7 Qb8 77. Qb4 Ke7 78. Qa5 Bd7 79. Qb6 Be8 80. Qb4 Kf6 81. Rd2 Rc7 82. Qc4 Re7 83. Rd1 Bd7 84. Qd3 Qc8 85. Nf2 Qc7 86. Qc4 Qb8 87. Rd2 Be8 88. Nh1 Kf7 89. Rd1 Kf6 90. Qd3 Qc8 91. Nf2 Qc7 92. Qc4 Qb8 93. Rd2 Kf7 94. Nd1 Rc7 95. Qa6 Re7 96. Qc6 Qc8 97. Rg2 Qc7 98. gxf5 Qb8 99. Rg5 Qc8 100. fxg6+ Kf6 101. Rg1 Qc7 102. Rg2 Qb8 103. Qc7 Qc8 104. Rg5 Qxc7 105. Ra1 Qb8 106. Rg3 Rc7 107. h3 Re7 108. h4 Rc7 109. Ra3 Re7 110. Rb3 Qc8 111. Rb4 Qc7 112. Rb5 Qb6 113. h5 Bxg6 114. a5 Qd8 115. Bc6 Qd7 116. Be3 Qd8 117. Bg1 Qa8 118. Rh3 Qe8 119. Rh2 Qd7 120. Rb6 Qd8 121. Be8 Qa8 122. Bxg6 Qe8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "18"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 e7e6 d2d4 c7c5"]
+
+1. e4 e6 2. d4 c5 3. Ke2 b5 4. dxc5 Nh6 5. Kf3 Rg8 6. Kg3 Qc7+ 7. Kf3 Ke7 8. Ke3 a5 9. Kd4 e5+ 10. Kd5 Qc6+ 11. Kxe5 Ba6 12. Bc4 Ke8 13. h4 a4 14. Qg4 bxc4 15. Qxg7 d5 16. Qg3 Rg7 17. Qxg7 Qb7 18. Qg3 Kd7 19. Kf4 Kc7 20. Qg4 Qc8 21. Ke5 Nc6+ 22. Kf4 Nb4 23. f3 f6 24. Qg7+ Kd8 25. Kg3 Bxg7 26. Rh2 Bh8 27. Rh3 Qf5 28. Rh2 Qg4+ 29. Kf2 Qg6 30. exd5 Bc8 31. Ke2 Qf5 32. Ke3 Ke8 33. Kf2 Be6 34. Ke2 Qxc2+ 35. Ke3 Ra6 36. h5 Ra8 37. Rh4 Qb3+ 38. Kf2 Qxb2+ 39. Nd2 Bg8 40. Ke2 Ke7 41. Rb1 Qc3 42. Rh1 Qc2 43. Rh2 Qxa2 44. Rb2 Qb1 45. Ke3 Ra7 46. Kd4 Ra5 47. Rh4 Qa2 48. Ke3 Ke8 49. Kd4 Kd7 50. Re4 Nxd5 51. Rg4 Nc3 52. Rb8 Qc2 53. Ke3 Qd1 54. Kf2 Qe1+ 55. Kxe1 Be6 56. Kf2 Ra7 57. Rbg8 Ra8 58. Re8 Bxg4 59. Re4 Bxh5 60. Re3 Rg8 61. Re6 Rg6 62. Re8 Ne2 63. Kxe2 Kxe8 64. Ke3 Kd7 65. Kf2 Kc8 66. Ke2 c3 67. Ke3 Kd8 68. Kf2 Kd7 69. Ne4 Ke8 70. Ke2 Ke7 71. Ke3 Bg4 72. Kf2 Kd7 73. Ke2 Bf5 74. Ke3 Bh3 75. Ng3 Bg4 76. Kf2 Bxf3 77. Kxf3 Rxg3+ 78. Ke4 Rxg2 79. Kd5 Ra2 80. Ke4 Ke7 81. Ke3 Rc2 82. Kd4 f5+ 83. Ke3 f4+ 84. Kf3 Ra2 85. Ke4 Kf6 86. Kd5 Nf7 87. Ba3 Bg7 88. Ke4 Ng5+ 89. Kd5 h6 90. Kc6 Bf8 91. Kb6 h5 92. Ka7 Bg7 93. Kb8 h4 94. Bb4 Bh8 95. Kc8 h3 96. Kc7 Bg7 97. Kb8 Bf8 98. Kc8 Rc2 99. Kc7 Rb2 100. Kb8 Rxb4+ 101. Kc8 Bg7 102. Kc7 Bh8 103. Kd8 h2 104. Kd7 hxg1=Q 105. Kc7 Qf2 106. c6 Bg7 107. Kd8 Qf3 108. c7 Bh8 109. Kd7 Qg3 110. Ke8 Qg2 111. Kd7 Qa2 112. Kc6 Qc4+ 113. Kd7 Qb3 114. Kc6 Qb2 115. Kc5 Qa3 116. Kd6 Bg7 117. Kc6 Qa2 118. Kc5 Bf8+ 119. Kc6 Qb1 120. Kd7 Qf1 121. Kd8 Rb5 122. Kd7 Qg1 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "19"]
+[White "cand2"]
+[Black "best"]
+[Result "1-0"]
+[Opening "e2e4 c7c6 d2d4 d7d5"]
+
+1. e4 c6 2. d4 d5 3. g4 Bxg4 4. a3 Kd7 5. Bh3 Ke8 6. Nc3 Be6 7. Bf5 Kd7 8. Nge2 Kd6 9. Rb1 Qd7 10. e5+ Kc7 11. Ng1 Qd8 12. Nh3 h6 13. Be4 Qd7 14. Bd2 Qe8 15. Ng1 Qd7 16. f3 Qd8 17. Kf2 Qd7 18. h4 Qd8 19. Bf5 c5 20. Nb5+ Kb6 21. Bg4 Qd7 22. Bb4 Ka6 23. Ke2 Qe8 24. Qd2 Qd7 25. Nh3 Kb6 26. Rbg1 Qe8 27. Bf5 Qd7 28. Rg2 Qe8 29. Bxc5+ Kc6 30. h5 Kd7 31. Rf2 Kd8 32. Kd1 Kd7 33. Bg4 Kd8 34. Nf4 Qd7 35. Rg2 Qc8 36. Qa5+ Qc7 37. Nd3 Kd7 38. Qxc7+ Ke8 39. Bf5 Bxf5 40. Rg4 Bg6 41. Qc8# 1-0
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "20"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 c7c6 d2d4 d7d5"]
+
+1. e4 c6 2. d4 d5 3. Ke2 f6 4. f3 Qd6 5. exd5 Bh3 6. Ke3 c5 7. Kf2 cxd4 8. Ke2 a5 9. Qd2 Ra6 10. Qf4 Qxd5 11. Qh6 Ra7 12. Kd3 Qd7 13. Ke4 Qe6+ 14. Kd3 Bg4 15. Kd2 Bh5 16. Kd3 Qf5+ 17. Kc4 Ra6 18. Kxd4 e6 19. Ke3 Ba3 20. Kd4 Ra7 21. Ke3 a4 22. Kd4 Ra6 23. Qxf6 Kd7 24. Ke3 b6 25. Kd4 h6 26. Ke3 Rh7 27. Kd4 Ra5 28. Ke3 Rc5 29. Kd4 Nc6+ 30. Ke3 Ne5 31. Kf2 Rc4 32. Ke2 Rc8 33. Ke3 Nf7 34. Kd4 Qxf6+ 35. Ke4 Qg6+ 36. Ke3 Ke8 37. Kd4 Rc6 38. Bc4 Ke7 39. Ke3 Qg4 40. Kf2 Qf4 41. Ke2 Rc5 42. Bxe6 Rc4 43. Bf5 Rc6 44. Kd3 Rc5 45. c3 Rc4 46. Bxh7 Rc6 47. Kc2 Rc5 48. bxa3 Qf5+ 49. Kd1 b5 50. Kd2 Kd8 51. Ke2 Kd7 52. Ke3 Rc4 53. Kf2 Rb4 54. Kg3 Qh3+ 55. Kf2 Ke8 56. Ke2 Kd8 57. axb4 Qg3 58. Ke3 Bg6 59. Kd2 Qg4 60. Ke2 Qe6+ 61. Kf2 Kc8 62. Bxg8 h5 63. Bxf7 Bc2 64. Bg8 Qb6+ 65. Ke2 Qa6 66. Ke3 Kd8 67. Kd4 Qb7 68. Ke5 Qe7+ 69. Kd5 Qc7 70. Bf7 Qb7+ 71. Kc5 Qa7+ 72. Kd5 Qa6 73. Ke5 Qa8 74. Bg8 Qa7 75. Ke6 Qa6+ 76. Ke5 Qb7 77. Bf7 Qe7+ 78. Kd5 Qc7 79. Bg8 Qc6+ 80. Ke5 Qb6 81. Kd5 Qf6 82. Kc5 Qe6 83. Kd4 Ke7 84. Kc5 Qh6 85. Bf7 h4 86. Bg8 Qf6 87. Bf7 Qf4 88. Bg8 Qf5+ 89. Kd4 Qe6 90. Kc5 Qh6 91. Bf7 Qf6 92. Bg8 Qf4 93. Nd2 a3 94. Rb1 Qh6 95. Rb2 Qf6 96. Rxc2 Qe5+ 97. Bd5 g5 98. Kb6 Qxd5 99. Ka7 Qe5 100. Ka8 Qf5 101. Kb8 Qd7 102. Bxa3 Qd5 103. Bb2 Qf5 104. Ba3 Qe5+ 105. Kc8 Qe6+ 106. Kc7 Qd5 107. Bb2 Qf5 108. Kb8 Qe6 109. a4 Qg8+ 110. Kc7 Qg7 111. Kb8 Qe5+ 112. Kc8 bxa4 113. b5 Qf4 114. Rc1 a3 115. Rb1 Qf5+ 116. Kc7 Qc2 117. Kb8 Kd6 118. Rf1 Ke5 119. Rf2 Kf4 120. Re2 Qd3 121. Re3 Qd4 122. Kc8 Qc5+ *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "21"]
+[White "cand2"]
+[Black "best"]
+[Result "1-0"]
+[Opening "e2e4 d7d5 e4d5 d8d5"]
+
+1. e4 d5 2. exd5 Qxd5 3. Qh5 Bg4 4. d4 Bc8 5. f3 Qc5 6. h4 Kd7 7. Rh3 Ke8 8. Rg3 Kd7 9. f4 Ke8 10. b4 Kd7 11. Qxf7 Kd6 12. Bb2 Qxc2 13. Ba3 Bg4 14. Nf3 Kd7 15. Ng5 Kd8 16. d5 Kd7 17. Bb2 Kd8 18. b5 Be6 19. Nxh7 Kd7 20. Ba3 Bf5 21. Bc5 Kd8 22. h5 Kd7 23. d6 Kd8 24. dxe7+ Nxe7 25. Qg6 Kd7 26. Qg5 Ke8 27. Be2 Kd7 28. Bf3 Ke8 29. Bb6 Kd7 30. Bc6+ Kd8 31. Bc5 Rg8 32. Bb4 Qc5 33. a4 Qd4 34. Raa3 Qd7 35. Rad3 Qd4 36. Na3 Qd7 37. Qf6 Qd4 38. Nb1 Qd7 39. Rd4 Qxd4 40. Ng5 Qd7 41. Bc5 Qe8 42. Nh7 Be6 43. Qe5 Qd7 44. a5 Qe8 45. Qd6+ Qd7 46. Qd3 Qd6 47. Bb4 Qd7 48. Qe4 Qe8 49. Qe5 Qd7 50. Nd2 Qe8 51. Qf6 Qd7 52. Qxe6 Qe8 53. Qe2 g6 54. Nb1 Qd7 55. Ng5 Qe8 56. Qf3 Qd7 57. Qd1 Bg7 58. Qd3 Qd4 59. Qe2 Qd7 60. Be4 Qd4 61. Qf3 Kd7 62. Qd3 Ke8 63. Bf5 Qd7 64. Bc5 Qd8 65. Kd1 Qd7 66. Nh7 g5 67. Ke1 Qd8 68. Qc4 Qd7 69. Qc3 Qd8 70. Qa3 Qd7 71. Qa1 Qd3 72. Qa4 Qd8 73. Qa2 Qd4 74. Qf2 Qd7 75. Be6 Qd8 76. Qf3 Qd6 77. Qe4 Qd7 78. Qe5 Qd8 79. Qd6 Qd7 80. Qd5 Qd8 81. Qd3 Qd4 82. Qc3 Qd8 83. Qc2 Qd7 84. Qd1 Qd8 85. Bd6 Qd7 86. Qd3 Ng6 87. Qe4 Qe7 88. Bxe7 Bh8 89. Nxg5 Bb2 90. Qf5 Rg7 91. Nh7 Rxe7 92. Nd2 Rg7 93. Ne4 Re7 94. a6 Rg7 95. Kf2 Re7 96. Bd5 Rg7 97. Rh3 Re7 98. Qc8# 1-0
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "22"]
+[White "best"]
+[Black "cand2"]
+[Result "0-1"]
+[Opening "e2e4 d7d5 e4d5 d8d5"]
+
+1. e4 d5 2. exd5 Qxd5 3. Ke2 Qe4# 0-1
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "23"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 g8f6 e4e5 f6d5"]
+
+1. e4 Nf6 2. e5 Nd5 3. c4 d6 4. g4 Kd7 5. h3 Ke8 6. c5 Kd7 7. b3 Ke8 8. Ke2 Kd7 9. d4 Ke8 10. Qd2 Kd7 11. cxd6 Ke8 12. Qe1 Kd7 13. e6+ Ke8 14. Kd3 Qd7 15. Rh2 Qd8 16. dxe7 Qxe7 17. f3 Qh4 18. Ba3 Qd8 19. Qc3 Qe7 20. Ke2 Rg8 21. Bb4 Bxe6 22. Qd2 Kd7 23. Bxe7 Ke8 24. Bg5 Bf5 25. Qa5 Kd7 26. Ke1 Ke8 27. Bg2 Kd7 28. Bf6 Kd6 29. g5 Kd7 30. Bf1 Ke8 31. Ke2 Kd7 32. Kd2 Ke8 33. Bg2 Kd7 34. Kd1 Kd6 35. Qd2 Kd7 36. Ke2 Ke8 37. Qa5 Kd7 38. Kd2 Ke8 39. Rh1 Nc6 40. Qa4 Kd7 41. Ke1 Ke8 42. Rh2 Kd7 43. Qxc6+ Kxc6 44. Kd2 Kd7 45. Kd1 Kd6 46. Ke2 h6 47. Be7+ Ke6 48. Bb4 Re8 49. Be1 Ke7 50. Kd1 Kd7 51. Kd2 Kd8 52. Kd1 Ke7 53. gxh6 Kf6 54. Kd2 Kg6 55. hxg7 Kf6 56. h4 Kg6 57. h5+ Kf6 58. Rh3 b5 59. Rg3 Re6 60. Nh3 Re8 61. Na3 Rc8 62. Rb1 Bxg7 63. Ra1 Ke7 64. Ng5 Kf8 65. Nxf7 Ke8 66. Nb1 Kf8 67. Nh8 Re8 68. Rh3 Re4 69. Rh2 Ke8 70. Kd1 Kf8 71. Bd2 Ke8 72. Ba5 Kd7 73. Bf1 Kd8 74. b4 Ke7 75. Bb6 Re8 76. Kc1 axb6 77. Ng6+ Kf7 78. Rh4 Kg8 79. Rg4 Kf7 80. Rg5 Kg8 81. Rg2 Kf7 82. Re2 Kg8 83. Nc3 Kf7 84. Rb1 Re3 85. Ra1 Kg8 86. Rb1 Rf8 87. Rb3 Kf7 88. Rb1 Rg8 89. Ra1 Rge8 90. Rb1 Kg8 91. Rb3 Kf7 92. Rbb2 Kg8 93. Na4 R8e4 94. Bh3 Kf7 95. Bxf5 Kg8 96. Rec2 Rxf3 97. a3 Kf7 98. Kd2 Kg8 99. Nxb6 Kf7 100. Na4 Re5 101. Rb3 Kg8 102. Rcc3 Kf7 103. Kd1 Re8 104. Rc2 Kg8 105. Bg4 Kf7 106. Be6+ Kf6 107. Ke1 bxa4 108. b5 Rf5 109. h6 Kxg6 110. h7 Kf6 111. Rb4 Kg6 112. Rxa4 Kg5 113. Rc5 Kh5 114. Ra7 Kg4 115. Rc2 Kg5 116. Kd2 Kh5 117. Ke2 Kh6 118. Rcxc7 Kg6 119. a4 Kf6 120. Ra5 Rc8 121. Rca7 Kg6 122. Kd1 Kf6 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "24"]
+[White "best"]
+[Black "cand2"]
+[Result "1-0"]
+[Opening "e2e4 g8f6 e4e5 f6d5"]
+
+1. e4 Nf6 2. e5 Nd5 3. Bc4 Rg8 4. Ke2 c5 5. Kf3 a5 6. Ke4 h6 7. Kxd5 a4 8. Kxc5 b6+ 9. Kd4 Nc6+ 10. Ke3 Nd4 11. Kxd4 d5 12. Ke3 g6 13. e6 Ra7 14. Kd4 Rh8 15. Ke5 Ra6 16. Bxd5 Bxe6 17. h4 Bxd5 18. d3 Bc4 19. dxc4 Qb8+ 20. Kd5 Ra5+ 21. Ke4 Rg8 22. Ke3 Qd8 23. Kf3 b5 24. Ke4 Rh8 25. Ke5 Qb8+ 26. Kd5 Rh7 27. Kc5 Qc8+ 28. Kd4 Qd8+ 29. Kc5 b4+ 30. Kc6 b3 31. Rh2 Bg7 32. h5 Bf8 33. Qd3 Rg7 34. Qe4 Qd6+ 35. Kb7 Kd8 36. Qd5 f5 37. Qc5 Qd7+ 38. Kb8 Rh7 39. f3 Ke8 40. Qa7 Kf7 41. Qa8 Qe8+ 42. Kc7 bxa2 43. Kb7 Rb5+ 44. Ka6 Rg7 45. Ka7 Qd8 46. Rh4 Qd7+ 47. Ka6 Rg8 48. Re4 Rh8 49. Re3 Rh7 50. Qa7 Rg7 51. Qb8 Rg8 52. Qc8 f4 53. Qc7 e6 54. Ka7 Bd6 55. Rxe6 Be7 56. Rxg6 Bh4 57. Qb7 Bg3 58. Qxd7+ Kf8 59. Rf6# 1-0
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "25"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 d7d6 d2d4 g8f6"]
+
+1. e4 d6 2. d4 Nf6 3. Nc3 Bg4 4. e5 Kd7 5. exf6 Be6 6. Qg4 Ke8 7. Qe4 Qd7 8. Qg6 Qd8 9. h4 Kd7 10. f3 Bf5 11. Kf2 Ke8 12. Qg4 Qd7 13. Ke1 Qd8 14. Kd1 Kd7 15. Rh2 Ke8 16. Rh3 Qd7 17. Rh1 Qd8 18. Rh2 Kd7 19. Na4 h6 20. Nh3 Ke8 21. Nc3 Kd7 22. Ng1 Ke8 23. Rh3 Qd7 24. Rg3 Qd8 25. Na4 Kd7 26. Ke1 Ke8 27. Nc3 Qd7 28. Qg5 Qd8 29. Qg6 Kd7 30. Rg4 Ke8 31. Na4 Qd7 32. Qxh6 g6 33. Qg5 Qd8 34. Re4 Kd7 35. Re5 Ke8 36. Re6 Qd7 37. Be2 Qd8 38. Bd3 Kd7 39. Bf1 Ke8 40. Rb1 Qd7 41. Be2 Rxh4 42. g3 Qd8 43. g4 Qd7 44. Bd3 Qd8 45. Kf2 Kd7 46. Qxh4 Ke8 47. Qg5 Qd7 48. Ra1 Qc8 49. Qh4 Kd7 50. Nc3 g5 51. Qxg5 Ke8 52. Qh4 Kd7 53. Qh5 Ke8 54. Qxf7+ Kd7 55. Qg8 Kd8 56. Qh8 Kd7 57. Re4 Ke8 58. Bg5 Qd7 59. Qg8 Qd8 60. Qg7 Qd7 61. Qh6 Bg7 62. Qxg7 Qd8 63. Qg8+ Kd7 64. Qf7 Kc8 65. Qxe7 Qg8 66. Re5 Qe8 67. Ke2 Qf8 68. Re6 Qg8 69. Qf8+ Kd7 70. Qxg8 Kc6 71. Qe8+ Nd7 72. Qh5 Ne5 73. Qg6 Kd7 74. Bh4 Kd8 75. Qh7 Bxh7 76. Bg5 Kd7 77. Be4 Kd8 78. Bh4 Kd7 79. Kd1 Kd8 80. Nb1 Kd7 81. Re7+ Kd8 82. Bg5 Rc8 83. Bf5 Bg8 84. Nh3 Bf7 85. b3 Bg8 86. Ke2 Bf7 87. Kf1 Bg6 88. Ke1 Bf7 89. c4 Bg8 90. Kd1 Bf7 91. Bc1 Bg8 92. Bh6 Bf7 93. Bg5 Bg8 94. Na3 Bf7 95. Nb5 Bg6 96. Rb1 Bxf5 97. Nxa7 Bh7 98. Nb5 Bg8 99. Ra1 Bf7 100. Na7 Bg8 101. f4 Bf7 102. Rb1 Bg8 103. Rb2 Bf7 104. Rc2 Bg8 105. Rc3 Bf7 106. Ke2 Bg8 107. Nb5 Bf7 108. Rxc7 Rxc7 109. Nf2 Kd7 110. Rd3 Bg8 111. Rd2 Ke8 112. Bh6 Kd7 113. Bf8 Kd8 114. Bg7 Re7 115. Bh6 Kd7 116. Rd1 Ke8 117. Rh1 Kd7 118. Rh2 Ke8 119. Bg5 Kd7 120. a3 Ke8 121. Bh6 Kd7 122. Rh1 Bf7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "26"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 d7d6 d2d4 g8f6"]
+
+1. e4 d6 2. d4 Nf6 3. Bc4 h6 4. Ke2 b5 5. Kf3 d5 6. Kg3 Ba6 7. Kh4 b4 8. Kg3 dxc4 9. Kh4 c5 10. Kg3 Qa5 11. Kh4 g5+ 12. Kg3 Qa4 13. Kf3 Qa3+ 14. Ke2 Kd8 15. c3 Bg7 16. Ke3 Ng4+ 17. Kf3 Qxc3+ 18. Ke2 Qc2+ 19. Kf3 Qb3+ 20. Ke2 Qxb2+ 21. Kf3 Rf8 22. Kg3 Qa3+ 23. f3 Qc3 24. Kxg4 h5+ 25. Kg3 h4+ 26. Kg4 Qc2 27. Kh5 Qxb1 28. Kg4 Bh6 29. Qd3 Kc7 30. Qxc4 Qc2 31. Rb1 Bb5 32. Kh5 Bxc4 33. Kg4 e6 34. Rb2 Kc6 35. Rxc2 Rg8 36. Kh5 Rg7 37. Kg4 a6 38. dxc5 Rh7 39. Rc3 a5 40. a4 Rg7 41. Kh5 Rg8 42. Kg4 Bb3 43. Rd3 Bc2 44. Rc3 Bd1 45. Kh5 Bxa4 46. Kxh6 e5 47. Kh7 Ra6 48. Kxg8 Bc2 49. Kxf7 Nd7 50. Kg8 a4 51. Kf7 Bb1 52. Ke6 Ba2+ 53. Kf5 Bc4 54. Kg6 a3 55. Kg7 bxc3 56. Kh8 Ra5 57. Kh7 Ba2 58. Kh6 Bb1 59. Kg6 Bc2 60. Kf7 Ra4 61. Kg8 Bd1 62. Bxa3 Rc4 63. Bb2 Nxc5 64. Kf7 Nd3 65. Kg8 c2 66. Kf7 Kc5 67. Kg8 Kb4 68. Kg7 Kb3 69. Kh8 Rc5 70. Ba3 Rc6 71. Bc1 Rg6 72. Bd2 Rd6 73. Bf4 gxf4 74. g3 Rf6 75. Kg8 Rh6 76. Kf7 Nb2 77. Kg8 Ka2 78. Kf7 Nc4 79. gxh4 Nd2 80. Kg8 Nb3 81. Kf7 Na1 82. Kg8 c1=Q 83. Kf7 Qc4+ 84. Ke7 Qb5 85. Kf8 Bb3 86. Kg7 Bf7 87. Kf8 Qd3 88. Kg7 Qc4 89. Kf8 Rh7 90. Ke7 Rh8 91. Kd7 Qb5+ 92. Ke7 Rxh4 93. Kf8 Rh6 94. Kg7 Qd3 95. Kf8 Qc4 96. Kg7 Rh7+ 97. Kf6 Rxh2 98. Ke7 Rh8 99. Kd7 Rh4 100. Kd8 Rxh1 101. Ne2 Rc1 102. Nxc1+ Qxc1 103. Kd7 Qg1 104. Kd8 Bg8 105. Kd7 Qg2 106. Ke8 Qd2 107. Kf8 Qe2 108. Ke8 Qg2 109. Kf8 Qh3 110. Ke8 Qc8+ 111. Ke7 Qc2 112. Kf8 Qb3 113. Ke8 Qb2 114. Kd7 Bh7 115. Kd8 Qc2 116. Kd7 Qd2+ 117. Ke8 Qd6 118. Kf7 Qc6 119. Kf8 Qc7 120. Ke8 Qb6 121. Kf8 Qf2 122. Ke8 Qe3 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "27"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 g7g6 d2d4 f8g7"]
+
+1. e4 g6 2. d4 Bg7 3. Qh5 d6 4. e5 Kd7 5. b3 g5 6. Qh4 gxh4 7. g4 Ke8 8. d5 Kd7 9. f3 Ke8 10. Kf2 Kd7 11. h3 Ke8 12. exd6 Kd7 13. Rh2 Ke8 14. Ke1 Kd7 15. Bg2 h6 16. Bf1 Ke8 17. Bg2 Bxg4 18. hxg4 Kd7 19. Nh3 Ke8 20. Bf1 Qd7 21. Nf4 Kf8 22. Ng6+ Ke8 23. Nxh8 Qd8 24. Kd1 Kd7 25. Bg2 Kc8 26. Kd2 Qd7 27. Ke1 Kd8 28. Bf1 Qe8 29. Kd1 Kd7 30. Bxh6 Kd8 31. Kd2 Kd7 32. Kc1 Kd8 33. Bg2 Qf8 34. Kd1 Kd7 35. Bf1 Ke8 36. Kd2 Kd7 37. Kc1 Ke8 38. Bg2 Bxh8 39. Bf1 Kd7 40. Rh1 Kd8 41. Bg2 b5 42. Bg5 Kd7 43. Bf1 Ke8 44. Bf6 Kd7 45. Bg2 Kd8 46. Rg1 Kd7 47. Bf1 Ke8 48. Rg2 Kd7 49. Bg5 Ke8 50. Rg1 Kd7 51. Kd2 Ke8 52. Bf6 Kd7 53. c3 Ke8 54. Kd3 Kd7 55. Kc2 Ke8 56. Kc1 Kd7 57. Rh1 Ke8 58. Kd2 Qg7 59. Bxh4 Kd7 60. Bg5 Kd8 61. Bf6 Kd7 62. Bh4 Ke8 63. Rh2 Kd7 64. Na3 Ke8 65. Bg5 Qf8 66. Nb1 Kd7 67. Bf6 Ke8 68. Bg2 Qg7 69. Bxg7 Kd7 70. Bf8 Kd8 71. d7 Kxd7 72. Na3 Ke8 73. Bf1 Kd7 74. Nb1 Ke8 75. Bxe7 Kd7 76. Bd8 Ne7 77. Na3 Ke8 78. Rh3 Nbc6 79. Nb1 Kd7 80. Rh4 Ke8 81. Rh5 Kd7 82. Rh6 Kxd8 83. Bg2 Kd7 84. Na3 Ke8 85. Rc1 Ne5 86. Rd1 Kf8 87. Ra1 Kg7 88. Nb1 N7g6 89. Bf1 Kf8 90. Na3 Kg8 91. c4 bxc4 92. Nb1 Kg7 93. f4 Kf8 94. Na3 Kg8 95. f5 Kg7 96. Nb1 Kf8 97. f6 Kg8 98. Na3 Bxf6 99. Nb1 Bd8 100. Nc3 Rb8 101. Na4 Kg7 102. Nb6 Kf8 103. Rh3 Kg8 104. g5 Kg7 105. Kc3 Kf8 106. Rh2 Kg8 107. Rh4 Ne7 108. g6 Kg7 109. Rh3 Rc8 110. Kb4 Kf8 111. Rh2 Ke8 112. a3 N7xg6 113. Raa2 Kf8 114. Rac2 Kg8 115. Rb2 Kg7 116. Rh3 Kf8 117. a4 Kg8 118. Rhh2 Kg7 119. Rbc2 Kf8 120. Rc3 Kg8 121. Re3 axb6 122. Rc3 Kg7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "28"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 g7g6 d2d4 f8g7"]
+
+1. e4 g6 2. d4 Bg7 3. f3 Bxd4 4. Ke2 g5 5. Nd2 Bf2 6. Rb1 d6 7. Kd3 e5 8. Kc4 Qd7 9. Qe1 a5 10. Qe2 Qc6+ 11. Kd3 Qa6+ 12. Kc3 Qc4+ 13. Qxc4 b5 14. Qxc7 b4+ 15. Kd3 Ba6+ 16. Qc4 b3 17. Kc3 Kd7 18. Kd3 bxa2 19. Kc3 Bxc4 20. Bxc4 Bd4+ 21. Kd3 a4 22. Ra1 Be3 23. c3 Bf2 24. Rb1 h6 25. Kc2 Bd4 26. Bxf7 Be3 27. Ra1 Rh7 28. Bxg8 Ra5 29. Rb1 Nc6 30. Kd1 Ra6 31. Ra1 Nb4 32. Rb1 Ra8 33. Ke1 Ra7 34. Ra1 Rb7 35. Rb1 Rg7 36. Bf7 Ra7 37. Ra1 Ra8 38. Rb1 Ra5 39. Bg8 Rf7 40. Ke2 Re7 41. Kxe3 Ke8 42. Kf2 Kd8 43. Ke2 Rd7 44. Ra1 Ke8 45. Rb1 Ke7 46. Ke3 Kd8 47. Ra1 Kc7 48. Kf2 Kb7 49. Ke2 Kb6 50. Rb1 h5 51. Ke3 h4 52. Kf2 Re7 53. Ra1 Rc7 54. Ke2 Rb7 55. Rb1 Re7 56. Ke3 Re8 57. Kf2 Rd8 58. Ke2 Rda8 59. Ra1 Rf8 60. Ke3 Rf6 61. Kf2 Rg6 62. Ke2 Kc5 63. Ke3 h3 64. Kf2 d5 65. Ke2 d4 66. Rb1 d3+ 67. Ke3 Kc6 68. Kf2 Kc7 69. Ra1 Raa6 70. Rb1 Rab6 71. Bf7 Kb7 72. Ra1 Rbd6 73. Bg8 Ra6 74. Rb1 Kb8 75. Ra1 Ra5 76. Rb1 Kc8 77. Ra1 Kc7 78. Rb1 a3 79. Ra1 Ra4 80. Rb1 Kc6 81. Ke3 Kd6 82. bxa3 Kd7 83. Kf2 axb1=Q 84. Bf7 Na2 85. Bg8 Qc2 86. Bf7 Qxc1 87. Bg8 Ke8 88. Bd5 Nb4 89. Nb3 Nc2 90. Ne2 Ne3 91. Rg1 Qf1+ 92. Kg3 Kf8 93. Rxf1 Ke7 94. Rf2 Ke8 95. Na5 Rd4 96. Nb7 Rh6 97. a4 Rh4 98. Nd8 Ke7 99. Ng1 Rh7 100. Re2 Kd7 101. Nc6 Kc7 102. Nxe5 d2 103. Rxe3 Rh5 104. Kg4 Rd3 105. Kxh5 d1=Q 106. Kh6 Qe2 107. Kg6 Qxe3 108. Kf7 Qe2 109. Kg8 Kc8 110. Nf7 g4 111. Nd8 g3 112. Kf7 Qe3 113. Kg8 Qc5 114. Kf7 Qa7+ 115. Kg8 Qe3 116. Kf7 Rd4 117. Kg8 Rb4 118. Kf7 Rxa4 119. Kg8 Ra8 120. Nc6 Qd4 121. Kf7 Ra7+ 122. Kg6 Qd2 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "29"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 b8c6 d2d4 d7d5"]
+
+1. e4 Nc6 2. d4 d5 3. g4 Ne5 4. Qe2 Bxg4 5. Bh3 Bc8 6. a3 Qd7 7. Kf1 Qd8 8. Kg2 Qd7 9. Bf5 Qd8 10. Qe3 Qd7 11. Qd2 Qd8 12. Kg3 Qd6 13. Qc3 Qh6 14. Be3 Qf6 15. Qd2 Be6 16. f3 Bxf5 17. Qe2 O-O-O 18. Qd2 Rd7 19. h3 Kd8 20. Qe2 Rd6 21. h4 Kd7 22. h5 Ke8 23. Nh3 h6 24. Ng5 Kd7 25. Nh7 Kd8 26. Kh2 Kd7 27. Ng5 Ke8 28. Nxf7 Kd7 29. Qd1 Ke8 30. Qd2 Kd7 31. Qc3 g6 32. Bxh6 Ke8 33. Rg1 g5 34. Rg3 Re6 35. Bg7 Bxg7 36. Kg2 Kd7 37. Qd2 Ke8 38. Qa5 Kf8 39. Qxc7 Qg6 40. Qc6 Qxf7 41. Kf1 Qxh5 42. Rxg5 Qf7 43. Kf2 Qh5 44. Rg3 Qf7 45. Rg4 Qh5 46. Ke2 Kf7 47. Rg5 Qg4 48. Kf2 Bf8 49. Qa4 Qxg5 50. Qc6 Qh5 51. Qe8+ Kf6 52. Kg2 Kg5 53. Kf1 Qf7 54. Qc6 Kh5 55. Qc5 Kh4 56. Qc6 Kg3 57. Ke2 Bg7 58. Kd1 Nd3 59. Qd7 Bf8 60. Kd2 Nb4 61. Qc6 Re5 62. dxe5 Kh4 63. e6 Kh5 64. Kc3 Qh7 65. Qb6 Qh6 66. e5 Qf6 67. Qc5 Qh4 68. Qb6 Bg7 69. Qc6 Qe4 70. Qa4 Kh6 71. Qe8 Kh7 72. Qf8 Qh4 73. Qf7 Kh6 74. Qf8 Kg6 75. Qxg8 Kg5 76. Qe8 Qh5 77. Qb5 Qf7 78. Qb6 Kh5 79. Qc6 Qg8 80. Qa4 Qe8 81. Qb5 Qd7 82. Qc6 Qe8 83. Qa4 Kh6 84. Qa5 Kg6 85. Qb6 Kg5 86. a4 Kh5 87. a5 Qd7 88. Ra4 Qd8 89. Qb5 Kh6 90. Qc5 Qg8 91. Ra1 Kg6 92. Qb6 Kg5 93. Ra4 Kh5 94. a6 Qe8 95. Ra5 Qb8 96. Qb5 Rg8 97. Qc5 Qf8 98. Qc6 Kh4 99. Qc5 Kg3 100. Qc6 Kxf3 101. Qc7 Ke4 102. Ra4 Ke3 103. Rxb4 Kf2 104. Qc5+ Kf3 105. Kd2 Kg3 106. Ke1 Kf3 107. Nc3 Kg3 108. Nd1 Kf3 109. c4 Ke4 110. Rb5 Qe8 111. Ke2 Qd7 112. b3 Kxe5 113. Kf3 Kxe6 114. Kf4 Kf7 115. Rb4 Qd8 116. Kg3 Qd7 117. Kh4 Qe8 118. Rb6 Qd7 119. Rb5 Qe8 120. Rb4 Kg6 121. Ra4 Kf7 122. Ra5 Ke6 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "30"]
+[White "best"]
+[Black "cand2"]
+[Result "0-1"]
+[Opening "e2e4 b8c6 d2d4 d7d5"]
+
+1. e4 Nc6 2. d4 d5 3. Ke2 Nxd4+ 4. Ke3 f6 5. Kxd4 Nh6 6. exd5 Qd6 7. Ke3 Bh3 8. Ke4 Rg8 9. Ke3 Kd8 10. Bc4 b6 11. Ke4 a6 12. Ke3 a5 13. Kd4 g5 14. f3 e5+ 15. Ke3 Nf7 16. Kf2 f5 17. Ke2 Bh6 18. Ke3 b5 19. Kf2 Qa6 20. Ke2 b4 21. Ke3 Rg7 22. Kf2 a4 23. Ke2 Rc8 24. c3 c5 25. Ke3 Rg8 26. Kf2 Rg6 27. Ke2 Qd6 28. Ke3 b3 29. Kf2 Qxd5 30. Ke2 Qd4 31. Bxf7 Qd6 32. Ke3 Qd5 33. Kf2 Bg7 34. Ke2 Qd4 35. Bg8 Qd6 36. Ke3 h6 37. Kf2 Qd5 38. Ke2 Qd4 39. Ke1 Qd7 40. Kf2 c4 41. Ke2 Qd5 42. Ke3 Qd4+ 43. Ke2 Qd6 44. Ke3 Qd5 45. Kf2 e4 46. Ke2 e3 47. Kxe3 Qd4+ 48. Ke2 Qd6 49. Ke3 Qd5 50. Kf2 Qd7 51. Qd3 f4 52. Ke2 Qd6 53. Kd2 Qd5 54. Bf7 Qd4 55. Ke2 Qd6 56. Qe4 Qa6 57. Kf2 Qf6 58. Ke2 Qe6 59. Qe3 Qa6 60. Qe6 Bh8 61. Qxg6 Qb7 62. Bg8 Qh7 63. Qg7 Qxg7 64. Bf7 Qf8 65. Be6 Qf5 66. Bg8 Rc7 67. Bf7 Rd7 68. Bg8 Rd6 69. Kf2 Qd3 70. Bf7 Qe4 71. Bg8 Re6 72. fxe4 Rf6 73. Kf3 Kc8 74. Kf2 Rc6 75. Ke2 Kd7 76. Bf7 Bxg2 77. Bg8 Rg6 78. Bf7 Kc8 79. Kf2 Kd8 80. Ke2 Bxh1 81. Bg8 Ke8 82. Kf2 Kd7 83. Bf7 Kc8 84. Bxg6 Kd8 85. e5 Ke7 86. Bf7 h5 87. Ke2 Bg2 88. Bg8 h4 89. Bf7 Bf3+ 90. Kf2 Bh1 91. Bg8 f3 92. e6 Bg7 93. Ke3 Bf8 94. Ne2 bxa2 95. b4 Bg2 96. Ke4 f2+ 97. Ke3 Bf1 98. Kxf2 Bxe2 99. Bxg5+ Kd6 100. b5 Kc5 101. Bd8 axb1=Q 102. Kxe2 Qe4+ 103. Kf2 Bh6 104. Rxa4 Bg5 105. Ra1 Qf5+ 106. Ke2 Bh6 107. Ra7 Bg5 108. Ra8 Bh6 109. Ra4 Bg5 110. Ra7 Bf4 111. Kf3 Bc7+ 112. Ke3 Bb8 113. Ra8 Bg3 114. Ra4 Qd3# 0-1
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "31"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "d2d4 d7d5 c2c4 e7e6"]
+
+1. d4 d5 2. c4 e6 3. e4 e5 4. Qh5 Bg4 5. Qh4 Kd7 6. Qg5 Ke8 7. h4 Kd7 8. Rh3 Ke8 9. Qe7+ Nxe7 10. h5 Kd7 11. Be3 Ke8 12. Rh4 Kd7 13. Bd3 Kd6 14. Nc3 Kd7 15. Rb1 Ke8 16. Ra1 Bc8 17. Rb1 Be6 18. Ke2 h6 19. Ra1 Kd7 20. f3 Kd6 21. g4 Kd7 22. Rd1 Ke8 23. Rb1 Kd7 24. Nh3 Kd6 25. Bc2 Kd7 26. Rh1 Ke8 27. Bg5 Bf5 28. Nf2 Qd7 29. Bxh6 Qd8 30. Bc1 Kd7 31. Rg1 Ke8 32. Nh1 Qd7 33. g5 Qd8 34. Be3 Kd7 35. h6 Ke8 36. Rh5 Kd7 37. Rh3 Ke8 38. Re1 Kd7 39. Rg3 Ke8 40. Rd1 Qd7 41. exd5 Qd8 42. g6 Kd7 43. a4 Ke8 44. h7 Kd7 45. Rd2 Kd6 46. Bf2 Kd7 47. Rg4 Ke8 48. Bh4 Kd7 49. Be1 Kd6 50. Rg5 Kd7 51. Kf2 Ke8 52. b3 Kd7 53. Rg4 Kc8 54. a5 Kd7 55. Rg3 Kd6 56. Bd3 Kd7 57. Bb1 Ke8 58. Bc2 Kd7 59. Rh3 Ke8 60. Ke2 Kd7 61. Kf1 Ke8 62. Kf2 Kd7 63. Rh2 Kd6 64. Rh4 Kd7 65. Rh5 Kd6 66. Rg5 Qd7 67. Re2 Qe8 68. Bd2 Kd7 69. Re3 Kd8 70. Be1 Kd7 71. Ke2 Kd8 72. Rg4 Qd7 73. Rg2 Qe8 74. Rg3 Kd7 75. Kf2 Kd6 76. Rg2 Qc8 77. Ke2 Kd7 78. Rf2 Ke8 79. Rh2 Kd7 80. Rh3 Kd6 81. Kf2 Qe8 82. Rh2 Kd7 83. Kf1 Kd8 84. Kg2 Qd7 85. Rh3 Nxg6 86. Kg3 Qe8 87. Kh2 Kd7 88. Bd3 Kd8 89. Be2 Qd7 90. Bf1 Qe7 91. Kg3 Kd7 92. Be2 Ke8 93. Kh2 Kd7 94. Kg2 Ke8 95. Bf1 Kd7 96. Kg3 Kd8 97. Bg2 Ke8 98. Kh2 Kd7 99. Re2 Ke8 100. Kg3 Kd7 101. Ra2 Kd6 102. Rd2 Kd7 103. Rb2 Kd8 104. a6 Ke8 105. Bd2 Rg8 106. Bg5 Kd7 107. Bh6 Ke8 108. Kh2 Kd7 109. Be3 Ke8 110. Bg5 Kd7 111. Bh6 Ke8 112. Be3 Kd7 113. Bg5 Ke8 114. Bd2 Kd7 115. Ra2 Ke8 116. Ra5 Kd7 117. Bg5 Ke8 118. Be3 Kd7 119. Bd2 Ke8 120. Bg5 Kd7 121. Bh6 Ke8 122. Bc1 Kd7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "32"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "d2d4 d7d5 c2c4 e7e6"]
+
+1. d4 d5 2. c4 e6 3. Qd3 Nh6 4. Qe4 Bb4+ 5. Nd2 Bxd2+ 6. Kd1 Rg8 7. Qxd5 b5 8. Kxd2 Ba6 9. Kd3 bxc4+ 10. Ke4 Qd7 11. Ke3 Rh8 12. Rb1 Nc6 13. Qe5 Nd8 14. Kf3 Rb8 15. Qd5 Rg8 16. Ke4 c3 17. Ra1 Rb7 18. Ke5 Qb5 19. Rb1 Rh8 20. f3 Qb3 21. Qc5 g6 22. Kf4 Rb5 23. Ra1 Bb7 24. Qxa7 Bc6 25. Qb8 Kd7 26. Rb1 Rg8 27. Ra1 Qxb2 28. Rb1 Qb4 29. Rb2 Ke8 30. Qc8 Qb3 31. Qxc7 Qxb2 32. Kg3 Qb3 33. Kh4 Qc2 34. Kg3 Rb2 35. Kh4 Rb6 36. Kg3 Qd3 37. Kh4 Rb5 38. Kg3 Rb4 39. Qb8 Kd7 40. Kh4 Ba4 41. Kg3 Nb7 42. Qxg8 Kd6 43. Kh4 Bc2 44. Kg3 Bb3 45. Kh4 Ke7 46. Kg3 Bc2 47. Kh4 Bb1 48. Kg3 Ng4 49. Kxg4 Qc2 50. Kg5 h6+ 51. Kh4 Kd6 52. Kg3 Rb3 53. Qe8 Rb5 54. Kh4 Qd2 55. Kg3 Ra5 56. Kh4 Qe1+ 57. Kg4 Qd1 58. Qb5 Qc2 59. Kh4 Ra4 60. Kg3 Qb3 61. Kh4 Qd1 62. Kg3 Qc2 63. Kh4 Qd2 64. Kg3 Ra3 65. Kg4 Ra6 66. Qa5 Qc2 67. Kf4 Qb2 68. Kg3 Qa3 69. Kh4 Qa4 70. Kg3 Qb3 71. Kh4 Qd1 72. Kg3 Qa4 73. Kh4 Qb3 74. Kg3 Qd1 75. Kh4 Qc2 76. Kg3 Qb2 77. Kh4 Ke7 78. Kg3 Qa3 79. Kg4 Qb3 80. Kh4 Qc2 81. Kg3 Kd7 82. Kf4 Ke8 83. Qc7 Ra5 84. Kg3 Qb3 85. Kh4 Ra6 86. Kg3 Qb2 87. Qf4 Ke7 88. Kh4 Qd2 89. Kg3 Qc2 90. Kh4 Ra5 91. Kg3 Rb5 92. Kg4 Rb2 93. Qxh6 Kd6 94. Qh4 Qb3 95. Kg5 Qd1 96. Qh7 Qc2 97. Kh4 Qb3 98. Kg3 Kd7 99. Kg4 Qc2 100. Qh8 g5 101. Kh5 Qd1 102. Kg4 Qa4 103. Kh5 Qc4 104. Kg4 c2 105. Kh5 Qb4 106. Kg4 Qb3 107. Qh4 Qa4 108. Kh5 Qb5 109. Qe4 Nd6 110. Kg4 Nxe4 111. fxe4 Qb3 112. Kh5 Qb4 113. d5 Qa3 114. Kg4 Qa4 115. Kh5 Rb4 116. Kg4 Qb5 117. Kg3 Qd3+ 118. Kg4 Rd4 119. Kh5 Qc3 120. Kg4 Rxd5 121. exd5 Ke8 122. Kh5 Ke7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "33"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "d2d4 d7d5 c2c4 c7c6"]
+
+1. d4 d5 2. c4 c6 3. g3 Kd7 4. Bh3+ Ke8 5. Bf5 Qd7 6. Bd3 Qd8 7. Qd2 Kd7 8. Nf3 Kc7 9. Bf5 Qd7 10. Be4 Qe8 11. Qa5+ Kd7 12. h4 Kd6 13. Ng5 Kd7 14. Qa4 Kd6 15. Bxd5 Qd7 16. Bxf7 Qe8 17. Ne6 Bxe6 18. Kd1 Bf5 19. Ke1 Kd7 20. Bh6 Kd8 21. Qa5+ Kd7 22. Qd8+ Kxd8 23. Nc3 Kd7 24. Rb1 Kc7 25. e3 Kd8 26. Ra1 Kd7 27. Rh2 Kd6 28. Rb1 Qd7 29. Rh1 Kc7 30. Nd1 Qe8 31. Ra1 Kd8 32. Rh2 Kd7 33. Kf1 Kd6 34. Rh1 Kc7 35. Rb1 Kd8 36. b3 Kd7 37. Ra1 Kd6 38. Ke1 Kd7 39. Rb1 g6 40. Ra1 Kd6 41. e4 g5 42. Bxg5 Kd7 43. Bf6 Kd8 44. Bxg8 Bg7 45. Rh2 Kd7 46. Bf7 Kd6 47. Rb1 Qd7 48. Be6 Qe8 49. Ra1 Kc7 50. Rh1 Qd7 51. e5 Kd8 52. Rh2 Qe8 53. d5 Qd7 54. f3 Ke8 55. Kf2 Kf8 56. f4 Ke8 57. Bxe7 Qd8 58. Bb4 Qe7 59. Bd6 Qf8 60. Ke1 Qg8 61. Kf1 Qf7 62. Rc2 Qg8 63. Bc7 Qf7 64. Bb6 Qg8 65. Rcc1 Qf7 66. Kf2 Qg8 67. Bc5 Qf7 68. Bd6 Qg8 69. Bc7 Qf7 70. Bxb8 Qg8 71. Rc2 Qf7 72. Rb1 Qh5 73. Rbb2 Qf7 74. Rd2 Qg8 75. Ke1 Qf7 76. Ke2 Qg8 77. Rd4 Qf7 78. c5 Qg8 79. Kd2 Qf7 80. Bd7+ Kf8 81. g4 Qg8 82. e6 Qf7 83. exf7 Rg8 84. a4 Rxb8 85. Rb1 Kxf7 86. Ra1 Kf8 87. Ra2 Rc8 88. Kc1 Rc7 89. Ra1 Kf7 90. b4 Kg6 91. Ra2 Kf7 92. Rad2 Kg6 93. Rh2 Kh6 94. Rh3 Re8 95. dxc6 Kg6 96. b5 Kf7 97. Rd5 Kg8 98. Rc3 Kf7 99. Rc2 h6 100. Rc3 Kg8 101. Rd6 Kf7 102. Rdd3 Kg8 103. Kb1 Kf7 104. Ka1 Kg6 105. Rd4 Kf7 106. Ka2 Kg8 107. Ka3 Re4 108. Kb3 Re3 109. Kb4 Kf7 110. Rb3 Kg8 111. Ra3 Re6 112. Rc3 Re5 113. Kc4 Kf7 114. Kb3 Kg8 115. Kb2 Kf7 116. Ka3 Kg6 117. Kb3 Kf7 118. Kb2 Kg8 119. Ka1 Kh8 120. Ka2 Kh7 121. Rcc4 Rd5 122. Ka1 Kh8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "34"]
+[White "best"]
+[Black "cand2"]
+[Result "0-1"]
+[Opening "d2d4 d7d5 c2c4 c7c6"]
+
+1. d4 d5 2. c4 c6 3. Qd3 Be6 4. Qe4 Nh6 5. Qxd5 Qxd5 6. Nd2 f6 7. Rb1 b5 8. Kd1 a6 9. Ke1 a5 10. Ra1 Nd7 11. Rb1 Rc8 12. Ra1 Ra8 13. Rb1 Rd8 14. Ra1 Rc8 15. Rb1 Ra8 16. Ra1 Rd8 17. Rb1 a4 18. f3 Ne5 19. Ra1 Rc8 20. Rb1 Rg8 21. Ra1 Qxc4 22. Rb1 Qd5 23. Ra1 Kd8 24. Rb1 Kc7 25. Kf2 Nxf3 26. Ra1 Rh8 27. Rb1 Ra8 28. Ra1 Re8 29. Rb1 Kc8 30. exf3 Rg8 31. Ke2 Rd8 32. Ke3 Rd7 33. Kf2 Rd6 34. Ra1 Rh8 35. Rb1 Kb7 36. Bc4 Qxc4 37. Ra1 Qd5 38. Ke2 Ka6 39. Ke3 Ka5 40. Kf2 Ng4+ 41. Ke2 Ka6 42. Rb1 Bc8 43. Ne4 Bb7 44. Ra1 Qc4+ 45. Ke1 Qxc1+ 46. Ke2 Qc2+ 47. Kf1 Rd5 48. Rb1 Ba8 49. Ra1 Ka7 50. Nxf6 Qf2# 0-1
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "35"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "d2d4 d7d5 g1f3 g8f6"]
+
+1. d4 d5 2. Nf3 Nf6 3. Ng5 Kd7 4. b3 Ke8 5. f3 Kd7 6. e4 Ng4 7. e5 Nxe5 8. Nd2 h6 9. h4 Ke8 10. Nxf7 Kd7 11. Ba3 Kc6 12. Bb2 Kd7 13. Bc1 Ke8 14. Rb1 Kd7 15. Ra1 Ke8 16. b4 Kd7 17. Ba3 Rh7 18. Nh8 Kd6 19. Bb2 Kd7 20. h5 Ke8 21. Ba6 Bg4 22. Bb5+ Qd7 23. Bf1 Qd8 24. Ba3 Be6 25. Bc1 Qd7 26. Bd3 Qd6 27. Bf5 Qd7 28. Bg6+ Bf7 29. Bxf7+ Nxf7 30. Bb2 Qd8 31. Bc3 Ne5 32. a4 Kd7 33. Ra2 Ke8 34. Ne4 Qd7 35. Ra1 Qd8 36. Qd2 Qd7 37. Qf2 Rxh8 38. b5 Kf7 39. Qd2 Kg8 40. Nc5 Qd8 41. Qxh6 Kf7 42. Rh3 Kg8 43. Rg3 Kf7 44. Nd7 Qxd7 45. Ba5 Kg8 46. Bb6 Kf7 47. Qg5 Kg8 48. Qg4 Qd8 49. c3 Kf7 50. Bxa7 Kg8 51. Kd1 Qd7 52. Kd2 Kf7 53. Ke1 Kg8 54. Rb1 Rxh5 55. Rb4 Kf7 56. c4 Kg8 57. a5 Kf7 58. Qg5 Kg8 59. Qf4 Qd8 60. Kd2 Qd7 61. Qxe5 Kf7 62. Rg4 Rxe5 63. Rg3 Kg8 64. b6 Kf7 65. Kd3 Ke6 66. Ra4 Kf5 67. Rg4 Qe8 68. Ra3 Qc8 69. Rb3 Re6 70. Rb4 Qe8 71. Rb5 Qc8 72. Rb3 Qe8 73. Ra3 Re5 74. Ra4 Qd7 75. Rb4 Re2 76. Rb5 Qe8 77. Rc5 Qc8 78. Rc6 Qd7 79. c5 Qe8 80. Rg3 Qc8 81. Rxc7 Qe8 82. Rc6 Qd7 83. Rg4 Qd8 84. g3 Qd7 85. Rh4 Qe8 86. Rh2 Qc8 87. Rxe2 Qc7 88. Rd2 Qf4 89. Ke2 Qh6 90. Kf1 Qf6 91. Kf2 Qh4 92. Kg2 Qh5 93. Re2 Qe8 94. Rf2 Qd7 95. Kh2 Qd8 96. Rd2 Qxb6 97. Rc2 Qxa7 98. Rc1 Qb6 99. axb6 Ra4 100. Rc3 Rxd4 101. Rc2 Ke5 102. g4 Kf4 103. Kh1 Kg3 104. Rc1 Kh4 105. Rc2 Ra4 106. f4 Rd4 107. Rh2+ Kg3 108. Re2 Kf3 109. Rxe7 Kf2 110. Rec7 Ke2 111. Rd7 Kd3 112. Re7 Kc4 113. Kh2 g6 114. Kh3 g5 115. Kg2 Bg7 116. Rec7 Bh8 117. Rd7 Kd3 118. Kg3 Ke4 119. Rdd6 Ra4 120. Rh6 Ra1 121. f5 Ke3 122. Kh3 Kd4 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "36"]
+[White "best"]
+[Black "cand2"]
+[Result "1-0"]
+[Opening "d2d4 d7d5 g1f3 g8f6"]
+
+1. d4 d5 2. Nf3 Nf6 3. Ne5 c5 4. Nxf7 a5 5. Nxh8 Be6 6. Qd3 Nbd7 7. Kd1 h6 8. Qg6+ Bf7 9. Qxf7# 1-0
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "37"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "d2d4 d7d5 c2c4 g8f6"]
+
+1. d4 d5 2. c4 Nf6 3. e3 Kd7 4. Nc3 Ke8 5. a3 Be6 6. Qh5 Kd7 7. g4 Ke8 8. Rb1 Kd7 9. Kd2 Nxg4 10. Kd3 Ke8 11. Ne4 Kd7 12. Ne2 g6 13. Nf4 Bh6 14. Be2 Ke8 15. Bd1 Kd7 16. Rg1 Qg8 17. Be2 Ke8 18. Rh1 Kd7 19. b3 Ke8 20. Rb2 Kf8 21. Bf1 Ke8 22. f3 Bf5 23. Re2 Kd7 24. Qxg6 Ke8 25. Qg7 Nc6 26. cxd5 Kd7 27. a4 Ke8 28. a5 Kd7 29. Qf8 Qg7 30. Nh5 Qxf8 31. Rg1 Ke8 32. Rd2 Qg8 33. fxg4 Kd7 34. Re2 Ke8 35. Bg2 Qg7 36. Bh1 Kd7 37. Bb2 Kd8 38. b4 Kd7 39. Rc1 Ke8 40. Rxc6 Kd7 41. Bc3 Ke8 42. Rd2 Qf8 43. Ke2 Kd7 44. b5 Ke8 45. Kf1 Kd7 46. Rg2 Kd8 47. Bb2 Kd7 48. Ke2 Ke8 49. Rc3 Kd7 50. Kd3 Ke8 51. Rc6 Kd7 52. Bc3 Ke8 53. Ke2 Kd7 54. Rc4 Ke8 55. Kd3 Kd7 56. Re2 Ke8 57. Rd2 Qg8 58. Ke2 Kd7 59. Kd1 Ke8 60. Rg2 Kf8 61. Ke2 Ke8 62. Kd3 Kd7 63. Re2 Ke8 64. Rd2 Qg7 65. Ke2 Kf8 66. Kd1 Kg8 67. Rg2 Qf8 68. Ke2 Qe8 69. Be1 Qf8 70. Kd3 Qe8 71. Rg3 Qc8 72. Rg1 Qd8 73. Ke2 Qb8 74. Nc5 Qf8 75. Kf3 Qe8 76. Rg3 Qd7 77. Ne6 Qd8 78. Bg2 Qd7 79. e4 Qe8 80. Bf1 Qf8 81. Be2 Qe8 82. Bd1 Qd7 83. Bb3 Qd8 84. Kg2 Qd7 85. Kh1 Qe8 86. Rg2 Qd7 87. Kg1 Qe8 88. Ba4 Qc8 89. Rg3 Qd7 90. Kg2 Qe8 91. Kf3 Qd7 92. Bf2 Qe8 93. Be3 Qf8 94. e5 Qe8 95. Kg2 Qd7 96. Kh1 Qd8 97. Bf2 Qd7 98. Be1 Qe8 99. Rc5 Qc8 100. Kg2 Qe8 101. Bd2 Qd7 102. Rc6 Qe8 103. Kh1 Qc8 104. Be3 fxe6 105. Kg1 Kf7 106. Kg2 Kg8 107. Kh1 Kf7 108. Kg1 Kg8 109. Rh3 Kf7 110. Rf3 Kg6 111. Kg2 Qg8 112. Bf2 Kf7 113. Rb6 Qe8 114. Rd6 Kg8 115. Kh1 Kf7 116. Rd7 Kg6 117. Rxe7 Kg5 118. Bh4+ Kg6 119. Rg3 Qd7 120. Rxe6+ Kf7 121. Rf6+ Kg8 122. Rh3 Qe8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "38"]
+[White "best"]
+[Black "cand2"]
+[Result "0-1"]
+[Opening "d2d4 d7d5 c2c4 g8f6"]
+
+1. d4 d5 2. c4 Nf6 3. Qd3 h5 4. Qe4 e6 5. Qe5 Kd7 6. Qg5 dxc4 7. Qxh5 Ne4 8. Qxh8 Qe8 9. Qg8 Kd6 10. Qxg7 Bd7 11. Qh8 Bb5 12. Qh4 a5 13. Qh5 Bd7 14. Qxf7 c5 15. f3 Qe7 16. Qg8 Ra6 17. fxe4 Bc6 18. Qf7 Nd7 19. Kf2 Bh6 20. Qg8 Bf4 21. Kf3 Bg5 22. Kf2 Bh6 23. Kf3 Bf4 24. Qe8 Bg5 25. Kf2 Ne5 26. Qg6 Bh6 27. Qg7 Qxg7 28. Nd2 Qh7 29. Rb1 Qg6 30. Ra1 Bf4 31. Nb1 Qe8 32. Nd2 Bg3+ 33. Ke3 Kd7 34. Rb1 Kc8 35. Ra1 Bd7 36. Rb1 b5 37. Ra1 a4 38. Rb1 Kb7 39. dxe5 Kc6 40. Kf3 Kb6 41. Kxg3 Qf7 42. Kh4 Qe7+ 43. Kh5 Qd6 44. Kg4 Ra5 45. Kg5 Ka6 46. Kg6 Be8+ 47. Kf6 Qxe5+ 48. Ke7 Qg5+ 49. Kf8 Qf6+ 50. Kg8 Qe5 51. Ra1 Qg5+ 52. Kh8 Qg6 53. Rb1 b4 54. Ra1 b3 55. Rb1 Kb7 56. Ra1 Ka8 57. Rb1 a3 58. Ra1 Bf7 59. Nb1 e5 60. bxa3 Ra4 61. Bd2 Kb8 62. Bf4 Kc8 63. Bc1 Kd8 64. h4 Ke7 65. Rh3 Qf5 66. Rf3 Qh5+ 67. Kg7 Bg6 68. Rf6 Qxh4 69. Kxg6 Qg3+ 70. Kh6 Qf2 71. Kh7 Ra5 72. Kh8 Qh4+ 73. Kg8 Qg4+ 74. Kh8 Ra7 75. Rg6 Qh5+ 76. Kg8 Qh4 77. Rf6 Qh3 78. Nd2 Qg3+ 79. Kh8 Qg6 80. Rb1 Ra5 81. a4 Qe8+ 82. Kh7 b2 83. Kh6 Kxf6 84. Kh7 Kf7 85. Ra1 Ke6 86. Kh6 Kf6 87. Kh7 Kf7 88. Kh6 Kf8 89. Rb1 Qf7 90. Rxb2 Qe8 91. Rb6 Kf7 92. Nb3 Qh8+ 93. Kg5 Qd8+ 94. Kh5 Rxa4 95. Na5 Qh8+ 96. Kg4 Qh7 97. Kg5 Rxa5 98. Ba3 Qh8 99. Bb4 Qe8 100. Kh5 Kf8+ 101. Kg4 Qf7 102. Kg5 Qc7 103. Kh5 Qg7 104. Rh6 Qf7+ 105. Kg4 Ra3 106. Rg6 Qc7 107. Kh5 Qg7 108. Kg4 Ke7 109. Rg5 Qf7 110. Rh5 Kf8 111. Rxe5 Re3 112. Rd5 Qc7 113. Rxc5 Qg7+ 114. Kf4 Qh6+ 115. Kf5 Ke7 116. Ke5 Qg6 117. Kd5 Qf7+ 118. Ke5 Qh7 119. Kd5 Qxe4# 0-1
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "39"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "d2d4 g8f6 c2c4 e7e6"]
+
+1. d4 Nf6 2. c4 e6 3. e4 Qe7 4. Nc3 d6 5. Qh5 Ng4 6. Qg5 Ne5 7. Qf6 Kd7 8. Qxe6+ Ke8 9. Rb1 Rg8 10. Na4 Bxe6 11. a3 Bf5 12. f3 Kd7 13. Bg5 Kd8 14. Bxe7+ Kd7 15. Nc5+ Ke8 16. Bd3 Bg6 17. g4 h6 18. Nh3 Bf5 19. d5 g6 20. Ra1 Bg7 21. a4 g5 22. Bf1 Bh8 23. b3 Rg6 24. Ra2 Rf6 25. Rc2 Rg6 26. Be2 Rf6 27. exf5 Rg6 28. Bf1 Rg7 29. Bg2 Rh7 30. Rb2 Bg7 31. Bf1 Rh8 32. Be2 Rg8 33. Rc2 Bh8 34. Kd1 Rg6 35. f6 Rxf6 36. Bf1 Rg6 37. Kd2 Rf6 38. Ke1 Nbc6 39. Re2 Na5 40. Rxe5 Nxc4 41. Ke2 Nxe5 42. f4 Rb8 43. fxg5 Rc8 44. Bg2 Rd8 45. g6 Rd7 46. Bf1 Rd8 47. g7 Rd7 48. gxh8=N Rd8 49. Bg2 Ra8 50. Rf1 Rb8 51. Rf2 Rd8 52. Bf1 Rd7 53. Rf4 Rd8 54. Bg2 Kxe7 55. Kd2 Kf8 56. Bf3 Kg8 57. Kd1 Rd7 58. b4 Rd8 59. Ke2 Rd7 60. Kd2 Kxh8 61. Ke2 Kg8 62. Kf2 Rd8 63. Kg3 Ra8 64. Kg2 Kg7 65. Kh1 Kf8 66. b5 Kg8 67. a5 Kh8 68. Kg1 Kg8 69. Kf2 Re8 70. Kg3 Kg7 71. Kg2 Kh8 72. Kf1 Kg8 73. Kf2 Kh8 74. Ke2 Kh7 75. Kd1 Kh8 76. Ke1 Kg8 77. Kd2 Kg7 78. Kc2 Kf8 79. Kd1 Kg8 80. Ke2 Kg7 81. Kd2 Kf8 82. b6 Kg8 83. Ke2 Rc8 84. Kf2 axb6 85. Kg3 Re8 86. Kg2 Kg7 87. Kh1 Kg6 88. Be4+ Kg7 89. Bh7 Kh8 90. Re4 Ree6 91. axb6 Rf2 92. Rd4 Kxh7 93. Re4 Kh8 94. Rd4 Re8 95. Re4 Kg8 96. Rf4 Rc8 97. Rxf7 Kxf7 98. Kg1 Kg8 99. Kh1 Re8 100. Kg1 Kh8 101. Kh1 Kh7 102. Kg1 Kg8 103. Kh1 Kf7 104. Kg1 Rf6 105. Kg2 Kg8 106. Kh1 Kg7 107. Kg1 Kh8 108. Kg2 Kh7 109. Kh1 Kg8 110. Kg1 Kg7 111. Kh1 Ree6 112. Kg1 Kh8 113. Kg2 Kh7 114. Kh1 Kh8 115. Kg1 Rf2 116. Kh1 Kg8 117. Nf4 Kf7 118. Nh5 Kg8 119. Na6 Re8 120. Nc5 Kf7 121. Nd7 Kg6 122. Nf8+ Kg5 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "40"]
+[White "best"]
+[Black "cand2"]
+[Result "1-0"]
+[Opening "d2d4 g8f6 c2c4 e7e6"]
+
+1. d4 Nf6 2. c4 e6 3. f3 h6 4. Qd2 Ke7 5. Kf2 Rh7 6. Qf4 g5 7. Qxc7 Nc6 8. Qb8 Rh8 9. Qxc8 Rh7 10. Qc7 Nb4 11. Qf4 Na6 12. Qc7 Rh8 13. Qf4 Nb8 14. Qe4 Rh7 15. Qd5 Qa5 16. Qxg5 Rh8 17. Qg6 Qa6 18. Qg7 Qd6 19. Qxh8 b6 20. Qg8 a5 21. Qh8 Ra7 22. Nd2 Nd5 23. Qg8 f5 24. Rb1 Nf6 25. Qg6 f4 26. Qxh6 Bg7 27. Qg6 Nd5 28. Qh6 e5 29. Ke1 Qc6 30. Ra1 Rc7 31. Rb1 Qa8 32. Kf2 Qa6 33. Qg6 a4 34. Qf5 d6 35. Qh7 Qa7 36. Qh8 Rxc4 37. Ra1 Rc3 38. Rb1 Qd7 39. dxe5 Rb3 40. Ra1 Nc3 41. Rb1 Nxa2 42. e6 Qe8 43. Qh7 Qb5 44. Qh8 Rxb2 45. Qxb8 Qc6 46. Qg8 Qa8 47. Rxb2 Bh8 48. Rxb6 Qe8 49. Qg6 Qb5 50. Qh6 Qc6 51. Qg6 Qc8 52. Qh6 Qc7 53. Qg6 d5 54. Qh6 Qb8 55. h4 Qe8 56. h5 Qd8 57. Rh2 Qc7 58. Qg6 Qc8 59. Qf5 Qe8 60. Qe5 Qxh5 61. Qb8 Kf6 62. Qg8 Qg6 63. Qe8 Qh5 64. Qc8 Qe8 65. Qxe8 Kg5 66. Qd7 Nxc1 67. Qe8 Bd4+ 68. e3 Bc5 69. Bc4 Ne2 70. Kxe2 Bxb6 71. Nf1 Bc7 72. Kd3 Bb6 73. Kc3 Ba7 74. Kd2 a3 75. Kd3 Bb6 76. Qd7 Bc7 77. Kc3 Bd8 78. Qe8 a2 79. Kd3 Bc7 80. Kd2 Bb6 81. Kd3 a1=N 82. Kc3 Ba5+ 83. Kd4 Nc2+ 84. Ke5 Bc7+ 85. Kxd5 Na1 86. Kc5 Bd6+ 87. Kd4 Nc2+ 88. Kd5 Nb4+ 89. Kd4 Be5+ 90. Kxe5 Nc6+ 91. Qxc6 Kg6 92. Kd5 Kf5 93. Kc5 Kg5 94. Rh4 Kf6 95. Qa6 Kg7 96. Ng3 fxg3 97. Re4 Kh8 98. Kd6 Kg7 99. Qb7+ Kf6 100. Rg4 Kf5 101. Qf7# 1-0
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "41"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "d2d4 g8f6 c2c4 g7g6"]
+
+1. d4 Nf6 2. c4 g6 3. g4 Nxg4 4. a3 Bg7 5. Ra2 Ne5 6. Qd3 Rg8 7. Ra1 d6 8. b3 Bg4 9. Bh3 Kd7 10. Qd1 g5 11. Bxg5 Ke8 12. Bh6 Be6 13. e4 Kd7 14. Bxe6+ Ke8 15. Qf3 Qd7 16. Nc3 Kf8 17. Nd1 Ke8 18. Rb1 Qd8 19. Qe3 Kf8 20. Bxg7+ Ke8 21. Bf8 Qd7 22. a4 Qd8 23. Rb2 Qd7 24. Rc2 Qd8 25. Bh6 Qd7 26. Bg7 Qd8 27. Rc3 Qd7 28. Bf6 Qd8 29. Bh3 Qd7 30. a5 Qd8 31. Bf5 Rg7 32. Qf4 Qd7 33. Bxd7+ Kf8 34. h4 Kg8 35. Rhh3 Rg3 36. Qe3 Rg7 37. Ne2 Rg3 38. f4 Rg4 39. Bc6 Rg7 40. Rg3 Rxg3 41. Bb5 Rg4 42. Kd2 Rg7 43. Qh3 Nbc6 44. d5 Rg3 45. Qf1 Rf3 46. Qg2+ Kf8 47. Qg1 Ke8 48. Qd4 Kd7 49. Qe3 Kd8 50. Qb6 Kd7 51. Nd4 Ke8 52. Nf5 Kd7 53. Ng7 Kd8 54. Ne8 Rb8 55. Ke2 Kd7 56. Qd4 Kxe8 57. Qg1 Kd7 58. Qe3 Kd8 59. Qb6 Kd7 60. Qa6 Ke8 61. b4 Kd7 62. Qxa7 Ke8 63. Qe3 Kd7 64. Qc1 Ke8 65. Qd2 Kd7 66. Qc2 Ke8 67. Qc1 Kd7 68. Qe3 Ke8 69. Qc5 h6 70. Qa7 Kd7 71. Qa6 Kd8 72. Ke1 Rf2 73. Qb6 Kd7 74. Qa7 Ke8 75. Qa8 Rg2 76. Ba4 Kd7 77. b5 Ke8 78. Rc2 Kf8 79. Rc1 Kg8 80. Bg7 Nd4 81. Rb1 Rc8 82. Rb4 Re8 83. Qxe8+ Kxg7 84. Qd8 Kh7 85. Qd7 Kh8 86. Qxe7 Kh7 87. Qf8 Ne6 88. Qe8 Kg7 89. Qe7 Kg6 90. Rb2 Kg7 91. Ra2 Kg6 92. Qe8 Kg7 93. Ra1 Kh7 94. Qe7 Kh8 95. Ra2 Kg8 96. Rc2 Kh8 97. Rc3 Kh7 98. Qf8 Rg7 99. Rc2 Rg3 100. Kd2 Rg4 101. Kc1 Rg7 102. Rc3 Rg3 103. Kc2 Rf3 104. Kb1 Rf2 105. Rc2 Re2 106. Rc1 Rxe4 107. Rc2 Re3 108. Rc3 Re4 109. Kc1 Re2 110. a6 Re4 111. Kc2 Re3 112. a7 Rh3 113. a8=R Rg3 114. Kb1 Rg7 115. Rc2 Rg2 116. Ra7 Rf2 117. Rc3 Rf3 118. Ka1 Rg3 119. Rc2 Rb3 120. Rh2 Rh3 121. Rg2 Rg3 122. Ra2 Rg4 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "42"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "d2d4 g8f6 c2c4 g7g6"]
+
+1. d4 Nf6 2. c4 g6 3. Qd2 d5 4. Kd1 h5 5. Qf4 Bg4 6. f3 h4 7. Kd2 Bc8 8. Kd3 h3 9. Kc3 Rg8 10. Qh6 g5 11. Qh4 a5 12. Qh5 a4 13. Kd3 a3 14. Kc3 Nxh5 15. bxa3 b5 16. Nd2 Ng3 17. Rb1 dxc4 18. a4 Nf5 19. Kb2 bxa4 20. Ka3 Bg7 21. Kb4 Kf8 22. Kb5 Rh8 23. Rb2 Rh7 24. Rc2 Rh6 25. Kxc4 Rh5 26. Kc5 Nxd4 27. Rc3 Qd7 28. a3 Bh6 29. Ne4 Kg8 30. Rd3 Bf8 31. Ng3 Rh4 32. e4 Nbc6 33. Kc4 Ne5+ 34. Kb4 Bg7 35. Kc3 Bh8 36. Kb2 c6 37. Rc3 Rb8+ 38. Ka1 Rb2 39. Rc5 Rb4 40. Ra5 Qd6 41. Rd5 Qe6 42. Rxe5 Qg4 43. Re6 Qh5 44. Rh6 Bf5 45. Re6 Bh7 46. Rxe7 Bg6 47. Rc7 Qh7 48. Bc4 Qh6 49. Re7 Qh5 50. Rc7 c5 51. Re7 Qh7 52. Rc7 Rh5 53. Re7 Qh6 54. Rc7 Rh4 55. Rb7 Nc2+ 56. Ka2 Qh5 57. Rxf7 Rg4 58. Be6 Rf4 59. Bf5 Qh4 60. Rc7 Qxg3 61. Rh7 Qg4 62. Rd7 c4 63. Rh7 c3 64. Rd7 Bf7+ 65. Be6 Kg7 66. Rc7 Qh5 67. Re7 Qh4 68. Ra7 Qh7 69. Bc4 Qg6 70. Re7 Kf8 71. Rc7 Rxf3 72. Bxf7 Rg3 73. Re7 Qg7 74. Ra7 Rxg2 75. Re7 Kxe7 76. Bg8 Kf8 77. Bd5 Ke8 78. axb4 Kd7 79. Kb1 Ke7 80. Ka2 Qf8 81. Ba3 Qb8 82. Kb1 Nxb4 83. Bc1 Bf6 84. Ka1 Qd8 85. Kb1 Qf8 86. Ka1 Qa8 87. Bc6 Bg7 88. Bd7 Rf2 89. Kb1 Bf8 90. Be8 Bh6 91. Ka1 Qa7 92. Bd7 Qb8 93. Kb1 Kd8 94. Ka1 Bg7 95. Kb1 Bh8 96. Ka1 Be5 97. Be8 Bc7 98. Kb1 Bg3 99. Bd7 Bh4 100. Ka1 Ke7 101. Kb1 Bg3 102. Be8 Be5 103. Bd7 Bc7 104. Ka1 Bd6 105. Kb1 Kd8 106. Be8 Kxe8 107. Ka1 Bc7 108. Kb1 Bg3 109. Ka1 Nc2+ 110. Ka2 Rf5 111. Bb2 Kd7 112. Kb1 g4 113. Kxc2 Qc8 114. Ba3 Bc7 115. Bb4 Bb8 116. Kd1 Qc7 117. Kc1 Rf6 118. Be7 Rf3 119. Ba3 Rg3 120. Bb2 Qe5 121. Kd1 Qe6 122. Ba3 Qe8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "43"]
+[White "cand2"]
+[Black "best"]
+[Result "1-0"]
+[Opening "d2d4 g8f6 g1f3 e7e6"]
+
+1. d4 Nf6 2. Nf3 e6 3. e4 1-0
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "44"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "d2d4 g8f6 g1f3 e7e6"]
+
+1. d4 Nf6 2. Nf3 e6 3. Ne5 h6 4. f3 h5 5. Nxf7 Qe7 6. Kf2 h4 7. Qd3 Rh7 8. Qxh7 Nc6 9. Qh8 e5 10. Qxh4 Qb4 11. Qh5 Qxb2 12. Qg4 Qb5 13. Qxg7 Bd6 14. Qg3 Qb3 15. Qh4 Qe3+ 16. Kg3 Ke7 17. Nd8 Qb3 18. Qh5 a6 19. Kh4 Rb8 20. Qg4 Nxg4 21. Kh5 Kxd8 22. Kxg4 Ke7 23. Kg3 Kf7 24. dxe5 b5 25. Kh4 Rb6 26. Kh5 Qxa2 27. Kg4 Bf8 28. Kh5 Bb4 29. Kg4 Qb2 30. Kh5 Ba3 31. c3 Qa2 32. Kg4 Bxc1 33. Kg3 Qa5 34. Kh4 Qxc3 35. Kh5 Qb3 36. Kg4 Qb2 37. Kh5 Qb4 38. Rg1 Qa5 39. Kg4 Qd2 40. Kg3 Nb4 41. Kh4 Qa2 42. Kh5 Nd3 43. Kg4 Qb2 44. e6+ Kf6 45. Ra4 d6 46. Rd4 Kg7 47. Kh5 Kh8 48. Kg4 d5 49. Kh5 b4 50. Kh4 Kg7 51. Kg3 Kf8 52. Kg4 Kg8 53. Kh5 Kg7 54. Kg4 Kf6 55. Nd2 Qb3 56. exd3 Bb7 57. Nb1 Ba3 58. Kg3 Qb2 59. Kh4 Rc6 60. Kh5 Rc3 61. Kh4 Bc6 62. Kh5 Qb3 63. Kh4 Qc2 64. Kh5 Qe2 65. Kh6 Bd7 66. Bxe2 Bc6 67. Kh7 b3 68. Kh8 Bd6 69. Kh7 Kg5 70. Kg8 Bf4 71. Kf7 a5 72. Kg8 Bg3 73. Kf7 a4 74. Kg8 b2 75. Kf7 a3 76. Kg8 Rc2 77. Ra4 Rd2 78. Kf7 Bb7 79. Kg8 Ba8 80. Kf7 Bc6 81. Ra7 Kf4 82. Kg8 Bb5 83. Ra8 Ba6 84. Kf7 Bb7 85. Kg8 Bxa8 86. Kg7 Bc6 87. Kh8 Bb5 88. Kh7 Ba6 89. Kh8 Bb7 90. Rf1 Ba8 91. Kg8 Bc6 92. Kf7 Bb5 93. Kg6 Bh4 94. Kh6 Bc6 95. Rf2 Be8 96. Kh7 Bb5 97. Kh8 Bc6 98. Nc3 Bg5 99. Kg8 Bh6 100. Kf7 Bg7 101. Kg8 Be8 102. e7 Bc6 103. Kf7 Bh8 104. Kg8 Be5 105. Kf7 Bb5 106. Kg8 Ba6 107. h4 Bb7 108. Kf7 Bd6 109. Kg6 Bc6 110. Kf6 Rd1 111. h5 Ra1 112. Kg6 Rb1 113. Kf7 Ke5 114. Kg8 Rg1 115. Kh8 Rc1 116. Kh7 Rd1 117. Kh8 Rg1 118. Kg8 Rb1 119. Kf7 Ra1 120. Kg6 Rd1 121. Kg7 Rd2 122. Kh8 a2 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "45"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "d2d4 e7e6 c2c4 f8b4"]
+
+1. d4 e6 2. c4 Bb4+ 3. Nc3 Qe7 4. e4 h6 5. a4 d6 6. Rb1 Kd7 7. d5 Ke8 8. h4 e5 9. Nh3 Kd7 10. Qg4+ Ke8 11. Ng5 Be6 12. Nxe6 Kd7 13. Qg5 Ke8 14. g3 Kd7 15. Qg6 Kc8 16. Nf4 Kd7 17. Ke2 Ke8 18. g4 Kd7 19. Qg5 Ke8 20. f3 Kf8 21. Qg6 Qxh4 22. Rh2 Ke8 23. Rxh4 Kd7 24. Rh5 Ke8 25. Rxh6 Ne7 26. Qg5 Kf8 27. Bg2 Rg8 28. Rh7 Ke8 29. Ne6 Kd7 30. Nd4 Kd8 31. Bf1 Re8 32. Rh6 Kd7 33. Qh4 Kd8 34. Qh5 Kd7 35. Qg6 Nxg6 36. c5 Kd8 37. Ra1 Ke7 38. Ra3 Kf8 39. Rb3 Kg8 40. Rh7 Rf8 41. Kd3 Re8 42. Rh6 Ba3 43. Bg2 Rf8 44. Rb5 Bxb2 45. Ra5 Re8 46. Kc4 Re6 47. Rh7 Re7 48. Bf1 Ba3 49. Rh6 Bb2 50. Rb5 Nc6 51. Rb6 Nxd4 52. Rb5 Rae8 53. a5 Rc8 54. Rb4 Ba3 55. Bxa3 Rf8 56. Bc1 Ra8 57. Bb2 Ne6 58. Rb5 Nd8 59. f4 Nc6 60. Bc1 Nd4 61. Rb4 Rae8 62. Bb2 Rf8 63. Rb5 Ne6 64. Ba1 Rfe8 65. Kb3 Rf8 66. c6 Rfe8 67. Kc4 Rc8 68. Rh7 f5 69. Kd3 Kf7 70. Rh6 Kg8 71. Rh5 Kf7 72. Ke2 Kg8 73. Rg5 Kf7 74. Bg2 Kg8 75. Kd1 Kf7 76. Ke1 Nxg5 77. Ke2 Kg8 78. fxe5 Kf7 79. Kd2 Rg8 80. Nd1 Rge8 81. Nb2 Kg8 82. Ke1 Kf7 83. Nd3 Rh8 84. Nc5 Kg8 85. Bf1 Rh7 86. Ke2 Kf7 87. Ke3 Kg8 88. Kd3 Rh6 89. Ke2 Kf7 90. Kd2 Kg8 91. Kc3 Rh4 92. Bh3 Kf7 93. Kb2 Kg8 94. exd6 Kf7 95. d7 Kg8 96. gxf5 Kf7 97. Bf1 Rh6 98. Bd3 Kg8 99. Be2 Kf7 100. Bd1 Kg8 101. fxg6 Kh8 102. Be2 Kg8 103. Bf1 Rf7 104. Bg2 Rxd7 105. Bf1 Kh8 106. Bd3 Rd8 107. Be2 Rg8 108. Bd1 Re8 109. Nd7 Kg8 110. Be2 Rc8 111. Kc3 Rd8 112. Bf1 Rxd7 113. Rb3 Rd8 114. Bb2 Ra8 115. e5 Rh4 116. Kc2 Rh5 117. Kd3 Rh2 118. Rb4 Rc2 119. Rb5 Re8 120. Rb3 Rf8 121. Rb6 Rd8 122. Ba1 Kh8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "46"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "d2d4 e7e6 c2c4 f8b4"]
+
+1. d4 e6 2. c4 Bb4+ 3. Qd2 Nh6 4. Kd1 Ba5 5. f3 f6 6. Kc2 Ng4 7. Qd3 Nc6 8. Qc3 b5 9. Kd3 d6 10. Ke4 Bd7 11. Qxa5 Rc8 12. Qxc7 d5+ 13. cxd5 h6 14. Qb8 Ke7 15. Kf4 Rg8 16. Ke4 b4 17. Qxc8 b3 18. Qc7 Qe8 19. Qb8 Ne3 20. Kxe3 Qc8 21. Kf2 f5 22. Qxc8 Rf8 23. Qc7 a5 24. Qb8 Rf7 25. Qh8 a4 26. Qg8 f4 27. Qxg7 Nb4 28. Qh7 Nxa2 29. Qh8 Nxc1 30. Qb8 Rf6 31. Qg8 Na2 32. Qg6 Kf8 33. Qg5 Rg6 34. Qh5 Rg5 35. Qh4 Rg7 36. Qg3 Be8 37. Qg6 Nc1 38. Qxh6 Bd7 39. Qxe6 Bxe6 40. Rxa4 Kf7 41. Ra1 Nd3+ 42. exd3 Bxd5 43. Ke2 Kf8 44. Ra7 Rg6 45. Rh7 Kg8 46. Rd7 Ra6 47. Re7 Rb6 48. Rc7 Kh8 49. Kf2 Kg8 50. Rh7 Rb5 51. Ke2 Ra5 52. Rh6 Ra6 53. Re6 Ra4 54. Re5 Kf7 55. Re8 Ra6 56. Rc8 Ke6 57. Rc7 Rb6 58. Kf2 Kf5 59. Rh7 Kg5 60. Ke2 Ra6 61. Rh8 Rc6 62. Kf2 Re6 63. Rb8 Rb6 64. Ke2 Kh4 65. Rf8 Ra6 66. Rg8 Ra1 67. Kf2 Ra2 68. Ke2 Ra7 69. Re8 Rc7 70. Re4 Rf7 71. Re3 Rf5 72. h3 Rf6 73. Rh2 Ra6 74. Nd2 Ra4 75. Nxb3 Bf7 76. Nd2 Bg6 77. d5 Rd4 78. Nb1 Rxd5 79. Re6 Rc5 80. Re8 Rc6 81. Re4 Ra6 82. Re3 Rd6 83. Re6 Rd7 84. Re8 Rc7 85. Re4 Rf7 86. Re3 Rf5 87. Na3 Rc5 88. Nb5 Rd5 89. Re6 Rxd3 90. Re8 Bf7 91. Re4 Rd5 92. Re3 Rc5 93. Na3 Bg6 94. Kf2 Rc8 95. Bc4 Rc7 96. Ke2 Rd7 97. Bf7 Rd3 98. Re6 Rd6 99. Re5 Rb6 100. Rd5 Rb7 101. Rd8 Rb5 102. Rd7 Rb8 103. Rd6 Rc8 104. Rd3 Rc5 105. Bg8 Rc6 106. Bd5 Re6+ 107. Re3 Re7 108. Re6 Rd7 109. Kf2 Rh7 110. Re8 Ra7 111. Ke2 Ra4 112. Re4 Bf5 113. Re3 Be6 114. Rxe6 Rd4 115. Kf2 Rxd5 116. Ke2 Rd7 117. Re8 Rh7 118. Re4 Rh6 119. Re3 Rg6 120. Kd3 Rg7 121. Ke4 Rd7 122. Ke5 Rh7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "47"]
+[White "cand2"]
+[Black "best"]
+[Result "1-0"]
+[Opening "d2d4 d7d6 e2e4 g8f6"]
+
+1. d4 d6 2. e4 Nf6 3. Nc3 1-0
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "48"]
+[White "best"]
+[Black "cand2"]
+[Result "0-1"]
+[Opening "d2d4 d7d6 e2e4 g8f6"]
+
+1. d4 d6 2. e4 Nf6 3. Ke2 d5 4. Kf3 Rg8 5. Kg3 Nxe4+ 6. Kf3 Be6 7. Ke3 Bg4 8. Qxg4 b6 9. Qc8 a5 10. Qxc7 Na6 11. Qb8 f6 12. Kf3 Ra7 13. Ke3 h5 14. Kf3 Nxb8 15. Ke3 Rc7 16. Bc4 h4 17. Bxd5 Rc5 18. dxc5 Qxd5 19. f3 Kd8 20. Nd2 Na6 21. Rb1 Qg5+ 22. Kd4 Qxc5+ 23. Kd3 Qd5+ 24. Ke2 Qg5 25. Ra1 Qf5 26. Ke3 Qe6 27. Rb1 a4 28. Kd4 Nb8 29. Ke3 Nc6 30. Ra1 Qf5 31. Nf1 Ne5 32. Kd4 Qe6 33. Rb1 Nd7 34. Ne3 Ke8 35. Ra1 Rh8 36. Rb1 Rh6 37. Ra1 Kd8 38. Rb1 Rh5 39. Ra1 Kc8 40. Rb1 Qd6+ 41. Nd5 e6 42. Ra1 Kb7 43. Ke3 Kb8 44. Rb1 Qe7 45. Kd4 Ne5 46. Ra1 Ng6 47. Ke3 Re5 48. Rb1 Qc7 49. Kd4 Qf7 50. Ra1 Be7 51. Ke3 Ka8 52. Rb1 Bc5+ 53. Ke2 Ba3 54. Ke3 Bxb2 55. Rxb2 Qe7 56. Kd4 Qc7 57. c3 Qf7 58. Re2 Kb7 59. Ke3 Kc8 60. Kd4 Qe7 61. Ke3 Qc7 62. Ba3 Qf7 63. Kd4 Qe7 64. Ke3 Qb7 65. Bb4 Qa8 66. Kd4 Qc6 67. Re3 Qd6 68. a3 Qxd5# 0-1
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "49"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "d2d4 f7f5 c2c4 g8f6"]
+
+1. d4 f5 2. c4 Nf6 3. e3 Ng4 4. Qf3 Ne5 5. Qh5+ Nf7 6. Qh4 Rg8 7. Nc3 Ne5 8. Qh5+ Nf7 9. Rb1 d6 10. Ne4 Kd7 11. Ne2 Ke8 12. g3 Qd7 13. Nf6+ Kd8 14. Nxg8 Nh8 15. Ng1 Qe8 16. Ke2 Kd7 17. Ke1 h6 18. Ke2 Kd8 19. g4 Kd7 20. f3 Kd8 21. f4 Kd7 22. Ke1 Kc6 23. e4 Kd7 24. Qh4 Kd8 25. Qf6 Qd7 26. Ne2 Qe8 27. Nc3 Kd7 28. Kd2 g6 29. Ke1 g5 30. Kd2 Kd8 31. Nd1 Bg7 32. Ke1 Kd7 33. Ke2 Kd8 34. Ra1 Be6 35. Ke1 Kd7 36. Bh3 Kd8 37. Bg2 Kd7 38. Bf1 Kc8 39. h4 Kd8 40. Bg2 Kd7 41. Rh2 Kd8 42. Bf1 Qd7 43. Qxg7 Qe8 44. Bh3 Kd7 45. Kf2 Kd8 46. Kg3 Kd7 47. Bg2 Kd8 48. Bf1 Qd7 49. Bh3 Qe8 50. Bg2 Kd7 51. b3 Kd8 52. Bh1 Kd7 53. Rh3 Kc8 54. Bg2 Qf8 55. Qf7 Kd7 56. Bf1 Kd8 57. Qxe7+ Kc8 58. Qf6 Kd7 59. Qg6 Kd8 60. Qg7 Qxg8 61. Bg2 Qe8 62. Qg6 Kd7 63. Qh7+ Kc6 64. Qg8 Kd7 65. Qxh8 Kd8 66. Qf8 Kd7 67. Qg7+ Kd8 68. Qg6 Kd7 69. Bf1 Kc8 70. Qg7 Qd7 71. Qf7 Qe7 72. Qxe7 Bg8 73. Qg7 Bf7 74. Qxf7 fxe4 75. Qe7 Nc6 76. d5 Ne5 77. Qg7 e3 78. Qf7 Kd8 79. Rb1 Rc8 80. Bg2 b5 81. Ra1 bxc4 82. Qf6+ Kd7 83. Qg6 Ke7 84. Qh5 Kf8 85. Rb1 Kg8 86. Rh2 Re8 87. Bf1 Kg7 88. Ra1 Kh8 89. Rh3 Kg8 90. Rb1 Kg7 91. Rb2 Kh8 92. Rhh2 Kh7 93. Rhd2 Kg8 94. Rd4 Rc8 95. Bg2 Kh8 96. Rb1 Kh7 97. Ra1 Re8 98. Bf1 Kh8 99. Bh3 Rc8 100. Rb1 Kg8 101. Rb2 Kh8 102. Bg2 Kh7 103. a4 Kh8 104. Rb1 Kg8 105. Ra1 Kg7 106. b4 Kh8 107. b5 Kg8 108. Bf1 Re8 109. Bh3 Re6 110. Bg2 Re7 111. Rb1 Kg7 112. Rb2 Kh8 113. Rb4 Kh7 114. Rb3 Kh8 115. Rb2 Kh7 116. Rb4 Kh8 117. Rb3 Kh7 118. Ra3 Kg8 119. Ra2 Rg7 120. Rad2 Re7 121. Re2 Kg7 122. Re1 Kh8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "50"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "d2d4 f7f5 c2c4 g8f6"]
+
+1. d4 f5 2. c4 Nf6 3. Qd3 f4 4. Qxh7 d5 5. Qxh8 Be6 6. Qh4 Qd7 7. f3 Kd8 8. Kf2 Bh3 9. Qxf6 Qe6 10. Qh4 Nc6 11. Qh5 a5 12. Qf7 Ra6 13. Qg8 b6 14. Qxg7 Na7 15. Qh8 Nb5 16. Qh7 Ra7 17. Qh8 Qf6 18. Qh7 Qd6 19. Ke1 Qc6 20. Qh8 Qh6 21. c5 Nxd4 22. Kf2 Nc2 23. Qh7 bxc5 24. Qh8 a4 25. Qg8 Qh5 26. Qg7 Kc8 27. Qg3 Qg6 28. Qh4 Qg5 29. Qh7 Qg8 30. Qh8 Qg7 31. Qh7 Qf6 32. Qh8 Qh6 33. Qg8 Ra6 34. Qf7 Qh5 35. Qg8 Qg6 36. Qg7 Qg5 37. Qxe7 Qf5 38. Qe3 Bd6 39. Qxc5 Be5 40. Qe7 Qe4 41. Qg7 Qd4+ 42. e3 Na3 43. Qg3 c6 44. exd4 Rb6 45. Ke2 Kd8 46. Kd3 Ke7 47. Kc3 Rb5 48. Bc4 Rc5 49. Kd3 Ra5 50. dxe5 d4 51. Ke4 d3 52. Qg4 Nc2 53. Qc8 Nxa1 54. Qg8 Nc2 55. Bf7 Ra8 56. Bg6 Na1 57. Qd5 Bd7 58. Bf7 Bf5+ 59. Kxf4 Rg8 60. Kxf5 Rb8 61. Ke4 Ra8 62. Ke3 Ra5 63. Kf2 Ra7 64. Ke3 c5 65. Kf2 c4 66. Qe4 Kxf7 67. Qh4 Re7 68. Qg3 Re6 69. Qg4 c3 70. Qg5 c2 71. Qd8 Re7 72. Qa8 Rb7 73. Qxa4 Rc7 74. Qb5 Rc6 75. Qxc6 cxb1=Q 76. Qa8 Qxc1 77. Qh8 Qc6 78. Qh4 Kg8 79. Qe7 Qd7 80. Qd6 Qh7 81. e6 Qf5 82. Qc7 Qh5 83. Qf4 Qf7 84. Ke3 Qd7 85. Kf2 Qc7 86. Qh6 Qf7 87. Qh4 Qf5 88. Qe7 Qh5 89. Qc7 Qg6 90. Qe7 Qh6 91. Qa7 Qf4 92. Qe7 Qg5 93. Qa7 Qh4+ 94. Ke3 Qd8 95. Qb8 Kg7 96. Kf2 Kh6 97. Qc8 Qd7 98. Qc7 Kg5 99. Qb8 Qh7 100. Qd6 Kh4 101. Qc7 Qg6 102. Ke3 Qf5 103. Kd4 Qxe6 104. Kc5 Qe7+ 105. Kd4 Qd7+ 106. Ke5 Qh7 107. Ke6 Qg6+ 108. Ke5 Qg5+ 109. Ke6 Qc1 110. Ke5 Qxc7+ 111. Ke6 Qh7 112. Ke5 Qg6 113. Kd5 Qg5+ 114. Ke4 Qc1 115. Ne2 Qc6+ 116. Ke3 Qd7 117. Kf2 Qh7 118. Rg1 Qg6 119. Rf1 Qf6 120. Rh1 Qf8 121. Rg1 Qf7 122. Rb1 Qh5 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "51"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "c2c4 e7e5 b1c3 g8f6"]
+
+1. c4 e5 2. Nc3 Nf6 3. d4 Ng4 4. a3 Qe7 5. Nf3 d6 6. Ra2 Kd7 7. Ne4 Ke8 8. a4 Be6 9. a5 Bf5 10. Qd3 Kd7 11. Ra3 Kd8 12. Qc3 Ke8 13. Ra4 Kd7 14. Rb4 Kd8 15. Rb5 Kd7 16. Nc5+ Kd8 17. d5 Ke8 18. Qb3 h6 19. Qd1 Rg8 20. Ng5 Nc6 21. Nge4 Qh4 22. Qb3 Qd8 23. Qb4 Qe7 24. g3 Rb8 25. Bxh6 Rc8 26. b3 Nd4 27. Bxg7 Bxg7 28. e3 Bh7 29. Nf6+ Kf8 30. Ne8 Ne6 31. Bg2 Kxe8 32. Bf3 Kf8 33. Bd1 Qh4 34. Rf1 Ke8 35. Rh1 Qd8 36. Ke2 Qd7 37. Kf1 Qe7 38. Kg1 Qf8 39. Be2 Ng5 40. Qa4 Nxf2 41. Bd1 Nge4 42. Kf1 Nd3 43. Bf3 Nb4 44. g4 Nf6 45. Kg1 Nxg4 46. Kf1 Nh6 47. Bg4 Nf5 48. Bh3 Rd8 49. Ke2 Rd7 50. Ke1 Re7 51. Kf1 Rd7 52. Ke2 Rd8 53. Ke1 Nh4 54. Bf5 Ng6 55. Bg4 Rd7 56. Be6 Rd8 57. Bd7+ Ke7 58. h3 Rxd7 59. Rf1 Ke8 60. e4 Rd8 61. Rf4 Rd7 62. Rb6 Qe7 63. Rxb4 Qe6 64. h4 Qe7 65. Rb5 Rd8 66. Rb6+ Rd7 67. Rb4 Kf8 68. h5 Ke8 69. Rb5 Rd8 70. Qb4 Qf8 71. Rb6 Rd7 72. Qa4 Qe7 73. Rb4 Qe6 74. Rb5 Qf5 75. Kd1 Qh3 76. Qa1 Qh2 77. Qa2 Qh4 78. Qa3 Qd8 79. Nxd7 Kxd7 80. Qa4 Ke8 81. Qb4 Qa8 82. Qxd6 f5 83. Qb4 Kd7 84. exf5 Ke8 85. Rb6 Kd7 86. Qb5+ Kd8 87. Qc6 Re8 88. Kd2 Bf8 89. Ke1 Re6 90. Rf1 Ke7 91. Rh1 Bg7 92. Rh3 Kf8 93. Ke2 Kg8 94. Kf3 Kf7 95. Qxb7 Kg8 96. Qxc7 Qe8 97. Qc5 Kf7 98. a6 Kg8 99. Qa5 Kh8 100. Qa3 Qd7 101. Qa4 Qe8 102. Qb4 axb6 103. Qa4 Qd7 104. Qa5 Qd8 105. Qb5 Kg8 106. Qd7 Qxd7 107. a7 Kf7 108. a8=Q Qe7 109. Qb7 Kg8 110. Qc7 Kf7 111. Qd7 Kg8 112. Qd8+ Kf7 113. Qc7 Kg8 114. Qa7 Kf7 115. Qa6 Kg8 116. Qa5 Kf7 117. Qb5 Kg8 118. Qc6 Qc7 119. Qa4 Kf7 120. Qb4 Qb8 121. Qb5 Kg8 122. Qa6 Kf7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "52"]
+[White "best"]
+[Black "cand2"]
+[Result "1-0"]
+[Opening "c2c4 e7e5 b1c3 g8f6"]
+
+1. c4 e5 2. Nc3 Nf6 3. Rb1 Rg8 4. Ra1 Ba3 5. Rb1 Bf8 6. h4 Bb4 7. Rh2 d6 8. Ra1 Be6 9. Rb1 Bxc3 10. Ra1 Ne4 11. Rh3 Nxf2 12. Rd3 c5 13. Kxf2 Na6 14. Kf3 Qa5 15. Kf2 Bxb2 16. Kf3 Qa4 17. Ke4 Qc6+ 18. Ke3 b6 19. Kf2 Ke7 20. Rb1 Ke8 21. Rg3 Qd7 22. Rxb2 Rb8 23. Kf3 Qa4 24. Ke4 Nb4 25. Ke3 Qc6 26. Kf2 Ra8 27. Rxg7 Rc8 28. d3 Ke7 29. Qd2 Kd8 30. Qf4 Qd7 31. Kf3 Qe8 32. Qh6 Bd5+ 33. Kg3 Bxc4 34. Kg4 Bxd3 35. Kg5 Qe7+ 36. Kh5 Bf5 37. Qe6 b5 38. Qh6 Qd7 39. Qxh7 c4 40. Rg3 Qe8 41. Qh8 Rb8 42. Qxg8 Rb6 43. Qg7 Qd7 44. Rf3 Bg6+ 45. Kh6 Qe6 46. Rxf7 Be4+ 47. Kg5 Qg4+ 48. Kxg4 Bc6 49. Kh5 Bd7 50. Qg3 Nd5 51. Kh6 Bg4 52. Rc7 Ra6 53. Kg6 Ra5 54. Kf7 Bh3 55. Re7 Bd7 56. Qg8+ Kc7 57. Qe8 Kb6 58. Qxd7 Ra4 59. Qxb5# 1-0
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "53"]
+[White "cand2"]
+[Black "best"]
+[Result "1-0"]
+[Opening "c2c4 g8f6 b1c3 e7e6"]
+
+1. c4 Nf6 2. Nc3 e6 3. h3 Ng4 4. Ne4 Ne5 5. a3 Qe7 6. Qa4 h6 7. Ng5 Rh7 8. Rb1 Qc5 9. Qd1 Qe7 10. e4 d6 11. h4 Kd7 12. Nxe6 Ke8 13. Nc5 Bg4 14. d3 Rh8 15. a4 Qxh4 16. Nh3 Qd8 17. Bxh6 Qe7 18. Qf3 Qh4 19. Qf6 Qxh6 20. Qg5 Qf6 21. a5 Qd8 22. Qh4 Qe7 23. Rc1 Rxh4 24. Rc2 Bc8 25. g3 Rh6 26. g4 Rf6 27. Bg2 Rxf2 28. Rh2 Rf3 29. Rh1 Bxg4 30. Rh2 Rf6 31. Bh1 Bc8 32. Rhf2 Bg4 33. Ng5 Rxf2 34. Nh7 Rf6 35. Rc1 Rg6 36. Ng5 Re6 37. Nxf7 Rh6 38. Rc2 Rf6 39. Rd2 Rf2 40. Rd1 Bc8 41. Rc1 Rf6 42. Rc3 Be6 43. Rc2 Rg6 44. d4 Qh4+ 45. Kd1 Qd8 46. Ke1 Qd7 47. b3 Qd8 48. d5 Rf6 49. Rh2 Kxf7 50. Bg2 Kg8 51. Bh3 Kf7 52. Bxe6+ Kg6 53. Rc2 Kg5 54. Bg8 Kh5 55. Kd2 Kh4 56. Ke1 Qd7 57. Ke2 Kh5 58. Ke1 Qe7 59. Kd2 Kg4 60. Ke1 Kg5 61. Kd1 Kg6 62. Kd2 Kg5 63. Ke2 Kh5 64. Ke1 g6 65. Kd1 Kg4 66. Ke2 Kh5 67. Ke1 Rf2 68. Kd1 g5 69. Ke1 Kh4 70. Kxf2 Bg7 71. Nd3 Kh5 72. Ke1 Kh4 73. Rh2+ Kg3 74. Nc5 Kf3 75. Rh3+ Kg2 76. Rf3 Qf8 77. Rf4 Qxg8 78. Rf2+ Kh3 79. Rh2+ Kg4 80. Rg2+ Kh5 81. Rc2 Kg4 82. Kd2 Qe8 83. Ke1 Kh5 84. Kd2 Qd7 85. Nxd7 Kg4 86. Nxe5+ Kh5 87. Ng6 Bf8 88. Nh8 b5 89. a6 Nc6 90. Rc3 Bg7 91. Rf3 Ne5 92. Kd1 bxc4 93. bxc4 Kg4 94. Kd2 Kh5 95. Ke1 Kh6 96. Rh3# 1-0
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "54"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "c2c4 g8f6 b1c3 e7e6"]
+
+1. c4 Nf6 2. Nc3 e6 3. Rb1 Ke7 4. Ra1 h6 5. d3 d5 6. Qd2 Rh7 7. Qf4 b5 8. Kd1 g6 9. Kd2 bxc4 10. Qxh6 Nc6 11. Qh4 Nb4 12. Qh6 Qe8 13. Qxg6 Kd8 14. Qxf7 Bg7 15. Qg8 Rh6 16. Qf7 Rh4 17. Rb1 Bh8 18. Ke1 Qd7 19. Qg6 Qd6 20. Qg5 Qe7 21. Qh5 Rxh5 22. Ra1 Rh4 23. dxc4 Rh5 24. Rb1 Bb7 25. Ra1 Rh4 26. f3 Bg7 27. Kf2 Qd6 28. Rb1 Rh6 29. Ra1 Rh5 30. Rb1 Rc8 31. Ra1 c5 32. Rb1 dxc4 33. Ra1 Rh7 34. Rb1 Rh4 35. Ra1 Qd7 36. Rb1 Qe7 37. Ra1 Qd6 38. h3 Qd7 39. Rh2 Ke7 40. Rb1 Kf8 41. Ra1 Nfd5 42. Rb1 Bh6 43. Ra1 Kf7 44. Rb1 Nxa2 45. Ra1 Rd8 46. Rb1 Ra8 47. Ra1 Rc8 48. Rb1 Rd8 49. Ra1 Rf8 50. Rb1 Rg8 51. Ra1 Qc6 52. Rb1 Rg5 53. Ra1 Rg7 54. Rb1 Nxc1 55. Ra1 Nb3 56. Rxa7 Rg6 57. Ra8 Qb5 58. Re8 Qa6 59. Rc8 Qd6 60. Rg8 Qd7 61. Re8 Rg5 62. Rh8 Bc8 63. Rg8 Ne3 64. Rg6 Re5 65. Rxh6 Qc6 66. Rg6 Qc7 67. Rg5 Kf8 68. Rh5 Ke7 69. Rxe5 Qd6 70. Rd5 Qd7 71. Rg5 Qe8 72. Rg6 Qxg6 73. g3 Nxf1 74. gxh4 Qg5 75. h5 Qxh5 76. Rg2 Bb7 77. Rg3 Ba8 78. Kg2 Qh4 79. Rg4 Qg5 80. Kf2 Qf5 81. Kg2 Be4 82. fxe4 Kf8 83. Rg7 Qg5+ 84. Kf2 Qh5 85. Rg3 Kf7 86. Rg4 Qg5 87. Kf3 Qg7 88. Kf2 Qh7 89. Rg6 Ne3 90. Kf3 Nf5 91. Kf2 Ke7 92. Rf6 Qh5 93. Rg6 Kd8 94. Kg2 Kc8 95. Rf6 Qh8 96. Kf2 Qg7 97. Rg6 Qxg6 98. e5 Qh5 99. Kg2 Qh4 100. Kf1 Kd8 101. Kg2 Ke7 102. Kf1 Qg5 103. Kf2 Qg8 104. Kf3 Qe8 105. Ke4 Qg6 106. e3 Qf7 107. Nce2 Qg8 108. Nc3 Qe8 109. Na4 Qc6+ 110. Kf4 Qd5 111. Nxc5 Qd4+ 112. Ne4 Qxe3+ 113. Kg4 Qd3 114. Ng3 Qd7 115. Kg5 Qc7 116. Kh5 Qxe5 117. Kg4 Qd5 118. Kg5 Qa5 119. Kg6 Kd8 120. Kf7 Qb4 121. Kg8 Qe7 122. Nh5 Kc7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "55"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "c2c4 c7c5 g1f3 g8f6"]
+
+1. c4 c5 2. Nf3 Nf6 3. Nh4 Ng4 4. Na3 Ne5 5. Qa4 Qb6 6. h3 Qd8 7. Kd1 Qb6 8. f3 Qd8 9. Ke1 Qb6 10. Kf2 Qd8 11. Kg3 Nbc6 12. Kh2 d6 13. g3 Kd7 14. e3 h6 15. Rg1 Ke8 16. Kg2 Bg4 17. Rh1 Kd7 18. Bd3 Ke8 19. Qb5 Qd7 20. Rf1 Rh7 21. Rd1 Qd8 22. Qb6 Kd7 23. Qb4 Rh8 24. Qa4 Be6 25. Re1 Ke8 26. Re2 Kd7 27. Qc2 Ke8 28. Qd1 Qd7 29. Qa4 Nd4 30. Rb1 Qc6 31. Re1 Kd7 32. Rd1 Ke8 33. Nf5 Qd7 34. Nxg7+ Bxg7 35. Bf5 Rg8 36. Nb5 Qd8 37. g4 Kd7 38. h4 Ke8 39. Kf1 Kf8 40. h5 Qd7 41. Kg2 Ke8 42. Nxa7 Rxa7 43. Kh1 Ra8 44. a3 Qc6 45. d3 Qd7 46. Bd2 Bxf5 47. Be1 Qc6 48. Bh4 Kd7 49. Re1 Kd8 50. Bg3 Nxd3 51. Bh4 Qa6 52. Bg5 Qa7 53. Bf6 Nb4 54. Re2 Qb8 55. Ra1 Re8 56. Ra2 Qc8 57. Kh2 Qd7 58. Ra1 Ne6 59. e4 Qc7 60. Ra2 Qb8 61. Qxb4 Kd7 62. Qa4+ Kd8 63. Ra1 Ra7 64. g5 Qc8 65. e5 Qd7 66. gxh6 Qc8 67. Qb5 Qc7 68. Rd2 Qb8 69. Rb1 Ra8 70. Qa6 Kd7 71. Qa5 Kc8 72. Qb6 Ra4 73. Qb5 Kc7 74. Qa6 Bh7 75. Qa7 Qc8 76. Ra1 Kd8 77. Qa5+ Kd7 78. Qb6 Qc7 79. Qb5+ Kd8 80. Rb1 Qb8 81. Rc2 Kc7 82. Qa6 Qc8 83. Qa7 Kd8 84. Ra1 Kd7 85. Bxe7 Kc7 86. Bf8 f5 87. Qa6 Kd8 88. Qc6 Qc7 89. Rb1 Qe7 90. Qxa4 Bg8 91. Rd2 Qc7 92. Kh1 Qb8 93. Ra1 Bf7 94. Rc2 Bg8 95. Kh2 Bf7 96. Qb4 Kd7 97. Qb6 Kc8 98. Qb5 Kc7 99. Qa6 Bg8 100. Qa7 Bf7 101. b3 Bg8 102. Kh3 Qc8 103. Qa6 Kb8 104. Qa4 Qc7 105. Raa2 Qe7 106. Rab2 Kc8 107. Qb5 Kc7 108. Kh2 Kb8 109. Qb6 Kc8 110. a4 Kd7 111. Qb5+ Kd8 112. Bxe7+ Kc7 113. Qa6 Kb8 114. Qb6 Kc8 115. Kh1 Bf7 116. f4 Bg8 117. Bxd6 Kd7 118. Kh2 Bf7 119. Rd2 Bg8 120. Rd4 Kc8 121. Kh1 Bf7 122. Kg2 Bg8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "56"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "c2c4 c7c5 g1f3 g8f6"]
+
+1. c4 c5 2. Nf3 Nf6 3. Rg1 Ne4 4. Ne5 h6 5. d3 e6 6. Qd2 Qe7 7. f3 Ng3 8. Kf2 b6 9. Nxf7 d6 10. Nxh8 Bd7 11. Qf4 Nc6 12. Qxh6 Nd4 13. Qh4 Kd8 14. Qh5 g5 15. Qf7 Rb8 16. Qg8 Rb7 17. Qg6 Bg7 18. Qf6 Bxh8 19. Qg7 Ke8 20. Qh7 Ba4 21. Qh6 Bc6 22. Qf6 Bg7 23. Qxd4 Bxd4+ 24. Ke1 Bc3+ 25. Kf2 Ba4 26. Nd2 Rc7 27. Rb1 Bc6 28. Ra1 Be4 29. Rb1 a5 30. Ra1 Bd5 31. Rb1 Rc6 32. Ne4 Qc7 33. Ra1 Ke7 34. Rb1 Qb7 35. Nf6 Qc8 36. Ra1 Be4 37. Ng4 Qg8 38. Rb1 Bd2 39. Ne5 Bxc1 40. Nf7 Qf8 41. dxe4 Qg7 42. Rxc1 Qf8 43. Re1 Kd7 44. Rb1 Qg7 45. Nxd6 Qh8 46. Ra1 Qh7 47. Nf7 Qf5 48. Rb1 Qf4 49. Nd8 Kd6 50. Rc1 Qh4 51. Re1 Kd7 52. Rb1 Qh6 53. Nxc6 Qh5 54. Nd4 Kc8 55. Rc1 b5 56. Re1 bxc4 57. Rb1 Qh7 58. Rc1 Qg8 59. Rxc4 Qf7 60. Rc1 Qh5 61. Re1 c4 62. Rb1 Qh7 63. Rc1 a4 64. Re1 Qe7 65. Rc1 Qb4 66. Rd1 Qa3 67. Ra1 Qxa2 68. Rb1 Nh1+ 69. Ke3 e5 70. b4 Qb2 71. Rd1 Kb8 72. b5 Kb7 73. Rd3 Ka7 74. Nf5 Kb6 75. Rd2 Kb7 76. Rd5 Qc3+ 77. Rd3 Ka8 78. Nh4 Qb2 79. Rd2 gxh4 80. Rd3 Qb1 81. g3 cxd3 82. Bg2 Qb3 83. Rb1 Qa2 84. Bf1 Qc4 85. Rb2 hxg3 86. Rc2 g2 87. Rc1 Kb8 88. Rxc4 Kb7 89. Rc1 Ka7 90. Rc4 Kb6 91. Rc7 Ka5 92. Rh7 Kb4 93. Kd2 Kc4 94. Ke1 gxf1=Q+ 95. Kxf1 Kc3 96. Kg2 d2 97. Rh8 d1=Q 98. Kh3 Kc4 99. Kg4 Qb3 100. Kh5 Qb4 101. Kh4 Qb1 102. Rg8 Qc2 103. Kh5 Qxe2 104. Kg4 Qb2 105. Rg6 Qa3 106. Rf6 Qb3 107. Rg6 Qa2 108. Rh6 Qb1 109. Re6 Qc2 110. Rh6 Qe2 111. Re6 Qe3 112. Rxe5 Qc1 113. Re8 Kc5 114. Kh5 Qf4 115. Rh8 Qd2 116. Kg4 Kb6 117. Rg8 Qd1 118. Kh5 Qb3 119. Re8 Qc3 120. Kg4 Ka5 121. Kh5 Qd2 122. Rf8 Qd1 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "57"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "g1f3 g8f6 c2c4 e7e6"]
+
+1. Nf3 Nf6 2. c4 e6 3. Qa4 Qe7 4. Ng5 Qa3 5. Nxf7 Ng4 6. h4 Qb4 7. Nc3 Ne5 8. g3 Kxf7 9. d4 Kg8 10. Bh6 Kf7 11. Bh3 Kg8 12. Qxb4 Kf7 13. Qa4 d6 14. Nd1 Kg8 15. d5 Kf7 16. Bf5 Kg8 17. Bd3 Kf7 18. a3 Kg8 19. Be4 Kf7 20. Bc2 Kg8 21. Bxh7+ Kf7 22. Bc1 Rg8 23. Bd2 Nbc6 24. Bg6+ Ke7 25. dxe6 Bxe6 26. Bh6 Bf5 27. Bc1 Kd7 28. Ra2 Kd8 29. Ra1 Kd7 30. Rb1 Kc8 31. Bd2 Kd7 32. Ba5 Kd8 33. Rh2 Kd7 34. e3 Kd8 35. e4 Kd7 36. Rh1 Kc8 37. g4 Kd7 38. g5 Kd8 39. Rh2 Kd7 40. Rh3 Kc8 41. b4 Kd7 42. Rf3 Kd8 43. b5 Ke7 44. Rb2 Ke6 45. Rb4 Nd4 46. Rf4 Ke7 47. b6 Re8 48. Rb5 Rc8 49. f3 Bxg6 50. Rd5 Bf7 51. Bc3 Ke6 52. Rxd6+ Ke7 53. Re6+ Kd8 54. Rh6 Be6 55. Kd2 Bxa3 56. Ba5 Bf5 57. Qb3 Kd7 58. Qc3 Kd8 59. Bb4 Kd7 60. Ke1 Ke8 61. Kf2 Kd7 62. Qe1 Ke8 63. Kf1 Bg6 64. Qc3 Bf7 65. Kf2 Bg6 66. Qc2 axb6 67. Qa4+ Nd7 68. Bc5 Bb2 69. Kg3 Bf7 70. Rg6 Bxg6 71. Kf2 Rd8 72. Kg3 Ne6 73. Qa5 Ne5 74. Qa7 Rd4 75. Bxb6 Kd7 76. Rf6 Ke8 77. Rxg6 Kd7 78. Rh6 Ke8 79. Kf2 Kd7 80. Ke1 Ke8 81. Rh7 Rd8 82. Rh8 Kf7 83. Rh6 Rge8 84. Kf2 Kg8 85. Ke3 Ra8 86. Rg6 Kf7 87. Kf2 Kg8 88. Ke1 Kf7 89. Bc5 Kg8 90. Bf2 Kf7 91. Bb6 Kg8 92. Kf2 Kf7 93. Rh6 Kg8 94. Ke1 Kf7 95. Bf2 Kg8 96. Rh7 Rf8 97. Bb6 Kf7 98. Kf2 Kg8 99. Bc5 Kf7 100. Rxg7+ Kxg7 101. Bb6 Kh8 102. Ke1 Kg8 103. Bf2 Kf7 104. Bg1 Kg6 105. Qf2 Nf7 106. Qb6 Kg7 107. Qa5 Nfd8 108. Qa7 Kg6 109. Qc5 Kg7 110. Qa3 Kh8 111. Qd6 Rg8 112. Bb6 Kh7 113. Kf2 Kh8 114. Qd7 Re8 115. h5 Ra4 116. Ke1 Kg8 117. Ba7 Ra1 118. h6 Rb1 119. Qd6 Kf7 120. Bb6 Ra1 121. Qd5 Kg8 122. Qc5 Rb1 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "58"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "g1f3 g8f6 c2c4 e7e6"]
+
+1. Nf3 Nf6 2. c4 e6 3. Ne5 h6 4. Nxf7 Kxf7 5. c5 Bxc5 6. d3 Qe8 7. Qd2 Qg8 8. f3 Ke8 9. Qf4 Rh7 10. Qxh6 Bd6 11. Kf2 Bc5+ 12. Qe3 g5 13. Qxc5 Kf7 14. Qc2 Rh6 15. Kg1 Rg6 16. Qxc7 Ke8 17. Kf2 d6 18. Qxb8 Nd5 19. Qxd6 Qf8 20. Qc7 Rb8 21. Qh7 Qe7 22. Qg7 Qd6 23. Rg1 Qd7 24. Nd2 Qc6 25. Rb1 Qa6 26. Ne4 Nc3 27. Ra1 Qa5 28. Rb1 Kd8 29. Kg3 Qc5 30. Ra1 Nb1 31. Kg4 Qc3 32. Rxb1 Qf6 33. Nxf6 Rh6 34. Kxg5 Rg6+ 35. Kh5 Rxg7 36. Ra1 Rg6 37. Nh7 Ke7 38. Rb1 Kd6 39. Kh4 a5 40. Kh5 a4 41. Ra1 Ra8 42. Rb1 a3 43. Ra1 Rh6+ 44. Kg4 Ra5 45. Kg3 Rc5 46. Rb1 Rf5 47. Ra1 Rg6+ 48. Kh4 Rgf6 49. Rb1 Kc5 50. Kg3 Bd7 51. Kg4 Rf4+ 52. Kh5 Be8+ 53. Kg5 R4f5+ 54. Kh4 Bc6 55. Ra1 Rf4+ 56. Kh5 R6f5+ 57. Ng5 Rd5 58. Rb1 Ba4 59. bxa3 Rg4 60. Kxg4 Rxg5+ 61. Kf4 Rd5 62. Rb2 b6 63. Ke4 Rd4+ 64. Ke3 b5 65. Kf2 Kd5 66. Ke1 Bb3 67. Rd2 Bc4 68. a4 bxa4 69. Kf2 Bb3 70. Rb2 Bc2 71. Rb8 Bb3 72. Rg8 Bc4 73. Rg6 Bb5 74. Rh6 Rc4 75. Rxe6 Rc3 76. Re8 Kd6 77. Re4 Bc6 78. Rg4 a3 79. Rg7 Rc2 80. Re7 Rxa2 81. Rg7 Ra1 82. Rh7 Ba8 83. Rh8 Bb7 84. Rh4 Bd5 85. Rh5 Ke6 86. Ke1 Ra2 87. Rh3 Kf6 88. Kf2 Kf7 89. Rh8 Be6 90. Rb8 Ra1 91. Rg8 Bd5 92. Re8 Kf6 93. Kg3 Ra2 94. Re4 Rd2 95. Kh4 Rb2 96. Kh5 Kf7 97. Kg4 Kg6 98. Kg3 Be6 99. Kh4 Kg7 100. Kh5 Kf7 101. Rg4 Bd5 102. Rc4 Ra2 103. Kg4 Be6+ 104. Kg3 Rb2 105. Kh4 Ke7 106. Kh5 Bf7+ 107. Kg4 Bxc4 108. Kh5 Bd5 109. Kg4 Rd2 110. Kg5 Ra2 111. Kg6 Ra1 112. Kg7 Ke8 113. Kh8 Kf7 114. Bh6 Ke6 115. Kh7 Kf6 116. Kh8 Bb3 117. Bf8 Ra2 118. Kh7 Be6 119. Kh8 Kf7 120. e4 Kf6 121. Bxa3 Rb2 122. Be2 Rb8+ *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "59"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "g1f3 d7d5 d2d4 g8f6"]
+
+1. Nf3 d5 2. d4 Nf6 3. Ng5 b5 4. f3 Kd7 5. g3 Ke8 6. b3 Kd7 7. Nxf7 Ke8 8. Nd2 Ng4 9. e4 Kd7 10. e5 Nxe5 11. b4 Ke8 12. g4 Be6 13. Bg2 Kd7 14. Nxe5+ Kd6 15. Bf1 Qd7 16. Ke2 Qe8 17. Ke1 Rg8 18. Bh3 Qd7 19. Ba3 Qd8 20. Bb2 Qd7 21. Bc3 Qe8 22. Nb1 Bf5 23. Bg2 Ke6 24. Bf1 Qd7 25. Qd3 Qe8 26. Qe2 Qc8 27. Qd2 Kf6 28. g5+ Ke6 29. Ke2 Qe8 30. Qe1 Qd7 31. Bh3 Qd8 32. Qg1 h6 33. Qg2 Qd7 34. Qf1 Qe8 35. Kd2 Qc8 36. Bg4 Qe8 37. Ke1 Qd7 38. h4 Qe8 39. Kd2 Nc6 40. Qg2 Nxe5 41. Bh5 Kd6 42. gxh6 Qd7 43. Qg4 Qc6 44. Rh2 Qa6 45. Qg1 Kd7 46. Kc1 Kd8 47. Qd1 Qb7 48. Qd2 Qb8 49. Rf2 Kd7 50. Rg2 Kd6 51. Rg4 Kd7 52. Qf4 Kd6 53. Qxe5+ Kd7 54. Bb2 Kd8 55. Qe6 g6 56. Qf6 Kd7 57. Rxg6 Ke8 58. Rg4+ Kd7 59. Nd2 Bg7 60. hxg7 Kd8 61. Nf1 Kd7 62. Kd1 Qf8 63. Rc1 Kd8 64. Rb1 Kd7 65. Kc1 Kd8 66. Bf7 Kd7 67. Be8+ Kd8 68. Qe5 Qxg7 69. Qf6 Qf8 70. Bg6 Kd7 71. Qe5 Qg7 72. Qe2 Kd8 73. Rg3 Kd7 74. Ra1 Kc8 75. Ba3 Kd8 76. Bb2 Kd7 77. Rg4 Kd8 78. Rb1 Qf8 79. Rg3 Kd7 80. Qf2 Kc8 81. Rg4 Qg7 82. Ra1 Kd8 83. Qe2 Qh8 84. Qe6 Qh5 85. Ba3 Qxh4 86. Qxf5 Qh5 87. Qf8+ Kd7 88. Bf7 Kd6 89. Bxh5 Kd7 90. Qf5+ Kd6 91. Qf7 Rge8 92. Kd1 Kd7 93. Qg7 Kd8 94. Kc1 Kd7 95. Qh8 Kd6 96. Kb1 Ke6 97. Bb2 Kf5 98. Qg7 Ke6 99. a4 Rec8 100. axb5 Re8 101. Bc3 Rf8 102. Kc1 Rg8 103. Qh8 Kf5 104. Kb1 Rge8 105. Rxa7 Rf8 106. Kb2 Rg8 107. Ka1 Rg7 108. Bg6+ Ke6 109. Bf5+ Kf7 110. Rg3 Rxg3 111. Qh6 Kg8 112. Qg5+ Kf7 113. Qg8+ Kf6 114. Qe6+ Kg5 115. Qxe7+ Kh5 116. Nd2 Rxf3 117. Ne4 Rxf5 118. Qe5 Kg4 119. Nd2 Rxe5 120. Nc4 Kh5 121. Kb1 Kh4 122. Kc1 Kg3 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "60"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "g1f3 d7d5 d2d4 g8f6"]
+
+1. Nf3 d5 2. d4 Nf6 3. Ne5 c5 4. Qd3 Rg8 5. Qc4 Be6 6. Nxf7 Qd7 7. Nd8 Qd6 8. Kd1 b6 9. Nc6 Qg3 10. Kd2 h6 11. Ne5 Bc8 12. Nf7 Qd3+ 13. Ke1 Qd2+ 14. Nxd2 a5 15. Rb1 Ra7 16. Kd1 Kd7 17. Nd8 Rb7 18. Rg1 h5 19. Qxc5 h4 20. Qxa5 Kxd8 21. Ra1 Rh8 22. Qa8 Rc7 23. Qa4 Rg8 24. Rb1 Bb7 25. f3 Rh8 26. Qb5 Na6 27. Qc6 Rh5 28. Qxf6 gxf6 29. Ra1 Bc8 30. Rb1 Rh6 31. Ra1 Kd7 32. Ne4 Ke8 33. Rb1 Rc6 34. Ng3 Bb7 35. Kd2 Rh8 36. Kd3 Rh5 37. Ra1 Rh6 38. Kd2 Bc8 39. Kd3 Nb4+ 40. Kd2 Bf5 41. Rb1 Be4 42. Ra1 Rc5 43. fxe4 Ra5 44. Rb1 e5 45. Ra1 Ra4 46. Rb1 Na6 47. exd5 Bg7 48. Kd3 Kf8 49. Kc3 Ke7 50. Kd2 Nb8 51. Kd3 Nc6 52. Kc3 Ke8 53. Ra1 Kf8 54. Kd2 Nb4 55. Rb1 Nxd5 56. Ra1 Rb4 57. dxe5 Rb5 58. Rb1 f5 59. Kd3 Nf4+ 60. Kc3 Rd6 61. Ra1 Rdd5 62. Rb1 Rdc5+ 63. Kd4 Rc7 64. Ra1 Rd7+ 65. Ke3 Rdd5 66. Kf3 Rd6 67. Ke3 Re6 68. Kd4 Kf7 69. Ke3 Re8 70. Kf2 Rg8 71. Kf3 Bf8 72. Ke3 Ba3 73. Kd4 Kg6 74. Rb1 Bb4 75. Ke3 Bc3 76. Kf3 Rg7 77. Kf2 Rb4 78. Ra1 Ra4 79. Kf3 Rh7 80. Rb1 Ra5 81. Nh1 Rb5 82. Nf2 Rb4 83. Ra1 Rxb2 84. Rb1 Rb5 85. Ke3 Rb4 86. Rb2 Rxb2 87. Kf3 Rb5 88. Nd3 Rb4 89. Nxb4 Rh6 90. e6 Rh7 91. Kf2 h3 92. Kf3 Rh6 93. Ba3 Rh5 94. Bb2 Rh8 95. Kg3 Rd8 96. Kh4 Bf6+ 97. Kg3 Rd5 98. Kf3 Rd4 99. Kf2 Bg7 100. Kf3 Rd7 101. Ba3 Re7 102. Bc1 Rxe6 103. Ba3 Re8 104. Kg3 Re3+ 105. Kf2 Bf6 106. Bb2 Re7 107. Kf3 Re4 108. Kf2 Rc4 109. Kf3 Rc5 110. Ba3 Ra5 111. Bb2 Rb5 112. Kg3 Bg7 113. Kh4 Bf8 114. Ba3 Bc5 115. Nc6 Be3 116. Bc1 hxg2 117. Kg3 Bf2+ 118. Kf3 Bg3 119. Kxg3 Kh5 120. Kf3 Ra5 121. Kg3 Nd5 122. Kf3 Kg6 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "61"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 e7e5 g1f3 b8c6"]
+
+1. e4 e5 2. Nf3 Nc6 3. Ng5 Nge7 4. Bc4 d6 5. Ke2 Kd7 6. d3 Ke8 7. Qd2 Kd7 8. Qc3 Ke8 9. Be3 Kd7 10. Qa3 Ke8 11. g3 h6 12. Qb4 Kd7 13. Qxd6+ Kxd6 14. Bd5 Kd7 15. Be6+ Kd6 16. a4 Qd7 17. Ba2 Qe8 18. Nc3 Kd7 19. Bd2 Kd6 20. Bc4 Kd7 21. f3 Kd8 22. Ra3 Kd7 23. d4 Kd8 24. h3 Kd7 25. Raa1 Kd6 26. Ra2 Kd7 27. Rg1 Kd6 28. Bd5 Rg8 29. Rb1 Bg4 30. Rh1 Be6 31. Bc1 Kd7 32. Bxe6+ Kd8 33. Nxf7+ Qxf7 34. Bd5 Ke8 35. g4 Qh5 36. Be6 Qf7 37. Rf1 Qg6 38. h4 Qf7 39. h5 Qg6 40. b3 Qf7 41. Bd2 Qxh5 42. Rb2 Qf7 43. Be3 Qh5 44. Nd1 Qf7 45. dxe5 Nxe5 46. Bf5 Qh5 47. b4 Qf7 48. b5 Qh5 49. a5 Qf7 50. Nf2 Qh5 51. Nh1 Qxg4 52. Rf2 Qh5 53. Bc8 Qf7 54. Rg2 Qg6 55. Bb6 Qf7 56. Rg4 Qg6 57. Rg5 Qxg5 58. Be3 Qh5 59. Bxb7 Qf7 60. Nf2 Kd7 61. Ng4 Ke8 62. Nxh6 Kd7 63. Nxg8 Ke8 64. Bc8 Qxg8 65. Ba6 Qb3 66. Bb7 N7g6 67. Bg1 Kd7 68. f4 Ke8 69. Ra2 Kf7 70. Ra1 Kg8 71. Ra3 Kf7 72. Ke1 Kg8 73. Kf1 Kf7 74. Ke2 Kg8 75. Ke1 Qd5 76. Kf1 Qc5 77. Rb3 Kf7 78. c3 Kg8 79. Bf2 Kf7 80. Rb4 Qe7 81. Rc4 Kg8 82. Ke1 Kf7 83. Bg1 Qa3 84. Bc8 Kg8 85. Bb6 Kf7 86. Rd4 Kg8 87. Bb7 Qa4 88. Rd5 Kf7 89. Kd2 Kg8 90. Ke2 Kf7 91. Ke1 Qd4 92. Bc6 Kg8 93. Rxd4 Kf7 94. Kd2 Kg8 95. Kc1 Kf7 96. Kd1 Re8 97. Kd2 Kg8 98. Ke1 Kf7 99. Kf2 Kg8 100. Rd5 Kf7 101. Bd7 Kg8 102. Rd4 Rc8 103. Bxa7 Kf7 104. Bc6 Kg8 105. Rd5 Kf7 106. Be8+ Kg8 107. Rd4 Rxe8 108. Bb6 Kf7 109. Rd5 Kg8 110. Ke2 Re6 111. Bd4 Kf7 112. Bc5 Kg8 113. Bg1 Re8 114. Kf2 Kf7 115. b6 Kg8 116. a6 Kf7 117. a7 Kg8 118. Ke2 Kf7 119. Kd2 Rc8 120. a8=R Kg8 121. Bh2 Kf7 122. Ke1 Kg8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "62"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 e7e5 g1f3 b8c6"]
+
+1. e4 e5 2. Nf3 Nc6 3. Nxe5 h6 4. Ke2 f5 5. Nf7 f4 6. Kf3 Nd4+ 7. Kg4 Bd6 8. Nxd8 b5 9. Bc4 b4 10. Kh5 Rh7 11. Qg1 Nf3 12. Qf1 g5 13. d3 Ba6 14. Kg4 Rg7 15. Kh5 Nd4 16. Kg4 Nxc2 17. Qe2 h5+ 18. Kh3 Ke7 19. Bf7 Rc8 20. Rf1 Bb5 21. Rh1 Kf8 22. Qxh5 Ke7 23. Qf3 Kxd8 24. Kg4 Ba6 25. Qg3 Rb8 26. Qh4 Bc8 27. Bxg8 Bb7 28. Qg3 Bc6 29. Qh4 Kc8 30. Qh5 b3 31. Qf7 Kd8 32. Kh5 g4 33. Qc4 Ke7 34. Rg1 Rgxg8 35. Rf1 Rge8 36. Kxg4 Rg8+ 37. Kh5 Kd8 38. f3 Kc8 39. Kh4 Re8 40. Kh5 Re5+ 41. Kh4 Kd8 42. Qf7 Rb6 43. Qh7 Ke8 44. Rh1 Ra6 45. Qh6 Bc5 46. Qd6 Bxd6 47. Rg1 Bc5 48. Rf1 Be3 49. Rf2 Bxf2+ 50. g3 Be1 51. a4 Ne3 52. Nd2 d6 53. Rb1 Kd8 54. Nxb3 Be8 55. Bxe3 Bc6 56. Rc1 Kd7 57. Rc4 fxe3 58. Rc1 Bf2 59. Rc4 Ke7 60. Rc5 Bxg3+ 61. Kg4 Kf8 62. Rc4 Rxe4+ 63. Kh3 Ke7 64. Na5 Rf4 65. Nb7 Rxa4 66. Rc1 Ra3 67. Rxc6 Kf7 68. Rb6 Raa4 69. Kxg3 Rfd4 70. Kg2 Ra1 71. h4 Raa4 72. Kf1 a5 73. Kg2 Kf6 74. h5 Kg5 75. Kh3 Ra2 76. Kh2 a4 77. Kg2 Rd5 78. Kf1 Kh4 79. Ke2 Rd4 80. Kxe3 Rd5 81. Kf2 Rf5 82. Ke2 Kh3 83. Ke3 Rc5 84. Kd4 Kh2 85. Ke3 Rd5 86. Kf2 Rf5 87. Ke2 Kh1 88. Ke3 Kg2 89. Kd4 Kf1 90. Nd8 Ra1 91. Nc6 Ra3 92. Ke3 Ra2 93. Ne5 Ra1 94. Ke4 Rc1 95. Kd5 Rc5+ 96. Ke4 dxe5 97. Ke3 Ra5 98. Rh6 Rb5 99. Re6 Rf4 100. Rxe5 Rd5 101. Re8 Rf6 102. Re4 Ra6 103. Rh4 Rg6 104. Re4 Rb6 105. Re5 Ra5 106. Kd4 Kf2 107. Rd5 Rc6 108. Ke5 Rcc5 109. Ke6 Ra8 110. Kf7 Ra6 111. Kg8 Kxf3 112. Kf7 Kf2 113. Rg5 Rcc6 114. Ra5 Rc5 115. Rxa4 Rd5 116. Kg8 Kf1 117. Rd4 Rg5+ 118. Kf7 Rf5+ 119. Kg8 Raa5 120. Rd7 Rab5 121. Rd8 Rbc5 122. Ra8 Rc6 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "63"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 e7e5 b1c3 g8f6"]
+
+1. e4 e5 2. Nc3 Nf6 3. d3 Ng4 4. Qxg4 d6 5. Nge2 Qe7 6. Nd4 Qh4 7. Na4 Qd8 8. Nb6 Qe7 9. Nxc8 Rg8 10. Ke2 Nc6 11. h4 h6 12. Qe6 g6 13. Rh2 Bg7 14. f3 g5 15. Rh3 fxe6 16. Nxe6 Kd7 17. h5 Ke8 18. Rg3 Kd7 19. Bxg5 Ke8 20. Rb1 Bf8 21. Re1 Kd7 22. d4 Ke8 23. Rg4 Kd7 24. Rd1 Ke8 25. Rd3 Kd7 26. Bh4 Ke8 27. Ra3 Bg7 28. Rg3 Kd7 29. Bg5 Re8 30. d5 Kxc8 31. Re3 Kd7 32. Rg4 Qf8 33. Bh4 Kc8 34. Be1 Rxe6 35. b3 Kd8 36. Rg5 Kd7 37. Rxe5 Rxe5 38. a4 Ke8 39. c4 Kd7 40. g4 Ke8 41. Bg2 Kf7 42. Bh4 Kg8 43. Bf1 Kh8 44. Bh3 Kg8 45. Be1 Kf7 46. Kf1 Nd4 47. Kg2 Kg8 48. Kh1 Rxd5 49. Bh4 Kf7 50. Re2 Qg8 51. Bd8 Qe8 52. Bg2 Kg8 53. Bf1 Qf8 54. a5 Kf7 55. Re3 Kg8 56. Bg2 Rg5 57. Rd3 Rxa5 58. Bf1 Kf7 59. Kg1 Kg8 60. Rc3 Kf7 61. Kh2 Kg8 62. Bd3 Rd5 63. Be7 Kh8 64. Kh1 Qg8 65. Bf1 Kh7 66. Bg5 Kh8 67. Rd3 Qe8 68. Rxd4 Kg8 69. Bg2 Kf7 70. f4 Kg8 71. Bf1 Qd7 72. Bh3 Kf7 73. Bf6 Kg8 74. Bg2 Kf7 75. Bf1 Qe7 76. Bh3 Kg8 77. Bg2 Kf7 78. Bf1 Ke6 79. Bh3 Re8 80. c5 Kf7 81. Bf1 Kg8 82. Bc4 Kf7 83. Kg1 Kg8 84. Kf1 Kf7 85. Ke2 Kg8 86. Kd3 Kf7 87. Bxg7 Kg8 88. f5 Kf7 89. c6 Kg8 90. Ke2 Kxg7 91. Kf3 Kh8 92. e5 Kg8 93. exd6 Kf7 94. d7 Kg8 95. d8=B Kf7 96. Bd3 Qh4 97. f6 Kg8 98. Bc4 Qxh5 99. Bxd5+ Qf7 100. b4 Qe6 101. b5 Qf7 102. Kg2 Re4 103. Kf1 Re5 104. Kg1 Qe6 105. Kf2 Kf7 106. Bc4 Rd5 107. Rd3 Kg8 108. Rd2 Qe8 109. Rd4 Kf7 110. Bb3 Kg8 111. Bc2 Kf7 112. Bd1 Kg6 113. Bb3 Kg5 114. Bc4 Kg6 115. Rd3 Rg5 116. Bd5 Rh5 117. Rd4 Kg5 118. Kf1 Kh4 119. Kg1 Re5 120. Kg2 Qd7 121. Kf1 Qe7 122. Kf2 Qa3 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "64"]
+[White "best"]
+[Black "cand2"]
+[Result "1-0"]
+[Opening "e2e4 e7e5 b1c3 g8f6"]
+
+1. e4 e5 2. Nc3 Nf6 3. Rb1 a5 4. Ra1 h5 5. f3 h4 6. Kf2 Rh5 7. Rb1 d6 8. Ke2 Be6 9. Ke3 Bc4 10. Kf2 d5 11. Qe1 Ra6 12. Qe2 d4 13. Qxc4 Re6 14. Ra1 b6 15. Ke2 dxc3 16. Ke3 b5 17. Kf2 Nc6 18. Ke2 Re7 19. d3 Nh7 20. Ke3 f6 21. Kf2 b4 22. Ke2 b3 23. Ke3 h3 24. Kf2 Qc8 25. Ke2 Re6 26. Ke3 Bd6 27. Kf2 Qd8 28. Ke2 Qe7 29. Ke3 Rh4 30. Kf2 Qd8 31. Ke2 Kf7 32. Ke3 Qe7 33. Kf2 Kf8 34. Rb1 g5 35. Ke2 Qe8 36. Ke3 Ke7 37. Kf2 Qg6 38. Ra1 f5 39. Ke2 Kd8 40. Ke3 g4 41. Kf2 Ke7 42. Ke2 Qg7 43. Ke3 Qf7 44. Kf2 Qf6 45. Ke2 f4 46. Rb1 Qf5 47. Kf2 g3+ 48. Ke2 Kd8 49. Ra1 Ke8 50. Rb1 Bf8 51. Ra1 Re7 52. Rb1 Qe6 53. Qc5 Qc4 54. Ra1 Qb5 55. Qa7 Qb4 56. Rb1 Qa3 57. bxa3 b2 58. Rxb2 Bg7 59. Qb6 Bh6 60. a4 Kd7 61. Qa7 Nd4+ 62. Qxd4+ Ke6 63. Rb8 Kf7 64. Qd7 Bg7 65. Qd8 Rh6 66. Qd6 Bf8 67. Qd7 c6 68. Qd8 Bg7 69. Qd4 Bf6 70. Qd7 c5 71. Qd8 Bg7 72. Qd7 Bf8 73. Qc8 c4 74. Qd8 Kf6 75. Qd7 Kg6 76. Qxe7 Kh5 77. Qxf8 Nxf8 78. Rxf8 Kh4 79. Ra8 Rh7 80. Ba3 Rh5 81. Bb4 Rg5 82. Rh8+ Rh5 83. Be7# 1-0
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "65"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 e7e5 g1f3 g8f6"]
+
+1. e4 e5 2. Nf3 Nf6 3. d3 Ng4 4. Ng5 d6 5. Nd2 Kd7 6. Ne6 Ke8 7. d4 Kd7 8. b3 Ke8 9. d5 Kd7 10. Rb1 Ke8 11. Ra1 Qe7 12. Bb2 Kd7 13. f3 Ke8 14. Rb1 Bxe6 15. Bc1 Bf5 16. Ra1 Kd7 17. Ke2 Ke8 18. Nb1 Qe6 19. Qe1 Kd7 20. Nc3 Ke8 21. Qd2 Kd7 22. a4 Ke8 23. Rb1 Qc8 24. fxg4 Kd7 25. h4 Ke8 26. Rb2 Kd7 27. b4 Ke8 28. Ra2 Nc6 29. b5 Kd7 30. Rh2 Ke8 31. Ra1 Kd7 32. Rh1 Kd8 33. Kd3 Kd7 34. Rh2 Ke8 35. Na2 Kd7 36. Qc3 Ke8 37. Bg5 Nd4 38. a5 Kd7 39. Rh1 Qe8 40. Qd2 Kc8 41. Qb4 Qd7 42. c4 Qd8 43. Rb1 Kd7 44. Re1 Ke8 45. g3 Kd7 46. Bg2 Ke8 47. Bf6 Qe7 48. Rh2 Kd7 49. Bg5 Ke8 50. Re3 Kd7 51. Bf6 Ke8 52. Qc3 Kd7 53. Qd2 Ke8 54. Nc3 Kd7 55. b6 Ke8 56. Bg5 Kd7 57. Na2 Ke8 58. Bf6 Kd7 59. c5 Ke8 60. Nc3 Kd7 61. Bg5 Ke8 62. Na2 g6 63. Nc3 Kd7 64. Bf6 Ke8 65. Rh1 g5 66. Rh3 Bg7 67. Rh2 Kf8 68. Rh1 Kg8 69. Rh3 axb6 70. Rh2 Qf8 71. Bxg5 Qe8 72. Na2 Qd7 73. Qe2 Qe7 74. Nc3 h6 75. Na2 Qf8 76. Qe1 Be6 77. Kc4 Qe8 78. Rd3 Qf8 79. Qc1 Rh7 80. Rc3 Qe8 81. Kd3 Qc8 82. Bf6 Kh8 83. Qd2 Kg8 84. cxd6 Qe8 85. d7 Rh8 86. Bg5 Qf8 87. Bf3 Bf5 88. Bd8 Qe8 89. Be7 Qxd7 90. Bd8 Qe8 91. Bf6 Qf8 92. Bg5 Qe8 93. Qd1 Qd7 94. Bf6 Qe7 95. Qf1 Qa3 96. Qf2 Qxa5 97. Qe3 Qa7 98. Qd2 Qb8 99. Qd1 Qf8 100. Kd2 Qe8 101. exf5 Qd7 102. Rc4 Qd8 103. Nc3 Qe7 104. Bg5 Qf8 105. Nb1 Qe8 106. Qc1 Qf8 107. Bf6 Qe8 108. Bd8 Qf8 109. Qd1 Ne6 110. Bg5 Ra4 111. Bf6 Qa8 112. Rc1 Qe8 113. Bxe5 Qb8 114. Bf6 Qf8 115. Bg5 Ra1 116. Bxh6 Qe8 117. Ke2 Rxb1 118. Qd4 Qd7 119. Qc3 Qe7 120. Rc2 Qa3 121. Qd4 Rb2 122. Rh1 Qa4 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "66"]
+[White "best"]
+[Black "cand2"]
+[Result "0-1"]
+[Opening "e2e4 e7e5 g1f3 g8f6"]
+
+1. e4 e5 2. Nf3 Nf6 3. Nxe5 h5 4. Bc4 b5 5. Ke2 Nxe4 6. f3 h4 7. Ke3 Rh7 8. Kd4 g5 9. Ke3 Ba6 10. Kd4 Rg7 11. Kd5 Bb7+ 12. Kd4 Rg6 13. Ke3 Ba6 14. Kd4 Qe7 15. Kd5 Ng3 16. Qg1 Qd6# 0-1
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "67"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 e7e5 f1c4 g8f6"]
+
+1. e4 e5 2. Bc4 Nf6 3. d3 Ng4 4. Qxg4 d6 5. Nd2 Qd7 6. Qe6+ Qe7 7. Bb5+ Kd8 8. Nf1 Bxe6 9. d4 Bf5 10. Be2 Kd7 11. h4 Ke8 12. f3 Kd7 13. h5 Ke8 14. Kd1 Kd7 15. Rb1 Kd8 16. Bd2 Kd7 17. Bg5 Ke8 18. Ra1 h6 19. Bxe7 Kd7 20. Rb1 Kc6 21. Kc1 g6 22. Bxf8 Kd7 23. Rh3 g5 24. Bxh6 Ke8 25. Bxg5 Kd7 26. Rg3 Ke8 27. c4 Kf8 28. Rg4 Kg8 29. Rh4 Kg7 30. Nh3 Kf8 31. g4 Kg8 32. Nf2 Kg7 33. Kc2 Kf8 34. Kd3 Kg8 35. a4 Kg7 36. a5 Kf8 37. Ra1 Kg8 38. gxf5 Rxh5 39. Ra4 Rxh4 40. d5 Rh6 41. Bxh6 Nc6 42. b3 Nd4 43. Bd1 Ne6 44. c5 Re8 45. fxe6 Rf8 46. e7 f5 47. f4 Kf7 48. e8=B+ Kg8 49. Bd7 Kf7 50. Kc4 Rg8 51. Bf8 Rg6 52. Bc6 Rf6 53. Bg7 Kg8 54. Kb5 Kxg7 55. Kc4 fxe4 56. Be8 e3 57. Bd7 Kh8 58. Be6 Kh7 59. cxd6 Kh8 60. Ra1 Rg6 61. Bd7 Rf6 62. Ra2 Kg8 63. Ra4 Kf7 64. Be6+ Kg6 65. Kb5 exf2 66. Nh2 Kg7 67. Kc4 Kh8 68. Bg8 Kxg8 69. fxe5 Kf7 70. Kb5 Kg8 71. Nf1 Kf7 72. Kc4 Kg6 73. Ng3 Kf7 74. Kb5 Kg8 75. Ne2 Kf7 76. Nf4 Kg8 77. Kc4 Kf7 78. Ng6 Kg8 79. Nh8 Kg7 80. Rb4 Kxh8 81. Kb5 Kg8 82. Ra4 Kf7 83. e6+ Kg8 84. e7 Kf7 85. e8=Q+ Kg7 86. Qe7+ Kh8 87. Qf7 Rg6 88. Kc4 Re6 89. Be2 Re8 90. Bf3 Rc8 91. d7 Ra8 92. Qg6 Rd8 93. Qf5 Rg8 94. Qd3 Re8 95. Qe2 Kh7 96. Qe3 Kh8 97. Qe1 Kg8 98. Kc3 Kh8 99. Qe5+ Kg8 100. Qe6+ Kh8 101. Qc6 Re4 102. Rb4 Kh7 103. Rb5 Kh8 104. Qf6+ Kg8 105. Rb4 Re5 106. Bg4 Re8 107. Qg6+ Kh8 108. Qf7 Re6 109. Bh3 Re5 110. Qf6+ Kg8 111. Qe6+ Rxe6 112. Kd2 Kf7 113. Kd1 Kg8 114. Rb5 Kf7 115. Bf1 Rh6 116. Bg2 Kg8 117. Bh1 Re6 118. Be4 Re5 119. Rb4 Kf7 120. Rc4 Kg8 121. Bf3 Re8 122. Kd2 Kf7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "68"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 e7e5 f1c4 g8f6"]
+
+1. e4 e5 2. Bc4 Nf6 3. Be6 h6 4. Ke2 Nxe4 5. f3 Rg8 6. Ke3 Bd6 7. Bf5 Nf6 8. Kf2 e4 9. fxe4 b5 10. Kf3 a5 11. Kf2 Bb4 12. Kf3 Ra7 13. Kg3 Qe7 14. Kf3 Rf8 15. Ke3 Qe6 16. Kf2 Qc4 17. Kf3 Qb3+ 18. Kf2 Qxb2 19. Kf3 Ng8 20. Kg3 Qxc1 21. Kh4 h5 22. Kxh5 Ba3 23. Kg4 Nh6+ 24. Kg3 Bb7 25. Kf3 Nc6 26. Kg3 Nb4 27. Qxc1 Kd8 28. Kh4 a4 29. Kh5 Kc8 30. Qe1 Bxe4 31. Qh4 Re8 32. Qxe4 Nd3 33. Kh4 Rg8 34. Kg3 Nxf5+ 35. Kf3 Ng3 36. Qe3 Bb4 37. Qe6 Ra5 38. Ke3 f5 39. Qe5 d6 40. Kd4 f4 41. Qe2 Ra7 42. Qe7 Rb7 43. Qe3 Rb6 44. Qe5 Rc6 45. Kd5 Rc4 46. Qe2 g5 47. c3 Kd8 48. Ke6 a3 49. h4 Ba5 50. Qh5 Rg7 51. Qf7 Kc8 52. Ke7 Bxc3 53. Rh2 Bb2 54. Kf8 Rb4 55. Qg8 Kb7 56. h5 Kb6 57. Qf7 Ka7 58. Qe6 Ka6 59. Qh6 Kb7 60. Qxd6 Ra4 61. Qd8 Kb6 62. Qd7 Rf7+ 63. Kg8 Rf5 64. Qe8 Ka7 65. Qe6 g4 66. Qe8 Ra5 67. Qd7 Kb6 68. Qd8 Ra8 69. Qxa8 Bc1 70. Kh8 f3 71. Kg8 f2 72. Qe8 f1=R 73. Qd7 R1f2 74. Kg7 Bb2+ 75. Kg6 Rxg2 76. Qe8 Ka7 77. Kh6 Kb7 78. Qd7 Kb6 79. Qd8 Ka5 80. Kg6 Bxa1 81. Kh6 Bd4 82. Qg8 Ba7 83. Kg7 Rgf2 84. Kh8 Re2 85. Qf7 Re3 86. Qg8 Re1 87. Kh7 Ref1 88. Kh8 R1f2 89. Qe8 Rxd2 90. Kh7 Rxa2 91. Kh8 Rb2 92. Kg8 Re5 93. Kf7 Bc5 94. Kg8 Rf5 95. Qd7 Bd6 96. Kg7 Be5+ 97. Kh7 Bf4 98. Kh8 Be3 99. Qd8 Rg5 100. Qg8 Rc5 101. Qf7 Rc6 102. Qg8 Rb6 103. Qf7 Rb7 104. Qg8 Ra7 105. Qe8 Bb6 106. Qd7 Bf2 107. Kg8 Bd4 108. Kf7 Bc5 109. Qd6 Bxd6 110. Kg8 Bc5 111. Kf7 Bb6 112. Kg8 Bd4 113. Rh4 Bc5 114. Kf7 Bf2 115. Kg8 Rxb1 116. Kf7 Re1 117. Kg8 Ra6 118. Kf7 Rc6 119. Kg8 Rb6 120. Kf7 Ka6 121. Kg8 Rb7 122. Kf7 Rf1 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "69"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 e7e5 d2d4 e5d4"]
+
+1. e4 e5 2. d4 exd4 3. Qg4 Ne7 4. Nc3 Ng6 5. f3 Qe7 6. h3 d6 7. Kf2 Rg8 8. Na4 Be6 9. Nc5 Bf5 10. Na6 Kd7 11. b3 Ke8 12. Qxf5 h6 13. Qg4 Nc6 14. Nc5 Nce5 15. Nd7 f5 16. h4 Kxd7 17. Qxf5+ Kd8 18. Qg4 Ke8 19. h5 Kf7 20. Nh3 Re8 21. Ng5+ hxg5 22. Qh3 Rc8 23. Be2 Re8 24. a3 Rc8 25. Rb1 Re8 26. b4 Qd7 27. a4 Qe7 28. Rb3 Qe6 29. Re3 Qc8 30. g4 Ke6 31. Qh4 gxh4 32. Rd1 Kf7 33. Rf1 Ke7 34. Rg1 Ke6 35. Rg2 Kf7 36. Kg1 Qd7 37. Bf1 Qe7 38. Ree2 Ke6 39. Rd2 Rc8 40. b5 Kf7 41. Rxd4 Ke6 42. Rd5 Kf7 43. a5 Ke8 44. Be2 Kd7 45. a6 Ke8 46. Ba3 bxa6 47. Bc1 Kd7 48. Rc5 Ke8 49. Rc6 Kf7 50. Rxc7 Rxc7 51. Bh6 Rc4 52. c3 Ke6 53. Bf1 Rc7 54. Rf2 Kf7 55. Bg2 Rb7 56. b6 Rb8 57. Bf1 Ke6 58. Bb5 axb6 59. Bf1 Kf7 60. Bg2 Qa7 61. Bxg7 Qa8 62. Bf1 Rxg7 63. Bg2 Kg8 64. Ra2 Rc8 65. Bh1 Kf7 66. Rd2 Kg8 67. Rd4 Rcc7 68. Rd5 Kf7 69. Rd2 Ke6 70. c4 Rce7 71. Kf2 Ra7 72. Rc2 Kf7 73. Ke1 Kg8 74. Kd1 Rge7 75. Kd2 Kf7 76. Kc3 Rec7 77. Rb2 Kg8 78. Kc2 Rh7 79. Rb3 Kf7 80. Rc3 Kg8 81. Ra3 Kf7 82. Ra5 Kg8 83. Rxa6 Kf7 84. Kd2 Kg8 85. Ra5 Rae7 86. Ke1 Rh6 87. Ra6 Kf7 88. Ra7 Kg8 89. Ra5 Qb8 90. Ra6 Kf7 91. Ra7 Kg8 92. Kf2 Kf7 93. Ke2 Kg8 94. Kd2 Rg7 95. Kc2 Qc8 96. Kc3 Qe8 97. Bg2 Qb8 98. Bf1 Re7 99. Be2 Rxa7 100. Bf1 Kf7 101. Bg2 Ra8 102. Kb2 Kg8 103. Bf1 Ra4 104. Kb3 Ra1 105. Bg2 Kf7 106. Kb4 Ra5 107. Bf1 Kg8 108. Bh3 Rd5 109. Ka4 Kf7 110. Ka3 Ke6 111. Kb4 Ke7 112. Kb3 Ke8 113. Bg2 Rc5 114. Bf1 Kd7 115. Kb4 Kd8 116. Bd3 Qc8 117. Kb3 Qc7 118. Bf1 Qe7 119. Kb4 Kd7 120. Kc3 Ke8 121. Bd3 Qg7 122. Kb4 Kd7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "70"]
+[White "best"]
+[Black "cand2"]
+[Result "0-1"]
+[Opening "e2e4 e7e5 d2d4 e5d4"]
+
+1. e4 e5 2. d4 exd4 3. Bc4 Nf6 4. f3 h6 5. Kf2 a5 6. Ke2 Rg8 7. Kd3 Bd6 8. Kd2 Bb4+ 9. Ke2 b6 10. Be6 Ng4 11. Bf5 Bb7 12. Bh7 Nc6 13. Qd2 Be7 14. Qf4 Ne3 15. Qxc7 Qc8 16. Kd3 Bh4 17. Kd2 a4 18. Qf4 g5 19. Kd3 Ra7 20. Kd2 Rf8 21. Ke2 Ra6 22. Qc7 Ba8 23. Qf4 Ke7 24. Qc7 Bg3 25. Qb8 Ra5 26. Kd3 Rc5 27. Kd2 Bh4 28. Ke2 Kd8 29. Qd6 Rc4 30. Qxh6 Rc5 31. Kd3 Qa6+ 32. c4 Kc8 33. Kd2 Re5 34. Qd6 Ra5 35. Kd3 Rc5 36. Qh6 Re5 37. Qd6 Ra5 38. Kd2 Re8 39. Kd3 Re7 40. Kd2 Qb5 41. Kd3 Re8 42. Kd2 Qf5 43. Ke2 Qf6 44. Kd3 Qe6 45. Qxe6 f6 46. Qf5 Re7 47. Kd2 Rxh7 48. Kd3 Kd8 49. Kd2 Rb5 50. Qe5 Rb3 51. Qd5 Rh6 52. Ke2 Rc3 53. Qe5 Rg6 54. Qe6 Rc2+ 55. Kd3 Rxc1 56. Qf5 Ke7 57. Qb5 Kd6 58. Kd2 Rxb1 59. Kd3 Rc1 60. Qa5 Kc7 61. Rb1 Rxb1 62. Kd2 d6 63. Kd3 d5 64. Kd2 Kc8 65. Ke2 Rc1 66. Kd3 Rc3+ 67. Kd2 dxc4 68. Ke2 Nb4 69. Qd5 Nd3 70. Qxg5 Rc2# 0-1
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "71"]
+[White "cand2"]
+[Black "best"]
+[Result "0-1"]
+[Opening "e2e4 c7c5 g1f3 d7d6"]
+
+1. e4 c5 2. Nf3 d6 3. d3 h6 4. Nh4 Kd7 5. Nd2 Ke8 6. Ndf3 Kd7 7. Nd4 Ke8 8. Nb3 Qd7 9. Be2 Qd8 10. a4 Kd7 11. Rg1 Ke8 12. Rh1 Kd7 13. Bg4+ Ke8 14. Qf3 Qd7 15. Be6 Qc7 16. Rg1 Rh7 17. Kd2 Rh8 18. Rh1 Bxe6 19. Kc3 Kd7 20. Ra2 Ke8 21. Ra3 Qb6 22. Bxh6 Qb4# 0-1
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "72"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 c7c5 g1f3 d7d6"]
+
+1. e4 c5 2. Nf3 d6 3. d3 b5 4. Ke2 Nh6 5. Ke3 Be6 6. Ne5 a5 7. Kf4 Rg8 8. Kf3 dxe5 9. Ke3 Bg4 10. h4 Bf3 11. Rh2 e6 12. Kxf3 Ke7 13. Kg3 Ra6 14. Qd2 Ra7 15. Kf3 Qc7 16. Ke3 Qc6 17. Kf3 Qb7 18. Kg3 Qc8 19. Qf4 b4 20. Kf3 Ke8 21. Kg3 b3 22. Kf3 Ke7 23. Ke3 Qe8 24. Qxh6 Qd7 25. Kd2 Qd6 26. h5 bxc2 27. Ke2 Qc6 28. Ke3 Qd7 29. Nd2 Qe8 30. Qxg7 Nc6 31. Kf3 Nb4 32. Qxe5 Rg7 33. Qd5 Rg5 34. Ke3 Bh6 35. Qe5 Qd8 36. Qd5 Bf8 37. Rb1 Qd6 38. Qe5 Qd7 39. Ra1 Qc8 40. Qb8 Ra8 41. Qxc8 Rd5 42. Kf3 Ra6 43. Kg3 Rg5+ 44. Kf3 Rc6 45. Ke3 Rd5 46. Rh4 Rg5 47. Kf3 Bh6 48. Ke3 Bg7 49. Kf3 Be5 50. Ke3 Bc3 51. Kf3 Rd5 52. Rb1 Rb6 53. Kg3 Ra6 54. Ra1 Ra7 55. Kg4 Ra8 56. Kg3 Ra6 57. Qg8 Ra7 58. Kg4 Re5 59. Rb1 c4 60. Ra1 cxd3 61. Rb1 f6 62. Kg3 Ra8 63. Kf3 Ra6 64. Ke3 Ra7 65. Kf3 Ra8 66. Kg4 Ra6 67. Kf4 Rd5 68. Kg3 Ra7 69. Kg4 Rd6 70. Ra1 Nxa2 71. Rb1 Nxc1 72. Rh1 Ne2 73. Rh2 Rc6 74. Kh4 Ra8 75. Ra1 e5 76. Rb1 Raa6 77. Qa2 Rc5 78. Qg8 Rc8 79. Qg6 Ra7 80. Qh6 Rcc7 81. Qg6 Rc5 82. Qg5 Ra8 83. Qf5 Ra6 84. Ra1 Ra7 85. Ra4 Ra8 86. Qh3 Rb8 87. Qc8 Rc6 88. Qg8 Rcb6 89. Qg6 Ra6 90. Qh6 Ke8 91. Qxf6 h6 92. Rd4 Ra7 93. Rd7 Kxd7 94. Qg6 Rbb7 95. Qxh6 Rb8 96. Qf8 Rc8 97. f3 Rb7 98. Kg4 Nc1 99. Kg5 Ra8 100. Kh6 Raa7 101. Kg6 Rb6+ 102. Kg7 Rc6 103. Kh8 Rcc7 104. Kg8 Rcb7 105. Kg7 Ne2 106. Qa8 Ke7 107. Kh8 Rb8+ 108. Kh7 Rc7 109. Kh6 Rd7 110. Kh7 Rb5 111. Kh8 Rc5 112. Kg8 Rc6 113. Qe8+ Kf6 114. Qf8+ Ke6 115. Qd8 Rcc7 116. Qa8 Ke7 117. Kg7 Ra7 118. Kh8 Rab7 119. Qa7 Rdc7 120. Kh7 Rb6 121. Kh8 Rb8+ 122. Kh7 Rcb7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "73"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 c7c5 b1c3 b8c6"]
+
+1. e4 c5 2. Nc3 Nc6 3. d4 Ne5 4. Qh5 h6 5. Rb1 Qb6 6. Kd2 Qb3 7. d5 d6 8. a4 Bg4 9. Ke1 Be6 10. Kd2 Bf5 11. f3 O-O-O 12. h4 Kc7 13. Ke1 Kb8 14. Qg5 Kc8 15. Kd1 Kd7 16. Rh3 Ke8 17. Rg3 Kd7 18. Nh3 Kc8 19. Kd2 Kc7 20. Be2 Kb8 21. Bd1 Rd7 22. Qe3 Kc8 23. Ra1 Kc7 24. Ng5 Kb8 25. Qf2 Rd8 26. Ra2 Qxd5+ 27. Ke3 Qxd1 28. Ra3 Qg1 29. Kd2 Kc8 30. Nb5 Kd7 31. Kc3 Ke8 32. Ne6 Qxf2 33. Ned4 Qe2 34. Nxf5 Kd7 35. Ra2 Kc6 36. Rg4 Kd7 37. h5 Ke8 38. Rg3 Rd7 39. Bxh6 Rd8 40. Bxg7 Kd7 41. Ra3 Rxh5 42. Bh8 Ke8 43. Ra2 Rd7 44. Rg4 Rc7 45. Ra3 Kd7 46. Rg3 Kd8 47. Ra2 Rh3 48. Nbd4 Rh6 49. Nb3 Re6 50. Ra3 Kd7 51. Ra1 Ke8 52. Rc1 Kd7 53. Rg1 Qa6 54. Rh1 Ke8 55. Rh2 Kd7 56. Kd2 Ke8 57. Rhh3 Qc6 58. Ke1 Qd7 59. Kd1 Qd8 60. Kd2 Qd7 61. Ke1 Qd8 62. Ke2 Kd7 63. Rh4 Ke8 64. Rh5 Kd7 65. Kf2 Rh6 66. Rxh6 Ke8 67. Ke1 Qa8 68. Kd1 Bg7 69. Kd2 Kd7 70. Ke2 Ke8 71. Kd1 Kf8 72. Kd2 Ke8 73. Rgh3 Kd7 74. Ke1 Ke8 75. Ke2 Kd7 76. Kd1 Ke8 77. Kc1 Kd7 78. Kd2 Kd8 79. R6h5 Kd7 80. Kc1 Ke8 81. Kd1 Bf8 82. Kd2 Kd7 83. Rg3 Ke8 84. Kc1 Kd7 85. Rh6 Ke8 86. Rgh3 Kd7 87. Kd1 Kd8 88. Ke1 Kd7 89. g3 Bg7 90. Ke2 Ke8 91. R6h5 Kd7 92. Rh1 Ke8 93. Nxe7 Kd7 94. Nc6 Ke8 95. Nd8 Qb8 96. Ne6 Kd7 97. Kd2 Ke8 98. Nd8 Re7 99. Kc1 Kd7 100. Nc6 Kc7 101. Nca5 f5 102. Kd1 Kd8 103. Nc6+ Kd7 104. Ncd4 Ke8 105. R1h2 Kd7 106. Kd2 Ke8 107. Kc1 Kf8 108. Kd1 Qc8 109. Kd2 Qc7 110. Kc1 Ke8 111. Kd1 Kd7 112. Kd2 Qb8 113. Kc1 Ke8 114. Kd2 Qc8 115. f4 Qc7 116. Kd1 Kd7 117. Ke1 Qb8 118. Rd2 Ke8 119. Ke2 Kf8 120. Kd1 Ke8 121. c4 Kd7 122. Rc2 Ke8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "74"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 c7c5 b1c3 b8c6"]
+
+1. e4 c5 2. Nc3 Nc6 3. Ke2 Na5 4. Rb1 Qb6 5. f3 Qb5+ 6. Ke3 Nh6 7. Kf2 Qxb2 8. Ke2 Nc4 9. Ra1 a6 10. Rb1 Kd8 11. Rxb2 Rg8 12. Rxb7 e5 13. d3 g5 14. Kf2 d6 15. Ke2 a5 16. Rb8 Ne3 17. Kxe3 Be7 18. Kf2 c4 19. Ke2 a4 20. Ke3 a3 21. Kf2 Ra7 22. Ke2 Ra6 23. Qd2 cxd3+ 24. Ke3 Ra5 25. Kf2 Kd7 26. Ke1 Ra4 27. Qe2 Bd8 28. Rxc8 dxc2 29. Qa6 d5 30. Bc4 Rg7 31. exd5 Rg8 32. Kf2 Bc7 33. Ke2 Ng4 34. Qa8 h5 35. Kd3 Ne3 36. Ke4 h4 37. Kxe3 Bd6 38. Kf2 Ke7 39. Ke2 Rh8 40. Ke3 Rh5 41. Kf2 Rh8 42. Ke2 Rh5 43. Ke3 Bc5+ 44. Kd2 Bb4 45. Kd3 Bxc3 46. Ke4 Rb4 47. Ke3 Kd7 48. Kf2 Rb2 49. Ke3 Ke7 50. Kf2 Rb5 51. Ke2 Rb8 52. Ke3 Rb7 53. Qa4 Rb5 54. Kf2 Rb4 55. Ke2 Rh6 56. Ke3 Re6 57. Kf2 Kd6 58. Ke2 Ke7 59. Ke3 Bb2 60. Kf2 Rh6 61. Ke2 f6 62. Ke3 Rh5 63. Kf2 Kd6 64. Ke2 Rh6 65. Rd8+ Kc5 66. Ke3 Rxa4 67. Kf2 Kd4 68. Ke2 Kc3 69. Rg8 Bxc1 70. Re8 Rh7 71. Rh8 Ra5 72. Kf2 Rh6 73. Rb8 Rg6 74. Ke2 Rc5 75. Rg8 Rc6 76. Re8 Rd6 77. Rh8 Rxd5 78. Kf2 e4 79. Ke2 e3 80. Rg8 Rd4 81. Bf7 Rd6 82. Re8 Rd5 83. Bg8 Rd4 84. Rf8 Rd6 85. Bf7 Rd5 86. Rg8 Rd4 87. Rxg6 Rd6 88. Rxf6 Rd5 89. Rg6 Re5 90. Rg7 Re4 91. Bg6 Rd4 92. Rh7 Rd5 93. Rh8 Rd6 94. Bf7 Re6 95. Bg8 Re5 96. Kf1 Rd5 97. Rh7 Rd6 98. Rh8 Rg6 99. Rh7 Re6 100. Ke2 Re5 101. Rh8 Rd5 102. Kf1 Rd6 103. Ke2 Rd2+ 104. Kxe3 Rd6+ 105. Kf2 Re6 106. Rxh4 Rf6 107. Ke2 Kb2 108. Kd3 Rd6+ 109. Kc4 Re6 110. Rh5 Rc6+ 111. Kd3 Rc3+ 112. Ke4 Re3+ 113. Kd5 Rd3+ 114. Ke5 Rd6 115. Rh3 Rg6 116. Kd5 Be3 117. Rh8 Re6 118. Bf7 Ka1 119. Bg8 c1=Q 120. Nh3 Qb1 121. Nf4 Qd1+ 122. Kc4 Qc1+ *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "75"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 e7e6 d2d4 d7d5"]
+
+1. e4 e6 2. d4 d5 3. Qh5 Ne7 4. Qxf7+ Kd7 5. g4 Kd6 6. Qf6 Kd7 7. Bh6 Ke8 8. Be3 Kd7 9. Qg5 Ke8 10. Qe5 Kd7 11. Bf4 Ke8 12. Bh6 Kd7 13. Be3 Ke8 14. Bf4 Kd7 15. Bh6 Ke8 16. Qf6 Kd7 17. Be3 Kd6 18. Bf4+ Kd7 19. Ne2 Ke8 20. Nec3 Kd7 21. Bh6 Ke8 22. Qe5 Kd7 23. g5 Ke8 24. Qf6 Kd7 25. Bh3 Kd6 26. Qf4+ e5 27. Qd2 Bg4 28. Qe3 Kd7 29. Qf4 Kd6 30. Qxe5+ Kd7 31. Bf1 Ke8 32. Qf6 Kd7 33. Bh3 Be6 34. Qf4 Bf5 35. Qd2 Kd6 36. Qe3 Kd7 37. Qf4 Ke8 38. Qxf5 Qd7 39. Qxd7+ Kf7 40. Be6+ Kg6 41. Qxe7 Kh5 42. a3 Rg8 43. Rg1 Nc6 44. Bf7+ g6 45. Qd6 Ne5 46. Qd7 Re8 47. Qxd5 Rg7 48. Qc6 Kh4 49. d5 Kh5 50. h4 Kxh4 51. b3 Kh5 52. Ra2 Kh4 53. Rh1+ Kg4 54. Rh4+ Kf3 55. a4 Kg2 56. b4 Rc8 57. Ke2 Re8 58. Rh3 Rc8 59. Qd6 Kxh3 60. f4 Kg4 61. Qd7+ Kh4 62. Qe6 Kh5 63. Qxe5 Kg4 64. Qe6+ Kh4 65. Qf6 Kh5 66. Qxg7 Bxg7 67. Ra1 Kg4 68. Ra3 Kh5 69. Ra2 Rg8 70. Ra1 Kg4 71. Ra3 Kh5 72. a5 Kg4 73. Ke3 Kh5 74. Ra2 Re8 75. Rb2 Kh4 76. Ne2 Rf8 77. Kd2 Kh5 78. Rb3 Kh4 79. Ke1 Kh5 80. Rc3 Rg8 81. Rc6 Re8 82. Rc5 Kh4 83. Nbc3 Kh5 84. Kd1 Kg4 85. Kc1 Kh4 86. Kd2 Kh5 87. Ke1 Kh4 88. b5 Kh5 89. Kd1 Kg4 90. b6 axb6 91. Kc1 Kh5 92. Kd2 Kh4 93. Nb5 Kh5 94. Rc4 Kh4 95. axb6 Kh5 96. Rc5 Kg4 97. Ng1 Re6 98. Nc3 Re5 99. Na4 Kh5 100. Kd1 Re8 101. Ke1 cxb6 102. Kd1 Kh4 103. Kc1 Kh5 104. Nc3 Kh4 105. Kd2 Kh5 106. Nb5 Kg4 107. Na3 Kh4 108. Nc4 Kh5 109. Kd1 Kh4 110. Ke1 Kh5 111. Kf2 Kh4 112. Ke2 Kh5 113. Kd2 Rf8 114. Kd3 Kh4 115. Be8 Kh5 116. Kd2 Rg8 117. Ne2 Rxe8 118. Ng1 Kg4 119. Kc1 Kh5 120. Ne2 Kg4 121. Nc3 Kh4 122. Kd2 Kh5 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "76"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 e7e6 d2d4 d7d5"]
+
+1. e4 e6 2. d4 d5 3. Ke2 Nf6 4. exd5 h6 5. Kf3 b6 6. Kg3 Bb4 7. Kf3 Bd2 8. Bc4 Rg8 9. Kg3 Qe7 10. Kh4 Rf8 11. f3 a5 12. Kg3 Na6 13. Kh4 Ra7 14. Kg3 Qd6+ 15. Kh4 Bb7 16. Qxd2 Ne4 17. fxe4 Qe7+ 18. Kh5 Ra8 19. Kg4 f5+ 20. Kg3 Qd6+ 21. Kh4 Kd8 22. Kh5 Re8 23. Qd3 Ra7 24. Kh4 Re7 25. Kh5 Kc8 26. Kh4 g5+ 27. Kh5 a4 28. Qg3 Ba8 29. Qxd6 Nb4 30. Qc6 b5 31. Qb6 Rf7 32. Qxa7 Bb7 33. Qb6 Kd7 34. Qa7 Re7 35. Qa8 Nxc2 36. Qxa4 bxa4 37. Bd3 Bc8 38. Bc4 e5 39. Nd2 Ba6 40. Rb1 Kd8 41. Bd3 Kc8 42. Ra1 Rd7 43. Rb1 Rg7 44. Ra1 Kd7 45. Bxc2 Bb5 46. Rb1 f4 47. Kg4 Ba6 48. Kh5 Bb7 49. Ra1 Rh7 50. Kg4 Ba8 51. Rb1 Bc6 52. Kh5 Bb7 53. dxe5 Kd8 54. Kg4 Bc8+ 55. Kh5 a3 56. Ra1 Bb7 57. Kg4 Bc6 58. Rb1 Bd7+ 59. Kh5 Be6 60. Ra1 Bh3 61. e6 Ke8 62. Rb1 Kf8 63. Nf1 Rg7 64. Ra1 c6 65. Rb1 Rh7 66. Ra1 Kg7 67. Ne3 Rh8 68. Rb1 Kf8 69. Nf5 Rh7 70. Ra1 g4 71. Rb1 Rg7 72. Ra1 Ke8 73. Rb1 Rh7 74. Nh4 Ke7 75. Ra1 Kf8 76. Nf5 Kg8 77. Rb1 Rh8 78. Nd6 Kg7 79. Ra1 Re8 80. Rb1 Rg8 81. Nf7 Rf8 82. Ra1 Rd8 83. Kh4 Rg8 84. Kh5 Rf8 85. Rb1 Rh8 86. Ra1 Re8 87. Nh8 Kf6 88. Rb1 Re7 89. Nf7 Rxf7 90. Ra1 Re7 91. Kh4 h5 92. Kxh5 Rf7 93. gxh3 g3 94. Kg4 Rg7+ 95. Kh5 Rh7+ 96. Kg4 Kg7 97. Rb1 f3 98. Kg5 Kf8 99. Kg6 Rg7+ 100. Kh6 Rg8 101. Kh7 f2 102. Kh6 Rh8+ 103. Kg6 f1=R 104. Kg5 Rh7 105. Ra1 Rhf7 106. Kg6 cxd5 107. Kh6 d4 108. Kg6 d3 109. Kh6 Rd1 110. Rb1 Rf6+ 111. Kh7 Rg6 112. Kh8 Rg7 113. Ra1 Rxc1 114. Rb1 Rxc2 115. Rc1 Rxh2 116. Rc4 Rc2 117. Rc7 Rc1 118. Re7 Rd1 119. bxa3 Rc1 120. Rxg7 Rb1 121. Rxg3 Ke7 122. Ne2 Rb4 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "77"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 e7e6 d2d4 c7c5"]
+
+1. e4 e6 2. d4 c5 3. Nc3 Ne7 4. g4 Qb6 5. Bh3 Qb3 6. d5 Rg8 7. Qd3 Ng6 8. Qc4 h6 9. Qb5 Nc6 10. Qa6 Nce5 11. Qd3 Qxd5 12. Bxh6 Qxe4+ 13. Nge2 Qd5 14. Qa6 f5 15. Qb5 Qe4 16. Rc1 Qd5 17. Nd4 c4 18. Bxg7 Bxg7 19. Qb6 d6 20. Qb5+ Bd7 21. Qb6 Qc5 22. Qa6 Qa5 23. Qb5 Qc7 24. f3 Qb8 25. Qb6 Kf8 26. Kf2 Ke8 27. Kg2 Qc8 28. Kf1 Qc7 29. Bg2 Qb8 30. Qb5 Qc8 31. Qb3 Qc5 32. Bh3 Qb6 33. Qb5 Qd8 34. Qc5 Qe7 35. Qd5 Qh4 36. Bg2 Qd8 37. Rg1 Qb8 38. Qc6 Kf8 39. Ra1 Be8 40. Bh3 Bd7 41. Qc8+ Be8 42. Qc7 Bb5 43. Qc6 Kf7 44. Bg2 Qc8 45. Qb6 Qe8 46. Qxb5 Qc8 47. Bh1 Qe8 48. Rg3 Qb8 49. Qb6 Ke8 50. Qa6 Kd7 51. Qb5+ Kc7 52. h3 Qf8 53. Qa6 Kb8 54. Nxf5 Kc8 55. Qb5 Kc7 56. Qa5+ Kb8 57. Qb4 Kc7 58. Qa3 Kb6 59. Ke2 Qe8 60. Kd1 Qc8 61. Kd2 Qc7 62. Ke2 Qb8 63. Kf2 exf5 64. Kg2 Qf8 65. Qa4 Kc5 66. Kf2 Kd4 67. Qb5 Nf4 68. Qa6 Kc5 69. Na4+ Kd4 70. gxf5 Ng2 71. Qb5 Qe8 72. Rg4+ Nxg4+ 73. hxg4 Ne1 74. Qb3 Ke5 75. f6 Kd5 76. c3 Ke6 77. Rxe1+ Kf7 78. f4 Kg6 79. Rb1 Kxf6 80. Qa3 Qd7 81. Bf3 Qd8 82. Be4 Qe7 83. Bg6 Kxg6 84. Qxd6+ Kf7 85. Qd4 Kg6 86. Qc5 Kf6 87. Qd5 Qa3 88. Qe5+ Kg6 89. Qg5+ Kf7 90. Qb5 Qxa4 91. Ra1 Kg6 92. Qa6+ Kf7 93. f5 Qd7 94. Ke1 Qd8 95. Qc6 Qb6 96. Qd6 Qb3 97. Qh6 Bf8 98. Rc1 Qb6 99. Rd1 Qd8 100. Rd4 Qd7 101. f6 Ke6 102. Kd1 Ke5 103. Qh5+ Ke6 104. Ke1 Qxd4 105. a4 Qb6 106. b3 Bg7 107. Qg6 Ke5 108. Kf1 Ke6 109. Ke2 Ke5 110. Qxg7 Kd5 111. Kd2 Kc5 112. Qh6 Kd6 113. Qg5 Rge8 114. Qf5 Kc7 115. Qg6 Kb8 116. Qg7 Kc8 117. Qh6 Kd7 118. Qh4 Kd6 119. Qg5 Qxb3 120. Qf5 Kc7 121. Qg6 Kb8 122. Qf7 Kc8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "78"]
+[White "best"]
+[Black "cand2"]
+[Result "0-1"]
+[Opening "e2e4 e7e6 d2d4 c7c5"]
+
+1. e4 e6 2. d4 c5 3. Bc4 h6 4. Ke2 b5 5. Kf3 bxc4 6. Kg3 Nf6 7. Kh4 d5 8. Kg3 Nbd7 9. Kh4 Ke7 10. Kg3 a6 11. Kh4 Qc7 12. Qd3 a5 13. Qxc4 Nb6 14. Qxd5 Qd7 15. Kg3 Nfxd5 16. Kf3 Ne3 17. Kg3 Rh7 18. dxc5 g5 19. Kf3 Qa7 20. Kg3 Nd7 21. Kf3 Nf1 22. Kg4 Qb8 23. g3 Qb5 24. Kh5 Qa4 25. Ne2 Rb8 26. Kg4 Qb3 27. Kh5 Rb5 28. Nec3 Qc4 29. Kg4 Rb4 30. f3 Rb3 31. Rxf1 Rxc3 32. Rh1 Qd3 33. Nd2 Qxc2 34. Rb1 Qa4 35. Kh5 Qc4 36. Kg4 Qb4 37. Kh5 Qb3 38. Kg4 Qc4 39. Rf1 Qa4 40. Rf2 Qb3 41. Kh5 Qc4 42. Re2 Qa4 43. Kg4 Qb3 44. Kh5 Qxb2 45. Kg4 Qxc1 46. Rb2 Qa1 47. Rb8 Bg7 48. Kh5 Bd4 49. Rxc8 Bxc5 50. Kg4 Bd4 51. Rc7 Qb2 52. Nb3 Qc1 53. Kh5 Qa1 54. Kg4 Rh8 55. Nxa5 Bc5 56. Nb7 Rh7 57. Kh5 Rg7 58. a4 Qb2 59. Kg4 Bb4 60. Kh5 Qc1 61. Kg4 Qd1 62. Rc4 Qf1 63. Rc7 Qg2 64. Kh5 Qf2 65. Kxh6 Qg2 66. Kxg7 Qxg3 67. Kh8 Qh4+ 68. Kg8 Qg4 69. Rc4 Qf4 70. Rc7 Qe5 71. Re3 Qf6 72. Rc4 Qh6 73. Rexc3 Nf6# 0-1
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "79"]
+[White "cand2"]
+[Black "best"]
+[Result "1-0"]
+[Opening "e2e4 c7c6 d2d4 d7d5"]
+
+1. e4 c6 2. d4 d5 3. g4 Kd7 4. e5 h6 5. b3 Qb6 6. Na3 Ke8 7. Qf3 Qxb3 8. Qf4 Kd7 9. Rb1 Ke8 10. Rxb3 Bxg4 11. Nb1 Kd7 12. Rb4 Be6 13. Qxh6 Kd8 14. Qg5 Kd7 15. Qxg7 Rh4 16. Qxf8 Kc7 17. Qg7 Rh5 18. Qh6 Rh4 19. Qg5 Kd8 20. Qg7 Rh5 21. Qh6 Kd7 22. Qg5 Ke8 23. Qxg8+ Kd7 24. Qf8 Rxe5+ 25. Be2 Kc7 26. Qh6 Bf5 27. Qh7 Re6 28. Qxf5 Rh6 29. Qh7 Rf6 30. Qg8 Rxf2 31. Qg7 Rf6 32. Qg5 Rf2 33. Qe5+ Kd8 34. Qe6 Rf6 35. h3 Rg6 36. Qe5 Kd7 37. Bf3 Rf6 38. Bg2 Ke8 39. h4 Kd7 40. Be4 Ke8 41. Qh5 Rg6 42. Kf1 Kd7 43. Qxd5+ Ke8 44. Qh5 Rg5 45. Kf2 Rxh5 46. Nh3 Re5 47. Ng5 Kd7 48. Kf3 Kd6 49. d5 Kd7 50. Rb2 Ke8 51. Rh3 Kd7 52. Kf2 Kd8 53. Rh2 Re6 54. Rb4 Re5 55. Ke3 Kd7 56. Rxb7+ Kd8 57. Rh3 Rxd5 58. Kf2 Rxg5 59. Rh2 Rh5 60. Be3 Re5 61. c3 Re6 62. Bf5 Re5 63. Ke1 Re6 64. Ke2 Rh6 65. Rh3 Rf6 66. Rxb8+ Kc7 67. Rh2 Kxb8 68. Rh1 c5 69. Rh2 Kc7 70. h5 Kb8 71. Rh3 Rg6 72. Rg3 Kc7 73. Rg4 Kb8 74. Rg2 Rf6 75. Rg4 Kc7 76. Re4 Kb7 77. Ra4 Kb8 78. Ra6 Kc7 79. Ra3 Kb8 80. Kf2 Rg6 81. Ke1 Rf6 82. Ra6 Kc7 83. Ra4 Kb8 84. Bd4 Rg6 85. Ke2 Kc7 86. Kf2 Rf6 87. Ke1 Kb8 88. Ke2 Rg6 89. Rc4 Rf6 90. Kf3 Ra6 91. Ra4 Rxa4 92. Bf6 Rd4 93. Bh4 Rd7 94. Nd2 Rd8 95. Nc4 Rd7 96. a3 Rd4 97. h6 Rd7 98. a4 Rd4 99. Kf2 Kc7 100. Kf1 Re8 101. Ke1 Kb8 102. Kf2 Rd7 103. Bxe7 Rdd8 104. Bf8 Re4 105. Bg7 Rdd4 106. Bh8 Kc7 107. Bg7 Re5 108. Bh8 Kb8 109. Bg7 Re8 110. Bf8 Kc7 111. Bd6+ Kd8 112. Kf1 Rf8 113. Ke1 Rg8 114. h7 Rg6 115. h8=Q+ Rg8 116. Qe5 Rxd6 117. Ke2 Re8 118. Kf3 Rd7 119. Qd5 Re4 120. Qxd7# 1-0
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "80"]
+[White "best"]
+[Black "cand2"]
+[Result "0-1"]
+[Opening "e2e4 c7c6 d2d4 d7d5"]
+
+1. e4 c6 2. d4 d5 3. Ke2 f6 4. Kf3 Bg4+ 5. Kg3 Nh6 6. Kh4 Bc8 7. f3 Qd7 8. Kh5 Rg8 9. Kh4 Na6 10. Kg3 Qd8 11. Kh4 Qc7 12. Kh5 Qf4 13. Qd3 g5 14. Qc4 Qe3 15. Nd2 Qe1 16. h4 gxh4 17. Rb1 Rg5# 0-1
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "81"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 d7d5 e4d5 d8d5"]
+
+1. e4 d5 2. exd5 Qxd5 3. Qh5 Kd7 4. d4 Ke8 5. f3 Qg5 6. h4 Kd7 7. Rh3 Ke8 8. Qxg5 Bg4 9. Qe5 Kd7 10. Qe4 Kd8 11. Kf2 Be6 12. d5 Kd7 13. h5 Ke8 14. Qf4 Bf5 15. Rh4 Kd7 16. Qxf5+ Kd8 17. Qd7+ Kxd7 18. b3 Ke8 19. Bb2 Kd7 20. b4 Ke8 21. Rh3 Kd7 22. Nc3 Kd6 23. g4 Kd7 24. Rh2 Ke8 25. Bg2 g6 26. hxg6 Bg7 27. Bf1 Kd7 28. Rh4 Ke8 29. Rh5 Kd7 30. Nh3 Kd8 31. Bg2 Ke8 32. Ke1 Kd7 33. Kd1 Ke8 34. Ke2 Kd7 35. Bh1 Kd6 36. Kd2 Nc6 37. Kc1 Ne5 38. Rb1 Kd7 39. Rg5 Ke8 40. Ra1 h6 41. Rxe5 Kd7 42. b5 Ke8 43. b6 Kd7 44. Kd2 Ke8 45. bxa7 Kd7 46. Kc1 Ke8 47. Re6 Kd7 48. Rf6 Kd8 49. Ne2 Kd7 50. Neg1 Ke8 51. Rb1 Rh7 52. Ne2 Kd7 53. Nc3 Kd8 54. Nd1 Kd7 55. Ra1 Ke8 56. Rc6 Rb8 57. Rb1 Kd7 58. Nc3 Ke8 59. gxh7 Kd7 60. h8=Q Ke8 61. Qh7 Kf8 62. Ra1 Rc8 63. Qg6 Ke8 64. Qh5 Kd7 65. Rb1 Ke8 66. Qg5 Kf8 67. Qf5 Ke8 68. Qd3 Kd7 69. Qg6 Kd8 70. Qg5 hxg5 71. Nf4 Kd7 72. Ra1 Ke8 73. a8=R Kd7 74. Raa6 Kd8 75. Ra7 Kd7 76. Ne6 Ke8 77. Ra8 fxe6 78. Rb8 e5 79. Ra8 Kd7 80. Bg2 Ke8 81. Bf1 Bh8 82. Raa6 Kd7 83. Rab6 Ke8 84. Ba3 Bf6 85. Bb4 Kd7 86. Ba5 Ke8 87. Rb5 Kd7 88. f4 Ke8 89. fxg5 Kd7 90. g6 Ke8 91. Bb4 Bh4 92. Bd6 Bg3 93. Bxe7 Nxe7 94. Bg2 Nxg6 95. Bf1 Kd7 96. Kd2 Ke8 97. Ke2 Kd7 98. Rcb6 Ke8 99. Rc1 Bh4 100. Rd6 Bd8 101. Ra6 Kd7 102. Rba5 Ke8 103. Ra7 Kd7 104. Ra3 Ke7 105. Rb3 Kf8 106. Raxb7 Kg8 107. R3b4 Kf7 108. R7b5 Kg8 109. Re1 Kf7 110. g5 Kg8 111. Ra1 Kf7 112. Bg2 Kg8 113. Bh3 Kf7 114. Bf1 Kg8 115. Bg2 Kf7 116. Bh3 Ne7 117. g6+ Kg8 118. Bf1 Nxg6 119. Bh3 Kf7 120. Be6+ Ke8 121. Rb2 Be7 122. R2b3 Ba3 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "82"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 d7d5 e4d5 d8d5"]
+
+1. e4 d5 2. exd5 Qxd5 3. d3 g5 4. f3 h6 5. Ke2 Nf6 6. Ke3 Qd4+ 7. Ke2 b6 8. Nd2 Bb7 9. Rb1 Qe3+ 10. Kxe3 Rg8 11. Kf2 Ng4+ 12. Ke2 Ba6 13. Ra1 Bb5 14. Rb1 Ba4 15. Qe1 Nc6 16. Qh4 Nd4+ 17. Kd1 Bd7 18. Qh5 Bb5 19. Qxg4 Rh8 20. Qe6 Ba4 21. Qf5 Nb5 22. Ke1 Rg8 23. Ke2 Kd8 24. Ke3 Rc8 25. Kf2 e6 26. Ke2 Bd6 27. Ke3 Rf8 28. Kf2 c6 29. Qe5 Bb3 30. Qe2 Nc7 31. Ra1 a5 32. Rb1 Nb5 33. Ra1 c5 34. Rb1 c4 35. Ra1 Be5 36. Rb1 Bd4+ 37. Qe3 Bxe3+ 38. Ke2 Ra8 39. Kxe3 Kc8 40. Kf2 Na3 41. Ra1 Ra7 42. Ke2 Rd7 43. Ke3 Rb7 44. Kf2 Rc7 45. Ke2 Ra7 46. Rb1 Rd7 47. Ke3 b5 48. bxa3 c3 49. Rb2 Rb7 50. Kf2 Rc7 51. a4 Rc6 52. Ke2 Re8 53. Ke3 Kd8 54. Kd4 Bxa2 55. Ke5 Kc8 56. Ne4 bxa4 57. Rb6 Kd8 58. Nf6 Bc4 59. Ng4 Rc5+ 60. Ke4 Kc8 61. Ke3 Re7 62. Ne5 Rcc7 63. Kd4 Rc6 64. Ba3 f6 65. Ke3 Bb3 66. Kf2 Ra7 67. Ke2 Rc5 68. Ke3 Rc4 69. Bb4 a3 70. Kf2 a4 71. Ke2 a2 72. Ke3 Rc5 73. Kd4 Rb5 74. Ke3 Rc7 75. Kf2 a1=Q 76. Ke2 Rd5 77. Nf7 Rd4 78. Nh8 h5 79. Nf7 Rc6 80. Nd8 Rc5 81. Nc6 h4 82. Ne5 Rxb4 83. Ke3 Kd8 84. Kf2 Rcc4 85. Ke2 Kc8 86. Ke3 a3 87. Kf2 Rc5 88. Ke2 Bd5 89. Nf7 Bc4 90. Nh8 Ra5 91. Rd6 Raa4 92. Ke3 Bb5 93. Kf2 f5 94. Ke2 Ba6 95. Ke3 Bb7 96. Kf2 Ba8 97. Ke2 Kb7 98. Nf7 Ka7 99. Nd8 Kb8 100. Ke3 Kc7 101. Kf2 Kc8 102. Ke2 Bb7 103. Rb6 Bc6 104. Ke3 Ba8 105. Nc6 Kd7 106. Kf2 Kc7 107. Ke2 a2 108. Ne5 Kc8 109. Nf7 Kd7 110. Nd8 Kc7 111. Ke3 Kc8 112. Kf2 Kxd8 113. Ke2 Ke8 114. g4 Qb2 115. Ke3 Qb1 116. Kf2 Qxf1+ 117. Kxf1 Kd7 118. Kg2 e5 119. Kf2 Ke7 120. Ke2 Bd5 121. Ke3 Ke8 122. Kf2 Be4 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "83"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 g8f6 e4e5 f6d5"]
+
+1. e4 Nf6 2. e5 Nd5 3. g4 Rg8 4. c4 Nc6 5. h3 Nxe5 6. b4 d6 7. Qc2 Be6 8. c5 Kd7 9. cxd6 Kxd6 10. a3 Kd7 11. Qc3 Ke8 12. Kd1 Kd7 13. Qc5 Ke8 14. Qxa7 Qd7 15. Rh2 Qd8 16. Rg2 Kd7 17. Rg3 Kd6 18. Bg2 Qd7 19. Bb2 Kc6 20. Nf3 Qe8 21. Ng5 Kd7 22. f3 Kd8 23. Bf1 Qd7 24. Nxe6+ Ke8 25. Nxc7+ Kd8 26. Bg2 Qe8 27. Qa6 Kd7 28. Qb5+ Kd6 29. Qc5+ Kd7 30. Qc6+ Kd8 31. Bc1 Qd7 32. b5 Qe8 33. Qxe8+ Kxc7 34. Ra2 Ra4 35. Rc2+ Kd6 36. Qxf7 Kd7 37. Qe6+ Kxe6 38. Rc4 Kf7 39. Rc5 Kg6 40. Bf1 Kg5 41. h4+ Kg6 42. Ke1 Kf7 43. Kf2 Kg6 44. Bc4 Kf7 45. Ba2 Rd4 46. h5 Ra4 47. Rc6 Rd4 48. Bb3 Ra4 49. Bc4 h6 50. Ba2 Rd4 51. Kg2 g6 52. Kh1 Ra4 53. hxg6+ Rxg6 54. f4 Rf6 55. f5 Kg8 56. Kg1 Kf7 57. Kg2 Kg8 58. Kh3 Kf7 59. Rgc3 Rg6 60. R3c5 Kg8 61. f6 Rxf6 62. Kh4 Kf7 63. Nc3 Kg8 64. Nd1 Kf7 65. Rc3 Rf2 66. R3c4 Kg8 67. R6c5 Kh8 68. Rf4 Kh7 69. Re4 Kh8 70. Re3 Kh7 71. Rb3 Rd4 72. Rh3 Kh8 73. Rhc3 Kg8 74. R3c4 Kf7 75. Bb2 Kg8 76. Bc3 Kg7 77. Ba5 Kg6 78. Bb4 Kf7 79. Bb1 Kg8 80. Bc3 Kf7 81. Ba5 Kg8 82. Ba2 Kf7 83. Bb4 Kg8 84. Bb3 Kf7 85. Rc6 Kg8 86. Ba4 Kg7 87. R6c5 Re2 88. Bc3 Kg6 89. Ba5 Kf7 90. Bb3 Kg8 91. Rc6 Kg7 92. Ba4 Kh8 93. Bb6 Kh7 94. Bc5 Kh8 95. Ba7 Kh7 96. Bb6 Re3 97. Bc5 Kh8 98. Ba7 Kg8 99. Bb8 Kf7 100. R4c5 Kg8 101. Rc3 Kf7 102. Bd6 Kg8 103. R3c5 Kg7 104. Rc2 Rf3 105. R6c5 Rf7 106. R2c3 Kh8 107. R5c4 Kg8 108. Bb3 Rf5 109. Rg3 Kf7 110. Rh3 Kg8 111. Bxe7 Kh8 112. Bd8 Rf7 113. Rhc3 Rc7 114. Ba4 Rh7 115. Rc7 Rd7 116. R7c5 Rxd8 117. d3 Bg7 118. Rc6 Kh7 119. Rc7 Kh8 120. R7c5 Kh7 121. R5c4 Rg8 122. Rc7 Kh8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "84"]
+[White "best"]
+[Black "cand2"]
+[Result "0-1"]
+[Opening "e2e4 g8f6 e4e5 f6d5"]
+
+1. e4 Nf6 2. e5 Nd5 3. Ke2 Rg8 4. Kf3 c5 5. Ke4 h6 6. Bc4 a5 7. Kxd5 a4 8. Kxc5 b6+ 9. Kd4 Nc6+ 10. Ke3 Nd4 11. Kxd4 d5 12. Ke3 g6 13. Kd4 Ba6 14. Ke3 Bb5 15. h4 Qd7 16. Rh2 Rc8 17. Kd4 Bxc4 18. Ke3 Bd3 19. e6 Bxc2 20. Kd4 Qd8 21. Ke5 Bxd1 22. h5 Rg7 23. f3 Ra8 24. Rh4 Qd7 25. Kf4 d4 26. Ke4 Qb7+ 27. Ke5 Rc8 28. Re4 Bxf3 29. Re3 Qa8 30. d3 Qb7 31. Nd2 Rd8 32. Ne4 Rd7 33. Rb1 Qc8 34. Ra1 Qc7+ 35. Nd6+ Qxd6# 0-1
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "85"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 d7d6 d2d4 g8f6"]
+
+1. e4 d6 2. d4 Nf6 3. Nc3 Kd7 4. Qh5 Ng4 5. Rb1 Ne5 6. Kd2 Ke8 7. Ke2 Qd7 8. f3 h6 9. a4 Qd8 10. h4 Be6 11. Qg4 Qd7 12. Ra1 Qc8 13. Ra2 Bf5 14. Rh2 Kd7 15. Rh3 Kd8 16. Qg5 Kd7 17. Qf6 Ke8 18. d5 Kd7 19. g4 Ke8 20. Rh2 Kd7 21. Qg5 Ke8 22. Qxf5 Qd8 23. Qe6 Qd7 24. Qf6 Qc6 25. Bg2 Kd7 26. Qxg7 Ke8 27. Qg8 Kd7 28. Nh3 Kd8 29. Bf1 Qe8 30. Nb5 Kd7 31. Bg2 Bg7 32. Ra1 Kd8 33. Bf1 Rxg8 34. Nf4 Qd7 35. Nc3 Qe8 36. Ra3 Kd7 37. Ra2 Kd8 38. Kd2 Kd7 39. Bh3 Kc8 40. Ke2 Qd7 41. Bf1 Qd8 42. Ra3 Kd7 43. Ne6 Ke8 44. Ng5 Kd7 45. Nh3 Ke8 46. Ra1 Kd7 47. Nf4 Kc8 48. a5 Qd7 49. Ra4 Qe8 50. Rd4 Kd8 51. Be3 Kd7 52. Bg1 Kd8 53. Kf2 Qd7 54. Rd3 Qe8 55. Be2 Kd7 56. Rd4 Kd8 57. Rh1 Qd7 58. Rd3 Re8 59. Rh2 Qc8 60. Rd4 Kd7 61. Rd1 Kd8 62. Rd3 Kd7 63. Rd4 Kd8 64. Rd1 Kd7 65. Rd2 Nbc6 66. Bf1 Kd8 67. Rd3 Qxg4 68. Re3 Kd7 69. Ke1 Kd8 70. Ke2 Kd7 71. Kd2 Kd8 72. Bg2 Qc8 73. Rh3 Kd7 74. Bh2 Kd8 75. Ng6 Kd7 76. Nh8 Kd8 77. Ne2 Qg4 78. Bg3 Kd7 79. Be1 Nd4 80. Nc3 Kd8 81. h5 Qc8 82. Rh4 Kd7 83. Bf1 Rb8 84. Bb5+ Kd8 85. Ba6 Kd7 86. Rh3 Kd8 87. Bb5 Qg4 88. Bc6 Qc8 89. Bxb7 Kd7 90. Kd1 Bxh8 91. Kd2 Kd8 92. Rg3 Qg4 93. Rh3 Qg7 94. Rg3 Kd7 95. Nb5 Kd8 96. Nxa7 Kd7 97. Rc3 Kd8 98. Kd1 Qf8 99. Rh3 Kd7 100. Rh2 Ne6 101. Ra3 Kd8 102. Rh3 Qg8 103. Rd3 Kd7 104. Kc1 Qg7 105. Rg3 Kd8 106. Kd2 Kd7 107. Kd1 Qf8 108. Kc1 Kd8 109. Kd2 Kd7 110. Ke2 Kd8 111. Kf1 f5 112. exf5 Kd7 113. f6 Kd8 114. Rg4 Kd7 115. c3 Kd8 116. Rg3 Qg8 117. c4 Kd7 118. Rc3 Kd8 119. Rg4 Qf7 120. Rf4 Qg8 121. Kf2 Kd7 122. b3 Kd8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "86"]
+[White "best"]
+[Black "cand2"]
+[Result "0-1"]
+[Opening "e2e4 d7d6 d2d4 g8f6"]
+
+1. e4 d6 2. d4 Nf6 3. Bc4 h6 4. Ke2 b5 5. Kf3 d5 6. Ke3 Kd7 7. exd5 Rh7 8. h4 Ba6 9. Rh2 b4 10. h5 Ke8 11. Kf3 Ne4 12. Kxe4 g6 13. Ke3 Rh8 14. Kf4 Rg8 15. Ke5 Qc8 16. Rh4 Qf5# 0-1
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "87"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 g7g6 d2d4 f8g7"]
+
+1. e4 g6 2. d4 Bg7 3. Nc3 d6 4. Qh5 Bg4 5. Qg5 Kd7 6. Qh4 Ke8 7. Qg5 Qd7 8. Nb5 Qd8 9. b3 Kd7 10. Qh4 Be6 11. Qh5 g5 12. Qh4 Ke8 13. Qh5 Qd7 14. g4 Qd8 15. Qh4 Kd7 16. Bh3 Bf5 17. d5 h6 18. Bf1 gxh4 19. Nh3 Ke8 20. f3 Kf8 21. Bg2 Qd7 22. Rb1 Ke8 23. Bf1 Qd8 24. Na3 Kd7 25. e5 Ke8 26. Ra1 Qd7 27. Nf4 Qd8 28. Bb2 Kd7 29. Ne6 Bxe6 30. h3 Bf5 31. Nb1 Ke8 32. exd6 Kd7 33. Bc1 Ke8 34. Rh2 Kf8 35. Ke2 Ke8 36. Be3 Kf8 37. b4 Bh7 38. a3 Ke8 39. Ra2 Kf8 40. Rb2 Ke8 41. Rh1 Kd7 42. Ra2 Kxd6 43. Ra1 Qd7 44. Rh2 Qe8 45. a4 Kd7 46. Ra3 Kd8 47. Rc3 Kd7 48. Rc5 Kd8 49. Kd2 Kd7 50. Rc4 Kd8 51. Rxc7 Qd7 52. Nc3 Qe8 53. Bd4 Qd7 54. Ke1 Qe8 55. Ke2 Qd7 56. Kd2 Qe8 57. Ke1 Qd7 58. Rh1 Ke8 59. Bc5 Qd8 60. Ke2 Qd7 61. Rg1 Kf8 62. Rg3 Ke8 63. Bg2 Qd8 64. Kf1 Qd6 65. Kf2 Qxc7 66. Ke1 Qf4 67. b5 Kd7 68. Na2 Ke8 69. Ke2 Kf8 70. Kd1 Ke8 71. Nc3 hxg3 72. Na2 Kd7 73. Bf1 Kd8 74. Nc1 Kd7 75. Bg2 Ke8 76. Ne2 Kd7 77. Nxg3 Ke8 78. Nh5 Kd7 79. a5 Ke8 80. Nxg7+ Kd7 81. Ne6 Ke8 82. Bf1 Kd7 83. c3 Ke8 84. Bg2 Qc7 85. Kd2 Kd7 86. Bh1 Kc8 87. Bg2 fxe6 88. dxe6 Kd8 89. Bf1 Ke8 90. Kc1 Qb6 91. Kd1 Nc6 92. Kd2 Ne5 93. Kc1 Qd8 94. Bd3 Qd4 95. Be2 Qxc5 96. Bf1 Kf8 97. Kd1 Kg7 98. Ke1 Kg6 99. Be2 Kf6 100. Bf1 Kg7 101. Bg2 Kf8 102. Kf1 Ke8 103. h4 Kf8 104. Ke1 Ke8 105. Bf1 Qc8 106. Kf2 Qc7 107. Be2 Qb8 108. Kf1 Qc8 109. Kf2 Qc7 110. Bf1 Qb8 111. Bh3 Bf5 112. gxf5 Kf8 113. Bg2 Ke8 114. Kf1 Rh7 115. Ke1 Qc8 116. f4 Qc7 117. Bf1 Qb8 118. Ke2 Nf7 119. Kd1 Ng5 120. Ke1 Rh8 121. c4 Kf8 122. Kd2 Ke8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "88"]
+[White "best"]
+[Black "cand2"]
+[Result "0-1"]
+[Opening "e2e4 g7g6 d2d4 f8g7"]
+
+1. e4 g6 2. d4 Bg7 3. Ke2 Bxd4 4. Kf3 Bxf2 5. Kxf2 g5 6. Kf3 e5 7. Kg3 h6 8. Kg4 d6+ 9. Kg3 Bd7 10. Kf3 Bc6 11. Ke3 Bxe4 12. Kxe4 Rh7 13. Kd5 Qd7 14. Ke4 a5 15. Kd5 Qc6# 0-1
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "89"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "e2e4 b8c6 d2d4 d7d5"]
+
+1. e4 Nc6 2. d4 d5 3. g4 Kd7 4. Bh3 Ne5 5. Ne2 Kd6 6. Nec3 Qd7 7. Bh6 Qe8 8. Ne2 Qb5 9. Nf4 Bxg4 10. Ne6 Qc4 11. Nc3 Bxe6 12. Qg4 Bf5 13. Qg5 Kd7 14. Qg3 Ke8 15. Qg4 Qd3 16. Na4 g6 17. Bg7 Bxg7 18. Qxf5 g5 19. Bf1 Qc4 20. exd5 h6 21. h4 gxh4 22. Rb1 Qxa4 23. Kd2 Qd7 24. b3 Qd8 25. Bg2 Qd6 26. Rhc1 Qd7 27. Bf1 Qd8 28. Bh3 Qd7 29. Qxe5 Qd8 30. Ke1 Qd7 31. Kd1 Qd6 32. Qh5 Qe6 33. Qxh4 Kd7 34. Bf5 Kd6 35. Qg4 Kd7 36. Qh5 Qxf5 37. f3 Ke8 38. Ke2 Kd7 39. Ra1 Kd8 40. Qg6 Kd7 41. Qg4 Ke8 42. Ke1 Qxf3 43. Qxf3 Kd7 44. Qe4 Kd6 45. Kf2 Rh7 46. Kf3 Kd7 47. Qf5+ Kd8 48. Kg4 Rh8 49. Qe6 Ke8 50. Qf6 Kd7 51. Qxh6 Ke8 52. Qg5 Kd7 53. Rab1 Kd6 54. Qf5 Rh7 55. Qf3 Rh6 56. Rb2 Kd7 57. Qe4 Ke8 58. Qf5 Rf6 59. Qe6 Rf2 60. Kh3 Rg2 61. Kh4 Rf2 62. Rcb1 Rf6 63. Qf5 Rd8 64. Rc1 Rd7 65. c4 Rd8 66. a3 Rd7 67. Rcc2 Rdd6 68. Qh3 Rf2 69. Qe6 Rd8 70. Kh3 Rd7 71. Kg4 Rd8 72. Kg5 Re2 73. Kf4 Rd7 74. Rb1 Rd6 75. Kg3 Rd7 76. Rd1 Rd8 77. Rdc1 Ra8 78. Re1 Rb8 79. Rh1 Rxe6 80. a4 Re5 81. Kh4 Kd7 82. Rh3 Ke8 83. Rhh2 Rc8 84. Rh1 Kd7 85. Re1 Kd6 86. Ree2 Re8 87. a5 Kd7 88. Rxe5 Kd6 89. Re4 Kd7 90. Ree2 Kd8 91. Re6 Kd7 92. Rb2 f5 93. Rxe7+ Kd8 94. Re6 b5 95. cxb5 c5 96. Rd6+ Ke7 97. Re2+ Kf8 98. Ra6 Ne7 99. Re5 Kg8 100. Rxa7 Nc6 101. Re6 Ne5 102. Rc7 c4 103. Ra7 Rc8 104. Raa6 Nd7 105. Rad6 Kf7 106. a6 Nc5 107. a7 Kg8 108. Ra6 Nxb3 109. Rad6 Na5 110. Kg3 Kf7 111. Kf3 Rc7 112. Ke2 Kg8 113. Kd1 Nb7 114. a8=Q+ Bf8 115. Ra6 Rh7 116. Ke1 Kf7 117. Rab6 Nd8 118. Qa5 Kg8 119. Rbc6 Rd7 120. Qa6 Kf7 121. Qb6 Bg7 122. Qxd8 Bh8 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "90"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "e2e4 b8c6 d2d4 d7d5"]
+
+1. e4 Nc6 2. d4 d5 3. Bc4 a5 4. exd5 g5 5. Ke2 a4 6. f3 Nh6 7. Ke3 b6 8. Kf2 Nb4 9. Ke2 Ba6 10. Ke3 Rg8 11. Kf2 Ng4+ 12. Ke2 Rg7 13. c3 Ra7 14. Qd3 Qd6 15. Qxh7 Kd8 16. Qh8 Qc5 17. Qh4 b5 18. Qh7 Ne5 19. Ke3 f6 20. Kf2 Rg6 21. Ke2 Bg7 22. Ke3 Rb7 23. Kf2 Qb6 24. Ke2 Bh8 25. Ke3 g4 26. Kf2 Ke8 27. Ke2 Rg5 28. Qh6 g3 29. Qxf6 Rg4 30. Qh4 Rg5 31. Qe4 Rg4 32. Qxg4 Kf7 33. Qc8 Qc5 34. Qxc7 Rxc7 35. dxe5 Qc6 36. Ke3 Qg6 37. Kd4 Bb7 38. Ke3 Na6 39. a3 Kg7 40. Kd4 Rxc4+ 41. Ke3 Qe8 42. Nd2 Kf7 43. Rb1 Bc8 44. Ra1 Bd7 45. Rb1 Be6 46. h4 Bxd5 47. Rh2 Qf8 48. Ra1 Rc5 49. Rb1 Qc8 50. Kd4 Qf5 51. h5 Qd7 52. Ke3 Bb3 53. Ra1 Ba2 54. Rb1 Rc6 55. Rh4 Bxb1 56. Re4 Bc2 57. Rg4 Bb3 58. Rg8 Ba2 59. Rg6 Bb1 60. Rh6 Re6 61. Rxe6 Ba2 62. Rh6 Qe8 63. Rd6 Nb4 64. Rb6 Bb1 65. Ne4 Qd7 66. Nxg3 Ba2 67. Kf2 Na6 68. Ke2 Bb1 69. Ke3 Bc2 70. Kf2 Bb3 71. Ke2 Ba2 72. Ke3 Bb1 73. Kf2 Bc2 74. Ke2 Bb3 75. Ke3 Qc7 76. Kf2 Bc2 77. Ke2 Nb4 78. Ke3 Na2 79. Kf2 Nxc3 80. Rh6 Nb1 81. Ke2 Qc5 82. Rb6 Qc4+ 83. Ke3 Qa2 84. Kf2 Qd5 85. Ke2 Qd4 86. Bh6 Bb3 87. Bf8 Qc4+ 88. Ke3 Bc2 89. Kf2 Qc7 90. Ke2 Bb3 91. Ke3 Ba2 92. Kf2 Qc2+ 93. Kf1 Qb3 94. Kf2 Qc4 95. Bg7 Qc5+ 96. Ke2 Bd5 97. Bf8 Bb3 98. Nh1 Qc3 99. Nf2 Qc6 100. Nd3 Ba2 101. Nb4 Be6 102. Ke3 Bb3 103. Kf2 Qc2+ 104. Ke1 Qd2+ 105. Kf1 Qd4 106. Ke2 Qc4+ 107. Nd3 Bc2 108. Ke3 Bd1 109. Nb4 Qc7 110. Kf2 Qc2+ 111. Kf1 Qf5 112. Bh6 Bc2 113. Kf2 Qd7 114. Ke2 Bb3 115. Ke3 Ba2 116. Kf2 Qf5 117. Ke2 Qxh5 118. Ke3 Bd5 119. Kd4 Bb3 120. Kc5 Bc4 121. Bf8 Qf5 122. Bg7 Qd7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "91"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "d2d4 d7d5 c2c4 e7e6"]
+
+1. d4 d5 2. c4 e6 3. e4 b5 4. g4 Kd7 5. e5 Ne7 6. Qd3 Ke8 7. Qc3 Kd7 8. Qe3 Ke8 9. Qf4 Kd7 10. Ne2 bxc4 11. Qh6 Ke8 12. Qe3 Kd7 13. Qf4 Ke8 14. Qh6 Kd7 15. Qe3 Nbc6 16. Nec3 Ke8 17. Qf4 Kd7 18. Bh3 Rg8 19. a3 Nxe5 20. Qxe5 Ke8 21. g5 Kd7 22. Bf1 h6 23. Bf4 Ke8 24. Qf6 Kd7 25. h4 Ke8 26. Bh3 Ng6 27. Be5 Kd7 28. Rh2 Ke8 29. Qxe6+ Ne7 30. Qf6 Bg4 31. Qxh6 Bc8 32. Qh7 Qd7 33. g6 Qd8 34. Bg4 Qd7 35. Rh3 Qd6 36. Bf6 Qd8 37. Kd1 Qd7 38. Kc2 Qd8 39. f3 Qd7 40. Bf5 Qd8 41. Be4 Bg4 42. h5 Kd7 43. Kd1 Ke8 44. Qh6 Kd7 45. Qxg7 Ke8 46. Qxg8 Kd7 47. Rh4 Ke8 48. Qh8 Bc8 49. Qh7 Bg7 50. Qh6 Bg4 51. Qf4 Kd7 52. Qc1 Ke8 53. Qh6 Kd7 54. Qf4 Qg8 55. Qc1 Ke8 56. Qh6 Kd7 57. Qd2 Ke8 58. Ra2 Kd7 59. Rh3 Ke8 60. Qc1 Kd7 61. Qh6 Ke8 62. Qf4 Rb8 63. Qe5 Kd7 64. Bxg7 Ke8 65. Bf5 Rc8 66. Ke1 Bxh5 67. Nd1 Bg4 68. Be6 Qxg7 69. Bd7+ Kf8 70. Ra1 Kg8 71. Kf2 Qh7 72. Be6 Qh6 73. Rh1 Qh8 74. Rh2 Qh5 75. Bd7 Re8 76. Rh3 Be6 77. Bxe6 Nxg6 78. Rg3 Qh8 79. Nbc3 Qh5 80. Kg2 Qg4 81. Qf6 Qxe6 82. Qf5 Qe7 83. Kf2 Qxa3 84. Qg4 Qa5 85. Kg2 Qa4 86. Nb5 Qxb5 87. Kf2 Qa5 88. Ra4 Qxa4 89. Nc3 Qd7 90. Qh5 Qe7 91. Rh3 Kg7 92. Kg2 Kf8 93. Kh2 Kg8 94. Kh1 Qa3 95. Kg2 Qa6 96. Kf2 Qc6 97. Nd1 Kg7 98. Kg2 Qd7 99. Nc3 Qe7 100. Kf2 Qa3 101. Nb5 Qa4 102. Qh7+ Kf8 103. Qh6+ Kg8 104. Qg5 Qxb5 105. Qg4 Qc6 106. Qh5 Qa6 107. Qxd5 Qa4 108. Qh5 Kg7 109. Kg2 Kf8 110. d5 Kg7 111. f4 Qd7 112. Kf2 Qd8 113. Kg1 Qa8 114. Rh2 Kf8 115. b3 Kg8 116. Rh1 Kg7 117. Rh3 Qb8 118. Kh1 Kf8 119. Kg2 Kg8 120. Kg3 Kg7 121. Kf2 Qc8 122. Re3 Qd7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "92"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "d2d4 d7d5 c2c4 e7e6"]
+
+1. d4 d5 2. c4 e6 3. Nd2 Bb4 4. Rb1 Bc3 5. Ra1 Nh6 6. Rb1 Qd6 7. h4 Qg3 8. Rh2 Qg4 9. Ra1 Qe4 10. f3 Qf4 11. Kf2 Qe3+ 12. Kg3 Qf2+ 13. Kh3 Qxf3+ 14. Ndxf3 Rg8 15. Rb1 g5 16. Ne5 gxh4 17. Qd3 Nc6 18. Qxh7 Ng4 19. Qh8 Na5 20. Qxh4 Rb8 21. Ra1 Rg7 22. Rb1 Ne3 23. Qf6 Bxb2 24. Qg6 Ke7 25. Rxb2 Kd8 26. Qxf7 Rxf7 27. Rb6 Rh7+ 28. Kg3 Rh5 29. Kf3 Rg5 30. Kxe3 c6 31. Kf3 Rg6 32. Kf2 Ke7 33. Kf3 Rg7 34. Ke3 Rg5 35. Kf3 Rg6 36. Kf2 Kf8 37. Kf3 Ra8 38. Ke3 Rg5 39. Kf2 Rg7 40. Nf7 Kxf7 41. Kf3 Bd7 42. Ke3 Re8 43. Kf2 Rd8 44. Kf3 Rdg8 45. Kf2 Re8 46. Kf3 Re7 47. Kf2 a6 48. Kf3 Bc8 49. Kf2 dxc4 50. Kf3 Bd7 51. Ke4 c3 52. Ke3 Kf8 53. Kf4 c5 54. Kf3 c4 55. Ke4 Re8 56. Ke3 Rd8 57. Kf3 Rc8 58. Ke3 Re8 59. Kf2 Bc6 60. Rxa6 Ree7 61. Ra7 Rc7 62. Rxb7 Rxb7 63. Rh4 Ke7 64. Rh5 Kd8 65. Re5 Rb2 66. Rxe6 Kc8 67. Re5 Bd5 68. Rxd5 Kc7 69. Kf3 Rh7 70. Ke4 Rh5 71. Ke3 Rg5 72. Kf3 Rg7 73. Kf2 Rh7 74. Kf3 Rh6 75. Ke4 Rh4+ 76. Ke3 Rh5 77. Kf2 Rxd5 78. Kf3 Kd8 79. Ke4 Ke7 80. Kxd5 Kf6 81. e3 Rxa2 82. Kc5 Nb3+ 83. Kxc4 Nd2+ 84. Kc5 Rc2 85. Be2 Nb3+ 86. Kc4 Na1 87. Bf3 Rxg2 88. Bd5 Rc2 89. Ba8 Rh2 90. Bh1 Rc2 91. Kc5 Re2 92. Kb6 Rc2 93. Ka7 Ra2+ 94. Kb6 Re2 95. Ka7 Rc2 96. Ka8 Ra2+ 97. Kb8 Re2 98. Kc8 Nb3 99. Kd7 Nd2 100. Kd8 Kf5 101. Kd7 Nb3 102. Ke8 Rg2 103. Kf8 Rc2 104. Kg8 Re2 105. Kf7 Nd2 106. Kg8 Kf6 107. Kh8 Nb3 108. d5 Nc5 109. Ba3 Nd3 110. Bc1 Nb4 111. Kh7 Ra2 112. Kh8 Ra4 113. Bd2 Ke7 114. Kh7 Ke8 115. Kh8 Kf8 116. Kh7 Ke7 117. Kh8 Ke8 118. Kh7 Kf8 119. Kh6 Ra6+ 120. Kh7 Rf6 121. Be4 Rd6 122. Kh8 Rh6+ *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "93"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "d2d4 d7d5 c2c4 c7c6"]
+
+1. d4 d5 2. c4 c6 3. g3 Bg4 4. Nc3 Kd7 5. Qd3 Ke8 6. e3 Kd7 7. Qe4 Ke8 8. Qe5 Kd7 9. a3 Be6 10. Qf6 Kd6 11. Qf4+ Kd7 12. Rb1 Ke8 13. Qe5 Kd7 14. Qf6 Kd6 15. Qf4+ Kd7 16. Qe5 Ke8 17. Qf6 Kd7 18. Ra1 Kd6 19. Ra2 Kd7 20. Nb5 Ke8 21. Qf4 Kd7 22. Ne2 Ke8 23. Kd1 Kd7 24. Ra1 Ke8 25. Rb1 Kd7 26. Bg2 Ke8 27. Be4 Kd7 28. Bxd5 Bf5 29. Nec3 g6 30. Ke2 Ke8 31. g4 g5 32. Qxg5 Kd7 33. f3 Ke8 34. Ke1 Qd7 35. Qh4 Bg7 36. Ke2 Qd8 37. Qh5 Kd7 38. Qg6 Ke8 39. Ne4 Kd7 40. Qxh7 Ke8 41. Nec3 Kd7 42. Ke1 Ke8 43. Be4 Qd7 44. gxf5 Qd8 45. h3 Kf8 46. Kf2 Ke8 47. Kg1 Kf8 48. Kh2 Qd7 49. h4 Qxd4 50. Nd1 Ke8 51. h5 Kd7 52. Qxg8 Qb6 53. Kg3 Qd8 54. Kh3 Kc8 55. Rh2 Kd7 56. Rg2 Qxg8 57. Rg4 Ke8 58. f6 Kd7 59. Bd3 Kd8 60. Bf5 Qe8 61. Kg2 Qd7 62. Kf2 Qd4 63. exd4 Ke8 64. Rg3 Rg8 65. Bd2 Bf8 66. Rg4 Rg6 67. Rxg6 Bg7 68. Bg5 Bf8 69. Ra1 Bh6 70. Be4 Kd7 71. Rb1 Kd8 72. Bh4 Kd7 73. Rg7 Ke8 74. Rg8+ Kd7 75. Kg2 Bf8 76. Kf1 Ke8 77. Kf2 Kd7 78. Kg3 Ke8 79. Bg5 c5 80. Kg4 Kd7 81. Kh3 Ke8 82. Kh4 Kd7 83. Bd3 Kd8 84. Bf4 Kd7 85. Be4 Ke8 86. Bc1 Kd7 87. Bd2 Ke8 88. Bh6 Nc6 89. Ra1 Ne5 90. Bg7 Kd7 91. Rb1 Kd8 92. Bf5 Rb8 93. Ra1 Nd7 94. dxc5 Ne5 95. Rb1 exf6 96. Kg3 Rc8 97. Nc7 Rxc7 98. Kh4 Re7 99. Kh3 Rc7 100. Kg2 Re7 101. Kf2 b6 102. Kg3 Rc7 103. cxb6 Re7 104. b7 Rc7 105. Kh3 Ke7 106. b8=Q Kd6 107. Qe8 Re7 108. Qa8 Kc7 109. Qe4 Kb8 110. Kh2 Rc7 111. Qe3 Re7 112. Qd4 Ka8 113. Ra1 Rc7 114. Kh3 Kb8 115. Rb1 Re7 116. Kg2 Kc7 117. Qc5+ Kb7 118. Kf2 Ka6 119. Kg3 Bxg7 120. Qd6+ Ka5 121. Qd4 Ka4 122. Qc5 Kb3 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "94"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "d2d4 d7d5 c2c4 c7c6"]
+
+1. d4 d5 2. c4 c6 3. f3 Nf6 4. Qd2 Be6 5. Kf2 Qd7 6. Qf4 Nh5 7. Qh6 Nf6 8. Qg6 a5 9. Qxf6 gxf6 10. Nd2 Bh3 11. Rb1 Qg4 12. Ra1 a4 13. Rb1 e6 14. Ra1 b6 15. Rb1 Qf5 16. Ra1 h6 17. Rb1 Rh7 18. Ra1 c5 19. Rb1 Ra5 20. Ra1 Be7 21. Rb1 Rh8 22. Ne4 Rb5 23. Ra1 Rg8 24. Rb1 Kd7 25. Bxh6 Rg7 26. Ra1 Qxe4 27. Rb1 Kd6 28. fxe4 Nc6 29. Kf3 Nb4 30. exd5 Bd8 31. Ra1 Rg4 32. Kf2 Re4 33. Rb1 Re5 34. Kf3 Na6 35. Kf2 Re4 36. Ra1 cxd4 37. Kf3 Re5 38. Kf2 Nc7 39. Rb1 Na8 40. Kf3 Be7 41. Kf2 Rh5 42. Ra1 d3 43. Kf3 Bd8 44. Ke4 Rxh6 45. Ke3 Rh8 46. Rb1 e5 47. Kf2 Rg8 48. Kf3 Rg7 49. Ke4 Rh7 50. Ra1 Rh6 51. Ke3 Rh8 52. Rb1 Rh7 53. Kf2 Rh6 54. Kf3 Rg6 55. Ra1 Be7 56. Ke4 Bf5+ 57. Ke3 Rb4 58. Rb1 Rb3 59. Kf2 Rg8 60. Kf3 Rb8 61. Ra1 Bd8 62. Ke3 Be6 63. Rb1 Kd7 64. Kf3 Bf5 65. Kf2 Ke7 66. Kf3 Ke8 67. Ke3 Kf8 68. Ra1 Ke7 69. Kf2 Bc7 70. Kf3 Kd7 71. Ke3 Kc8 72. Kf2 Rb4 73. Kf3 Rb5 74. Rb1 Be6 75. Ke4 Bd6 76. Ke3 Bf5 77. Kf3 Rb4 78. Kg3 Rb3 79. Kh4 Kd8 80. Kh5 Ke8 81. Ra1 Kd7 82. Kh4 Bc5 83. Kh5 Be7 84. Rb1 Kc8 85. Rc1 Rb4 86. Re1 d2 87. Rb1 b5 88. Ra1 Rb6 89. Kh4 Rb7 90. Kg3 Bd8 91. Kf3 Be6 92. Ke4 Bc7 93. Ke3 f5 94. Kf3 Kd7 95. Rb1 Kd8 96. Kf2 Ke8 97. Ra1 Bd8 98. Kf3 Bh4 99. Ke3 Bg3 100. Rb1 Kd7 101. Kf3 Rxb2 102. Rxb2 Kd8 103. Kxg3 f4+ 104. Kf3 f6 105. Ke4 Bf5+ 106. Kf3 Bc8 107. Rxd2 b4 108. Rd3 a3 109. Ke4 Rc7 110. Rg3 Bf5+ 111. Kf3 Bc2 112. Kf2 Rh7 113. Kf3 Rh5 114. Kf2 Rh6 115. Rf3 Nc7 116. Re3 Nxd5 117. Kf3 Rh5 118. Rxe5 Rf5 119. Kg4 Nc7 120. Re6 Ra5 121. Re5 Ra4 122. Kh5 Ne6 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "95"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "d2d4 d7d5 g1f3 g8f6"]
+
+1. d4 d5 2. Nf3 Nf6 3. Ng5 Kd7 4. b3 Ng4 5. g3 Ne5 6. Nxf7 Ke8 7. Na3 Bg4 8. e4 Be6 9. Nb1 Qd7 10. Qh5 Qd8 11. Qh4 Kd7 12. Qf4 Ke8 13. Qf5 Qd7 14. Qg6 Qd8 15. h4 Kd7 16. Na3 Ke8 17. Nc4 Kd7 18. Nb2 Bf5 19. Qg5 Ke8 20. Bh3 Qd7 21. Qxg7 Bxg7 22. Bxf5 Qd8 23. g4 Qd7 24. h5 Qd8 25. Be6 Qd7 26. a3 Qd8 27. f3 Qd7 28. Rh4 Qd8 29. Ra2 Qd7 30. Kf1 Qd8 31. Kg2 Qd7 32. Kh1 Qd8 33. Nd3 Qd7 34. a4 Qd8 35. Kh2 Qd7 36. Nc5 Qd6 37. Na6 Qd8 38. Nxb8 Qd7 39. Kh1 Qd6 40. Ba3 Qxe6 41. Bb2 Qxf7 42. Kh2 Qg8 43. Bc3 h6 44. Rb2 Qf7 45. Kh1 Qg8 46. Ba5 Rh7 47. Bb6 Qf7 48. Kh2 Qg8 49. Ba5 Qf7 50. Bd2 Qg8 51. Kh1 Rh8 52. Bg5 Kf8 53. Bf6 Ke8 54. Rh3 Kf8 55. Kh2 Ke8 56. Rh4 Kf8 57. Kh3 Qf7 58. Kg2 Ke8 59. Kf1 Qg8 60. Ke2 Qf7 61. Rh3 Qg8 62. Kf1 Qe6 63. Rg3 Qf5 64. exf5 Rg8 65. c3 Bh8 66. Ke1 Kf8 67. Rgg2 Rg6 68. Rgc2 Rxf6 69. c4 Kg8 70. Ke2 Kf7 71. Kf1 Kg8 72. Kg1 Kg7 73. Kh2 Kf8 74. Kh1 Ke8 75. a5 Rxb8 76. Kh2 Kd7 77. b4 Ke8 78. b5 Kd7 79. a6 Ke8 80. Rb4 Kf8 81. Rc3 Ke8 82. Kg1 Kd7 83. Kf1 Ke8 84. Kf2 Kf8 85. Ke1 Kg8 86. Kd2 Kf7 87. Kc2 Kg8 88. Kd1 Kf7 89. Kc1 Rg8 90. Kc2 Re8 91. Kb3 Kg8 92. Kb2 Kf7 93. Rcb3 Kg8 94. Kc3 Kg7 95. Kd2 Kf8 96. Kd1 Kg8 97. Kc1 Kf7 98. Kb1 Kg8 99. Kc2 Kg7 100. Kc3 Kf8 101. Kd2 Kf7 102. Kc1 Kg8 103. Kb1 Rc8 104. Kc2 Kf7 105. Kc3 Rg8 106. axb7 Re8 107. b6 axb6 108. b8=Q Kg8 109. Qb7 Kg7 110. Kb2 Kf8 111. Ka1 Kg8 112. Kb1 Kf7 113. Ra3 Rc8 114. Ra5 Kg8 115. Kc2 Kf7 116. Rab5 Rg8 117. Rxb6 Ke8 118. Qb8+ Kd7 119. Qxg8 e6 120. Qxe6+ Rxe6 121. R6b5 Ke8 122. Rb8+ Kd7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "96"]
+[White "best"]
+[Black "cand2"]
+[Result "0-1"]
+[Opening "d2d4 d7d5 g1f3 g8f6"]
+
+1. d4 d5 2. Nf3 Nf6 3. Ne5 c5 4. Qd3 Rg8 5. Qc4 Be6 6. h4 b6 7. f3 Bg4 8. Kf2 Bxf3 9. Kxf3 Qd6 10. Kf2 a5 11. Kf3 Na6 12. Kg3 h6 13. Kf3 Ng4 14. Qa4+ Kd8 15. Rh2 Ra7 16. Qb5 g6 17. Qxa5 Rb7 18. h5 Nf2 19. Kf4 Nd3+ 20. Kg3 Kc8 21. Kh4 e6 22. Kg3 Qe7 23. Kg4 gxh5+ 24. Kxh5 Rd7 25. Qxa6+ Rb7 26. Qa7 Qc7 27. Kh4 Be7+ 28. Kh5 Qd6 29. Kxh6 Qc7 30. Nxf7 e5 31. dxe5 Bg5+ 32. Kh5 Qxf7+ 33. Kg4 Qh7 34. Kg3 Qh5 35. c3 Bf4# 0-1
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "97"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "d2d4 d7d5 c2c4 g8f6"]
+
+1. d4 d5 2. c4 Nf6 3. e3 Ng4 4. Nc3 Ne5 5. g4 Be6 6. a4 Kd7 7. Nh3 Ke8 8. Bd3 Qd7 9. Nf4 Qd6 10. Be4 Kd7 11. Ra2 Ke8 12. Qf3 Qd8 13. Kf1 Qd7 14. Kg1 Qd6 15. cxd5 Kd7 16. b4 Ke8 17. Re2 Qd7 18. Kg2 Qd6 19. Rg1 Qb6 20. Rf1 Bf5 21. Rh1 Kd7 22. Rg1 Ke8 23. b5 g6 24. a5 g5 25. Kf1 Qh6 26. Rh1 Qh4 27. Ke1 Bg7 28. Ne6 Qh5 29. Rg1 Kd7 30. Rg3 Kd6 31. Kd2 Rg8 32. Kd1 fxe6 33. dxe5+ Kxe5 34. Ke1 Qe8 35. Nd1 Qd7 36. Bxf5 h6 37. h3 Qe8 38. Qe4+ Kd6 39. Bxe6 Qd7 40. Kd2 Re8 41. Rf3 Qd8 42. Ke1 Qd7 43. Rf4 Qc6 44. Bb2 Qd7 45. Ba1 Qd8 46. Ra2 Qd7 47. f3 Nc6 48. Bxd7 Ne5 49. Rf6+ Kxd7 50. Nb2 Kd8 51. Rc6 Kd7 52. Kd1 Kc8 53. Rd6 e6 54. Kc2 Rf8 55. Rc6 Kd7 56. Kd2 Ke8 57. Ke1 Kd7 58. Qg6 Rf6 59. Qh7 Ke8 60. Qg8+ Kd7 61. Qxg7+ Kd8 62. Qxf6+ Kd7 63. Qxe6+ Kd8 64. Qf6+ Kd7 65. Qg6 Ke7 66. Qh5 Kf8 67. f4 Kg8 68. f5 Kg7 69. Kd1 Kf8 70. Kc1 Nxg4 71. Kd2 Ne5 72. Rb6 Kg8 73. Nd1 Kg7 74. Ke1 Kf8 75. Rh2 Kg8 76. Kd2 Kh8 77. Rh1 Kh7 78. Rg1 Rd8 79. Rf1 Rd7 80. Rf3 Kh8 81. Kc2 Kh7 82. Ra6 Rd8 83. d6 Kh8 84. b6 Kh7 85. Nb2 Rg8 86. dxc7 Re8 87. Nd1 Rb8 88. c8=Q axb6 89. Kc3 Ra8 90. Qb8 Ra7 91. Rxb6 Kg7 92. Qxa7 Kf8 93. Qa6 Kg8 94. Qb5 Nf7 95. Kc4 Nh8 96. Qxh6 g4 97. Qg6+ Nxg6 98. Bc3 Kf7 99. Bh8 Kg8 100. hxg4 Kf7 101. Rf4 Kg8 102. f6 Ne7 103. Kb3 Kf7 104. e4 Kg8 105. e5 Kf8 106. Ne3 Kg8 107. Nf1 Kf7 108. Nh2 Kg8 109. Rf1 Kf7 110. Rg1 Kg8 111. Rc1 Kf7 112. g5 Kg8 113. Re1 Kf7 114. Rb1 Kg8 115. Rc1 Kf7 116. Rc4 Kg8 117. Kb2 Kf7 118. Rcc6 Kg8 119. Kb1 Kf7 120. Qc4+ Kg6 121. Ka2 Kxg5 122. Kb3 Kh5 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "98"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "d2d4 d7d5 c2c4 g8f6"]
+
+1. d4 d5 2. c4 Nf6 3. Nd2 Rg8 4. Rb1 b5 5. f3 bxc4 6. Ra1 Nc6 7. Rb1 Ne4 8. Ra1 Be6 9. Rb1 Nb4 10. Ra1 Bg4 11. Rb1 Bh3 12. Ra1 a5 13. Rb1 Ra6 14. Ra1 c5 15. fxe4 Rf6 16. Rb1 Qc8 17. exd5 Rh6 18. Ra1 Qe6 19. Nb3 Qf5 20. Rb1 Qd7 21. Nxa5 Qf5 22. Ra1 Qc8 23. Rb1 Qg4 24. Nb7 Qf3 25. Ra1 Qh5 26. Qd2 Qg4 27. Qf4 Qf3 28. Qc7 Qf2+ 29. Kd1 Qe1+ 30. Kxe1 Nd3+ 31. Kd1 Rd6 32. Rb1 Rxd5 33. Qf4 e6 34. Ra1 Bd6 35. Kd2 Be5 36. Qh6 Ke7 37. Qxh3 Bd6 38. Qh6 gxh6 39. Rb1 Ke8 40. Nd8 Kf8 41. Ra1 Be7 42. Nc6 Ke8 43. Rb1 Rh8 44. Ne5 Rf8 45. Ra1 Rg8 46. Nxf7 Kf8 47. Rb1 Kxf7 48. Ra1 Re8 49. Rb1 Rf8 50. dxc5 Ra8 51. Ra1 Rxa2 52. Rb1 Rxb2+ 53. Kc3 Rb5 54. Rxb5 Rd4 55. Ba3 Kf6 56. Bb2 Nb4 57. Ba3 Nc2 58. Ra5 Ne3 59. Kb4 Bxc5+ 60. Kb5 Kg5 61. Ra4 Kg6 62. Ka5 Kh5 63. Rxc4 Kh4 64. Rc1 Rb4 65. Re1 Rb6 66. Rb1 Rd6 67. Rb2 Rd5 68. Ka6 Rd3 69. Kb7 e5 70. Kb8 Kh5 71. Kc8 Rxa3 72. Kd8 Ra8+ 73. Kd7 Ra6 74. Ke8 Ba7 75. Kf8 Ra5 76. Kg8 Bc5 77. Kh8 Ra8+ 78. Kxh7 Ra6 79. Kh8 Ra3 80. Kg8 Ra4 81. Kf7 Rf4+ 82. Kg8 Rf8+ 83. Kg7 Re8 84. Rd2 Kh4 85. Rd7 Re6 86. Rd1 Re7+ 87. Kf8 Rd7+ 88. Ke8 Rb7 89. Rd8 Rg7 90. Rd1 Rg5 91. Kd7 Rf5 92. Kd8 Rf7 93. Rd3 Rh7 94. Rc3 Ba7 95. Rc1 Bb6+ 96. Rc7 Bxc7+ 97. Ke8 Bd6 98. Nf3+ Kh5 99. Ng5 Kxg5 100. h4+ Kg4 101. Rg1 Kxh4 102. Rh1+ Kg5 103. Rg1 Be7 104. Kd7 Bb4+ 105. Kd8 Ba5+ 106. Ke8 Bc3 107. Kf8 Kf5 108. Kg8 Kf6 109. g3 Rg7+ 110. Kh8 Ke6 111. Bg2 Ke7 112. Rc1 Bb4 113. Rc4 Ba3 114. Rh4 Bd6 115. Rh2 Nc2 116. Rh4 Na1 117. Rd4 Rg8+ 118. Kh7 Ra8 119. Kxh6 Rh8+ 120. Kg6 Rg8+ 121. Kh6 Rg6+ 122. Kh7 Nc2 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "99"]
+[White "cand2"]
+[Black "best"]
+[Result "*"]
+[Opening "d2d4 g8f6 c2c4 e7e6"]
+
+1. d4 Nf6 2. c4 e6 3. e4 Ng4 4. Qb3 Ne5 5. a3 h6 6. Nc3 d6 7. Qb5+ Qd7 8. Qa5 Qe7 9. Nd1 Rh7 10. h4 Rh8 11. d5 Kd7 12. a4 Ke8 13. Rh3 Kd7 14. Raa3 Ke8 15. dxe6 Rg8 16. Rac3 Bxe6 17. Bg5 Kd7 18. Rcg3 Ke8 19. b3 Bf5 20. Bf6 Kd7 21. Nf3 Kd8 22. Rh1 Bg6 23. Nd4 Kd7 24. Qb4 Ke8 25. Qb5+ Ned7 26. Rhh3 Nc6 27. Qb6 Nce5 28. f3 Nc5 29. Rh1 Kd7 30. Rh2 Ke8 31. Bxg7 Bxg7 32. Qb5+ Ned7 33. Qa5 Ne5 34. Qc3 Nxb3 35. Qb4 Na5 36. Qb5+ Nd7 37. Qb6 Ne5 38. Bd3 Kd7 39. Bb1 Ke8 40. Qb5+ Nd7 41. Qxa5 Ne5 42. Qc3 Kd7 43. Kd2 Ke8 44. Nf5 Kd7 45. Qa5 Ke8 46. Qxc7 Nd7 47. Qc6 Rb8 48. Qxb7 Rc8 49. Qc6 Rc7 50. Qxc7 Bf8 51. Qc6 Rg7 52. Qb5 Rh7 53. Qa5 Bg7 54. Qb6 Ne5 55. Qb5+ Nd7 56. Qa5 Rh8 57. Qc7 Rg8 58. Qc6 Bf8 59. Qb7 Ne5 60. Qb6 Bg7 61. Qb5+ Nd7 62. Qb3 Ne5 63. Qc3 Kd7 64. Qd4 Ke8 65. Ke2 Kd7 66. Kf2 Kd8 67. Qb6+ Kd7 68. Qc7+ Kxc7 69. Ke1 Re8 70. Ba2 Kb8 71. Nxg7 Kc8 72. Nf5 Kc7 73. Kf2 Kb8 74. Ke2 Ka8 75. Ng7 Qf8 76. Rh1 Qg8 77. Rhh3 Kb8 78. Kf2 Kc8 79. Ke1 Kc7 80. Rh2 Kb8 81. Nf5 Kc8 82. Kf2 Kc7 83. Ke2 Kd8 84. Kf1 Kd7 85. a5 Kd8 86. Kf2 Kd7 87. a6 Kd8 88. Ke1 Kd7 89. c5 Kd8 90. Nc3 Kd7 91. Ke2 Kd8 92. Kf1 Kd7 93. Ke1 Kd8 94. Nd5 Kd7 95. Rhh3 Kc6 96. Kf2 Kxc5 97. Rh2 Rc8 98. Ke1 Qe8 99. Nc3 Qe7 100. Na4+ Kb4 101. Nb6 Kb5 102. Rh1 Ka5 103. Nd5 Re8 104. Rh2 Ka4 105. Nc3+ Ka3 106. Na4 Kb4 107. Nb6 Kb5 108. Kd1 Ka5 109. Nc4+ Ka4 110. Nb2+ Kb5 111. Kd2 Ka5 112. Nc4+ Ka4 113. Nb6+ Kb5 114. Bb1 Ka5 115. Kc2 axb6 116. a7 Qxa7 117. Kc3 Qe7 118. Kd2 Qc7 119. Ba2 Qb8 120. Bb3 Rc8 121. Bc4 Rc7 122. Bd5 Re7 *
+
+[Event "cand2 vs best"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "100"]
+[White "best"]
+[Black "cand2"]
+[Result "*"]
+[Opening "d2d4 g8f6 c2c4 e7e6"]
+
+1. d4 Nf6 2. c4 e6 3. f3 h6 4. Kf2 Ke7 5. Qd2 Ke8 6. c5 Bd6 7. Qf4 b5 8. Qxh6 Bb7 9. Qh4 Ke7 10. Qe4 Nc6 11. Qd5 Nb4 12. Qg5 Qg8 13. Qxg7 Rf8 14. Qg3 Ba6 15. Qh4 Kd8 16. Qe4 Rh6 17. Qd5 Rg6 18. Qg5 Ke7 19. Qh5 Rd8 20. Qe5 Rg5 21. Qxg5 Rc8 22. Qh5 Qg7 23. Qe5 Qh7 24. Qd5 Qh6 25. Qa8 Be5 26. Nd2 Qg7 27. Rb1 Kd8 28. Ra1 Qg5 29. Nb1 Qf4 30. Nd2 Qh6 31. Rb1 Qg5 32. Ne4 Qe3+ 33. Ke1 Qd2+ 34. Bxd2 Ke8 35. Ra1 Nxe4 36. Rb1 f6 37. Ra1 Kd8 38. fxe4 Bxd4 39. Rb1 Be5 40. Rc1 d6 41. Rc4 Kd7 42. Kf2 Rh8 43. Rc1 Rh7 44. Kf3 Rh6 45. Rc4 Rh4 46. Kf2 Rf4+ 47. Ke3 Rxf1 48. Qh8 Ke7 49. Qh4 Ke8 50. Qxf6 Rf4 51. Qh4 Kf7 52. Qd8 Rh4 53. Kf2 Rxe4 54. Kf3 Bd4 55. Kxe4 Nc2 56. Qa8 Bxc5 57. Qh8 Bb6 58. Qh4 Ba5 59. Rxc7+ Bxc7 60. Qd8 Bb6 61. Qa8 Ba5 62. Qh8 Bc3 63. Qh4 b4 64. Qd8 Bb5 65. Qa8 Be5 66. h4 Ba4 67. Rh2 b3 68. Bf4 bxa2 69. Bh6 Bb5 70. h5 Bg7 71. Rh4 Bd7 72. Qh8 Bxh8 73. Rh2 Be8 74. Bf4 a1=Q 75. Bh6 Qb1 76. Rh4 Bd7 77. Rh1 Ke8 78. Rh2 Ba4 79. g3 Bb5 80. Rg2 e5 81. Bf4 Kf7 82. Kd5 Qxb2 83. Ke4 Qd4+ 84. Kf3 Qc4 85. Bh6 Qa2 86. Kf2 Qb3 87. Bf8 Qb2 88. Kf3 Qa1 89. Ke4 Qa3 90. Bh6 Qb3 91. g4 Qa3 92. Kd5 Qc5+ 93. Ke4 Qb6 94. g5 Ke8 95. Kd5 Qd8 96. Rf2 Ba4 97. Rg2 Qe7 98. Ke4 Bb5 99. Kd5 Qf7+ 100. Kxd6 Qc4 101. Bg7 Kf7 102. Kxe5 Ke8 103. Rf2 Ba6 104. Rf3 Kd7 105. Rf6 Qa2 106. Rg6 Qb3 107. Rh6 Bb5 108. Rb6 Qc4 109. Bxh8 Ba6 110. g6 Ke7 111. Rb8 Ne1 112. Rg8 Qa4 113. e3 Nd3+ 114. Kf5 Qa3 115. Ke4 Qb4+ 116. Kf3 Qa4 117. Kg3 Qa3 118. Kh4 Qb4+ 119. Kg3 Qa4 120. Kf3 Qe8 121. Ke4 Qxg8 122. Bb2 Qb3 *
+

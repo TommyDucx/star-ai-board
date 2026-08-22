@@ -1,5 +1,5 @@
 {
- "iter": 1,
+ "iter": 2,
  "best": "nets/net_best.pt",
  "curve": [
   {
@@ -9,5 +9,5 @@
    "elo_diff": null
   }
  ],
- "minutes": 367.4
+ "minutes": 363.3
 }

@@ -1,0 +1,45 @@
+{
+  "engine": "/workspace/mcts/target/release/mcts-uci",
+  "eng_a": "/workspace/mcts/target/release/mcts-uci",
+  "eng_b": "/workspace/mcts/target/release/mcts-uci",
+  "games": 100,
+  "movetime_ms": 800,
+  "concurrency": 4,
+  "openings": 30,
+  "names": {
+    "cand2": {
+      "policy": null,
+      "disabled": false
+    },
+    "best": {
+      "policy": null,
+      "disabled": false
+    }
+  },
+  "results": {
+    "cand2": 21,
+    "draw": 0,
+    "best": 79
+  },
+  "score_A": 0.21,
+  "score_se": 0.0409,
+  "elo_diff_A_minus_B": -230.2,
+  "elo_95ci": [
+    -330.5909676837058,
+    -155.34625953522252
+  ],
+  "LOS_A_better": 0.0,
+  "per_color": {
+    "cand2": {
+      "w": 21,
+      "d": 0,
+      "l": 79
+    },
+    "best": {
+      "w": 79,
+      "d": 0,
+      "l": 21
+    }
+  },
+  "duration_s": 4841.4
+}
