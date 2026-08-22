@@ -22,7 +22,10 @@
 - 对弈：`concurrency × Threads ≤ 物理核数`（本机 8 核）。
 - 已封板方向（勿重试）见 `AGENTS.md` 第六节 + `MEMORY.md`：数据/评估侧 7 连败 + 搜索侧 2 连败；**唯一净收益 = Lazy SMP +51 Elo（v2_smp，已部署树莓派）**。
 
-## 三、当前进度（2026-08-21 快照）
+## 三、当前进度
+
+> ⚡ 最新：M6/MCTS iter2: 回滚；门禁 cand 得分 0.375 (回滚)
+
 
 > ⚡ 最新：**BiaoZi MCTS（AlphaZero 式）P0/P1 完成**——Rust 自博弈 crate + Python 推理/训练器 + rl_mcts.py 断点续跑主循环已落地并通过本地全链路冒烟（自博弈→训练→门禁→git 落盘）。**下一步 = 云端开跑 v1 战役**：
 > ```
