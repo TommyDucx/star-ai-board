@@ -11,9 +11,13 @@
 <style>
   body { overflow-x: hidden; }
   .top { height: 72px; display: flex; align-items: center; gap: 18px; padding: 0 30px;
-    border-bottom: 1px solid var(--line); background: var(--ink); position: sticky; top: 0; z-index: 20; }
-  .top .logo { font-weight: 800; letter-spacing: .08em; color: var(--signal); font-size: 18px; }
+    border-bottom: 1px solid var(--line); background: rgba(8,10,9,.82); backdrop-filter: blur(10px);
+    position: sticky; top: 0; z-index: 20; }
+  .top .logo { font-weight: 800; letter-spacing: .08em; color: var(--signal); font-size: 18px; text-decoration: none; }
+  .top .brand { font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: .22em;
+    color: var(--muted); border-left: 1px solid var(--lineStrong); padding-left: 14px; }
   .top .flex1 { flex: 1; }
+  /* 进入系统 · 主按钮（保留 shine 流光） */
   .enter-btn { font-family: ui-monospace, Menlo, monospace; font-size: 12px; letter-spacing: .16em;
     background: var(--signal); color: var(--ink); border: 1px solid var(--signal); padding: 11px 24px; cursor: pointer;
     font-weight: 700; position: relative; overflow: hidden; transition: box-shadow .25s var(--ease-out), transform .25s var(--ease-out); }
@@ -22,7 +26,7 @@
     transform: translateX(-120%); animation: shine 2.8s ease-in-out infinite; }
   @keyframes shine { 0%{transform:translateX(-120%);} 55%,100%{transform:translateX(120%);} }
 
-  .hero { max-width: 1080px; margin: 0 auto; padding: 54px 24px 40px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 44px; align-items: center; position: relative; }
+  .hero { max-width: 1080px; margin: 0 auto; padding: 54px 24px 38px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 44px; align-items: center; position: relative; }
   .hero::before { content:""; position:absolute; inset:-70px 0 0; z-index:-1;
     background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
     background-size: 82px 82px; opacity: .38;
@@ -52,6 +56,13 @@
   #chess-demo .chessboard { width: 100%; }
   #demo-num { position: absolute; bottom: 14px; right: 16px; font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--muted); }
 
+  /* 信任条 */
+  .stats { max-width: 1080px; margin: 4px auto 44px; padding: 0 24px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .stat { font-family: ui-monospace, Menlo, monospace; border: 1px solid var(--line); background: var(--surface);
+    padding: 10px 16px; min-width: 116px; text-align: center; }
+  .stat b { display: block; color: var(--signal); font-size: 15px; letter-spacing: .08em; }
+  .stat span { font-size: 9.5px; color: var(--muted); letter-spacing: .18em; }
+
   .feats { max-width: 1080px; margin: 8px auto 56px; padding: 0 24px; display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
   .feat { border: 1px solid var(--line); background: var(--surface); padding: 26px 22px; position: relative; }
   .feat .fid { font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: .2em; color: var(--signal); }
@@ -59,9 +70,19 @@
   .feat p { color: var(--muted); font-size: 13px; line-height: 1.75; }
   .feat .bar { height: 4px; background: var(--surface2); margin-top: 16px; position: relative; overflow: hidden; }
   .feat .bar i { position: absolute; inset: 0 auto 0 0; background: var(--signal); width: 0; transition: width 1.4s var(--ease-out); }
-  @media (max-width: 860px) { .hero { grid-template-columns: 1fr; } .feats { grid-template-columns: 1fr; } .hero-right { grid-template-columns: 1fr; } }
   .foot { text-align: center; font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--faint); letter-spacing: .2em; padding-bottom: 44px; }
   .roll { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--cyan); letter-spacing: .14em; margin-top: 20px; }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; } .feats { grid-template-columns: 1fr; }
+    .hero-right { grid-template-columns: 1fr; } .top .brand { display: none; }
+  }
+  @media (max-width: 560px) {
+    .top { padding: 0 16px; gap: 10px; }
+    .enter-btn { padding: 9px 14px; font-size: 11px; }
+    .admin-entry { padding: 9px 12px; font-size: 11px; gap: 5px; }
+    .admin-entry .txt { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -82,9 +103,15 @@
   <div class="boot-skip">点击任意处 跳过</div>
 </div>
 
+<!-- 顶栏 -->
 <div class="top">
-  <span class="logo">S.T.A.R.</span>
+  <a href="index.html" class="logo">S.T.A.R.</a>
+  <span class="brand">AI 下一步推荐引擎</span>
   <span class="flex1"></span>
+  <a href="/admin/login.html" class="admin-entry" aria-label="管理后台">
+    <svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    <span class="txt">管理后台</span>
+  </a>
   <button class="enter-btn ripple-host" id="enter-btn">进入系统 →</button>
 </div>
 
@@ -92,7 +119,7 @@
   <div class="hero-left">
     <div class="kicker">LOCAL ENGINE · KATAGO + STOCKFISH + RECKLESS</div>
     <h1>下一手<br><span class="outline glitch" data-text="下哪？">下哪？</span></h1>
-    <p class="sub">根据对方的落子，AI 实时分析局面并推荐你的下一步。围棋与国际象棋三大引擎就绪，全程本地计算。</p>
+    <p class="sub">根据对方的落子，AI 实时分析局面并推荐你的下一步。围棋与国际象棋三大引擎就绪，全程本地计算，无网络依赖。</p>
     <div class="tags">
       <span class="tag hot">KataGo · 围棋</span>
       <span class="tag cy">Stockfish · 国际象棋</span>
@@ -113,6 +140,14 @@
     </div>
     <div id="demo-num" class="roll"># 000</div>
   </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><b>3</b><span>本地引擎</span></div>
+  <div class="stat"><b>0</b><span>网络依赖</span></div>
+  <div class="stat"><b>∞</b><span>随时可用</span></div>
+  <div class="stat"><b>隐私</b><span>本地计算</span></div>
+  <div class="stat"><b>实时</b><span>落子即分析</span></div>
 </div>
 
 <div class="feats">
