@@ -585,6 +585,13 @@ async function handleApi(req, res, u) {
   const s = getSession(req);
   if (!s) return json(res, 401, { error: "未登录" });
 
+  // 强制改密：账号仍需改密时，仅放行 /api/me（读资料 / 改密），其余受保护接口一律拦截
+  {
+    const _acc = getAccounts().find(a => a.id === s.userId);
+    if (_acc && _acc.mustChange && p !== "/api/me")
+      return json(res, 403, { error: "请先修改密码后再继续操作", mustChange: true });
+  }
+
   // 当前用户资料 / 改密 / 验证联系方式
   if (p === "/api/me") {
     const accounts = getAccounts();
