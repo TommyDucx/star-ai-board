@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <title>S.T.A.R. — 下一手下哪？</title>
 <link rel="stylesheet" href="css/site.css">
-<link rel="stylesheet" href="css/motion.css">
+<link rel="stylesheet" href="css/motion.css?v=31">
 <link rel="stylesheet" href="css/chessboard.min.css">
 <style>
   body { overflow-x: hidden; }
@@ -69,9 +70,15 @@
 
 <!-- boot -->
 <div class="boot" aria-hidden="true">
-  <div class="boot-word"><span class="w-p">PROJECT</span><span class="w-s">S.T.A.R.</span></div>
-  <div class="boot-meta">GO · CHESS / AI SUGGEST NEXT MOVE</div>
-  <div class="boot-rules"></div>
+  <div class="boot-half ht"></div><div class="boot-half hb"></div>
+  <div class="boot-scan"></div>
+  <i class="boot-hud tl"></i><i class="boot-hud tr"></i><i class="boot-hud bl"></i><i class="boot-hud br"></i>
+  <div class="boot-ring"></div>
+  <div class="boot-inner">
+    <div class="boot-word"><span class="w-p">PROJECT</span><span class="w-s">S.T.A.R.</span></div>
+    <div class="boot-meta">GO · CHESS / AI SUGGEST NEXT MOVE</div>
+    <div class="boot-rules"></div>
+  </div>
   <div class="boot-skip">点击任意处 跳过</div>
 </div>
 
@@ -134,7 +141,16 @@
 <script src="js/lib/jquery.min.js"></script>
 <script src="js/lib/chess.min.js"></script>
 <script src="js/lib/chessboard.min.js"></script>
-<script src="js/motion.js?v=6"></script>
+<script src="js/motion.js?v=33"></script>
 <script src="js/intro.js?v=11"></script>
+<div id="site-ann" style="display:none;position:fixed;top:72px;left:0;right:0;z-index:40;
+  background:#1a2410;border-bottom:1px solid #d7ff3f57;color:#d7ff3f;
+  font-size:13px;letter-spacing:.04em;padding:9px 18px;text-align:center;
+  box-shadow:0 6px 20px #0008;backdrop-filter:blur(4px)"></div>
+<script>
+fetch("/api/announcement").then(r=>r.json()).then(d=>{
+  if(d && d.enabled && d.text){ var el=document.getElementById("site-ann"); el.textContent="📢 "+d.text; el.style.display="block"; }
+}).catch(()=>{});
+</script>
 </body>
 </html>

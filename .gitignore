@@ -43,3 +43,10 @@ models/
 mcts/target/
 run/samples/
 run/**/worker*.log
+
+# 后台管理系统运行时数据（密钥/会话/账号哈希/日志/配置，不入库）
+admin/.secret
+admin/sessions.json
+admin/accounts.json
+admin/games.log.jsonl
+admin/config.json

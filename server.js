@@ -10,8 +10,10 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const zlib = require("zlib");
 const { spawn } = require("child_process");
 const { WebSocketServer } = require("ws");
+const admin = require("./admin");
 
 const PORT = process.env.PORT || 8765;
 const PUBLIC_DIR = path.join(__dirname, "public");
@@ -157,18 +159,50 @@ const MIME = {
   ".gz": "application/gzip",
 };
 
+// 输入校验工具：所有客户端参数在进入引擎 stdin 前必须过这里（防 UCI/GTP 换行注入与类型滥用）
+function cleanStr(v, maxLen) {
+  if (typeof v !== "string") return null;
+  const s = v.replace(/[\x00-\x1f\x7f]/g, " ").trim();
+  return s.length && s.length <= maxLen ? s : null;
+}
+const FEN_RE = /^[rnbqkpRNBQKP1-8/]+\s[bw]\s(-|[KQkqA-Ha-h1-8]+|-)\s(-|[a-h][36]|-)\s\d+\s\d+$/;
+function validFen(v) {
+  const s = cleanStr(v, 100);
+  return s && FEN_RE.test(s) ? s : null;
+}
+function clampInt(v, lo, hi, dflt) {
+  const n = Math.round(Number(v));
+  return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt;
+}
+
 const server = http.createServer((req, res) => {
+  if (admin.handleRequest(req, res)) return;
   let urlPath = decodeURIComponent(req.url.split("?")[0]);
   if (urlPath === "/") urlPath = "/index.html";
   const filePath = path.join(PUBLIC_DIR, path.normalize(urlPath));
   if (!filePath.startsWith(PUBLIC_DIR)) { res.writeHead(403); return res.end("Forbidden"); }
   fs.readFile(filePath, (err, data) => {
     if (err) { res.writeHead(404); return res.end("Not Found"); }
-    // 禁用浏览器缓存：改动频繁，用 HTML 的 ?v= 版本号控制刷新，避免命中旧资源
-    res.writeHead(200, {
-      "Content-Type": MIME[path.extname(filePath)] || "application/octet-stream",
-      "Cache-Control": "no-cache, no-store, must-revalidate",
-    });
+    const ext = path.extname(filePath);
+    const type = MIME[ext] || "application/octet-stream";
+    // 缓存分级：HTML 保持 no-cache（改版即时生效）；其余静态资源 URL 带 ?v=N 版本号，可长缓存
+    const headers = {
+      "Content-Type": type,
+      "Cache-Control": ext === ".html" ? "no-cache" : "public, max-age=604800",
+      // 基础安全头：防 MIME 嗅探 / 防被第三方 iframe 嵌套 / 限制 referrer 泄漏
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "SAMEORIGIN",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+    };
+    // 文本类资源 gzip（>1KB 才值得压缩）
+    const accept = req.headers["accept-encoding"] || "";
+    if (/^text\/|application\/json/.test(type) && data.length > 1024 && /\bgzip\b/.test(accept)) {
+      headers["Content-Encoding"] = "gzip";
+      headers["Vary"] = "Accept-Encoding";
+      res.writeHead(200, headers);
+      return res.end(zlib.gzipSync(data));
+    }
+    res.writeHead(200, headers);
     res.end(data);
   });
 });
@@ -183,6 +217,7 @@ class ChessEngine {
     this.waiters = [];
     this.queue = Promise.resolve();
     this._uci = false;
+    this.lastUse = Date.now();
   }
   _ensureAlive() {
     if (!this.proc || this.proc.exitCode !== null) {
@@ -223,17 +258,43 @@ class ChessEngine {
       }
     }
   }
-  _waitFor(pred) { return new Promise(res => this.waiters.push({ match: pred, resolve: res, lines: [] })); }
+  // 等待引擎输出行；必须带超时——否则一条畸形请求（如 position fen undefined 永远等不到
+  // bestmove）会把该引擎的串行队列永久卡死，所有用户全部无响应（实测踩过的坑）
+  _waitFor(pred, timeoutMs, what) {
+    return new Promise((res, rej) => {
+      const w = { match: pred, resolve: res, lines: [] };
+      this.waiters.push(w);
+      if (!timeoutMs) return;
+      const t = setTimeout(() => {
+        const i = this.waiters.indexOf(w);
+        if (i >= 0) this.waiters.splice(i, 1);
+        rej(new Error(what + " 超时"));
+      }, timeoutMs);
+      const orig = w.resolve;
+      w.resolve = lines => { clearTimeout(t); orig(lines); };
+    });
+  }
   _send(cmd) { this.proc.stdin.write(cmd + "\n"); }
   run(fn) {
     this._ensureAlive();
+    this.lastUse = Date.now();
     const p = this.queue.then(() => fn());
     this.queue = p.catch(() => {});
     return p;
   }
+  // 空闲回收：UCI 引擎常驻内存可观（stockfish ~250MB），闲置太久发 quit 并兜底 kill。
+  // 只在 lastUse 距今超过阈值时被定时器调用，不存在搜索中途被杀的窗口。
+  stop() {
+    if (!this.proc) return;
+    const p = this.proc;
+    try { p.stdin.write("quit\n"); } catch (e) {}
+    setTimeout(() => { try { p.kill(); } catch (e) {} }, 1500);
+    this.proc = null;
+    this._uci = false;
+  }
   async init() {
     if (!this._uci) {
-      const uci = this._waitFor(l => l === "uciok");
+      const uci = this._waitFor(l => l === "uciok", 10000, "uci 握手");
       this._send("uci");
       await uci;
       this._uci = true;
@@ -242,7 +303,7 @@ class ChessEngine {
         this._send(`setoption name ${o.name} value ${o.value}`);
       }
     }
-    const ready = this._waitFor(l => l === "readyok");
+    const ready = this._waitFor(l => l === "readyok", 10000, "isready");
     this._send("isready");
     await ready;
   }
@@ -258,7 +319,7 @@ class ChessEngine {
       }
       this._send(`setoption name MultiPV value ${multipv}`);
       this._send(`position fen ${fen}`);
-      const done = this._waitFor(l => l.startsWith("bestmove"));
+      const done = this._waitFor(l => l.startsWith("bestmove"), movetime + 15000, "bestmove");
       this.errLines = [];   // 本轮搜索前清空 stderr 收集（自研引擎 info 在 stderr）
       this._send(`go movetime ${movetime}`);
       const lines = await done;
@@ -275,7 +336,7 @@ class ChessEngine {
           const s = l.match(/score cp (-?\d+)/);
           const m = l.match(/score mate (-?\d+)/);
           const pv = (l.match(/ pv (.+)$/) || [])[1] || "";
-          cur = { pv: pv.split(/\s+/).slice(0, 2), depth: +(l.match(/depth (\d+)/) || [])[1] || 0, evalCp: null, mate: null };
+          cur = { pv: pv.split(/\s+/).slice(0, 4), depth: +(l.match(/depth (\d+)/) || [])[1] || 0, evalCp: null, mate: null };
           if (s) { cur.evalCp = +s[1]; cur.mate = null; }
           if (m) { cur.mate = +m[1]; cur.evalCp = null; }
           candidates[pvN - 1] = cur;
@@ -291,7 +352,7 @@ class ChessEngine {
           const s = l.match(/score cp (-?\d+)/);
           const m = l.match(/score mate (-?\d+)/);
           const pv = (l.match(/ pv (.+)$/) || [])[1] || "";
-          cur = { pv: pv.split(/\s+/).slice(0, 2), depth: +(l.match(/depth (\d+)/) || [])[1] || 0, evalCp: null, mate: null };
+          cur = { pv: pv.split(/\s+/).slice(0, 4), depth: +(l.match(/depth (\d+)/) || [])[1] || 0, evalCp: null, mate: null };
           if (s) { cur.evalCp = +s[1]; }
           if (m) { cur.mate = +m[1]; }
           candidates.push(cur);
@@ -380,6 +441,7 @@ class KataGoEngine {
   }
   _kill() {
     if (this.proc) { try { this.proc.stdin.end(); this.proc.kill(); } catch (e) {} this.proc = null; }
+    this.dead = true;   // 回收即标记：避免复用空进程导致首次请求失败
   }
   analyze(stones, side, opts = {}) {
     return new Promise((resolve, reject) => {
@@ -506,6 +568,7 @@ class GtpEngine {
   }
   stop() {
     if (this.proc) { try { this.proc.stdin.write("quit\n"); setTimeout(() => { try { this.proc.kill(); } catch (e) {} }, 500); } catch (e) {} this.proc = null; }
+    this.dead = true;   // 已回收：下次请求走重建路径，而非复用死进程连环失败
   }
 }
 
@@ -526,6 +589,10 @@ async function goAnalyze(engineKey, stones, side, opts) {
   if (!cfg) throw new Error("未知围棋引擎: " + engineKey);
   let pool = goPool.get(engineKey);
   if (!pool || pool.eng.dead) {
+    // 换模型前先回收其它驻留引擎——每个 KataGo 常驻 100~500MB，全留着切换几轮就能吃掉数 GB
+    for (const [k, p] of goPool) {
+      if (k !== engineKey) { try { p.eng.stop(); } catch (e) {} goPool.delete(k); }
+    }
     const eng = cfg.type === "kata" ? new KataGoEngine(cfg) : new GtpEngine(cfg);
     pool = { eng, lastUse: Date.now() };
     goPool.set(engineKey, pool);
@@ -546,14 +613,23 @@ const chessEngines = {};
 Object.entries(ENGINES).forEach(([key, cfg]) => {
   chessEngines[key] = new ChessEngine(cfg.path, cfg.options || []);
 });
+// 国际象棋引擎空闲回收：12 个引擎全驻留可达数 GB（实测 stockfish 单个 ~250MB），必须定期清
+const CHESS_IDLE_MS = 5 * 60 * 1000;
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, eng] of Object.entries(chessEngines)) {
+    if (eng.proc && now - eng.lastUse > CHESS_IDLE_MS) eng.stop();
+  }
+}, 60 * 1000);
 function engineFor(name) {
   const key = ENGINES[name] ? name : "stockfish";
   return { key, cfg: ENGINES[key], eng: chessEngines[key] };
 }
 const go = { available: GO_KEYS.length > 0, list: Object.entries(GO_ENGINES).map(([k, c]) => ({ key: k, label: c.label })) };
 
-const wss = new WebSocketServer({ server });
-wss.on("connection", ws => {
+const wss = new WebSocketServer({ server, maxPayload: 256 * 1024 });   // 拒绝巨型帧（Pi 内存有限）
+wss.on("connection", (ws, req) => {
+  ws._ip = (req.socket && req.socket.remoteAddress) || "";
   console.log("[ws] client");
   ws.on("message", async raw => {
     let msg;
@@ -564,15 +640,22 @@ wss.on("connection", ws => {
       return;
     }
     if (msg.type === "chess") {
+      // 参数白名单化：非法直接回错误，绝不把未净化的字符串送进引擎 stdin
+      const fen = validFen(msg.fen);
+      if (!fen) {
+        ws.send(JSON.stringify({ type: "error", id: msg.id, message: "非法 FEN" }));
+        return;
+      }
       const { key, cfg, eng } = engineFor(msg.engine);
       try {
-        const r = await eng.bestMove(msg.fen, {
-          elo: msg.elo || null,
-          movetime: Math.min(Math.max(msg.movetime || 800, 100), 5000),
-          multipv: msg.multipv || 3,
+        const r = await eng.bestMove(fen, {
+          elo: msg.elo == null ? null : clampInt(msg.elo, 800, 2850, null),
+          movetime: clampInt(msg.movetime ?? 800, 100, 5000, 800),
+          multipv: clampInt(msg.multipv ?? 3, 1, 10, 3),
           supportsElo: cfg.elo,
         });
         ws.send(JSON.stringify({ type: "chess", id: msg.id, engine: key, ...r }));
+        admin.logGame({ type: "chess", engine: key, movetime: clampInt(msg.movetime ?? 800, 100, 5000, 800), ip: ws._ip });
       } catch (e) {
         ws.send(JSON.stringify({ type: "error", id: msg.id, message: String(e) }));
       }
@@ -580,10 +663,24 @@ wss.on("connection", ws => {
       try {
         const engKey = GO_ENGINES[msg.engine] ? msg.engine : (GO_DEFAULT || null);
         if (!engKey) return ws.send(JSON.stringify({ type: "error", id: msg.id, message: "未部署围棋引擎" }));
-        const r = await goAnalyze(engKey, msg.stones || [], msg.side || "B", {
-          komi: msg.komi, boardSize: msg.boardSize || 19, maxVisits: msg.maxVisits || 200, timeout: 120000,
+        // stones：[色, 着点] 白名单校验（GTP 路径的 mv 会拼进 stdin 命令）
+        const stones = Array.isArray(msg.stones) ? msg.stones.slice(0, 361).map(s =>
+          Array.isArray(s) && (s[0] === "B" || s[0] === "W")
+          && (s[1] === "pass" || /^[a-hA-Hj-zJ-Z]([1-9]|1\d|2[0-5])$/.test(String(s[1])))
+            ? [s[0], String(s[1])] : null
+        ).filter(Boolean) : [];
+        if (stones.length !== (msg.stones || []).length) {
+          return ws.send(JSON.stringify({ type: "error", id: msg.id, message: "非法着点" }));
+        }
+        const side = msg.side === "W" ? "W" : "B";
+        const r = await goAnalyze(engKey, stones, side, {
+          komi: clampInt(msg.komi ?? 7.5, -500, 500, 7.5),
+          boardSize: clampInt(msg.boardSize || 19, 2, 25, 19),
+          maxVisits: clampInt(msg.maxVisits || 200, 1, 10000, 200),
+          timeout: 120000,
         });
         ws.send(JSON.stringify({ ...r, type: "go", id: msg.id, engine: engKey }));
+        admin.logGame({ type: "go", engine: engKey, movetime: 0, ip: ws._ip });
       } catch (e) {
         ws.send(JSON.stringify({ type: "error", id: msg.id, message: String(e) }));
       }
@@ -592,6 +689,35 @@ wss.on("connection", ws => {
     }
   });
 });
+
+// ---- 后台管理系统挂载 ----
+function engineStatus() {
+  const chess = Object.entries(ENGINES).map(([k, c]) => ({
+    key: k, kind: "chess", available: c.available,
+    alive: !!(chessEngines[k] && chessEngines[k].proc),
+  }));
+  const go = Object.entries(GO_ENGINES).map(([k]) => {
+    const pool = goPool.get(k);
+    return { key: k, kind: "go", available: true, alive: !!(pool && pool.eng && !pool.eng.dead) };
+  });
+  return [...chess, ...go];
+}
+function controlEngine(key, action) {
+  if (action === "stop") {
+    if (chessEngines[key]) chessEngines[key].stop();
+    const pool = goPool.get(key);
+    if (pool) { try { pool.eng.stop(); } catch (e) {} goPool.delete(key); }
+    return true;
+  }
+  if (action === "start") {
+    if (chessEngines[key]) { chessEngines[key].init().catch(() => {}); return true; }
+    const pool = goPool.get(key);
+    if (pool && pool.eng.dead) goPool.delete(key);
+    return true;
+  }
+  return false;
+}
+admin.init({ publicDir: PUBLIC_DIR, engineStatus, controlEngine });
 
 server.listen(PORT, () => {
   console.log(`S.T.A.R. AI 推荐已启动: http://localhost:${PORT}`);
