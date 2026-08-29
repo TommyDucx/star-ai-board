@@ -8,10 +8,17 @@
   "use strict";
 
   let ws = null, wsReady = false, msgId = 0, pending = new Map();
+  const sendQueue = [];   // ws 未就绪时排队的请求（onopen 统一发送，重连不丢）
   function connect() {
-    ws = new WebSocket(`ws://${location.host}`);
-    ws.onopen = () => { wsReady = true; };
-    ws.onclose = () => { wsReady = false; setTimeout(connect, 2000); };
+    const proto = location.protocol === "https:" ? "wss:" : "ws:";
+    ws = new WebSocket(`${proto}//${location.host}`);
+    ws.onopen = () => { wsReady = true; sendQueue.splice(0).forEach(fn => fn()); };
+    ws.onclose = () => {
+      wsReady = false;
+      for (const [, pr] of pending) pr.rej(new Error("连接中断"));
+      pending.clear();
+      setTimeout(connect, 2000);
+    };
     ws.onmessage = e => {
       const m = JSON.parse(e.data);
       const p = pending.get(m.id);
@@ -23,7 +30,7 @@
       const id = "c" + (++msgId);
       pending.set(id, { res, rej });
       const send = () => ws.send(JSON.stringify({ type, id, ...payload }));
-      if (wsReady) send(); else ws.onopen = () => { wsReady = true; send(); };
+      if (wsReady) send(); else sendQueue.push(send);
     });
   }
 
@@ -97,6 +104,8 @@
     const start = Date.now();
     nodes = [];
     for (let i = 0; i < fens.length; i++) {
+      // 进度反馈：长对局分析可达数十秒，让用户知道还要等多久
+      setStatus(`分析中 ${i + 1}/${fens.length}…`);
       const r = await rpc("chess", { engine: "stockfish", fen: fens[i], movetime: 300, multipv: 3 });
       const cands = (r.candidates || []).slice(0, 3);
       nodes.push({
@@ -151,9 +160,27 @@
     $("summary").innerHTML = renderBoard();
     // 棋盘
     board = Chessboard("board", { draggable: false, position: build().fens[cur], pieceTheme: "img/chesspieces/wikipedia/{piece}.png" });
-    // 曲线
-    drawCurve();
+    // 曲线（首次渲染带描边生长动画）
+    drawCurve(true);
     renderStep();
+    renderMoveList();
+  }
+
+  // 走法列表：全部着法成对填充 #movelist，点击任意一步直接跳到该局面
+  function renderMoveList() {
+    const el = $("movelist");
+    if (!el || !moves.length) return;
+    el.innerHTML = moves.map((m, i) =>
+      `<span class="rmv${i + 1 === cur ? " on" : ""}" data-n="${i + 1}">${i + 1}. ${m.san}</span>`
+    ).join("");
+    el.querySelectorAll(".rmv").forEach(s => s.addEventListener("click", () => {
+      stopPlay();
+      cur = +s.dataset.n;
+      if (board) board.position(build().fens[cur]);
+      renderStep();
+      drawCurve();
+      el.querySelectorAll(".rmv").forEach(x => x.classList.toggle("on", x === s));
+    }));
   }
 
   function accPerColor(color, el) {
@@ -213,7 +240,7 @@
       最大优势 ${maxCp.toFixed(0)}cp · ${turnIdx >= 0 ? `转折点 第${turnIdx + 1}步` : "无重大转折"} · 平均损失 ${(review.reduce((s, r) => s + r.lossCp, 0) / review.length).toFixed(0)}cp</div>`;
   }
 
-  function drawCurve() {
+  function drawCurve(animate) {
     const svg = $("curve"), W = 600, H = 150;
     // 白方 cp 曲线（每步后）
     // 白方视角 cp（局面轮到白则取本身，轮到黑则取负）
@@ -232,6 +259,20 @@
         return "";
       }).join("")}
       <line x1="${xOf(cur)}" y1="0" x2="${xOf(cur)}" y2="${H}" stroke="#2ed3ff" stroke-width="1"></line>`;
+    // 首次渲染：优势曲线从左向右描边生长（导航重绘时不重复播放）
+    if (animate) {
+      const path = svg.querySelector("path");
+      if (path && !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) {
+        const L = path.getTotalLength();
+        if (L > 0 && isFinite(L)) {
+          path.style.strokeDasharray = L;
+          path.style.strokeDashoffset = L;
+          void svg.getBoundingClientRect();
+          path.style.transition = "stroke-dashoffset 1.2s cubic-bezier(.55,0,.3,1)";
+          requestAnimationFrame(() => { path.style.strokeDashoffset = "0"; });
+        }
+      }
+    }
   }
 
   function renderStep() {
@@ -300,12 +341,14 @@
   /* ---- 导航 & 自动播放（走到关键节点停下） ---- */
   window.nav = function (d) {
     const next = Math.max(0, Math.min(moves.length, cur + d));
+    if (d > 0 && next > cur && window.Motion && Motion.sfx) Motion.sfx.tick();   // 步进微咔
     cur = next;
     if (board) board.position(build().fens[cur]);
     renderStep();
     drawCurve();
+    renderMoveList();
   };
-  window.jumpStart = function () { cur = 0; if (board) board.position(build().fens[0]); renderStep(); drawCurve(); };
+  window.jumpStart = function () { cur = 0; if (board) board.position(build().fens[0]); renderStep(); drawCurve(); renderMoveList(); };
 
   function isKeyNode(r) { return ["blunder", "miss", "brilliant", "great", "mistake"].includes(r.key); }
   window.autoPlay = function () {
@@ -341,8 +384,6 @@
   Motion.initCursorLine();
   Motion.initRipple();
   Motion.staggerEnter();
-  document.querySelectorAll("[data-nav]").forEach(a => {
-    a.addEventListener("click", e => { e.preventDefault(); Motion.sliceRoute(a.getAttribute("href")); });
-  });
+  // data-nav 导航由 motion.js 的 wireNav() 集中委托（含修饰键放行/防叠层）
   analyze();
 })();

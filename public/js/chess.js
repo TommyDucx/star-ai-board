@@ -10,6 +10,7 @@
   let ws = null, wsReady = false, msgId = 0, pending = new Map();
   const sendQueue = [];   // ws 未就绪时排队的请求（onopen 统一发送，重连不丢）
   let lastCandidates = [];
+  let session = 0;   // 对局代次：新对局/悔棋时自增，作废迟到的引擎回复（防污染新棋局）
 
   /* ---------------- WS 连接 ---------------- */
   function connect() {
@@ -18,7 +19,13 @@
       const proto = location.protocol === "https:" ? "wss:" : "ws:";
       ws = new WebSocket(`${proto}//${location.host}`);
       ws.onopen = () => { wsReady = true; sendQueue.splice(0).forEach(fn => fn()); };
-      ws.onclose = () => { wsReady = false; setTimeout(connect, 2000); };
+      ws.onclose = () => {
+        wsReady = false;
+        // 断线瞬间：所有挂起请求立即失败，避免永远悬空（分析卡死在「分析中」）
+        for (const [, pr] of pending) pr.rej(new Error("连接中断"));
+        pending.clear();
+        setTimeout(connect, 2000);
+      };
       ws.onmessage = e => {
         const m = JSON.parse(e.data);
         const p = pending.get(m.id);
@@ -75,9 +82,71 @@
   function doMove(from, to) {
     const mv = game.move({ from, to, promotion: "q" });
     if (!mv) return false;
+    captureFx(mv);
+    moveSfx(mv);
     updateStatus();
     scheduleEval();
     return true;
+  }
+
+  /* ---- 棋感特效：吃子碎裂 / 将军王座警报 / 将杀终局 ---- */
+  function sqXY(sq) {
+    const el = document.querySelector(".board-b72b1 .square-" + sq);
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  }
+  // 吃子碎裂：被吃方颜色的碎片从目标格迸出（Motion.fx 由 motion.js 提供，REDUCED 下为空）
+  function captureFx(mv) {
+    if (!mv || !mv.captured || !window.Motion || !Motion.fx) return;
+    const pos = sqXY(mv.to);
+    if (!pos) return;
+    Motion.fx.burst(pos.x, pos.y,
+      mv.color === "w" ? ["#f5f5f5", "#b9bfb6", "#d7ff3f"] : ["#5a6167", "#2e343a", "#d7ff3f"]);
+    shakeBoard();
+  }
+  // 走子/吃子/易位 音效（Motion.sfx 由 motion.js 注入，未就绪时静默）
+  function moveSfx(mv) {
+    if (!window.Motion || !Motion.sfx) return;
+    if (mv.captured) Motion.sfx.capture();
+    else if (/[kq]/.test(mv.flags || "")) Motion.sfx.castle();
+    else Motion.sfx.move();
+  }
+  let alarmEl = null;
+  let lastInCheck = false;
+  function clearKingAlarm() {
+    if (alarmEl) { alarmEl.remove(); alarmEl = null; }
+  }
+  // 将军王座警报：行棋方王的格子红色脉冲（视觉焦点直接给到威胁源）
+  function kingAlarm() {
+    if (!game.in_check()) return;
+    const bd = game.board();
+    let sq = null;
+    for (let r = 0; r < 8 && !sq; r++) for (let c = 0; c < 8; c++) {
+      const pc = bd[r][c];
+      if (pc && pc.type === "k" && pc.color === game.turn()) { sq = "abcdefgh"[c] + (8 - r); break; }
+    }
+    if (!sq) return;
+    const host = document.querySelector(".board-b72b1 .square-" + sq);
+    if (!host) return;
+    alarmEl = document.createElement("div");
+    alarmEl.className = "king-check";
+    host.appendChild(alarmEl);
+  }
+  let finaleShown = false;
+  // 将杀终局：全屏色差抖动大字 + 对局手数
+  function checkmateFinale() {
+    if (finaleShown) return;
+    finaleShown = true;
+    const winner = game.turn() === "w" ? "BLACK WINS" : "WHITE WINS";   // 轮到走的一方已被将死
+    const ov = document.createElement("div");
+    ov.className = "checkmate-finale";
+    ov.innerHTML = `<small>— CHECKMATE —</small><b>${winner}</b>` +
+      `<i>将死 · 共 ${game.history().length} 手 · 点击任意处继续</i>`;
+    document.body.appendChild(ov);
+    const kill = () => { ov.remove(); document.removeEventListener("pointerdown", kill); };
+    setTimeout(kill, 2600);
+    document.addEventListener("pointerdown", kill);
   }
 
   // 状态：选中棋子坐标 + 合法位移点集合
@@ -162,10 +231,12 @@
     clearTimeout(evalTimer);
     evalTimer = setTimeout(async () => {
       if (game.game_over()) return;
+      const mySession = session;
       const engine = document.getElementById("engine").value;
       const engineName = document.getElementById("engine").options[document.getElementById("engine").selectedIndex].textContent;
       try {
         const r = await rpc("chess", { engine, fen: game.fen(), movetime: 250, multipv: 1 });
+        if (mySession !== session) return;   // 已重置对局：丢弃迟到的评估
         const c = (r.candidates && r.candidates[0]) || null;
         if (c) updateEval(c);
       } catch (e) { /* 静默：保持上一版胜率 */ }
@@ -176,7 +247,8 @@
   // 用 pointerdown 记录格子 + 移动距离判定点击（点击棋子任意位置均可选中，不依赖 up 的 target）
   let press = null;
   function boardPointer(e) {
-    const sqEl = e.target.closest(".square-55d63");
+    // e.target 可能是 document（合成事件/极端时序），closest 不存在时直接忽略
+    const sqEl = e.target && e.target.closest ? e.target.closest(".square-55d63") : null;
     const sq = sqEl ? ((sqEl.className.match(/square-([a-h][1-8])/) || [])[1] || null) : null;
     if (e.type === "pointerdown") {
       press = { sq, x: e.clientX, y: e.clientY, moved: false };
@@ -194,11 +266,13 @@
       onDragStart, onDrop, onSnapEnd, onSquareClick,
       pieceTheme: "img/chesspieces/wikipedia/{piece}.png",
     });
+    window.__board = board;   // 调试/测试用（此处才是真实引用，模块加载时 board 还是 null）
     document.getElementById("board").addEventListener("pointerdown", boardPointer);
     document.addEventListener("pointermove", boardPointer);
     document.addEventListener("pointerup", boardPointer);
     applyOrientation();
     updateStatus();
+    assemblePieces();   // 开局棋子集结动画
     scheduleEval();   // 初始局面也评估一次，让折线图从开局就有胜率点
   }
 
@@ -211,10 +285,12 @@
     const engineName = engineSel.options[engineSel.selectedIndex].textContent;
     const engine = engineSel.value;
     setStatus(`[${engineName}] 分析中…（当前轮到 ${sideName}）`);
+    const mySession = session;   // 记住发起时的对局代次
     const elo = +document.getElementById("level").value || null;
     const movetime = +document.getElementById("movetime").value;
     try {
       const r = await rpc("chess", { engine, fen: game.fen(), elo, movetime, multipv: 3 });
+      if (mySession !== session) return;   // 期间发生了新对局/悔棋：丢弃迟到回复，不在新棋盘落子
       const cands = (r.candidates || []).map(c => ({ ...c, uci: c.pv && c.pv[0] }));
       renderCands(cands, r.bestmove);
       updateEval(cands[0]);
@@ -222,12 +298,22 @@
       if (r.bestmove) {
         const done = game.move({ from: r.bestmove.slice(0, 2), to: r.bestmove.slice(2, 4), promotion: "q" });
         if (done) {
+          captureFx(done);
+          moveSfx(done);
           board.position(game.fen());
           updateStatus();
           const nextSide = game.turn() === "w" ? "白方" : "黑方";
           setStatus(`[${engineName}] AI 落子：${mv} · 轮到 ${nextSide}`, false);
           // 高亮 AI 刚走的一步（from→to），保证高亮位置与移动的棋子一致
-          setTimeout(() => highlightBest([r.bestmove]), 150);
+          setTimeout(() => {
+            highlightBest([r.bestmove]);
+            // AI 棋子落地小弹跳：目标格 img 加一次性动画类
+            const pc = document.querySelector(".square-" + r.bestmove.slice(2, 4) + " img");
+            if (pc) {
+              pc.classList.add("piece-drop");
+              pc.addEventListener("animationend", () => pc.classList.remove("piece-drop"), { once: true });
+            }
+          }, 150);
         }
       }
     } catch (e) {
@@ -243,6 +329,23 @@
     try { const r = m.move(mv); return r ? r.san : uci; } catch (e) { return uci; }
   }
 
+  // PV 线顺序转 SAN：从当前局面克隆棋盘逐手推进（每一步都在前一步之后的位置上转换），
+  // 遇非法着即断——否则第 2 手起对当前局面转换必失败，只能显示原始 UCI 坐标。
+  // skipFirst=true 时首着仍要在克隆盘上走出（后续着法依赖它），只是不显示。
+  function pvLine(pv, skipFirst) {
+    const b = new Chess(game.fen());
+    const list = (pv || []).slice(0, 5);
+    const out = [];
+    for (let i = 0; i < list.length; i++) {
+      const u = list[i];
+      try {
+        const r = b.move({ from: u.slice(0, 2), to: u.slice(2, 4), promotion: "q" });
+        if (!(skipFirst && i === 0)) out.push(r ? r.san : u);
+      } catch (e) { break; }
+    }
+    return out.join(" ");
+  }
+
   let hlEls = [];
   function clearOverlays() { hlEls.forEach(e => e.remove()); hlEls = []; }
   function highlightBest(pv) {
@@ -256,10 +359,11 @@
     const flip = orient === "black";
     [pv[0].slice(0, 2), pv[0].slice(2, 4)].forEach((sq, i) => {
       const f = sq.charCodeAt(0) - 97;
-      let row = 8 - +sq[1];               // 白方朝下：rank1 在底部
-      if (flip) row = +sq[1] - 1;         // 黑方朝下：rank1 在顶部
+      // 翻转时行、列都要镜像：旧实现只翻了行，横向位置在黑方视角下全错（实测几何校验抓出）
+      let col = f, row = 8 - +sq[1];              // 白方朝下：a 列在左、rank1 在底
+      if (flip) { col = 7 - f; row = +sq[1] - 1; } // 黑方朝下：a 列在右、rank1 在顶
       const el = document.createElement("div");
-      el.style.cssText = `position:fixed;left:${r.left + f * size}px;top:${r.top + row * size}px;` +
+      el.style.cssText = `position:fixed;left:${r.left + col * size}px;top:${r.top + row * size}px;` +
         `width:${size}px;height:${size}px;background:rgba(215,255,63,${i === 0 ? 0.28 : 0.42});` +
         `pointer-events:none;z-index:90;`;
       document.body.appendChild(el);
@@ -274,13 +378,56 @@
       const score = c.mate != null ? `mate${c.mate < 0 ? "-" : "+"}${Math.abs(c.mate)}`
         : `${c.evalCp >= 0 ? "+" : ""}${(c.evalCp / 100).toFixed(2)}`;
       const uci = c.pv && c.pv[0];
-      const pv = (c.pv || []).slice(0, 4).map(san).join(" ");
+      // 首格显示主着 SAN；后续 PV 线从第 2 手开始顺序转换（不重复首着）
+      const pv = uci ? pvLine(c.pv, true) : "";
       return `<div class="cand"><span class="n">${i + 1}</span>
         <span style="font-size:13px">${uci ? san(uci) : "—"}</span>
         <span class="pv">${pv}</span><span class="score">${score}</span></div>`;
     }).join("") || '<div style="color:var(--faint);font-size:12px">暂无推荐</div>';
   }
 
+  // 胜率历史（0..100，白方视角），驱动折线图
+  const evalHist = [];
+  function drawEvalChart() {
+    const cv = document.getElementById("evalchart");
+    if (!cv || !cv.getContext) return;
+    const ctx = cv.getContext("2d");
+    const W = cv.width, H = cv.height;
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = "rgba(255,255,255,.14)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(4, H / 2); ctx.lineTo(W - 4, H / 2); ctx.stroke();
+    ctx.setLineDash([]);
+    if (evalHist.length < 2) return;
+    ctx.strokeStyle = "#d7ff3f";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    evalHist.forEach((v, i) => {
+      const x = 4 + (i / (evalHist.length - 1)) * (W - 8);
+      const y = H - 5 - (v / 100) * (H - 10);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    // 末点高亮
+    const lx = 4 + (W - 8), ly = H - 5 - (evalHist[evalHist.length - 1] / 100) * (H - 10);
+    ctx.fillStyle = "#d7ff3f";
+    ctx.beginPath(); ctx.arc(Math.min(lx, W - 6), ly, 3, 0, Math.PI * 2); ctx.fill();
+  }
+
+  let lastEvalCp = null;
+  function flashEvalDir(cp) {
+    if (lastEvalCp != null && Math.abs(cp - lastEvalCp) >= 8) {
+      const el = document.getElementById("evaltxt");
+      if (el) {
+        el.classList.remove("flash-up", "flash-down");
+        void el.offsetWidth;
+        el.classList.add(cp > lastEvalCp ? "flash-up" : "flash-down");
+        setTimeout(() => el.classList.remove("flash-up", "flash-down"), 700);
+      }
+    }
+    lastEvalCp = cp;
+  }
   function updateEval(c) {
     const el = document.getElementById("evaltxt");
     if (!c) { if (el) el.textContent = "评估：—"; return; }
@@ -289,10 +436,13 @@
       txt = `强制杀王 mate${c.mate < 0 ? "-" : "+"}${Math.abs(c.mate)}`;
       wpct = c.mate > 0 ? 100 : 0;   // mate 正 = 白方杀王
     } else {
-      txt = `白方 +${(c.evalCp / 100).toFixed(2)}`;
+      txt = `白方 ${c.evalCp >= 0 ? "+" : ""}${(c.evalCp / 100).toFixed(2)}`;
       wpct = 1 / (1 + Math.pow(10, -c.evalCp / 400)) * 100;  // logistic 换算白方胜率
     }
     wpct = Math.min(100, Math.max(0, wpct));
+    if (c.evalCp != null) flashEvalDir(c.evalCp);
+    evalHist.push(wpct);
+    drawEvalChart();
     if (el) el.textContent = "评估：" + txt + "（深度 " + c.depth + "）";
     // 左侧竖条 + 胜率具体数值（白方视角，统一用 logistic 胜率）
     document.getElementById("evalfill").style.height = wpct + "%";
@@ -304,24 +454,103 @@
     document.getElementById("evalfill").style.height = "50%";
     const pctEl = document.getElementById("evalpct");
     if (pctEl) pctEl.textContent = "白 50.0%";
+    evalHist.length = 0;
+    drawEvalChart();
+  }
+
+  // 走法列表：两列成行填入 #movelist（doMove/AI 落子/悔棋/新对局都经过 updateStatus，单点覆盖）
+  function updateMoveList() {
+    const tb = document.querySelector("#movelist tbody");
+    if (!tb) return;
+    const h = game.history();
+    tb.innerHTML = h.length
+      ? Array.from({ length: Math.ceil(h.length / 2) }, (_, i) =>
+          `<tr><td class="num">${i + 1}.</td><td class="mv">${h[2 * i]}</td><td class="mv">${h[2 * i + 1] || ""}</td></tr>`
+        ).join("")
+      : "";
+    const box = tb.closest(".moves");
+    if (box) box.scrollTop = box.scrollHeight;
   }
 
   function updateStatus() {
-    if (game.in_checkmate()) { setStatus("将死！" + (game.turn() === "w" ? "黑方" : "白方") + " 胜", true); return; }
-    if (game.in_draw()) { setStatus("和棋", true); return; }
-    setStatus(`${game.turn() === "w" ? "白方" : "黑方"}行棋` + (game.in_check() ? "（将军）" : ""));
+    updateMoveList();
+    clearKingAlarm();
+    if (game.in_checkmate()) {
+      checkmateFinale();
+      if (window.Motion && Motion.sfx) Motion.sfx.mate();
+      setStatus("将死！" + (game.turn() === "w" ? "黑方" : "白方") + " 胜", true); return;
+    }
+    if (game.in_draw()) { lastInCheck = false; setStatus("和棋", true); return; }
+    const nowInCheck = game.in_check();
+    if (nowInCheck && !lastInCheck) {
+      if (window.Motion && Motion.sfx) Motion.sfx.check();
+      edgeFlash();
+    }
+    lastInCheck = nowInCheck;
+    kingAlarm();
+    setStatus(`${game.turn() === "w" ? "白方" : "黑方"}行棋` + (nowInCheck ? "（将军）" : ""));
   }
   function setStatus(txt, alert) {
     const el = document.getElementById("status");
     el.textContent = txt;
     el.classList.toggle("alert", !!alert);
   }
-  function setThinking(on) { document.getElementById("thinking").classList.toggle("on", on); }
+  function setThinking(on) {
+    document.getElementById("thinking").classList.toggle("on", on);
+    const bz = document.querySelector(".board-zone");
+    if (bz) bz.classList.toggle("thinking-glow", !!on);
+  }
+
+  /* ---- 特效工具 v5 ---- */
+  function assemblePieces() {
+    document.querySelectorAll("#board img[src*=chesspieces]").forEach((img, i) => {
+      img.classList.remove("piece-assemble");
+      void img.offsetWidth;
+      img.style.animationDelay = (i * 16) + "ms";
+      img.classList.add("piece-assemble");
+      img.addEventListener("animationend", () => { img.classList.remove("piece-assemble"); img.style.animationDelay = ""; }, { once: true });
+    });
+  }
+  function sweepReset() {
+    const bz = document.querySelector(".board-zone");
+    if (!bz) return;
+    bz.querySelectorAll(".reset-sweep").forEach(e => e.remove());
+    const d = document.createElement("div");
+    d.className = "reset-sweep";
+    bz.appendChild(d);
+    setTimeout(() => d.remove(), 600);
+  }
+  let edgeFlashEl = null;
+  function edgeFlash() {
+    if (edgeFlashEl) return;
+    edgeFlashEl = document.createElement("div");
+    edgeFlashEl.className = "edge-red";
+    document.body.appendChild(edgeFlashEl);
+    setTimeout(() => { if (edgeFlashEl) { edgeFlashEl.remove(); edgeFlashEl = null; } }, 650);
+  }
+  function shakeBoard() {
+    const bz = document.querySelector(".board-zone");
+    if (!bz) return;
+    bz.classList.remove("shake");
+    void bz.offsetWidth;
+    bz.classList.add("shake");
+  }
 
   /* ---------------- 按钮 ---------------- */
-  function newGame() { game.reset(); board.position("start"); lastCandidates = []; resetEvalUI(); updateStatus(); }
-  function undo() { game.undo(); board.position(game.fen()); updateStatus(); }
-  function flipBoard() { board.flip(); }
+  function newGame() {
+    session++; finaleShown = false; clearKingAlarm();
+    document.querySelectorAll(".checkmate-finale").forEach(e => e.remove());
+    board.position("start"); lastCandidates = []; resetEvalUI(); updateStatus();
+    sweepReset();
+    assemblePieces();
+  }
+  function undo() { session++; finaleShown = false; game.undo(); board.position(game.fen()); updateStatus(); }
+  function flipBoard() {
+    board.flip();
+    // flip 会重建格子 DOM，清掉 .star-hl overlay 与将军警报层；重绘选中态并刷新警报
+    if (selectedSq) render();
+    updateStatus();
+  }
 
   // 依据"我执的棋"决定棋盘朝向：所选颜色在下方，另一色在上方
   function applyOrientation() {

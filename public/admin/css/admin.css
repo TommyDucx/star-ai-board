@@ -26,7 +26,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
 .login-card button:disabled{opacity:.6; cursor:default}
 .login-card button:hover:not(:disabled){box-shadow:0 0 24px #d7ff3f55}
 .login-err{color:var(--danger); font-size:12.5px; min-height:18px; margin:2px 0 8px}
-.login-foot{text-align:center; color:var(--faint); font-size:10.5px; letter-spacing:.18em; margin-top:18px}
+.login-links{display:flex; gap:10px; justify-content:center; align-items:center; margin-top:18px; font-size:12.5px}
+.login-links a{color:var(--cyan); text-decoration:none; letter-spacing:.04em}
+.login-links a:hover{text-decoration:underline; color:var(--signal)}
+.login-links .dot{color:var(--faint)}
+.login-foot{text-align:center; color:var(--faint); font-size:10.5px; letter-spacing:.18em; margin-top:14px}
+.code-hint{margin-top:10px; padding:10px 12px; background:var(--surface2); border:1px dashed var(--lineStrong);
+  border-radius:8px; font-size:12px; color:var(--warn); line-height:1.6}
+.code-hint b{color:var(--signal); font-size:15px; letter-spacing:.12em}
+.field .hint{font-size:11px; color:var(--faint); margin-top:4px}
 
 /* ---------- 布局 ---------- */
 .admin-body{background:var(--ink)}
@@ -86,7 +94,9 @@ th,td{text-align:left; padding:11px 12px; border-bottom:1px solid var(--line)}
 th{color:var(--muted); font-weight:600; font-size:11.5px; letter-spacing:.1em; text-transform:uppercase}
 td .tag{font-size:11px; padding:3px 9px; border-radius:20px; border:1px solid var(--lineStrong); color:var(--muted)}
 td .tag.admin{color:var(--signal); border-color:#d7ff3f57}
+td .tag.editor{color:var(--signal); border-color:#d7ff3f57}
 td .tag.viewer{color:var(--cyan); border-color:#2ed3ff55}
+td .tag.member{color:var(--muted); border-color:var(--lineStrong)}
 td .tag.on{color:var(--signal); border-color:#d7ff3f57}
 td .tag.off{color:var(--faint)}
 

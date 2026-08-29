@@ -35,17 +35,22 @@
   }
 
   // ---------- 视图路由 ----------
-  const TITLES = { dashboard: "数据看板", accounts: "账号管理", engines: "引擎管理", announce: "公告管理" };
+  const TITLES = { dashboard: "数据看板", profile: "个人资料", accounts: "账号管理", engines: "引擎管理", announce: "公告管理" };
+  // 视图可见性（前端 UX；服务端仍按 RBAC 强制）
+  function canView(v) {
+    if (v === "dashboard") return state.role !== "member";        // member 默认进入个人资料
+    if (v === "accounts" || v === "engines" || v === "announce") return state.role === "admin" || state.role === "editor";
+    return true; // profile 所有人可见
+  }
   function switchView(v) {
-    if (v === "accounts" || v === "engines" || v === "announce") {
-      if (state.role !== "admin") { toast("需要管理员权限"); return; }
-    }
+    if (!canView(v)) { toast("无访问权限"); return; }
     state.view = v;
     titleEl.textContent = TITLES[v] || "";
     document.querySelectorAll(".sb-item").forEach(b => b.classList.toggle("active", b.dataset.view === v));
     $("#sidebar").classList.remove("open");
     if (state.timer) { clearInterval(state.timer); state.timer = null; }
     if (v === "dashboard") renderDashboard();
+    else if (v === "profile") renderProfile();
     else if (v === "accounts") renderAccounts();
     else if (v === "engines") renderEngines();
     else if (v === "announce") renderAnnounce();
@@ -146,6 +151,7 @@
   }
 
   // ---------- 账号管理 ----------
+  const ROLE_OPTS = ["member", "viewer", "editor", "admin"];
   async function renderAccounts() {
     let r;
     try { r = await api("/api/admin/accounts"); } catch (e) { return; }
@@ -157,22 +163,26 @@
           <div class="field"><label>账号</label><input id="nu" placeholder="用户名（2-32 位）"></div>
           <div class="field"><label>密码</label><input id="np" type="password" placeholder="至少 6 位"></div>
           <div class="field"><label>角色</label>
-            <select id="nr"><option value="viewer">viewer（只读看板）</option><option value="admin">admin（全权限）</option></select></div>
+            <select id="nr">${ROLE_OPTS.map(r => `<option value="${r}">${r}</option>`).join("")}</select></div>
           <div class="field" style="flex:0"><label>&nbsp;</label><button class="btn primary" id="create-btn">＋ 创建</button></div>
         </div>
         <div id="acc-err" class="login-err"></div>
       </div>
       <div class="panel"><table>
-        <thead><tr><th>账号</th><th>角色</th><th>创建时间</th><th>状态</th><th>操作</th></tr></thead>
+        <thead><tr><th>账号</th><th>角色</th><th>邮箱/手机</th><th>创建时间</th><th>状态</th><th>操作</th></tr></thead>
         <tbody>${list.map(a => `<tr>
           <td>${esc(a.username)}</td>
           <td><span class="tag ${a.role}">${a.role}</span></td>
+          <td class="muted">${esc(a.email || a.phone || "—")}${a.isVerified ? ' <span class="tag on" style="font-size:10px">已验证</span>' : ' <span class="tag warn" style="font-size:10px">未验证</span>'}</td>
           <td class="muted">${new Date(a.createdAt).toLocaleString("zh-CN")}</td>
-          <td>${a.mustChange ? '<span class="tag warn">需改密</span>' : '<span class="tag on">正常</span>'}</td>
+          <td>${a.status === "suspended" ? '<span class="tag off">已停用</span>' : a.mustChange ? '<span class="tag warn">需改密</span>' : '<span class="tag on">正常</span>'}</td>
           <td><div class="row-actions">
             <select class="btn sm role-sel" data-u="${esc(a.username)}" ${a.username === state.username ? "disabled" : ""}>
-              <option value="viewer" ${a.role === "viewer" ? "selected" : ""}>viewer</option>
-              <option value="admin" ${a.role === "admin" ? "selected" : ""}>admin</option>
+              ${ROLE_OPTS.map(r => `<option value="${r}" ${a.role === r ? "selected" : ""}>${r}</option>`).join("")}</select>
+            <select class="btn sm status-sel" data-u="${esc(a.username)}" ${a.username === state.username ? "disabled" : ""}>
+              <option value="active" ${a.status === "active" ? "selected" : ""}>正常</option>
+              <option value="suspended" ${a.status === "suspended" ? "selected" : ""}>停用</option>
+              <option value="unverified" ${a.status === "unverified" ? "selected" : ""}>未验证</option>
             </select>
             <button class="btn sm pw-btn" data-u="${esc(a.username)}">改密</button>
             <button class="btn sm danger del-btn" data-u="${esc(a.username)}" ${a.username === state.username ? "disabled" : ""}>删除</button>
@@ -181,6 +191,7 @@
       </table></div>`;
     $("#create-btn").onclick = createAccount;
     view.querySelectorAll(".role-sel").forEach(s => s.onchange = () => changeRole(s.dataset.u, s.value));
+    view.querySelectorAll(".status-sel").forEach(s => s.onchange = () => changeStatus(s.dataset.u, s.value));
     view.querySelectorAll(".pw-btn").forEach(b => b.onclick = () => changePw(b.dataset.u));
     view.querySelectorAll(".del-btn").forEach(b => b.onclick = () => delAccount(b.dataset.u));
   }
@@ -196,8 +207,13 @@
     if (!r.ok) { toast(r.data.error || "失败"); renderAccounts(); return; }
     toast(u + " → " + role);
   }
+  async function changeStatus(u, status) {
+    const r = await api("/api/admin/accounts/" + encodeURIComponent(u), { method: "PUT", body: JSON.stringify({ status }) });
+    if (!r.ok) { toast(r.data.error || "失败"); renderAccounts(); return; }
+    toast(u + " · " + status);
+  }
   async function changePw(u) {
-    const pw = prompt("为 " + u + " 设置新密码（至少 6 位）：");
+    const pw = prompt("为 " + u + " 设置新密码（8+ 位，含大小写与数字）：");
     if (!pw) return;
     const r = await api("/api/admin/accounts/" + encodeURIComponent(u), { method: "PUT", body: JSON.stringify({ password: pw }) });
     toast(r.ok ? "密码已更新" : (r.data.error || "失败"));
@@ -258,17 +274,134 @@
     };
   }
 
+  // ---------- 个人资料 / 会话管理 ----------
+  async function renderProfile() {
+    let me = {}, ses = { sessions: [] };
+    try {
+      const [rm, rs] = await Promise.all([api("/api/me"), api("/api/me/sessions")]);
+      me = rm.data; ses = rs.data;
+    } catch (e) { return; }
+    const verifiedTag = me.isVerified
+      ? '<span class="tag on">已验证</span>' : '<span class="tag warn">未验证</span>';
+    const statusTag = me.status === "suspended" ? '<span class="tag off">已停用</span>'
+      : me.mustChange ? '<span class="tag warn">需改密</span>' : '<span class="tag on">正常</span>';
+    view.innerHTML = `
+      <div class="grid" style="grid-template-columns:1fr 1fr; gap:16px; align-items:start">
+        <div class="panel">
+          <h3>账号信息</h3>
+          <table style="border:none">
+            <tbody>
+              <tr><td class="muted" style="border:none;width:96px">用户名</td><td style="border:none"><b>${esc(me.username)}</b></td></tr>
+              <tr><td class="muted" style="border:none">角色</td><td style="border:none"><span class="tag ${me.role}">${me.role}</span></td></tr>
+              <tr><td class="muted" style="border:none">邮箱</td><td style="border:none">${esc(me.email || "—")}</td></tr>
+              <tr><td class="muted" style="border:none">手机</td><td style="border:none">${esc(me.phone || "—")}</td></tr>
+              <tr><td class="muted" style="border:none">验证状态</td><td style="border:none">${verifiedTag}</td></tr>
+              <tr><td class="muted" style="border:none">账号状态</td><td style="border:none">${statusTag}</td></tr>
+              <tr><td class="muted" style="border:none">注册时间</td><td style="border:none">${me.createdAt ? new Date(me.createdAt).toLocaleString("zh-CN") : "—"}</td></tr>
+              <tr><td class="muted" style="border:none">上次登录</td><td style="border:none">${me.lastLoginAt ? new Date(me.lastLoginAt).toLocaleString("zh-CN") : "—"}</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <h3>修改密码</h3>
+          <div class="field"><label>当前/新密码（8+ 位，含大小写与数字）</label>
+            <input type="password" id="npw" placeholder="新密码"></div>
+          <div class="field"><label>确认新密码</label>
+            <input type="password" id="npw2" placeholder="再次输入"></div>
+          <div id="pw2-err" class="login-err"></div>
+          <button class="btn primary" id="save-pw">保存新密码</button>
+        </div>
+
+        <div class="panel">
+          <h3>验证联系方式</h3>
+          <p class="muted" style="font-size:12px;margin:0 0 12px">绑定并验证邮箱/手机，可用于找回密码。</p>
+          <div class="form-row">
+            <div class="field"><label>类型</label>
+              <select id="vtype"><option value="email">邮箱</option><option value="phone">手机</option></select></div>
+            <div class="field"><label>联系方式</label>
+              <input type="text" id="vcontact" placeholder="邮箱或手机号"></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>验证码</label>
+              <input type="text" id="vcode" placeholder="6 位" maxlength="6"></div>
+            <div class="field" style="flex:0"><label>&nbsp;</label>
+              <button class="btn" id="vsend" style="white-space:nowrap">获取验证码</button></div>
+          </div>
+          <div id="v-err" class="login-err"></div>
+          <div id="v-hint"></div>
+          <button class="btn primary" id="vverify">验证并绑定</button>
+        </div>
+
+        <div class="panel">
+          <h3>登录设备（会话）</h3>
+          <p class="muted" style="font-size:12px;margin:0 0 12px">当前账号的所有登录设备。可一键退出其他设备。</p>
+          <div id="sess-list"></div>
+          <div style="margin-top:12px"><button class="btn danger" id="logout-others">退出所有其他设备</button></div>
+        </div>
+      </div>`;
+    renderSessList(ses.sessions || []);
+
+    $("#save-pw").onclick = async () => {
+      const pw = $("#npw").value, pw2 = $("#npw2").value, err = $("#pw2-err");
+      err.textContent = "";
+      if (pw !== pw2) { err.textContent = "两次输入不一致"; return; }
+      if (pw.length < 8) { err.textContent = "密码至少 8 位，需含大小写与数字"; return; }
+      const r = await api("/api/me", { method: "PUT", body: JSON.stringify({ password: pw }) });
+      if (!r.ok) { err.textContent = r.data.error || "失败"; return; }
+      toast("密码已更新"); $("#npw").value = ""; $("#npw2").value = "";
+    };
+
+    let vCool = 0, vTimer = null;
+    $("#vsend").onclick = async () => {
+      const err = $("#v-err"), hint = $("#v-hint"); err.textContent = ""; hint.innerHTML = "";
+      const contactType = $("#vtype").value, contact = $("#vcontact").value.trim();
+      if (!contact) { err.textContent = "请填写联系方式"; return; }
+      $("#vsend").disabled = true;
+      const r = await api("/api/auth/send-code", { method: "POST", body: JSON.stringify({ type: "verify", contactType, contact }) });
+      const d = await r.data;
+      if (!r.ok) { err.textContent = d.error || "发送失败"; $("#vsend").disabled = false; return; }
+      if (d.dev && d.code) hint.innerHTML = '<div class="code-hint">本地模式验证码：<b>' + d.code + '</b></div>';
+      else hint.innerHTML = '<div class="code-hint">验证码已发送</div>';
+      vCool = 60; $("#vsend").textContent = vCool + " 秒后重发";
+      vTimer = setInterval(() => { vCool--; if (vCool <= 0) { clearInterval(vTimer); $("#vsend").disabled = false; $("#vsend").textContent = "获取验证码"; } else $("#vsend").textContent = vCool + " 秒后重发"; }, 1000);
+    };
+    $("#vverify").onclick = async () => {
+      const err = $("#v-err"); err.textContent = "";
+      const contactType = $("#vtype").value, contact = $("#vcontact").value.trim(), code = $("#vcode").value.trim();
+      const r = await api("/api/me/verify", { method: "POST", body: JSON.stringify({ contactType, contact, code }) });
+      if (!r.ok) { err.textContent = r.data.error || "验证失败"; return; }
+      toast("已验证并绑定"); renderProfile();
+    };
+    $("#logout-others").onclick = async () => {
+      const r = await api("/api/me/sessions", { method: "DELETE" });
+      toast(r.ok ? ("已退出 " + (r.data.removed || 0) + " 台其他设备") : (r.data.error || "失败"));
+      renderProfile();
+    };
+  }
+  function renderSessList(list) {
+    const el = $("#sess-list"); if (!el) return;
+    if (!list.length) { el.innerHTML = '<div class="empty">暂无会话</div>'; return; }
+    el.innerHTML = `<table style="border:none"><tbody>${list.map(s => `<tr>
+      <td style="border:none; padding:8px 6px">
+        <div style="font-size:13px">${s.current ? '<b style="color:var(--signal)">● 当前设备</b>' : '其他设备'}</div>
+        <div class="muted" style="font-size:11.5px">${esc(s.ip)} · ${esc(s.ua || "").slice(0, 60) || "未知UA"}</div>
+        <div class="muted" style="font-size:11px">登录 ${new Date(s.createdAt).toLocaleString("zh-CN")} · 过期 ${new Date(s.exp).toLocaleString("zh-CN")}</div>
+      </td></tr>`).join("")}</tbody></table>`;
+  }
+
   // ---------- 初始化 ----------
   async function init() {
     let me;
     try { me = await api("/api/me"); } catch (e) { return; }
     state.role = me.data.role; state.username = me.data.username;
-    roleBadge.textContent = me.data.role === "admin" ? "ADMIN" : "VIEWER";
+    roleBadge.textContent = (me.data.role || "").toUpperCase();
     roleBadge.className = "role-badge " + (me.data.role === "admin" ? "admin" : "");
     sbUser.innerHTML = "当前：<b>" + esc(me.data.username) + "</b>";
-    // 隐藏非 admin 的菜单
-    document.querySelectorAll(".sb-item[data-admin]").forEach(b => {
-      b.style.display = me.data.role === "admin" ? "" : "none";
+    // 按 data-roles 控制菜单可见性（含 admin 的角色可见，无 data-roles 永久可见）
+    document.querySelectorAll(".sb-item").forEach(b => {
+      const roles = b.dataset.roles;
+      if (roles) b.style.display = roles.split(",").includes(me.data.role) ? "" : "none";
     });
     // 绑定
     document.querySelectorAll(".sb-item").forEach(b => b.onclick = () => switchView(b.dataset.view));
@@ -276,7 +409,7 @@
     $("#menu-toggle").onclick = () => $("#sidebar").classList.toggle("open");
     // 强制改密
     if (new URLSearchParams(location.search).get("change") === "1") showPwModal();
-    switchView("dashboard");
+    switchView(me.data.role === "member" ? "profile" : "dashboard");
   }
   function showPwModal() {
     const mask = $("#pw-modal"); mask.style.display = "flex";

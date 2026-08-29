@@ -18,59 +18,178 @@
   92%{opacity:.35;transform:translate(6px,-2px);} 93%{opacity:.18;transform:translate(-4px,1px);} 94%{opacity:0;transform:translate(2px,3px);} }
 
 /* ---- boot 启动 ----
-   .boot 覆盖层：PROJECT 左滑擦入 → 名称右滑擦入 → 信号线生长 → 3.4s 后向右擦出 */
-.boot { position: fixed; inset: 0; z-index: 300; background: var(--ink);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; cursor: pointer; }
+   叙事：一次引擎 UCI 握手的启动序列。
+   编排：PROJECT 擦入 + 背景棋盘格随机闪烁 → S.T.A.R. 从棋子/hex 乱码中解码锁定（签名动效）
+   → 左下 UCI 日志逐行打印 → 进度条 INIT/HANDSHAKE/READY 三段推进 → 内容升腾，双幕布拉开 */
+.boot { position: fixed; inset: 0; z-index: 300; background: transparent;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+  cursor: pointer; overflow: hidden; }
+/* 双幕布：承载底色，退场时上下分开 */
+.boot-half { position: absolute; left: 0; right: 0; height: 50.5%; background: var(--ink); pointer-events: none; }
+.boot-half.ht { top: 0; }
+.boot-half.hb { bottom: 0; }
+.boot-inner { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+/* 背景棋盘格闪烁：引擎正在扫描棋盘（JS 注入随机位置） */
+.boot-grid { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.boot-cell { position: absolute; width: 34px; height: 34px;
+  border: 1px solid rgba(215,255,63,.26); background: rgba(215,255,63,.05);
+  animation: cellTwinkle 3.6s ease-in-out infinite; }
+@keyframes cellTwinkle { 0%,100%{opacity:0;} 14%,40%{opacity:1;} 66%{opacity:0;} }
 .boot .boot-word { font-family: ui-monospace, Menlo, monospace; font-weight: 800;
-  font-size: clamp(44px,9vw,104px); letter-spacing: .08em; line-height: 1; display: flex; gap: .2em; }
-.boot .boot-word .w-p { animation: bootProjectIn .82s var(--ease-out) .15s both; }
-.boot .boot-word .w-s { color: var(--signal); animation: bootKylinIn .94s var(--ease-out) .3s both; }
+  font-size: clamp(44px,9vw,104px); letter-spacing: .08em; line-height: 1; display: flex; align-items: baseline; gap: .35em; }
+.boot .boot-word .w-p { animation: bootProjectIn .8s var(--ease-out) .1s both; }
+/* 最终态为默认样式（无 JS / reduced-motion 时天然正确）；解码前置态由 .decoding 覆盖 */
+.boot .boot-word .w-s { color: var(--signal); letter-spacing: .08em;
+  text-shadow: 0 0 18px rgba(215,255,63,.45); }
+.boot .boot-word .w-s.decoding { letter-spacing: .5em; opacity: .8; text-shadow: none; }
+.boot .boot-word .w-s.locked { animation: starLock .55s var(--ease-out) forwards; }
+@keyframes starLock { from{letter-spacing:.5em; opacity:.8; text-shadow:none;}
+  to{letter-spacing:.08em; opacity:1; text-shadow:0 0 22px rgba(215,255,63,.55), 0 0 4px rgba(215,255,63,.85);} }
 .boot .boot-meta { font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: .3em;
-  color: var(--muted); text-transform: uppercase; animation: bootMetaIn .8s var(--ease-out) .55s both; }
-.boot .boot-rules { width: min(440px,62vw); height: 1px; background: var(--lineStrong); position: relative; overflow: hidden; }
+  color: var(--muted); text-transform: uppercase; animation: bootMetaIn .8s var(--ease-out) .75s both; }
+.boot .boot-rules { width: min(440px,62vw); height: 1px; background: var(--lineStrong); position: relative; overflow: visible; }
 .boot .boot-rules::before { content:""; position:absolute; inset:0; background: var(--signal); transform-origin: left;
-  animation: bootRuleIn 1s var(--ease-out) .7s both; }
+  animation: bootRuleIn 1s var(--ease-out) .85s both; }
+/* 规则线上的脉冲光点：生长完成后从左向右巡行 */
+.boot .boot-rules::after { content:""; position:absolute; top:-2.5px; left:0; width:6px; height:6px; border-radius:50%;
+  background:#eaffa0; box-shadow:0 0 14px 3px rgba(215,255,63,.65); opacity:0;
+  animation: rulePulse 1.7s cubic-bezier(.45,0,.2,1) 1.8s infinite; }
+/* 阶段标签 + 三段进度条 */
+.boot-stage { display:flex; align-items:center; gap:14px;
+  font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing:.28em;
+  color: var(--muted); text-transform: uppercase; margin-top: 2px; }
+.boot-stage b { color: var(--signal); font-weight:700; min-width:11ch; text-align:left;
+  text-shadow:0 0 10px rgba(215,255,63,.4); }
+.boot-prog { width:min(320px,52vw); height:2px; background:rgba(215,255,63,.14);
+  position:relative; overflow:hidden; }
+.boot-prog i { position:absolute; inset:0; background:var(--signal); transform-origin:left;
+  transform:scaleX(0); box-shadow:0 0 10px rgba(215,255,63,.55);
+  transition:transform .5s cubic-bezier(.65,0,.35,1); }
+/* UCI 握手日志：左下角终端流 */
+.boot-log { position:absolute; left:26px; bottom:64px; z-index:2;
+  font-family: ui-monospace, Menlo, monospace; font-size:11px; line-height:1.75;
+  color:rgba(215,255,63,.72); text-align:left; pointer-events:none; }
+.boot-log .ln { opacity:0; transform:translateY(4px); animation: logIn .22s ease forwards; }
+.boot-log .ln.rsp { color:rgba(234,255,160,.5); }
+.boot-log .ln .okk { color:var(--signal); float:right; margin-left:26px; text-shadow:0 0 8px rgba(215,255,63,.55); }
+@keyframes logIn { to{opacity:1; transform:none;} }
+/* 扫描线：在标题区上下巡航的信号绿细线 */
+.boot-scan { position:absolute; z-index:1; left:14%; right:14%; top:18%; height:2px;
+  background:linear-gradient(90deg,transparent,rgba(215,255,63,.55),transparent);
+  animation: bootScan 3.2s ease-in-out .6s infinite; pointer-events:none; }
 .boot .boot-skip { position: absolute; bottom: 40px; left: 0; right: 0; text-align: center;
   font-family: ui-monospace, Menlo, monospace; font-size: 9px; color: var(--faint); letter-spacing: .24em;
   text-transform: uppercase; animation: bootMetaIn .6s var(--ease-out) 1.6s both; }
-.boot.exiting { animation: bootExit .65s var(--ease) forwards; }
 @keyframes bootProjectIn { 0%{opacity:0;clip-path:inset(0 100% 0 0);transform:translate(-90px);} to{opacity:1;clip-path:inset(0);transform:translate(0);} }
-@keyframes bootKylinIn { 0%{opacity:0;clip-path:inset(0 0 0 100%);transform:translate(120px);} to{opacity:1;clip-path:inset(0);transform:translate(0);} }
+/* 字距从很宽收缩到位 + 模糊聚焦上升 */
+  55%{filter:blur(2px);} 100%{opacity:1; letter-spacing:.08em; filter:blur(0); transform:none;} }
+ 100%{background-position:-130% 0;} }
 @keyframes bootMetaIn { 0%{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
 @keyframes bootRuleIn { 0%{transform:scaleX(0);} to{transform:scaleX(1);} }
-@keyframes bootExit { 0%,60%{clip-path:inset(0);} to{clip-path:inset(0 100% 0 0);} }
+@keyframes rulePulse { 0%{left:0; opacity:0;} 12%{opacity:1;} 82%{opacity:1;} 100%{left:calc(100% - 6px); opacity:0;} }
+  40%{background:var(--signal); transform:scale(1.3); box-shadow:0 0 10px rgba(215,255,63,.7);} }
+@keyframes bootScan { 0%{transform:translateY(0);} 50%{transform:translateY(44vh);} 100%{transform:translateY(0);} }
+
+/* 退场编排：内容升腾模糊淡出(.32s) → 双幕布上下拉开(.62s) 揭示真实页面 */
+.boot.exiting { cursor: default; }
+.boot.exiting .boot-inner, .boot.exiting .boot-skip { animation: bootContentOut .34s var(--ease) both !important; }
+.boot.exiting .boot-scan { animation: none; opacity: 0; transition: opacity .25s; }
+.boot.exiting .boot-half.ht { animation: slatUp .62s cubic-bezier(.76,0,.24,1) .16s forwards; }
+.boot.exiting .boot-half.hb { animation: slatDown .62s cubic-bezier(.76,0,.24,1) .16s forwards; }
+@keyframes bootContentOut { to{opacity:0; transform:translateY(-26px) scale(1.03); filter:blur(8px);} }
+@keyframes slatUp { to{transform:translateY(-101%);} }
+@keyframes slatDown { to{transform:translateY(101%);} }
 
 /* ---- slice 页面切换 ---- */
-.route-slice { position: fixed; inset: 0; z-index: 250; pointer-events: none; }
-.route-slice i { position: absolute; inset: 0; background: var(--surface2);
+.route-slice { position: fixed; inset: 0; z-index: 250; pointer-events: none; overflow: hidden; }
+.route-slice i { position: absolute; inset: -2% -8%; background: var(--surface2);
   animation: slicePass .95s var(--ease) both; }
-.route-slice .shutter { background: var(--signal); animation: shutterPass .8s var(--ease) .12s both; }
-@keyframes slicePass { 0%{transform:translateX(110%);} 46%{transform:translateX(0);} 100%{transform:translateX(-110%);} }
-@keyframes shutterPass { 0%{transform:translateX(110%);} 42%,60%{transform:translateX(0);} 100%{transform:translateX(-110%);} }
+.route-slice .shutter { background: var(--signal);
+  box-shadow: -22px 0 48px rgba(215,255,63,.32);
+  animation: shutterPass .8s var(--ease) .1s both; }
+/* 斜切扫屏：比平移更有速度感；scaleX 放大避免斜切露角 */
+@keyframes slicePass { 0%{transform:translateX(115%) skewX(-7deg);}
+  46%{transform:translateX(0) skewX(-7deg);} 100%{transform:translateX(-115%) skewX(-7deg);} }
+@keyframes shutterPass { 0%{transform:translateX(115%) skewX(-7deg);}
+  42%,60%{transform:translateX(0) skewX(-7deg);} 100%{transform:translateX(-115%) skewX(-7deg);} }
 
 /* ---- handoff 斜线光束（进入页面） ---- */
 .handoff { position: fixed; inset: 0; z-index: 260; pointer-events: none; overflow: hidden; }
 .handoff .beam { position:absolute; top:-12%; bottom:-12%; left:0; width:48vw;
   background: linear-gradient(90deg, transparent 0%, var(--signal) 50%, transparent 100%);
   transform: skew(-19deg) translateX(-100vw); animation: handoffBeam .9s var(--ease) both; }
+/* 回声光束：细一点、慢一拍，制造纵深 */
+.handoff .beam.echo { width:15vw; opacity:.45; animation-duration: 1s; animation-delay: .07s; }
 .handoff .cover { position:absolute; inset:0; background: var(--signal);
   clip-path: inset(0 100% 0 0); animation: handoffCover .35s var(--ease-out) .55s forwards; }
 @keyframes handoffBeam { 0%{transform:skew(-19deg) translateX(-100vw);} 100%{transform:skew(-19deg) translateX(120vw);} }
 @keyframes handoffCover { to{clip-path:inset(0);} }
 
-/* ---- 进场 stagger ---- */
+/* ---- 进场 stagger ----
+   偶数子元素改用「右侧揭示+斜向浮入」变体，同屏多卡片时方向交错更灵动 */
 .enter-node { animation: nodeEnter .6s var(--ease-out) both; }
 @keyframes nodeEnter { 0%{opacity:0;clip-path:inset(0 0 100% 0);transform:translateY(18px);}
   to{opacity:1;clip-path:inset(0);transform:translateY(0);} }
+.enter-node:nth-child(even) { animation-name: nodeEnterAlt; }
+@keyframes nodeEnterAlt { 0%{opacity:0;clip-path:inset(0 100% 0 0);transform:translateY(20px) translateX(18px);}
+  to{opacity:1;clip-path:inset(0);transform:none;} }
 
 /* ---- 磁吸 ---- */
-.magnetic { transition: transform .12s var(--ease-out), box-shadow .12s var(--ease-out); will-change: transform; }
+/* transform 由 motion.js 的 rAF 逐帧插值驱动，这里不再加 transition（双重平滑会互相打架） */
+.magnetic { will-change: transform; }
 
 /* ---- 点击涟漪 ---- */
 .ripple-host { position: relative; overflow: hidden; }
 .ripple { position:absolute; width:8px; height:8px; border:1px solid var(--signal); border-radius:50%;
   pointer-events:none; transform:translate(-50%,-50%); animation: ripplePulse .85s var(--ease-out) forwards; z-index:6; }
 @keyframes ripplePulse { to{opacity:0;width:150px;height:150px;} }
+/* 第二圈回声涟漪：跟随主环尺寸扩散 */
+.ripple::after { content:""; position:absolute; inset:-6px; border:1px solid rgba(215,255,63,.45);
+  border-radius:50%; animation: ripplePulse .85s var(--ease-out) .09s forwards; }
+
+/* ---- 磁吸卡片 hover 流光（单次扫过） ---- */
+.magnetic::after { content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:5;
+  background:linear-gradient(115deg, transparent 32%, rgba(215,255,63,.15) 47%, rgba(255,255,255,.22) 51%, rgba(215,255,63,.15) 55%, transparent 70%);
+  background-size:240% 100%; background-position:125% 0; opacity:0; transition:opacity .3s; }
+.magnetic:hover::after { opacity:1; animation: sheenSweep 1.5s var(--ease-out) forwards; }
+@keyframes sheenSweep { from{background-position:130% 0;} to{background-position:-45% 0;} }
+
+/* ---- 全站极光氛围层（motion.js 注入 .aurora） ---- */
+.aurora { position:fixed; inset:-18%; z-index:0; pointer-events:none; mix-blend-mode:screen;
+  background:
+    radial-gradient(36% 42% at 20% 30%, rgba(215,255,63,.055), transparent 62%),
+    radial-gradient(32% 38% at 80% 66%, rgba(46,211,255,.05), transparent 60%),
+    radial-gradient(24% 30% at 62% 18%, rgba(215,107,255,.04), transparent 58%);
+  animation: auroraDrift 26s ease-in-out infinite alternate; }
+@keyframes auroraDrift { from{transform:translate3d(-1.6%,-1%,0) scale(.99);}
+  to{transform:translate3d(1.8%,1.6%,0) scale(1.05);} }
+
+/* ---- 材质层 ---- */
+/* 面板碳纹噪点：data-URI SVG feTurbulence，栅格化一次零运行成本 */
+body .panel, body .panel-go, body .feat, body .card, body #detail, body #recs, body #coach {
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='90' height='90' filter='url(%23n)' opacity='.055'/%3E%3C/svg%3E"); }
+/* 页面暗角（motion.js 注入 .vignette）：CRT 屏幕质感收边 */
+.vignette { position:fixed; inset:0; z-index:59; pointer-events:none;
+  background:radial-gradient(115% 95% at 50% 42%, transparent 58%, rgba(0,0,0,.4) 100%); }
+
+/* ---- Boot 特效件 ---- */
+/* 星尘：runBoot 动态注入，自底缓缓上浮 */
+.stardust { position:absolute; bottom:-8px; border-radius:50%; background:#d7ff3f; pointer-events:none;
+  box-shadow:0 0 6px rgba(215,255,63,.75); animation: dustRise linear infinite; }
+@keyframes dustRise { from{transform:translateY(0); opacity:.9;} 88%{opacity:.5;} to{transform:translateY(-106vh); opacity:0;} }
+/* HUD 四角括号 */
+.boot-hud { position:absolute; width:24px; height:24px; border:1px solid rgba(215,255,63,.45); pointer-events:none; z-index:2; }
+.boot-hud.tl { top:20px; left:20px; border-right:0; border-bottom:0; }
+.boot-hud.tr { top:20px; right:20px; border-left:0; border-bottom:0; }
+.boot-hud.bl { bottom:20px; left:20px; border-right:0; border-top:0; }
+.boot-hud.br { bottom:20px; right:20px; border-left:0; border-top:0; }
+/* 旋转刻度环 */
+.boot-ring { position:absolute; right:9%; bottom:13%; width:76px; height:76px; border-radius:50%; pointer-events:none; z-index:2;
+  border:1px dashed rgba(215,255,63,.32); animation: ringSpin 16s linear infinite; }
+.boot-ring::before { content:""; position:absolute; inset:11px; border-radius:50%; border:1px solid rgba(215,255,63,.18); }
+.boot-ring::after { content:""; position:absolute; top:-3px; left:50%; width:5px; height:5px; margin-left:-2.5px;
+  border-radius:50%; background:var(--signal); box-shadow:0 0 10px rgba(215,255,63,.8); }
+@keyframes ringSpin { to{transform:rotate(360deg);} }
 
 /* ---- 标题 glitch（主页 hero） ---- */
 .glitch { position: relative; display: inline-block; }

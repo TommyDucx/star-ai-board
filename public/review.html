@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>对局复盘 — S.T.A.R.</title>
+<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <link rel="stylesheet" href="css/site.css">
-<link rel="stylesheet" href="css/motion.css">
+<link rel="stylesheet" href="css/motion.css?v=31">
 <link rel="stylesheet" href="css/chessboard.min.css">
 <style>
   .rev-wrap { max-width: 1080px; margin: 0 auto; padding: 26px 20px 60px; }
@@ -22,6 +23,14 @@
   .acc-box .ph { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--faint); letter-spacing: .14em; margin-top: 4px; }
   .grid { display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
   @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } .acc-row { flex-direction: column; } }
+  /* 小屏适配：明细/统计表可横向滚动，避免把页面撑出横向滚动条 */
+  @media (max-width: 640px) {
+    .rev-wrap { padding: 18px 10px 40px; }
+    #curve-box { padding: 8px; }
+    #detail { padding: 10px; }
+    .rev-wrap table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    #summary span { white-space: normal; word-break: break-all; }
+  }
   .nav { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
   #curve-box { border: 1px solid var(--line); padding: 12px; margin-bottom: 14px; }
   #curve-box label { font-size: 12px; color: var(--muted); margin-bottom: 6px; display: block; }
@@ -30,6 +39,9 @@
   #recs label { font-size: 12px; color: var(--muted); margin-bottom: 8px; display: block; }
   .rec { display: flex; gap: 10px; align-items: center; padding: 5px 8px; border: 1px solid var(--line); margin-bottom: 6px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
   #movelist { margin-top: 12px; max-height: 200px; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  #movelist .rmv { cursor: pointer; font-family: ui-monospace, Menlo, monospace; font-size: 12px; padding: 3px 8px; border-radius: 4px; color: var(--muted); }
+  #movelist .rmv:hover { color: var(--signal); background: var(--surface); }
+  #movelist .rmv.on { background: var(--signal); color: #080a09; font-weight: 700; }
   #coach { border: 1px solid var(--line); padding: 12px 14px; margin-bottom: 14px; background: var(--surface); }
   #coach .ct { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--signal); letter-spacing: .2em; margin-bottom: 6px; }
   #coach p { font-size: 13px; color: var(--paper); line-height: 1.7; }
@@ -45,6 +57,10 @@
   <span class="crumb">GAME REVIEW / 对局复盘</span>
   <span class="flex1"></span>
   <a href="chess.html" class="btn" data-nav>返回对局</a>
+  <a href="/admin/login.html" class="admin-entry" data-nav>
+    <svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    <span class="txt">管理后台</span>
+  </a>
 </div>
 
   <div class="rev-wrap enter-node">
@@ -88,7 +104,7 @@
 <script src="js/lib/jquery.min.js"></script>
 <script src="js/lib/chess.min.js"></script>
 <script src="js/lib/chessboard.min.js"></script>
-<script src="js/motion.js"></script>
-<script src="js/review.js?v=4"></script>
+<script src="js/motion.js?v=33"></script>
+<script src="js/review.js?v=8"></script>
 </body>
 </html>

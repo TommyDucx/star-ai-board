@@ -4,36 +4,128 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>国际象棋 · AI 下一步推荐 — S.T.A.R.</title>
+<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <link rel="stylesheet" href="css/site.css?v=26">
-<link rel="stylesheet" href="css/motion.css?v=26">
+<link rel="stylesheet" href="css/motion.css?v=31">
 <link rel="stylesheet" href="css/chessboard.min.css?v=26">
 <style>
-  .chess-wrap { display: flex; gap: 24px; align-items: flex-start; justify-content: center; flex-wrap: wrap; padding: 22px 16px; }
-  .board-card { width: 480px; max-width: 100%; flex-shrink: 0; }
+  /* ===== 视口预算布局：topbar + 内容区撑满 100vh，无页面滚动 ===== */
+  html, body { height: 100%; overflow: hidden; }
+  body { display: flex; flex-direction: column; }
+  .chess-wrap { flex: 1; min-height: 0;
+    display: flex; gap: 20px; align-items: center; justify-content: center;
+    padding: 12px 16px; flex-wrap: nowrap; }
+  .board-card { display: flex; gap: 10px; align-items: stretch; min-height: 0; flex-shrink: 1; }
   .board-card .chessboard { border-radius: 8px; overflow: hidden; }
-  #board { width: 460px; height: 460px; }   /* 显式宽高，避免 chessboard.js 测量到 0 */
-  #evalwrap { width: 16px; height: 460px; border-radius: 4px; overflow: hidden; border: 1px solid #3a4048; display: flex; flex-direction: column; background: #2b2b2b; }
+  #board { width: 460px; height: 460px; flex-shrink: 0; }
+  #evalwrap { width: 16px; height: 460px; border-radius: 4px; overflow: hidden; border: 1px solid #3a4048; display: flex; flex-direction: column; background: #2b2b2b; flex-shrink: 0; }
   #evalfill { background: #f2f2f2; width: 100%; height: 50%; transition: height .35s ease; }
-  .eval-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-  .eval-col #evalwrap { flex: 1; }
+  .eval-col { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 0; }
+  .eval-col #evalwrap { flex: 1; width: 16px; }
   #evalpct { font-size: 11px; font-family: ui-monospace, Menlo, monospace; color: var(--muted); white-space: nowrap; }
-  .panel { width: 300px; }
-  .cand { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); margin-bottom: 8px; background: var(--surface); }
+  .panel { width: 300px; flex: none; max-height: 100%; min-height: 0;
+    display: flex; flex-direction: column; overflow: hidden; }
+  .panel > .row { flex: none; }
+  .cand { display: flex; align-items: center; gap: 10px; padding: 6px 9px; border: 1px solid var(--line); margin-bottom: 6px; background: var(--surface); }
+  #cands { max-height: 148px; overflow-y: auto; }
   .cand .n { width: 22px; height: 22px; border-radius: 50%; background: var(--signal); color: #080a09; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 12px; flex: 0 0 22px; }
   .cand .pv { flex: 1; font-family: ui-monospace, Menlo, monospace; color: var(--faint); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cand .score { font-family: monospace; color: var(--muted); font-size: 12px; }
-  .moves { margin-top: 8px; height: 200px; overflow-y: auto; font-size: 13px; border-top: 1px solid var(--line); padding-top: 8px; }
+  /* 走法列表吃掉面板剩余高度（内部滚动），面板整体不超出视口 */
+  .moves { margin-top: 6px; flex: 1 1 auto; min-height: 48px; overflow-y: auto; font-size: 13px; border-top: 1px solid var(--line); padding-top: 6px; }
   .moves table { width: 100%; border-collapse: collapse; }
   .moves td { padding: 2px 4px; }
   .moves .num { color: var(--faint); width: 26px; }
   .moves .mv { font-family: ui-monospace, Menlo, monospace; cursor: pointer; }
   .moves .mv:hover { color: var(--signal); }
+  /* 小屏回退：恢复自然文档流（手机上无法塞进一屏属预期） */
+  @media (max-width: 960px) {
+    html, body { height: auto; overflow: auto; }
+    body { display: block; }
+    .chess-wrap { flex-wrap: wrap; }
+    .panel { max-height: none; }
+    .moves { height: 200px; flex: none; }
+  }
   /* 点击式下棋：棋格定位 + 高亮 overlay */
   .board-b72b1 .square-55d63 { position: relative; }
+  /* AI 落子落地弹跳（chess.js 加 piece-drop 类，animationend 后移除） */
+  .piece-drop { animation: pieceDrop .34s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes pieceDrop { 0%{transform:translateY(-10px) scale(1.07);} 65%{transform:translateY(1px) scale(.99);} 100%{transform:none;} }
+  /* 将军王座警报：王格红色呼吸脉冲 */
+  .king-check { position:absolute; inset:0; pointer-events:none; border-radius:2px;
+    background:radial-gradient(circle, rgba(224,44,26,.42), rgba(224,44,26,.12) 55%, transparent 74%);
+    animation:checkPulse .75s ease-in-out infinite; }
+  @keyframes checkPulse { 0%,100%{opacity:.5;} 50%{opacity:1;} }
+  /* 将杀终局：色差抖动大字 */
+  .checkmate-finale { position:fixed; inset:0; z-index:150; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:12px; pointer-events:none;
+    background:radial-gradient(60% 60% at 50% 50%, rgba(8,10,9,.85), rgba(8,10,9,.38));
+    animation:finaleIn .45s var(--ease-out); }
+  .checkmate-finale small { font-family:ui-monospace,Menlo,monospace; letter-spacing:.5em; color:#ff5a4d; font-size:12px; }
+  .checkmate-finale b { font-family:ui-monospace,Menlo,monospace; font-weight:800;
+    font-size:clamp(40px,7vw,86px); letter-spacing:.12em; color:#fff;
+    text-shadow:-3px 0 #2ed3ff, 3px 0 #e02c1a, 0 0 36px rgba(215,255,63,.22);
+    animation:finaleJitter .12s steps(2,end) infinite; }
+  .checkmate-finale i { font-style:normal; font-family:ui-monospace,Menlo,monospace;
+    color:var(--muted); font-size:12px; letter-spacing:.2em; }
+  @keyframes finaleIn { from{opacity:0;} to{opacity:1;} }
+  @keyframes finaleJitter { 0%{transform:translate(0,0);} 50%{transform:translate(1.5px,-1px);} 100%{transform:translate(-1px,1px);} }
+  /* 思考中：跳动省略号 */
+  #thinking.on::after { content:"···"; display:inline-block; margin-left:4px; color:var(--signal);
+    animation:dotsJump .9s ease-in-out infinite; }
+  @keyframes dotsJump { 0%,100%{transform:translateY(-2px); opacity:.45;} 50%{transform:translateY(1px); opacity:1;} }
+  /* ---- 交互反馈特效包 v5 ---- */
+  .board-zone { position: relative; }
+  .piece-assemble { animation: assemble .38s cubic-bezier(.34,1.56,.64,1) backwards; }
+  @keyframes assemble { from { opacity: 0; transform: translateY(-14px) scale(.6); } }
+  .reset-sweep { position:absolute; inset:0; pointer-events:none; z-index:80;
+    background:linear-gradient(115deg, transparent 35%, rgba(215,255,63,.22) 50%, rgba(255,255,255,.16) 54%, rgba(215,255,63,.22) 58%, transparent 72%);
+    background-size:250% 100%; animation:sweepAcross .5s var(--ease-out) forwards; }
+  @keyframes sweepAcross { from{background-position:130% 0;} to{background-position:-40% 0;} }
+  .shake { animation: shakeX .18s linear; }
+  @keyframes shakeX { 25%{transform:translate(2px,-1px);} 50%{transform:translate(-2px,1px);} 75%{transform:translate(1px,1px);} }
+  #board { transition: box-shadow .4s ease; }
+  .thinking-glow #board { animation: thinkGlow 1.6s ease-in-out infinite; }
+  @keyframes thinkGlow { 0%,100%{box-shadow:0 0 14px rgba(215,255,63,.15);}
+    50%{box-shadow:0 0 30px rgba(215,255,63,.34);} }
+  .edge-red { position:fixed; inset:0; z-index:120; pointer-events:none;
+    background:radial-gradient(120% 120% at 50% 50%, transparent 60%, rgba(224,44,26,.38) 100%);
+    animation:edgeFade .55s ease-out forwards; }
+  @keyframes edgeFade { from{opacity:1;} to{opacity:0;} }
+  #evaltxt.flash-up { color:#3ac94e !important; transition:color .12s; }
+  #evaltxt.flash-down { color:#ff5a4d !important; transition:color .12s; }
   .star-hl { position: absolute; pointer-events: none; }
   .star-hl.sel { inset: 0; background: rgba(215,255,63,.30); }
   .star-hl.dot { left: 30%; top: 30%; width: 40%; height: 40%; border-radius: 50%; background: rgba(215,255,63,.50); }
-</style>
+
+  /* ===== 排版 v4：棋盘居左，右侧 2×2 模块网格（与棋盘等高） ===== */
+  html, body { height: 100%; overflow: hidden; }
+  body { display: flex; flex-direction: column; }
+  .page { flex: 1; min-height: 0; min-width: 0; display: flex;
+    align-items: center; justify-content: center; padding: 10px 16px; }
+  .duel { display: flex; gap: 12px; align-items: stretch; max-width: 100%; }
+  .board-zone { flex: none; }
+  .side { flex: 0 1 auto; min-width: 0; align-self: stretch;
+    display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+    gap: 10px; width: clamp(340px, calc(100vw - 560px), 640px); }
+  .mod { min-width: 0; border: 1px solid var(--line); background: var(--surface);
+    border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column;
+    gap: 6px; overflow: hidden; }
+  .mod > .row { margin-top: 0; }
+  .mod label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mod .btns { flex-wrap: wrap; gap: 6px; }
+  #cands { flex: 1 1 auto; min-height: 0; overflow-y: auto; max-height: none; }
+  .moves-mod .moves { flex: 1 1 auto; min-height: 0; margin-top: 4px; border-top: none; padding-top: 0; }
+  /* 仅极窄屏(<880)才换行 */
+  @media (max-width: 880px) {
+    html, body { height: auto; overflow: auto; }
+    body { display: block; }
+    .page { min-height: 0; }
+    .duel { flex-wrap: wrap; justify-content: center; }
+    .side { width: min(640px, 100%); grid-template-rows: auto auto; }
+    .moves { height: 180px; flex: none; }
+  }
+  </style>
 </head>
 <body>
 <div class="scanlines"></div>
@@ -43,74 +135,91 @@
   <span class="crumb">CHESS / STOCKFISH ANALYSIS</span>
   <span class="flex1"></span>
   <a href="go.html" class="btn" data-nav>围棋 →</a>
+  <a href="/admin/login.html" class="admin-entry" data-nav>
+    <svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    <span class="txt">管理后台</span>
+  </a>
 </div>
 
-<div class="chess-wrap enter-node">
-  <div class="board-card" style="display:flex;gap:10px;align-items:stretch">
-    <div class="eval-col">
-      <div id="evalpct">白 50.0%</div>
-      <div id="evalwrap"><div id="evalfill"></div></div>
+<div class="page enter-node">
+  <div class="duel">
+    <div class="board-zone">
+      <div class="eval-col">
+        <div id="evalpct">白 50.0%</div>
+        <div id="evalwrap"><div id="evalfill"></div></div>
+      </div>
+      <div id="board"></div>
     </div>
-    <div id="board"></div>
-  </div>
 
-  <div class="panel">
-    <div class="row"><label>引擎</label>
-      <select id="engine">
-        <option value="stockfish">Stockfish 18（≈3640·世界最强）</option>
-        <option value="reckless">Reckless 0.10（≈3600·顶级）</option>
-        <option value="plentychess">PlentyChess 8.0（≈3590·顶级）</option>
-        <option value="alexandria">Alexandria 9（≈3560·顶级）</option>
-        <option value="viridithas">Viridithas 20（≈3550·顶级）</option>
-        <option value="quanticade">Quanticade Cronus 3.0（≈3520·强）</option>
-        <option value="halogen">Halogen 15（≈3500·强）</option>
-        <option value="clover">Clover 9.1（≈3490·强）</option>
-        <option value="berserk">Berserk 13（≈3460·强）</option>
-        <option value="ethereal">Ethereal 14（≈3420·强）</option>
-        <option value="my-engine">BiaoZi 手写eval（≈800·入门）</option>
-        <option value="my-engine-nnue">BiaoZi NNUE（≈500·实验）</option>
-      </select>
+    <div class="side">
+      <section class="mod">
+        <div class="row"><label>引擎</label>
+          <select id="engine">
+            <option value="stockfish">Stockfish 18（≈3640·世界最强）</option>
+            <option value="reckless">Reckless 0.10（≈3600·顶级）</option>
+            <option value="plentychess">PlentyChess 8.0（≈3590·顶级）</option>
+            <option value="alexandria">Alexandria 9（≈3560·顶级）</option>
+            <option value="viridithas">Viridithas 20（≈3550·顶级）</option>
+            <option value="quanticade">Quanticade Cronus 3.0（≈3520·强）</option>
+            <option value="halogen">Halogen 15（≈3500·强）</option>
+            <option value="clover">Clover 9.1（≈3490·强）</option>
+            <option value="berserk">Berserk 13（≈3460·强）</option>
+            <option value="ethereal">Ethereal 14（≈3420·强）</option>
+            <option value="my-engine">BiaoZi 手写eval（≈800·入门）</option>
+            <option value="my-engine-nnue">BiaoZi NNUE（≈500·实验）</option>
+          </select>
+        </div>
+        <div class="row"><label>你的执棋方</label>
+          <select id="side"><option value="white">白方（先手）</option><option value="black">黑方（后手）</option></select>
+        </div>
+        <div class="row"><label>难度（引擎棋力，Reckless 固定）</label>
+          <select id="level">
+            <option value="1320">新手 ~1320</option><option value="1500">业余 ~1500</option>
+            <option value="1800" selected>中级 ~1800</option><option value="2100">高级 ~2100</option>
+            <option value="2600">大师 ~2600</option><option value="0">最强（满血）</option>
+          </select>
+        </div>
+        <div class="row"><label>思考时间：<span id="mtlbl">800</span> ms</label>
+          <input id="movetime" type="range" min="200" max="3000" step="100" value="800" style="width:100%">
+        </div>
+      </section>
+
+      <section class="mod">
+        <div class="row btns">
+          <button class="btn primary" onclick="engineThink()">AI 推荐</button>
+          <button class="btn" onclick="newGame()">新对局</button>
+          <button class="btn" onclick="undo()">悔棋</button>
+          <button class="btn" onclick="flipBoard()">翻转</button>
+          <button class="btn" onclick="reviewGame()">复盘</button>
+        </div>
+        <div class="status" id="status">准备就绪</div>
+        <div class="thinking" id="thinking">Stockfish 分析中…</div>
+        <div id="evaltxt" style="font-size:13px;color:var(--muted);font-family:monospace">评估：—</div>
+        <canvas id="evalchart" width="276" height="56" style="width:100%;height:56px;border:1px solid var(--line);border-radius:4px;background:var(--surface);margin-top:auto"></canvas>
+      </section>
+
+      <section class="mod">
+        <div class="row" style="margin-top:0"><label>推荐走法（当前行棋方）</label></div>
+        <div id="cands"></div>
+      </section>
+
+      <section class="mod moves-mod">
+        <div class="row" style="margin-top:0"><label>对局记录</label></div>
+        <div class="moves"><table id="movelist"><tbody></tbody></table></div>
+      </section>
     </div>
-    <div class="row"><label>你的执棋方</label>
-      <select id="side"><option value="white">白方（先手）</option><option value="black">黑方（后手）</option></select>
-    </div>
-    <div class="row"><label>难度（引擎棋力，Reckless 固定）</label>
-      <select id="level">
-        <option value="1320">新手 ~1320</option><option value="1500">业余 ~1500</option>
-        <option value="1800" selected>中级 ~1800</option><option value="2100">高级 ~2100</option>
-        <option value="2600">大师 ~2600</option><option value="0">最强（满血）</option>
-      </select>
-    </div>
-    <div class="row"><label>引擎思考时间：<span id="mtlbl">800</span> ms</label>
-      <input id="movetime" type="range" min="200" max="3000" step="100" value="800" style="width:100%">
-    </div>
-    <div class="row btns">
-      <button class="btn primary" onclick="engineThink()">AI 推荐下一步</button>
-      <button class="btn" onclick="reviewGame()">结束复盘</button>
-      <button class="btn" onclick="newGame()">新对局</button>
-      <button class="btn" onclick="undo()">悔棋</button>
-      <button class="btn" onclick="flipBoard()">翻转</button>
-    </div>
-    <div class="status" id="status">准备就绪</div>
-    <div class="thinking" id="thinking">Stockfish 分析中…</div>
-    <div class="row" style="margin-top:12px"><label>推荐走法（当前行棋方）</label><div id="cands"></div></div>
-    <div class="row"><div id="evaltxt" style="font-size:13px;color:var(--muted);font-family:monospace">评估：—</div></div>
-    <div class="row moves"><table id="movelist"><tbody></tbody></table></div>
   </div>
 </div>
 
 <script src="js/lib/jquery.min.js?v=26"></script>
 <script src="js/lib/chess.min.js?v=26"></script>
 <script src="js/lib/chessboard.min.js?v=26"></script>
-<script src="js/chess.js?v=28"></script>
-<script src="js/motion.js?v=26"></script>
+<script src="js/chess.js?v=40"></script>
+<script src="js/motion.js?v=33"></script>
 <script>
   Motion.initCursorLine();
   Motion.initRipple();
   Motion.staggerEnter();
-  document.querySelectorAll("[data-nav]").forEach(a => {
-    a.addEventListener("click", e => { e.preventDefault(); Motion.sliceRoute(a.getAttribute("href")); });
-  });
 </script>
 </body>
 </html>

@@ -48,5 +48,7 @@ run/**/worker*.log
 admin/.secret
 admin/sessions.json
 admin/accounts.json
+admin/auth_codes.json
+admin/reset_tokens.json
 admin/games.log.jsonl
 admin/config.json

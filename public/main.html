@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <title>S.T.A.R. — 围棋 & 国际象棋 AI 推荐</title>
 <link rel="stylesheet" href="css/site.css">
-<link rel="stylesheet" href="css/motion.css">
+<link rel="stylesheet" href="css/motion.css?v=31">
 <style>
   .hero { max-width: 900px; margin: 0 auto; padding: 70px 20px 40px; text-align: center; position: relative; }
   .hero::before { content:""; position:absolute; inset:-60px 0 0; z-index:-1;
@@ -18,7 +19,7 @@
   .hero h1 { font-size: clamp(38px, 7vw, 76px); font-weight: 800; letter-spacing: .04em; line-height: 1; margin: 18px 0 14px; }
   .hero h1 .outline { color: transparent; -webkit-text-stroke: 1px var(--paper); }
   .hero p { color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.8; }
-  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 820px; margin: 44px auto 60px; padding: 0 20px; }
+  .cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; max-width: 980px; margin: 44px auto 60px; padding: 0 20px; }
   .card { border: 1px solid var(--line); background: var(--surface); padding: 30px 26px; text-decoration: none; color: inherit; transition: .18s; position: relative; }
   .card:hover { border-color: var(--signal); }
   .card .tag { font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: .2em; color: var(--signal); }
@@ -26,7 +27,7 @@
   .card p { color: var(--muted); font-size: 13.5px; line-height: 1.7; }
   .card .go { margin-top: 18px; font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--paper); }
   .card:hover .go { color: var(--signal); }
-  @media (max-width: 700px) { .cards { grid-template-columns: 1fr; } }
+  @media (max-width: 820px) { .cards { grid-template-columns: 1fr; } }
   .foot { text-align: center; font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--faint); letter-spacing: .2em; padding-bottom: 40px; }
 </style>
 </head>
@@ -36,9 +37,15 @@
 
 <!-- boot 启动 -->
 <div class="boot" aria-hidden="true">
-  <div class="boot-word"><span class="w-p">PROJECT</span><span class="w-s">S.T.A.R.</span></div>
-  <div class="boot-meta">GO · CHESS / AI SUGGEST NEXT MOVE</div>
-  <div class="boot-rules"></div>
+  <div class="boot-half ht"></div><div class="boot-half hb"></div>
+  <div class="boot-scan"></div>
+  <i class="boot-hud tl"></i><i class="boot-hud tr"></i><i class="boot-hud bl"></i><i class="boot-hud br"></i>
+  <div class="boot-ring"></div>
+  <div class="boot-inner">
+    <div class="boot-word"><span class="w-p">PROJECT</span><span class="w-s">S.T.A.R.</span></div>
+    <div class="boot-meta">GO · CHESS / AI SUGGEST NEXT MOVE</div>
+    <div class="boot-rules"></div>
+  </div>
   <div class="boot-skip">点击任意处 跳过 · CLICK TO SKIP</div>
 </div>
 <div class="topbar">
@@ -46,6 +53,10 @@
   <span class="crumb">GO · CHESS / AI SUGGEST NEXT MOVE</span>
   <span class="flex1"></span>
   <span class="mono" style="font-size:10px;color:var(--faint);letter-spacing:.2em">KATAGO · STOCKFISH</span>
+  <a href="/admin/login.html" class="admin-entry" data-nav>
+    <svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    <span class="txt">管理后台</span>
+  </a>
 </div>
 
 <div class="hero" data-parallax>
@@ -67,24 +78,23 @@
     <p>拖拽走棋，AI 实时推荐下一步最佳走法并给出评估分与候选列表。</p>
     <div class="go">进入棋盘 →</div>
   </a>
+  <a class="card magnetic ripple-host" href="review.html" data-nav>
+    <span class="tag">REVIEW / 复盘</span>
+    <h2>对局复盘</h2>
+    <p>粘贴或载入棋谱，逐步回放，AI 标注关键时刻与改进建议。</p>
+    <div class="go">进入复盘 →</div>
+  </a>
 </div>
 
 <div class="foot">PROJECT S.T.A.R. · KATAGO + STOCKFISH · 本地对弈分析</div>
 
-<script src="js/motion.js"></script>
+<script src="js/motion.js?v=33"></script>
 <script>
   Motion.runBoot();
   Motion.initCursorLine();
   Motion.initMagnetic();
   Motion.initRipple();
   Motion.initParallax();
-  // 卡片进入 → 用 handoff 斜线光束过渡
-  document.querySelectorAll("[data-nav]").forEach(a => {
-    a.addEventListener("click", e => {
-      e.preventDefault();
-      Motion.handoff(a.getAttribute("href"));
-    });
-  });
 </script>
 </body>
 </html>

@@ -4,19 +4,49 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>围棋 · AI 下一步推荐 — S.T.A.R.</title>
-<link rel="stylesheet" href="css/site.css?v=5">
-<link rel="stylesheet" href="css/motion.css?v=5">
+<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
+<link rel="stylesheet" href="css/site.css?v=26">
+<link rel="stylesheet" href="css/motion.css?v=31">
 <style>
-  .go-wrap { display: flex; gap: 26px; align-items: flex-start; justify-content: center; flex-wrap: wrap; padding: 24px 16px; }
-  .board-card { position: relative; }
-  .board-card svg { display: block; border-radius: 10px; }
-  #winbar { width: 100%; height: 10px; background: #1a201b; border: 1px solid #eff2e824; margin-top: 10px; display: flex; }
-  #winbar i { height: 100%; }
-  .panel-go { width: 300px; }
+  /* ===== 排版 v4（与 chess 同构）：棋盘居左，右侧 2×2 模块网格 ===== */
+  html, body { height: 100%; overflow: hidden; }
+  body { display: flex; flex-direction: column; }
+  .page { flex: 1; min-height: 0; min-width: 0; display: flex;
+    align-items: center; justify-content: center; padding: 10px 16px; }
+  .duel { display: flex; gap: 12px; align-items: stretch; max-width: 100%; }
+  .board-card { flex: none; }
+  .side { flex: 0 1 auto; min-width: 0; align-self: stretch;
+    display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+    gap: 10px; width: clamp(330px, calc(100vw - 620px), 620px); }
+  .mod { min-width: 0; border: 1px solid #eff2e824; background: #121612;
+    border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column;
+    gap: 6px; overflow: hidden; }
+  .mod > .row { margin-top: 0; }
+  .mod label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mod .btns { flex-wrap: wrap; gap: 6px; }
+  #cands { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
   .cand { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid #eff2e824; margin-bottom: 8px; background: #121612; }
   .cand .n { width: 22px; height: 22px; border-radius: 50%; background: #d7ff3f; color: #080a09; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 12px; flex: 0 0 22px; }
   .cand .wr { flex: 1; text-align: right; font-family: monospace; color: #8a9288; font-size: 12px; }
   .cand .pv { font-family: monospace; color: #788179; font-size: 11px; }
+  /* ---- 特效 v5 ---- */
+  .board-card { position: relative; transition: box-shadow .4s ease; border-radius:10px; }
+  .thinking-glow svg#board { animation: goThinkGlow 1.7s ease-in-out infinite; }
+  @keyframes goThinkGlow { 0%,100%{filter:drop-shadow(0 0 6px rgba(215,255,63,.18));}
+    50%{filter:drop-shadow(0 0 16px rgba(215,255,63,.4));} }
+  .reset-sweep { position:absolute; inset:0; pointer-events:none; z-index:80;
+    background:linear-gradient(115deg, transparent 35%, rgba(215,255,63,.2) 50%, rgba(255,255,255,.14) 54%, rgba(215,255,63,.2) 58%, transparent 72%);
+    background-size:250% 100%; animation:sweepAcross .5s ease-out forwards; }
+  @keyframes sweepAcross { from{background-position:130% 0;} to{background-position:-40% 0;} }
+  /* 仅极窄屏(<880)才换行；浏览器缩放导致的等效变窄也尽量保持左右布局 */
+  @media (max-width: 880px) {
+    html, body { height: auto; overflow: auto; }
+    body { display: block; }
+    .page { min-height: 0; }
+    .duel { flex-wrap: wrap; justify-content: center; }
+    .side { width: min(620px, 100%); grid-template-rows: auto auto; }
+    #cands { max-height: 220px; }
+  }
 </style>
 </head>
 <body>
@@ -27,72 +57,73 @@
   <span class="crumb">GO / KATAGO ANALYSIS</span>
   <span class="flex1"></span>
   <a href="chess.html" class="btn" data-nav>国际象棋 →</a>
+  <a href="/admin/login.html" class="admin-entry" data-nav>
+    <svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    <span class="txt">管理后台</span>
+  </a>
 </div>
 
-<div class="go-wrap enter-node">
-  <div class="board-card">
-    <svg id="board" xmlns="http://www.w3.org/2000/svg"></svg>
-    <div id="winbar"><i id="winw" style="background:#eff2e8"></i><i id="winb" style="background:#0b0d0c"></i></div>
-    <div class="mono" id="winlabel" style="text-align:center;margin-top:6px;font-size:12px;color:#8a9288">当前执黑 · 点击棋盘落子 · 落子后自动分析推荐</div>
-  </div>
+<div class="page enter-node">
+  <div class="duel">
+    <div class="board-card">
+      <svg id="board" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="winbar"><i id="winw" style="background:#eff2e8"></i><i id="winb" style="background:#0b0d0c"></i></div>
+      <div class="mono" id="winlabel" style="text-align:center;margin-top:6px;font-size:12px;color:#8a9288">当前执黑 · 点击棋盘落子 · 落子后自动分析推荐</div>
+    </div>
 
-  <div class="panel-go">
-    <div class="row">
-      <label>AI 引擎 / 模型</label>
-      <select id="goengine">
-        <option value="">加载中…</option>
-      </select>
-    </div>
-    <div class="row">
-      <label>棋盘大小</label>
-      <select id="size">
-        <option value="9">9 路</option>
-        <option value="13">13 路</option>
-        <option value="19" selected>19 路</option>
-      </select>
-    </div>
-    <div class="row">
-      <label>我方执子（决定行棋顺序/视角）</label>
-      <select id="myside">
-        <option value="B" selected>执黑（先手）</option>
-        <option value="W">执白（后手）</option>
-      </select>
-    </div>
-    <div class="row">
-      <label>AI 分析强度（模拟次数）</label>
-      <select id="visits">
-        <option value="50">快速 ~50</option>
-        <option value="200" selected>标准 ~200</option>
-        <option value="600">精细 ~600</option>
-      </select>
-    </div>
-    <div class="row btns">
-      <button class="btn primary" onclick="aiAnalyze()">AI 推荐下一步</button>
-      <button class="btn" onclick="undo()">悔棋</button>
-      <button class="btn" onclick="clearBoard()">清空</button>
-      <button class="btn" onclick="flipBoard()">翻转</button>
-    </div>
-    <div class="status" id="status">准备就绪</div>
-    <div class="thinking" id="thinking">KataGo 分析中…</div>
-    <div class="row" style="margin-top:12px"><label>胜率评估</label>
-      <div class="wrbar" style="background:#f0f0f0"><span id="gwrfill" style="width:50%;background:#0b0d0c"></span></div>
-      <div class="wrmono" id="gwrlabel">黑 50.0% · 白 50.0%</div>
-    </div>
-    <div class="row" style="margin-top:12px"><label>推荐落点（当前行棋方）</label>
-      <div id="cands"></div>
+    <div class="side">
+      <section class="mod">
+        <div class="row"><label>AI 引擎 / 模型</label>
+          <select id="goengine"><option value="">加载中…</option></select>
+        </div>
+        <div class="row"><label>棋盘大小</label>
+          <select id="size">
+            <option value="9">9 路</option><option value="13">13 路</option><option value="19" selected>19 路</option>
+          </select>
+        </div>
+        <div class="row"><label>我方执子（决定行棋顺序/视角）</label>
+          <select id="myside">
+            <option value="B" selected>执黑（先手）</option><option value="W">执白（后手）</option>
+          </select>
+        </div>
+        <div class="row"><label>AI 分析强度（模拟次数）</label>
+          <select id="visits">
+            <option value="50">快速 ~50</option><option value="200" selected>标准 ~200</option><option value="600">精细 ~600</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="mod">
+        <div class="row btns">
+          <button class="btn primary" onclick="aiAnalyze()">AI 推荐</button>
+          <button class="btn" onclick="undo()">悔棋</button>
+          <button class="btn" onclick="clearBoard()">清空</button>
+          <button class="btn" onclick="flipBoard()">翻转</button>
+        </div>
+        <div class="status" id="status">准备就绪</div>
+        <div class="thinking" id="thinking">KataGo 分析中…</div>
+      </section>
+
+      <section class="mod">
+        <div class="row" style="margin-top:0"><label>胜率评估</label></div>
+        <div class="wrbar" style="background:#f0f0f0"><span id="gwrfill" style="width:50%;background:#0b0d0c"></span></div>
+        <div class="wrmono" id="gwrlabel">黑 50.0% · 白 50.0%</div>
+      </section>
+
+      <section class="mod">
+        <div class="row" style="margin-top:0"><label>推荐落点（当前行棋方）</label></div>
+        <div id="cands"></div>
+      </section>
     </div>
   </div>
 </div>
 
-<script src="js/go.js?v=7"></script>
-<script src="js/motion.js?v=5"></script>
+<script src="js/go.js?v=17"></script>
+<script src="js/motion.js?v=33"></script>
 <script>
   Motion.initCursorLine();
   Motion.initRipple();
   Motion.staggerEnter();
-  document.querySelectorAll("[data-nav]").forEach(a => {
-    a.addEventListener("click", e => { e.preventDefault(); Motion.sliceRoute(a.getAttribute("href")); });
-  });
 </script>
 </body>
 </html>
