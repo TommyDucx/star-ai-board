@@ -185,10 +185,11 @@ const server = http.createServer((req, res) => {
     if (err) { res.writeHead(404); return res.end("Not Found"); }
     const ext = path.extname(filePath);
     const type = MIME[ext] || "application/octet-stream";
-    // 缓存分级：HTML 保持 no-cache（改版即时生效）；其余静态资源 URL 带 ?v=N 版本号，可长缓存
+    // 缓存分级：HTML / CSS / JS 保持 no-cache（改版即时生效，避免 site.css 等未带 ?v 的资源被 7 天强缓存坑住）；
+    // 带 ?v=N 版本的资源与图片/字体等可长缓存
     const headers = {
       "Content-Type": type,
-      "Cache-Control": ext === ".html" ? "no-cache" : "public, max-age=604800",
+      "Cache-Control": (ext === ".html" || ext === ".css" || ext === ".js") ? "no-cache" : "public, max-age=604800",
       // 基础安全头：防 MIME 嗅探 / 防被第三方 iframe 嵌套 / 限制 referrer 泄漏
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "SAMEORIGIN",
