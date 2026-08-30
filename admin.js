@@ -22,6 +22,7 @@ const SESSIONS_FILE = path.join(ADMIN_DIR, "sessions.json");
 const GAMES_LOG = path.join(ADMIN_DIR, "games.log.jsonl");
 const CONFIG_FILE = path.join(ADMIN_DIR, "config.json");
 const SECRET_FILE = path.join(ADMIN_DIR, ".secret");
+const TACTICS_FILE = path.join(ADMIN_DIR, "tactics_progress.json");
 
 fs.mkdirSync(ADMIN_DIR, { recursive: true });
 
@@ -267,6 +268,261 @@ function getConfig() {
 }
 function saveConfig(c) { fs.writeFileSync(CONFIG_FILE, JSON.stringify(c, null, 2)); }
 
+// ---------- 题型闯关进度（按账号持久化，跨设备同步）----------
+// 数据模型（admin/tactics_progress.json，按 userId）：
+//   { [userId]: { schemaVersion, selectedTier, tiers, titles, stats, attempts, updatedAt } }
+const TACTICS_LEVELS_PER_TIER = 50;
+const TACTICS_TIER_DEFS = [
+  { key: "beginner", label: "入门", desc: "一步杀 · 底线杀 · 双重攻击 · 牵制" },
+  { key: "elementary", label: "初级", desc: "两步杀 · 骑士叉 · 闪击 · 牵制获利" },
+  { key: "intermediate", label: "中级", desc: "串击 · 双将 · 消除防御 · 引离" },
+  { key: "advanced", label: "高级", desc: "闷杀 · 三步杀 · 弃子攻杀 · 残局技术" },
+];
+const TACTICS_TIERS = TACTICS_TIER_DEFS.map(t => t.key);
+// 称号规则：type → total_pass | best_streak | tier_clear
+const TACTICS_TITLES = [
+  { id: "t10",  type: "total_pass",  target: 10,  name: "战术新兵", desc: "累计过关 10 关" },
+  { id: "t50",  type: "total_pass",  target: 50,  name: "战术精兵", desc: "累计过关 50 关" },
+  { id: "t100", type: "total_pass",  target: 100, name: "战术士官", desc: "累计过关 100 关" },
+  { id: "t200", type: "total_pass",  target: 200, name: "战术军官", desc: "累计过关 200 关" },
+  { id: "c3",   type: "best_streak", target: 3,   name: "三连胜",   desc: "任意档达成 3 连胜" },
+  { id: "c5",   type: "best_streak", target: 5,   name: "五连胜",   desc: "任意档达成 5 连胜" },
+  { id: "c10",  type: "best_streak", target: 10,  name: "十连胜",   desc: "任意档达成 10 连胜" },
+  { id: "g1",   type: "tier_clear",  tier: "beginner",     target: TACTICS_LEVELS_PER_TIER, name: "入门毕业", desc: "通关「入门」全部 50 关" },
+  { id: "g2",   type: "tier_clear",  tier: "elementary",   target: TACTICS_LEVELS_PER_TIER, name: "初级毕业", desc: "通关「初级」全部 50 关" },
+  { id: "g3",   type: "tier_clear",  tier: "intermediate", target: TACTICS_LEVELS_PER_TIER, name: "中级毕业", desc: "通关「中级」全部 50 关" },
+  { id: "g4",   type: "tier_clear",  tier: "advanced",     target: TACTICS_LEVELS_PER_TIER, name: "高级宗师", desc: "通关「高级」全部 50 关" },
+];
+let tacticsPuzzleCache = { mtimeMs: 0, byTier: {} };
+function loadTactics() {
+  try { const v = JSON.parse(fs.readFileSync(TACTICS_FILE, "utf8")); return (v && typeof v === "object" && !Array.isArray(v)) ? v : {}; }
+  catch { return {}; }
+}
+function saveTactics(t) { writePrivate(TACTICS_FILE, JSON.stringify(t, null, 2)); }
+function defaultTierProg() {
+  return {
+    unlocked: true, currentLevel: 1, passedLevels: [], failedLevels: [],
+    passed: 0, combo: 0, bestCombo: 0, currentStreak: 0, bestStreak: 0,
+    fails: 0, totalPassed: 0, lastAttemptId: null, updatedAt: Date.now(),
+  };
+}
+function uniqLevelList(v) {
+  return Array.from(new Set((Array.isArray(v) ? v : []).map(n => +n).filter(n => Number.isInteger(n) && n >= 1 && n <= TACTICS_LEVELS_PER_TIER))).sort((a, b) => a - b);
+}
+function nextUnpassedLevel(levels) {
+  const done = new Set(levels || []);
+  for (let i = 1; i <= TACTICS_LEVELS_PER_TIER; i++) {
+    if (!done.has(i)) return i;
+  }
+  return TACTICS_LEVELS_PER_TIER + 1;
+}
+function normalizeTierProg(t) {
+  const p = Object.assign(defaultTierProg(), t || {});
+  const legacyPassed = Math.max(0, Math.min(TACTICS_LEVELS_PER_TIER, +p.passed || +p.totalPassed || 0));
+  p.passedLevels = uniqLevelList(p.passedLevels);
+  if (!p.passedLevels.length && legacyPassed > 0)
+    p.passedLevels = Array.from({ length: legacyPassed }, (_, i) => i + 1);
+  p.failedLevels = uniqLevelList(p.failedLevels);
+  p.totalPassed = p.passedLevels.length;
+  p.passed = p.totalPassed;
+  p.currentLevel = nextUnpassedLevel(p.passedLevels);
+  p.currentStreak = Math.max(0, +p.currentStreak || +p.combo || 0);
+  p.bestStreak = Math.max(p.currentStreak, +p.bestStreak || +p.bestCombo || 0);
+  p.combo = p.currentStreak;
+  p.bestCombo = p.bestStreak;
+  p.fails = Math.max(0, +p.fails || 0);
+  return p;
+}
+function calcTacticsStats(prog) {
+  const completedTiers = [];
+  let totalPassedAllTiers = 0, bestStreakAllTiers = 0, currentStreakAllTiers = 0;
+  for (const k of TACTICS_TIERS) {
+    const t = normalizeTierProg(prog.tiers && prog.tiers[k]);
+    totalPassedAllTiers += t.totalPassed;
+    bestStreakAllTiers = Math.max(bestStreakAllTiers, t.bestStreak);
+    currentStreakAllTiers = Math.max(currentStreakAllTiers, t.currentStreak);
+    if (t.totalPassed >= TACTICS_LEVELS_PER_TIER) completedTiers.push(k);
+  }
+  return { totalPassedAllTiers, bestStreakAllTiers, currentStreakAllTiers, completedTiers };
+}
+function titleProgress(rule, prog) {
+  const stats = prog.stats || calcTacticsStats(prog);
+  if (rule.type === "total_pass") return Math.min(stats.totalPassedAllTiers, rule.target);
+  if (rule.type === "best_streak") return Math.min(stats.bestStreakAllTiers, rule.target);
+  if (rule.type === "tier_clear") return Math.min(((prog.tiers[rule.tier] || {}).totalPassed || 0), rule.target);
+  return 0;
+}
+function normalizeTitles(v, prog) {
+  const old = Array.isArray(v) ? v : Object.keys(v || {}).filter(k => v[k] && v[k].unlocked);
+  const titles = {};
+  const now = Date.now();
+  for (const rule of TACTICS_TITLES) {
+    const prev = !Array.isArray(v) && v && v[rule.id] ? v[rule.id] : null;
+    const progress = titleProgress(rule, prog);
+    const unlocked = !!(prev && prev.unlocked) || old.includes(rule.id) || progress >= rule.target;
+    titles[rule.id] = {
+      unlocked,
+      unlockedAt: unlocked ? ((prev && prev.unlockedAt) || now) : null,
+      progress, target: rule.target, condition: rule.desc,
+    };
+  }
+  return titles;
+}
+function normalizeTactics(raw) {
+  const prog = raw && typeof raw === "object" ? raw : {};
+  const out = {
+    schemaVersion: 2,
+    selectedTier: TACTICS_TIERS.includes(prog.selectedTier) ? prog.selectedTier : "beginner",
+    tiers: {},
+    titles: {},
+    stats: {},
+    attempts: (prog.attempts && typeof prog.attempts === "object" && !Array.isArray(prog.attempts)) ? prog.attempts : {},
+    updatedAt: prog.updatedAt || Date.now(),
+  };
+  TACTICS_TIERS.forEach(k => out.tiers[k] = normalizeTierProg(prog.tiers && prog.tiers[k]));
+  out.stats = calcTacticsStats(out);
+  out.titles = normalizeTitles(prog.titles, out);
+  return out;
+}
+function getTactics(userId) {
+  const all = loadTactics();
+  if (!all[userId]) {
+    all[userId] = normalizeTactics(null);
+    saveTactics(all);
+  }
+  const norm = normalizeTactics(all[userId]);
+  if (JSON.stringify(norm) !== JSON.stringify(all[userId])) {
+    all[userId] = norm;
+    saveTactics(all);
+  }
+  return norm;
+}
+function calcTacticsTitles(prog) {
+  const newly = [];
+  for (const rule of TACTICS_TITLES) {
+    const cur = prog.titles[rule.id] || { unlocked: false };
+    const progress = titleProgress(rule, prog);
+    cur.progress = progress; cur.target = rule.target; cur.condition = rule.desc;
+    if (!cur.unlocked && progress >= rule.target) {
+      cur.unlocked = true;
+      cur.unlockedAt = Date.now();
+      newly.push(rule.id);
+    }
+    prog.titles[rule.id] = cur;
+  }
+  return newly;
+}
+function getTacticsPuzzles() {
+  const file = path.join(PUBLIC_DIR, "data", "puzzles.json");
+  const st = fs.statSync(file);
+  if (tacticsPuzzleCache.mtimeMs === st.mtimeMs) return tacticsPuzzleCache.byTier;
+  const raw = JSON.parse(fs.readFileSync(file, "utf8"));
+  const byTier = {};
+  TACTICS_TIERS.forEach(k => byTier[k] = []);
+  for (const p of raw.puzzles || []) {
+    if (byTier[p.tier]) byTier[p.tier].push(p);
+  }
+  tacticsPuzzleCache = { mtimeMs: st.mtimeMs, byTier };
+  return byTier;
+}
+function publicPuzzle(p, includeMoves) {
+  if (!p) return null;
+  const out = { id: p.id, theme: p.theme, fen: p.fen, rating: p.rating, themes: p.themes || [], tier: p.tier };
+  if (includeMoves) out.moves = p.moves || [];
+  return out;
+}
+function currentTacticsPuzzle(prog, tier) {
+  const pool = getTacticsPuzzles()[tier] || [];
+  const t = prog.tiers[tier];
+  if (!t || t.currentLevel > TACTICS_LEVELS_PER_TIER || !pool.length) return { levelNo: t ? t.currentLevel : 1, puzzle: null };
+  const levelNo = Math.max(1, Math.min(TACTICS_LEVELS_PER_TIER, t.currentLevel));
+  return { levelNo, puzzle: pool[Math.min(levelNo - 1, pool.length - 1)] };
+}
+function saveUserTactics(userId, prog) {
+  prog.stats = calcTacticsStats(prog);
+  calcTacticsTitles(prog);
+  prog.updatedAt = Date.now();
+  const all = loadTactics();
+  all[userId] = prog;
+  saveTactics(all);
+}
+function startTacticsAttempt(userId, tier) {
+  const prog = getTactics(userId);
+  prog.selectedTier = tier;
+  const cur = currentTacticsPuzzle(prog, tier);
+  if (!cur.puzzle) return { error: "该难度已通关或题库为空", prog };
+  const attemptId = uuid();
+  const attempt = {
+    id: attemptId, tier, levelNo: cur.levelNo, puzzleId: cur.puzzle.id,
+    createdAt: Date.now(), submitted: false, result: null,
+  };
+  prog.attempts[attemptId] = attempt;
+  prog.tiers[tier].lastAttemptId = attemptId;
+  const ids = Object.keys(prog.attempts).sort((a, b) => (prog.attempts[a].createdAt || 0) - (prog.attempts[b].createdAt || 0));
+  while (ids.length > 30) delete prog.attempts[ids.shift()];
+  saveUserTactics(userId, prog);
+  return { prog, attempt, puzzle: cur.puzzle };
+}
+function movesEqual(a, b) {
+  return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((m, i) => String(m) === String(b[i]));
+}
+function applyTacticsAttempt(userId, body) {
+  const prog = getTactics(userId);
+  const attempt = prog.attempts[String(body.attemptId || "")];
+  if (!attempt) return { error: "挑战会话不存在或已过期" };
+  if (attempt.submitted) return { prog, newly: [], attempt, duplicate: true };
+  const tier = attempt.tier;
+  const cur = currentTacticsPuzzle(prog, tier);
+  if (!cur.puzzle || cur.levelNo !== attempt.levelNo || cur.puzzle.id !== attempt.puzzleId)
+    return { error: "关卡状态已变化，请刷新当前关卡" };
+  const solved = movesEqual(body.moves, cur.puzzle.moves);
+  const t = prog.tiers[tier];
+  const beforeTitles = Object.keys(prog.titles).filter(id => prog.titles[id] && prog.titles[id].unlocked);
+  if (solved) {
+    if (!t.passedLevels.includes(attempt.levelNo)) {
+      t.passedLevels.push(attempt.levelNo);
+      t.passedLevels = uniqLevelList(t.passedLevels);
+      t.currentLevel = Math.min(TACTICS_LEVELS_PER_TIER + 1, attempt.levelNo + 1);
+      t.totalPassed = t.passedLevels.length;
+      t.passed = t.totalPassed;
+      t.currentStreak += 1;
+      t.bestStreak = Math.max(t.bestStreak, t.currentStreak);
+      t.combo = t.currentStreak;
+      t.bestCombo = t.bestStreak;
+    }
+  } else {
+    if (!t.failedLevels.includes(attempt.levelNo)) t.failedLevels.push(attempt.levelNo);
+    t.fails += 1;
+    t.currentStreak = 0;
+    t.combo = 0;
+  }
+  t.updatedAt = Date.now();
+  prog.tiers[tier] = t;
+  prog.stats = calcTacticsStats(prog);
+  calcTacticsTitles(prog);
+  const afterTitles = Object.keys(prog.titles).filter(id => prog.titles[id] && prog.titles[id].unlocked);
+  const newly = afterTitles.filter(id => !beforeTitles.includes(id));
+  attempt.submitted = true;
+  attempt.result = { solved, levelNo: attempt.levelNo, nextLevel: t.currentLevel, currentStreak: t.currentStreak, newly, at: Date.now() };
+  saveUserTactics(userId, prog);
+  return { prog, newly, attempt };
+}
+function applyTacticsResult(userId, tier, solved) {
+  const started = startTacticsAttempt(userId, tier);
+  if (started.error) return { prog: started.prog, newly: [] };
+  return applyTacticsAttempt(userId, { attemptId: started.attempt.id, moves: solved ? (started.puzzle.moves || []) : [] });
+}
+function publicTactics(prog) {
+  return {
+    schemaVersion: 2,
+    selectedTier: prog.selectedTier,
+    tiers: prog.tiers, titles: prog.titles, stats: prog.stats, updatedAt: prog.updatedAt,
+    levelsPerTier: TACTICS_LEVELS_PER_TIER,
+    tiersDef: TACTICS_TIER_DEFS,
+    titleDefs: TACTICS_TITLES,
+  };
+}
+
 // ---------- 系统指标 ----------
 let cpuLast = null, cpuCurrent = 0;
 function cpuTimes() {
@@ -433,6 +689,15 @@ async function handleApi(req, res, u) {
   if (p === "/api/announcement" && m === "GET")
     return json(res, 200, getConfig().announcement || { text: "", enabled: false });
 
+  // 题型配置公开；账号进度仍需登录后按 userId 拉取
+  if (p === "/api/tactics/config" && m === "GET") {
+    return json(res, 200, {
+      tiers: TACTICS_TIER_DEFS.map(t => Object.assign({ levels: TACTICS_LEVELS_PER_TIER }, t)),
+      levelsPerTier: TACTICS_LEVELS_PER_TIER,
+      titleDefs: TACTICS_TITLES,
+    });
+  }
+
   // 注册（开放自助注册：仅用户名 + 密码，验证码/联系方式已移除）
   if (p === "/api/register" && m === "POST") {
     const ip = clientIp(req);
@@ -530,6 +795,64 @@ async function handleApi(req, res, u) {
       const n = logoutOthers(s.userId, cur);
       return json(res, 200, { ok: true, removed: n });
     }
+  }
+
+  // 题型闯关进度（账号持久化，跨设备同步）
+  if (p === "/api/tactics/progress" && m === "GET") {
+    return json(res, 200, { progress: publicTactics(getTactics(s.userId)) });
+  }
+  if ((p === "/api/tactics/select-tier" || p === "/api/tactics/current") && (m === "POST" || m === "GET")) {
+    const body = m === "POST" ? await readBody(req) : {};
+    const tier = body.tier || u.searchParams.get("tier") || getTactics(s.userId).selectedTier || "beginner";
+    if (!TACTICS_TIERS.includes(tier)) return json(res, 400, { error: "难度档无效" });
+    const prog = getTactics(s.userId);
+    prog.selectedTier = tier;
+    saveUserTactics(s.userId, prog);
+    const cur = currentTacticsPuzzle(prog, tier);
+    return json(res, 200, {
+      tier, currentLevel: cur.levelNo, completed: !cur.puzzle,
+      puzzle: publicPuzzle(cur.puzzle, true),
+      progress: publicTactics(prog),
+    });
+  }
+  if (p === "/api/tactics/attempt/start" && m === "POST") {
+    const body = await readBody(req);
+    const tier = body.tier;
+    if (!TACTICS_TIERS.includes(tier)) return json(res, 400, { error: "难度档无效" });
+    const started = startTacticsAttempt(s.userId, tier);
+    if (started.error) return json(res, 400, { error: started.error, progress: publicTactics(started.prog) });
+    return json(res, 200, {
+      attemptId: started.attempt.id,
+      tier: started.attempt.tier,
+      levelNo: started.attempt.levelNo,
+      puzzle: publicPuzzle(started.puzzle, true),
+      progress: publicTactics(started.prog),
+    });
+  }
+  if (p === "/api/tactics/attempt/submit" && m === "POST") {
+    const body = await readBody(req);
+    const result = applyTacticsAttempt(s.userId, body);
+    if (result.error) return json(res, 400, { error: result.error });
+    const attemptResult = result.attempt.result || {};
+    return json(res, 200, {
+      solved: !!attemptResult.solved,
+      passed: !!attemptResult.solved,
+      duplicate: !!result.duplicate,
+      levelNo: attemptResult.levelNo || result.attempt.levelNo,
+      nextLevel: attemptResult.nextLevel || (result.prog.tiers[result.attempt.tier] || {}).currentLevel,
+      currentStreak: attemptResult.currentStreak || 0,
+      newlyUnlockedTitles: result.newly.map(id => Object.assign({ id }, TACTICS_TITLES.find(t => t.id === id) || {})),
+      newly: result.newly,
+      progress: publicTactics(result.prog),
+    });
+  }
+  if (p === "/api/tactics/result" && m === "POST") {
+    const body = await readBody(req);
+    const tier = body.tier;
+    if (!TACTICS_TIERS.includes(tier)) return json(res, 400, { error: "难度档无效" });
+    if (typeof body.solved !== "boolean") return json(res, 400, { error: "缺少判定结果" });
+    const { prog, newly } = applyTacticsResult(s.userId, tier, body.solved);
+    return json(res, 200, { progress: publicTactics(prog), newly });
   }
 
   // ===================== RBAC 受保护资源 =====================

@@ -37,11 +37,17 @@
   .streak-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
     font-size: 12px; color: var(--muted); }
   .streak-bar b { color: var(--signal); font-family: ui-monospace, Menlo, monospace; }
-  .badges { display: flex; gap: 4px; margin-top: 2px; }
-  .badge { font-size: 10px; padding: 2px 7px; border: 1px solid var(--line); border-radius: 3px;
-    color: var(--faint); opacity: .45; }
-  .badge.unlocked { opacity: 1; color: var(--signal); border-color: var(--signal);
+  /* 称号栏 */
+  .title-bar { display: flex; gap: 6px; flex-wrap: wrap; }
+  .title-chip { font-size: 11px; padding: 3px 9px; border: 1px solid var(--line);
+    border-radius: 4px; color: var(--faint); position: relative; cursor: default; }
+  .title-chip.unlocked { color: var(--signal); border-color: var(--signal);
     background: rgba(215,255,63,0.08); }
+  .title-chip .mini { display: block; font-size: 9px; color: var(--faint); margin-top: 1px; }
+  .title-chip.unlocked .mini { color: var(--signal); }
+  /* 档位关卡进度 */
+  .tier-btn .lv { display: block; font-size: 9.5px; opacity: .75; font-weight: 400;
+    font-family: ui-monospace, Menlo, monospace; margin-top: 1px; }
   #themes { display: flex; flex-wrap: wrap; gap: 5px; }
   .tag { font-size: 10.5px; padding: 2px 7px; border: 1px solid var(--signal); color: var(--signal);
     border-radius: 3px; font-family: ui-monospace, Menlo, monospace; }
@@ -85,10 +91,10 @@
   <div class="side">
     <section class="mod">
       <div class="tabs">
-        <button class="tab active" data-tab="pool">题库练习</button>
+        <button class="tab active" data-tab="level">关卡闯关</button>
         <button class="tab" data-tab="daily">每日残局</button>
       </div>
-      <div id="pool-only" style="display:flex;flex-direction:column;gap:6px">
+      <div id="level-only" style="display:flex;flex-direction:column;gap:6px">
         <div class="tier-row" id="tiers"></div>
         <div class="prog"><i id="prog" style="width:0%"></i></div>
         <div style="font-size:11px;color:var(--faint);font-family:ui-monospace,Menlo,monospace" id="pinfo"></div>
@@ -97,9 +103,9 @@
         <div id="dinfo" style="font-size:11px;color:var(--faint);font-family:ui-monospace,Menlo,monospace"></div>
       </div>
       <div class="streak-bar">
-        <span>🔥 连击 <b id="streak-cur">0</b> 天 · 最佳 <b id="streak-best">0</b> 天</span>
-        <div class="badges" id="badges"></div>
+        <span>⚔ 当前连胜 <b id="streak-cur">0</b> · 最佳 <b id="streak-best">0</b> · 累计过关 <b id="total-pass">0</b></span>
       </div>
+      <div class="title-bar" id="titles-bar"></div>
     </section>
     <section class="mod">
       <h3 id="ptitle">题型</h3>
@@ -108,7 +114,7 @@
       <div class="btns">
         <button class="btn" id="btn-hint">提示</button>
         <button class="btn" id="btn-retry">重做</button>
-        <button class="btn" id="btn-next">下一题</button>
+        <button class="btn" id="btn-next">下一关</button>
       </div>
     </section>
     <section class="mod" style="flex:1 1 auto; min-height:0">
@@ -121,7 +127,7 @@
 <script src="js/lib/jquery.min.js?v=26"></script>
 <script src="js/lib/chess.min.js?v=26"></script>
 <script src="js/lib/chessboard.min.js?v=26"></script>
-<script src="js/tactics.js?v=2"></script>
+<script src="js/tactics.js?v=4"></script>
 <script src="js/motion.js?v=33"></script>
 <script>
   Motion.initCursorLine();
