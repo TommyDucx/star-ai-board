@@ -19,7 +19,7 @@
   .hero h1 { font-size: clamp(38px, 7vw, 76px); font-weight: 800; letter-spacing: .04em; line-height: 1; margin: 18px 0 14px; }
   .hero h1 .outline { color: transparent; -webkit-text-stroke: 1px var(--paper); }
   .hero p { color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.8; }
-  .cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; max-width: 980px; margin: 44px auto 60px; padding: 0 20px; }
+  .cards { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; max-width: 980px; margin: 44px auto 60px; padding: 0 20px; }
   .card { border: 1px solid var(--line); background: var(--surface); padding: 30px 26px; text-decoration: none; color: inherit; transition: .18s; position: relative; }
   .card:hover { border-color: var(--signal); }
   .card .tag { font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: .2em; color: var(--signal); }
@@ -83,6 +83,12 @@
     <h2>对局复盘</h2>
     <p>粘贴或载入棋谱，逐步回放，AI 标注关键时刻与改进建议。</p>
     <div class="go">进入复盘 →</div>
+  </a>
+  <a class="card magnetic ripple-host" href="tactics.html" data-nav>
+    <span class="tag">TACTICS / 题型练习</span>
+    <h2>经典题型练习</h2>
+    <p>双重攻击 · 牵制 · 闪击 · 消除防御 · 底线杀 · 残局杀王……按难度阶梯逐级闯关，棋力稳步提升。</p>
+    <div class="go">开始练习 →</div>
   </a>
 </div>
 

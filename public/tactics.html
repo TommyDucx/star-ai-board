@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>题型练习 · 国际象棋 — S.T.A.R.</title>
+<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
+<link rel="stylesheet" href="css/site.css?v=32">
+<link rel="stylesheet" href="css/motion.css?v=31">
+<link rel="stylesheet" href="css/chessboard.min.css?v=26">
+<style>
+  /* 与 chess.html 一致的视口预算布局 */
+  html, body { height: 100%; overflow: hidden; }
+  body { display: flex; flex-direction: column; }
+  .tac-wrap { flex: 1; min-height: 0; display: flex; gap: 20px; align-items: center;
+    justify-content: center; padding: 12px 16px; flex-wrap: nowrap; }
+  #board { width: 460px; height: 460px; flex-shrink: 0; }
+  #board .chessboard { border-radius: 8px; overflow: hidden; }
+  .side { width: 340px; flex: none; max-height: 100%; min-height: 0;
+    display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+  .mod { min-width: 0; border: 1px solid var(--line); background: var(--surface);
+    border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column;
+    gap: 6px; overflow: hidden; }
+  .mod h3 { margin: 0; font-size: 14px; }
+  .tier-row { display: flex; gap: 6px; }
+  .tier-btn { flex: 1; padding: 8px 0; border: 1px solid var(--line); background: transparent;
+    color: var(--muted); font-size: 12.5px; border-radius: 5px; cursor: pointer; transition: .15s; }
+  .tier-btn.active { background: var(--signal); color: #080a09; font-weight: 700; border-color: var(--signal); }
+  .prog { height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .prog i { display: block; height: 100%; background: var(--signal); transition: width .3s; }
+  #themes { display: flex; flex-wrap: wrap; gap: 5px; }
+  .tag { font-size: 10.5px; padding: 2px 7px; border: 1px solid var(--signal); color: var(--signal);
+    border-radius: 3px; font-family: ui-monospace, Menlo, monospace; }
+  #status { font-size: 13.5px; color: var(--muted); line-height: 1.65; min-height: 44px; }
+  #status.good { color: #7ec96a; } #status.bad { color: #ff5a4d; }
+  .btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btns .btn { flex: 1; min-width: 84px; }
+  #explain { font-size: 12.5px; color: var(--muted); line-height: 1.7;
+    border-top: 1px solid var(--line); padding-top: 8px; overflow-y: auto; flex: 1; min-height: 0; }
+  .shake { animation: shake .3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  @media (max-width: 960px) {
+    html, body { height: auto; overflow: auto; }
+    body { display: block; }
+    .tac-wrap { flex-wrap: wrap; }
+    .side { width: min(460px, 100%); max-height: none; }
+    #explain { flex: none; max-height: 200px; }
+  }
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="pixel-fault" aria-hidden="true"></div>
+<div class="topbar">
+  <a href="index.html" class="logo" data-nav>←</a>
+  <span class="crumb">TACTICS / CHESS TRAINING</span>
+  <span class="flex1"></span>
+  <a href="chess.html" class="btn" data-nav>实战对弈 →</a>
+  <a href="/admin/login.html" class="admin-entry" data-nav>
+    <svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    <span class="txt">管理后台</span>
+  </a>
+</div>
+
+<div class="tac-wrap">
+  <div id="board"></div>
+  <div class="side">
+    <section class="mod">
+      <h3>难度阶梯</h3>
+      <div class="tier-row" id="tiers"></div>
+      <div class="prog"><i id="prog" style="width:0%"></i></div>
+      <div style="font-size:11px;color:var(--faint);font-family:ui-monospace,Menlo,monospace" id="pinfo"></div>
+    </section>
+    <section class="mod">
+      <h3 id="ptitle">题型</h3>
+      <div id="themes"></div>
+      <div id="status">加载题库中…</div>
+      <div class="btns">
+        <button class="btn" id="btn-hint">提示</button>
+        <button class="btn" id="btn-retry">重做</button>
+        <button class="btn" id="btn-next">下一题</button>
+      </div>
+    </section>
+    <section class="mod" style="flex:1 1 auto; min-height:0">
+      <h3>解析</h3>
+      <div id="explain">解答正确后显示题型讲解。</div>
+    </section>
+  </div>
+</div>
+
+<script src="js/lib/jquery.min.js?v=26"></script>
+<script src="js/lib/chess.min.js?v=26"></script>
+<script src="js/lib/chessboard.min.js?v=26"></script>
+<script src="js/tactics.js?v=1"></script>
+<script src="js/motion.js?v=33"></script>
+<script>
+  Motion.initCursorLine();
+  Motion.initRipple();
+  Motion.initMagnetic();
+  Motion.staggerEnter();
+</script>
+</body>
+</html>
