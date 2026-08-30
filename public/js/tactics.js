@@ -24,6 +24,11 @@
     advantage: "优势", master: "大师", trade: "兑子", endgameKnight: "马残局",
   };
   function cn(t) { return THEME_CN[t] || t; }
+  function escHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
   function qs(s, r) { return (r || document).querySelector(s); }
 
   var board = null, game = null, puzzles = [], tier = "beginner", tab = "level";
@@ -286,6 +291,11 @@
     if (!uci) return;
     var f = boardEl.querySelector('[data-square="' + uci.slice(0, 2) + '"]');
     var t = boardEl.querySelector('[data-square="' + uci.slice(2, 4) + '"]');
+    var f2 = boardEl.querySelector(".square-" + uci.slice(0, 2));
+    var t2 = boardEl.querySelector(".square-" + uci.slice(2, 4));
+    // #region agent log
+    fetch("http://127.0.0.1:7587/ingest/3828bfdf-cd92-4ca5-b60b-647b045b2c2b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d49b5a" }, body: JSON.stringify({ sessionId: "d49b5a", hypothesisId: "E", location: "tactics.js:highlightMove", message: "hint selectors", data: { uci: uci, dataSquareFrom: !!f, dataSquareTo: !!t, classFrom: !!f2, classTo: !!t2 }, timestamp: Date.now() }) }).catch(function () {});
+    // #endregion
     if (f) f.classList.add("tac-hl-from");
     if (t) t.classList.add("tac-hl-to");
   }
@@ -313,7 +323,7 @@
       onDrop: onDrop,
     });
     ptitle.textContent = (isDaily ? "今日残局 · " : "第 " + currentLevel(tier) + " 关 · ") + cn(p.theme);
-    themesEl.innerHTML = (p.themes || []).slice(0, 6).map(function (t) { return '<span class="tag">' + cn(t) + "</span>"; }).join("");
+    themesEl.innerHTML = (p.themes || []).slice(0, 6).map(function (t) { return '<span class="tag">' + escHtml(cn(t)) + "</span>"; }).join("");
     setStatus(orient === "white" ? "白方先走，找出最佳着法" : "黑方先走，找出最佳着法", "");
     explainEl.textContent = "";
   }
@@ -380,8 +390,8 @@
         solvedCurrent = true;
         setStatus((currentLevel(tier) > LEVELS ? "本档通关！" : "第 " + attemptLevel + " 关通过，连胜 " + (t.currentStreak || t.combo || 0)) + titleNote, "good");
         explainEl.innerHTML = "<b style='color:var(--signal)'>题型讲解</b><br>本题主题：" +
-          (cur.themes || []).map(function (x) { return cn(x); }).join("、") +
-          "<br><span style='color:var(--faint)'>难度分 " + cur.rating + "</span><br><br>" +
+          (cur.themes || []).map(function (x) { return escHtml(cn(x)); }).join("、") +
+          "<br><span style='color:var(--faint)'>难度分 " + escHtml(cur.rating) + "</span><br><br>" +
           (guest ? "<span style='color:var(--faint)'>当前未登录，进度仅保存在本机。登录后可跨设备同步。</span>" : "进度、连胜和称号已同步到账号。");
       } else {
         loadPuzzle(cur);
@@ -413,8 +423,8 @@
       try { localStorage.setItem("tactics.daily", JSON.stringify(daily)); } catch (e) {}
       setStatus("今日残局完成", "good");
       explainEl.innerHTML = "<b style='color:var(--signal)'>题型讲解</b><br>本题主题：" +
-        (cur.themes || []).map(function (t) { return cn(t); }).join("、") +
-        "<br><span style='color:var(--faint)'>难度分 " + cur.rating + "</span><br><br>来源：lichess 题库";
+        (cur.themes || []).map(function (t) { return escHtml(cn(t)); }).join("、") +
+        "<br><span style='color:var(--faint)'>难度分 " + escHtml(cur.rating) + "</span><br><br>来源：lichess 题库";
       qs("#btn-next").textContent = "返回闯关";
       return;
     }

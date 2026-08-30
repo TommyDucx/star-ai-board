@@ -26,6 +26,12 @@
   }
   function colorChar(v) { return v === 1 ? "B" : v === 2 ? "W" : ""; }
 
+  function escHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
   /* ---------------- WS ---------------- */
   function connect() {
     try {
@@ -41,6 +47,15 @@
       };
       ws.onmessage = e => {
         const m = JSON.parse(e.data);
+        // 鉴权失败/强制改密：服务端拒绝引擎调用，统一跳登录页（登录后会被改密页引导）
+        if (m && m.code === "AUTH_REQUIRED") {
+          location.href = "/admin/login.html";
+          return;
+        }
+        if (m && m.code === "MUST_CHANGE") {
+          location.href = "/admin/login.html";
+          return;
+        }
         const p = pending.get(m.id);
         if (p) { pending.delete(m.id); m.err ? p.rej(new Error(m.message)) : p.res(m); }
       };
@@ -266,8 +281,8 @@
       return `
       <div class="cand">
         <span class="n">${i + 1}</span>
-        <span style="font-size:14px">${cd.move}</span>
-        <span class="pv">${cd.pv}</span>
+        <span style="font-size:14px">${escHtml(cd.move)}</span>
+        <span class="pv">${escHtml(cd.pv)}</span>
         <span class="wr">${wrTxt} · ${ldTxt}</span>
       </div>`;
     }).join("") || '<div style="color:#788179;font-size:12px">暂无推荐（先落几手）</div>';

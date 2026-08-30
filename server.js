@@ -293,6 +293,16 @@ class ChessEngine {
     setTimeout(() => { try { p.kill(); } catch (e) {} }, 1500);
     this.proc = null;
     this._uci = false;
+    // 引擎被停时清理残留 waiter：避免 stop 后旧请求的 Promise 永远挂死，
+    // 之前代码只清 proc/waiters 仍可能让 timeout 触发后访问空 proc 抛异常
+    const stale = this.waiters;
+    this.waiters = [];
+    this.buf = "";
+    for (const w of stale) {
+      try {
+        if (typeof w.resolve === "function") w.resolve([]);
+      } catch (e) {}
+    }
   }
   async init() {
     if (!this._uci) {
@@ -391,18 +401,27 @@ class KataGoEngine {
     this.counter = 0;
     this.dead = false;
     this.backend = "";
+    this.startLock = null;   // 并发 start 共享同一 Promise，避免两次重建互杀（goAnalyze / setInterval 都会触发）
   }
   async start() {
-    fs.mkdirSync(path.join(GO_TMP, "logs"), { recursive: true });
-    let lastErr = "";
-    for (const [backend, timeout] of [["eigen", 120], ["opencl", 120]]) {
+    if (this.startLock) return this.startLock;
+    this.startLock = (async () => {
       try {
-        await this._spawnAndReady(backend, timeout);
-        this.backend = backend;
-        return;
-      } catch (e) { lastErr = String(e); this._kill(); }
-    }
-    throw new Error("KataGo 启动失败: " + lastErr);
+        fs.mkdirSync(path.join(GO_TMP, "logs"), { recursive: true });
+        let lastErr = "";
+        for (const [backend, timeout] of [["eigen", 120], ["opencl", 120]]) {
+          try {
+            await this._spawnAndReady(backend, timeout);
+            this.backend = backend;
+            return;
+          } catch (e) { lastErr = String(e); this._kill(); }
+        }
+        throw new Error("KataGo 启动失败: " + lastErr);
+      } finally {
+        this.startLock = null;
+      }
+    })();
+    return this.startLock;
   }
   _spawnAndReady(backend, timeout) {
     return new Promise((resolve, reject) => {
@@ -484,24 +503,29 @@ class GtpEngine {
     this.busy = false;
     this.dead = false;
     this.counter = 0;
+    this.startLock = null;   // 并发 start 共享同一 Promise，避免两次握手互杀
   }
   async start() {
-    const me = this;
-    return new Promise((resolve, reject) => {
-      this.proc = spawn(this.cfg.cmd, this.cfg.args || [], { stdio: ["pipe", "pipe", "pipe"] });
-      this.buf = "";
-      this.proc.stdout.setEncoding("utf8");
-      this.proc.stdout.on("data", d => this._onData(d));
-      let errBuf = "";
-      this.proc.stderr.setEncoding("utf8");
-      this.proc.stderr.on("data", d => errBuf += d);
-      const fail = (m) => { this.dead = true; reject(new Error(m + " " + errBuf.slice(-200))); };
-      this.proc.on("error", e => fail("GTP 启动失败: " + e.message));
-      this.proc.on("exit", () => { this.proc = null; if (!this._ready) this.dead = true; });
-      setTimeout(() => fail("GTP 启动超时: " + errBuf.slice(-200)), 15000);
-      // 握手：protocol_version 应答 = x 即就绪
-      this._cmdRaw("protocol_version").then(() => { this._ready = true; resolve(); }).catch(fail);
-    });
+    if (this.startLock) return this.startLock;
+    this.startLock = (async () => {
+      const me = this;
+      return new Promise((resolve, reject) => {
+        this.proc = spawn(this.cfg.cmd, this.cfg.args || [], { stdio: ["pipe", "pipe", "pipe"] });
+        this.buf = "";
+        this.proc.stdout.setEncoding("utf8");
+        this.proc.stdout.on("data", d => this._onData(d));
+        let errBuf = "";
+        this.proc.stderr.setEncoding("utf8");
+        this.proc.stderr.on("data", d => errBuf += d);
+        const fail = (m) => { this.dead = true; reject(new Error(m + " " + errBuf.slice(-200))); };
+        this.proc.on("error", e => fail("GTP 启动失败: " + e.message));
+        this.proc.on("exit", () => { this.proc = null; if (!this._ready) this.dead = true; });
+        setTimeout(() => fail("GTP 启动超时: " + errBuf.slice(-200)), 15000);
+        // 握手：protocol_version 应答 = x 即就绪
+        this._cmdRaw("protocol_version").then(() => { this._ready = true; resolve(); }).catch(fail);
+      });
+    })();
+    try { return await this.startLock; } finally { this.startLock = null; }
   }
   _onData(d) {
     this.buf += d;
@@ -630,18 +654,81 @@ function engineFor(name) {
 const go = { available: GO_KEYS.length > 0, list: Object.entries(GO_ENGINES).map(([k, c]) => ({ key: k, label: c.label })) };
 
 const wss = new WebSocketServer({ server, maxPayload: 256 * 1024 });   // 拒绝巨型帧（Pi 内存有限）
+
+// WS 引擎消息速率限制（防单机/单 IP 把 CPU 资源全吃光）：chess 30/min · go 10/min（围棋更贵）
+const wsRate = new Map();
+function wsRateCheck(key, max, windowMs) {
+  const now = Date.now();
+  const arr = (wsRate.get(key) || []).filter(t => now - t < windowMs);
+  arr.push(now);
+  wsRate.set(key, arr);
+  return arr.length <= max;
+}
+// 定期清理 10 分钟未使用的桶，防止 Map 无限增长
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, arr] of wsRate) {
+    const f = arr.filter(t => now - t < 600000);
+    if (f.length) wsRate.set(k, f); else wsRate.delete(k);
+  }
+}, 5 * 60 * 1000).unref();
+
 wss.on("connection", (ws, req) => {
   ws._ip = (req.socket && req.socket.remoteAddress) || "";
-  console.log("[ws] client");
+  // 鉴权态在连接建立时一次性快照：避免每条消息重新读 cookie / sessions.json；
+  // mustChange 仍按当前账号快照判断（强制改密期内建立新连接会被即时拒绝）
+  let session = null;
+  try { session = admin.getSession(req); } catch (e) { session = null; }
+  ws._session = session;
+  ws._mustChange = !!(session && (() => {
+    try {
+      const acc = admin.getAccounts().find(a => a.id === session.userId);
+      return !!(acc && acc.mustChange);
+    } catch { return false; }
+  })());
+  console.log("[ws] client", ws._ip, session ? ("u=" + session.username + (ws._mustChange ? " mc=1" : "")) : "anon");
   ws.on("message", async raw => {
     let msg;
     try { msg = JSON.parse(raw); } catch { return; }
-    if (msg.type === "engines") {
+    const t = msg && msg.type;
+
+    // 速率限制：chess 30/min · go 10/min（围棋 KataGo 分析一次数百毫秒到数秒，限额更紧）
+    if (t === "chess") {
+      if (!wsRateCheck("wsch:" + ws._ip, 30, 60000))
+        return ws.send(JSON.stringify({ type: "error", id: msg.id, message: "请求过于频繁", code: "RATE_LIMIT" }));
+    } else if (t === "go") {
+      if (!wsRateCheck("wsgo:" + ws._ip, 10, 60000))
+        return ws.send(JSON.stringify({ type: "error", id: msg.id, message: "请求过于频繁", code: "RATE_LIMIT" }));
+    }
+
+    // 元信息查询无需登录
+    if (t === "engines") {
       const list = Object.entries(ENGINES).map(([k, c]) => ({ key: k, available: c.available, elo: c.elo }));
       ws.send(JSON.stringify({ type: "engines", id: msg.id, engines: list }));
       return;
     }
-    if (msg.type === "chess") {
+    if (t === "goengines") {
+      ws.send(JSON.stringify({ type: "goengines", id: msg.id, engines: go.list, available: go.available }));
+      return;
+    }
+
+    // 引擎分析（chess / go）必须登录且未处于强制改密期
+    if (t === "chess" || t === "go") {
+      if (!ws._session) {
+        return ws.send(JSON.stringify({
+          type: "error", id: msg.id, code: "AUTH_REQUIRED",
+          message: "未登录",
+        }));
+      }
+      if (ws._mustChange) {
+        return ws.send(JSON.stringify({
+          type: "error", id: msg.id, code: "MUST_CHANGE", mustChange: true,
+          message: "请先修改密码后再继续操作",
+        }));
+      }
+    }
+
+    if (t === "chess") {
       // 参数白名单化：非法直接回错误，绝不把未净化的字符串送进引擎 stdin
       const fen = validFen(msg.fen);
       if (!fen) {
@@ -661,7 +748,7 @@ wss.on("connection", (ws, req) => {
       } catch (e) {
         ws.send(JSON.stringify({ type: "error", id: msg.id, message: String(e) }));
       }
-    } else if (msg.type === "go") {
+    } else if (t === "go") {
       try {
         const engKey = GO_ENGINES[msg.engine] ? msg.engine : (GO_DEFAULT || null);
         if (!engKey) return ws.send(JSON.stringify({ type: "error", id: msg.id, message: "未部署围棋引擎" }));
@@ -686,8 +773,6 @@ wss.on("connection", (ws, req) => {
       } catch (e) {
         ws.send(JSON.stringify({ type: "error", id: msg.id, message: String(e) }));
       }
-    } else if (msg.type === "goengines") {
-      ws.send(JSON.stringify({ type: "goengines", id: msg.id, engines: go.list, available: go.available }));
     }
   });
 });

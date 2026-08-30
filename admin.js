@@ -183,8 +183,9 @@ function createSession(user, req) {
   return sign(token);
 }
 function cookieFlags(req) {
-  // 仅在经 HTTPS（cloudflared 反代）访问时加 Secure；LAN http 不加以免登录失效
-  const secure = (req.headers["x-forwarded-proto"] === "https" || (req.socket && req.socket.encrypted)) ? "; Secure" : "";
+  // 仅当 socket 本身已加密（HTTPS 直连）才加 Secure；不再信任 X-Forwarded-Proto（反向代理可被伪造，
+  // 在 https 下下发 Secure 后 cookie 会被浏览器拒收，导致 LAN 用户登录后立即掉登录态）
+  const secure = (req.socket && req.socket.encrypted) ? "; Secure" : "";
   return `; HttpOnly; SameSite=Lax${secure}; Path=/`;
 }
 function getCurrentToken(req) {
@@ -239,26 +240,44 @@ function rateCheck(key, max, windowMs) {
   rateBuckets.set(key, arr);
   return arr.length <= max;
 }
-// 登录失败计数（IP + 账号 双维度，5 次/分钟）
-const loginFails = new Map();
+// 登录失败计数（IP + 账号 双维度，5 次/分钟）—— 落盘：进程重启后仍生效，防攻击者反复重启连接绕过
+const LOGIN_FAILS_FILE = path.join(ADMIN_DIR, "login_fails.json");
+function loadLoginFails() {
+  try {
+    const v = JSON.parse(fs.readFileSync(LOGIN_FAILS_FILE, "utf8"));
+    return (v && typeof v === "object" && !Array.isArray(v)) ? v : {};
+  } catch { return {}; }
+}
+function persistLoginFails() {
+  try {
+    // atomic rename：先写 .tmp 再 rename，chmod 0600 防同机其他用户读到失败计数（弱隐私但顺手收紧）
+    const tmp = LOGIN_FAILS_FILE + ".tmp";
+    fs.writeFileSync(tmp, JSON.stringify(loginFails, null, 2), { mode: 0o600 });
+    try { fs.chmodSync(tmp, 0o600); } catch {}
+    fs.renameSync(tmp, LOGIN_FAILS_FILE);
+  } catch {}
+}
+const loginFails = loadLoginFails();
 function loginAllowed(ip, username) {
   const now = Date.now();
-  const ipR = loginFails.get("ip:" + ip);
+  const ipR = loginFails["ip:" + ip];
   if (ipR && now - ipR.first < 60000 && ipR.count >= 5) return false;
-  const uR = loginFails.get("u:" + username.toLowerCase());
+  const uR = loginFails["u:" + username.toLowerCase()];
   if (uR && now - uR.first < 60000 && uR.count >= 5) return false;
   return true;
 }
 function noteLoginFail(ip, username) {
   const now = Date.now();
-  const ipR = loginFails.get("ip:" + ip) || { count: 0, first: now };
-  ipR.count++; ipR.first = ipR.first || now; loginFails.set("ip:" + ip, ipR);
-  const uR = loginFails.get("u:" + username.toLowerCase()) || { count: 0, first: now };
-  uR.count++; uR.first = uR.first || now; loginFails.set("u:" + username.toLowerCase(), uR);
+  const ipR = loginFails["ip:" + ip] || { count: 0, first: now };
+  ipR.count++; ipR.first = ipR.first || now; loginFails["ip:" + ip] = ipR;
+  const uR = loginFails["u:" + username.toLowerCase()] || { count: 0, first: now };
+  uR.count++; uR.first = uR.first || now; loginFails["u:" + username.toLowerCase()] = uR;
+  persistLoginFails();
 }
 function clearLoginFail(ip, username) {
-  loginFails.delete("ip:" + ip);
-  loginFails.delete("u:" + username.toLowerCase());
+  delete loginFails["ip:" + ip];
+  delete loginFails["u:" + username.toLowerCase()];
+  persistLoginFails();
 }
 
 // ---------- 配置（公告）----------
@@ -977,4 +996,4 @@ function init(opts) {
   return { handleRequest, logGame };
 }
 
-module.exports = { init, handleRequest, logGame };
+module.exports = { init, handleRequest, logGame, getSession, getAccounts };
