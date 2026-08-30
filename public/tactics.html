@@ -37,6 +37,26 @@
   .btns .btn { flex: 1; min-width: 84px; }
   #explain { font-size: 12.5px; color: var(--muted); line-height: 1.7;
     border-top: 1px solid var(--line); padding-top: 8px; overflow-y: auto; flex: 1; min-height: 0; }
+  /* chess.com 风格筛选区 */
+  .filter-bar { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; }
+  .filter-label { font-size: 10.5px; color: var(--faint); font-family: ui-monospace, Menlo, monospace; letter-spacing: .15em; }
+  .theme-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .theme-chip { font-size: 11px; padding: 3px 8px; border: 1px solid var(--line);
+    color: var(--muted); border-radius: 3px; cursor: pointer; transition: .12s;
+    user-select: none; }
+  .theme-chip:hover { color: var(--paper); border-color: var(--muted); }
+  .theme-chip.active { background: rgba(215,255,63,0.12); color: var(--signal);
+    border-color: var(--signal); }
+  .theme-chip .cnt { color: var(--faint); font-size: 10px; margin-left: 4px; }
+  .theme-chip.active .cnt { color: var(--signal); }
+  .rating-row { display: flex; align-items: center; gap: 6px; }
+  .rating-row input { width: 64px; padding: 4px 6px; background: var(--ink);
+    color: var(--paper); border: 1px solid var(--line); border-radius: 3px;
+    font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+  .rating-row input:focus { outline: none; border-color: var(--signal); }
+  .reset-f { font-size: 10.5px; padding: 2px 8px; color: var(--muted);
+    border: 1px solid var(--line); border-radius: 3px; cursor: pointer; }
+  .reset-f:hover { color: var(--signal); border-color: var(--signal); }
   .shake { animation: shake .3s; }
   @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
   @media (max-width: 960px) {
@@ -79,6 +99,20 @@
         <button class="btn" id="btn-hint">提示</button>
         <button class="btn" id="btn-retry">重做</button>
         <button class="btn" id="btn-next">下一题</button>
+      </div>
+    </section>
+    <section class="mod">
+      <h3>筛选</h3>
+      <div class="filter-bar">
+        <div class="filter-label">主题（多选）</div>
+        <div class="theme-chips" id="theme-chips"></div>
+        <div class="rating-row">
+          <span class="filter-label" style="margin-right:4px">评分</span>
+          <input id="rmin" type="number" placeholder="min">
+          <span style="color:var(--faint)">—</span>
+          <input id="rmax" type="number" placeholder="max">
+          <button class="reset-f" id="btn-reset-f">重置</button>
+        </div>
       </div>
     </section>
     <section class="mod" style="flex:1 1 auto; min-height:0">

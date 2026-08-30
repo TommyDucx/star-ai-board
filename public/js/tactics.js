@@ -19,7 +19,9 @@
     underpromotion: "变子升变", doubleBishopMate: "双象杀", kingsideAttack: "王翼进攻",
     queensideAttack: "后翼进攻", horizontalLine: "底线双车", dovetailMate: "燕尾杀",
     crushing: "压倒性", long: "长组合", veryLong: "超长组合", short: "短组合",
-    middlegame: "中局", opening: "开局", oneMove: "单步", equality: "均势", endgameKnight: "马残局",
+    middlegame: "中局", opening: "开局", oneMove: "单步", equality: "均势",
+    advantage: "优势", master: "大师", crushing: "碾压", trade: "兑子",
+    fork_doubleAttack: "双重攻击", pin_absolut: "绝对牵制", endgameKnight: "马残局",
   };
   function cn(t) { return THEME_CN[t] || t; }
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -28,12 +30,20 @@
 
   var boardEl = $("#board"), tiersEl = $("#tiers"), progEl = $("#prog"), pinfo = $("#pinfo");
   var ptitle = $("#ptitle"), themesEl = $("#themes"), statusEl = $("#status"), explainEl = $("#explain");
+  var filterSel = new Set(), rMin = null, rMax = null;  // 多选主题 / 评分范围
 
   function loadSolved() {
     try { solved = JSON.parse(localStorage.getItem("tactics." + tier) || "{}"); } catch (e) { solved = {}; }
   }
   function saveSolved() { try { localStorage.setItem("tactics." + tier, JSON.stringify(solved)); } catch (e) {} }
-  function tierPuzzles() { return puzzles.filter(function (p) { return p.tier === tier; }); }
+  function tierRaw() { return puzzles.filter(function (p) { return p.tier === tier; }); }
+  function tierPuzzles() {
+    var list = tierRaw();
+    if (filterSel.size) list = list.filter(function (p) { return p.themes.some(function (t) { return filterSel.has(t); }); });
+    if (rMin != null) list = list.filter(function (p) { return p.rating >= rMin; });
+    if (rMax != null) list = list.filter(function (p) { return p.rating <= rMax; });
+    return list;
+  }
   function firstUnsolved() {
     var list = tierPuzzles();
     for (var i = 0; i < list.length; i++) if (!solved[list[i].id]) return list[i];
@@ -46,7 +56,27 @@
       return '<button class="tier-btn' + (t.key === tier ? " active" : "") + '" data-t="' + t.key + '">' + t.label + "</button>";
     }).join("");
     tiersEl.querySelectorAll(".tier-btn").forEach(function (b) {
-      b.onclick = function () { tier = b.dataset.t; loadSolved(); renderTiers(); render(); };
+      b.onclick = function () { tier = b.dataset.t; loadSolved(); renderTiers(); buildChips(); render(); };
+    });
+  }
+
+  function buildChips() {
+    var counts = {};
+    tierRaw().forEach(function (p) {
+      p.themes.forEach(function (t) { counts[t] = (counts[t] || 0) + 1; });
+    });
+    var top = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; }).slice(0, 14);
+    var el = document.getElementById("theme-chips"); if (!el) return;
+    el.innerHTML = top.map(function (t) {
+      var act = filterSel.has(t) ? " active" : "";
+      return '<span class="theme-chip' + act + '" data-th="' + t + '">' + cn(t) + '<span class="cnt">' + counts[t] + "</span></span>";
+    }).join("");
+    el.querySelectorAll(".theme-chip").forEach(function (c) {
+      c.onclick = function () {
+        var t = c.dataset.th;
+        if (filterSel.has(t)) filterSel.delete(t); else filterSel.add(t);
+        buildChips(); render();
+      };
     });
   }
 
@@ -118,12 +148,19 @@
   }
 
   function render() {
+    var raw = tierRaw().length;
     var list = tierPuzzles(); total = list.length;
     var done = Object.keys(solved).filter(function (k) { return solved[k]; }).length;
     progEl.style.width = (total ? done / total * 100 : 0) + "%";
-    pinfo.textContent = "已完成 " + done + " / " + total + " 题";
+    pinfo.textContent = "已完成 " + done + " / " + total + " 题" +
+      (raw !== total ? "（筛选后，共 " + raw + "）" : "") + " · 评分 " +
+      (total ? Math.min.apply(null, list.map(function (x) { return x.rating; })) : "?") + "-" +
+      (total ? Math.max.apply(null, list.map(function (x) { return x.rating; })) : "?");
+    if (!list.length) {
+      setStatus("当前筛选无结果，请放宽条件", "bad");
+      explainEl.textContent = ""; return;
+    }
     var p = firstUnsolved() || list[0];
-    if (!p) { setStatus("本档暂无题目", "bad"); return; }
     loadPuzzle(p);
   }
 
@@ -144,10 +181,18 @@
     }
     if (next) loadPuzzle(next); else render();
   };
+  $("#rmin").addEventListener("change", function (e) { var v = parseInt(e.target.value); rMin = isNaN(v) ? null : v; render(); });
+  $("#rmax").addEventListener("change", function (e) { var v = parseInt(e.target.value); rMax = isNaN(v) ? null : v; render(); });
+  $("#btn-reset-f").onclick = function () {
+    filterSel.clear(); rMin = null; rMax = null;
+    document.getElementById("rmin").value = "";
+    document.getElementById("rmax").value = "";
+    buildChips(); render();
+  };
 
   fetch("data/puzzles.json").then(function (r) { return r.json(); }).then(function (d) {
     puzzles = d.puzzles || [];
     if (!puzzles.length) { setStatus("题库为空", "bad"); return; }
-    loadSolved(); renderTiers(); render();
+    loadSolved(); renderTiers(); buildChips(); render();
   }).catch(function (e) { setStatus("题库加载失败：" + e, "bad"); });
 })();

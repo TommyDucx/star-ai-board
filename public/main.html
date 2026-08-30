@@ -4,53 +4,63 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
-<title>S.T.A.R. — 围棋 & 国际象棋 AI 推荐</title>
+<title>S.T.A.R. — 本地引擎 AI 推荐</title>
 <link rel="stylesheet" href="css/site.css?v=32">
 <link rel="stylesheet" href="css/motion.css?v=31">
 <style>
-  .hero { max-width: 900px; margin: 0 auto; padding: 70px 20px 40px; text-align: center; position: relative; }
-  .hero::before { content:""; position:absolute; inset:-60px 0 0; z-index:-1;
-    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
-    background-size: 80px 80px; opacity: .4;
-    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 60% 40%, black, transparent 75%);
-    mask-image: radial-gradient(ellipse 80% 70% at 60% 40%, black, transparent 75%);
-    transform: translate(calc(var(--shift-x,0)*-12px), calc(var(--shift-y,0)*-12px)); transition: transform .5s var(--ease-out); }
-  .hero .kicker { font-family: ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: .3em; color: var(--signal); }
-  .hero h1 { font-size: clamp(38px, 7vw, 76px); font-weight: 800; letter-spacing: .04em; line-height: 1; margin: 18px 0 14px; }
-  .hero h1 .outline { color: transparent; -webkit-text-stroke: 1px var(--paper); }
-  .hero p { color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.8; }
-  .cards { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; max-width: 980px; margin: 44px auto 60px; padding: 0 20px; }
-  .card { border: 1px solid var(--line); background: var(--surface); padding: 30px 26px; text-decoration: none; color: inherit; transition: .18s; position: relative; }
-  .card:hover { border-color: var(--signal); }
-  .card .tag { font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: .2em; color: var(--signal); }
-  .card h2 { font-size: 26px; margin: 14px 0 8px; }
-  .card p { color: var(--muted); font-size: 13.5px; line-height: 1.7; }
-  .card .go { margin-top: 18px; font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--paper); }
-  .card:hover .go { color: var(--signal); }
-  @media (max-width: 820px) { .cards { grid-template-columns: 1fr; } }
-  .foot { text-align: center; font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--faint); letter-spacing: .2em; padding-bottom: 40px; }
+  /* ===== 侧栏 + 内容区布局 ===== */
+  html, body { height: 100%; }
+  .page { display: grid; grid-template-columns: 200px 1fr; height: calc(100vh - 64px);
+    min-height: 480px; }
+  .side { border-right: 1px solid var(--line); background: var(--surface);
+    padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+  .side-head { font-family: ui-monospace, Menlo, monospace; font-size: 10px;
+    color: var(--faint); letter-spacing: .3em; padding: 6px 12px 12px; }
+  .side-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+    cursor: pointer; color: var(--muted); border: 1px solid transparent;
+    border-radius: 6px; transition: .15s; text-decoration: none; }
+  .side-item:hover { background: rgba(255,255,255,0.04); color: var(--paper); }
+  .side-item.active { background: rgba(215,255,63,0.08); color: var(--signal);
+    border-color: rgba(215,255,63,0.3); }
+  .side-item .ico { width: 22px; height: 22px; flex: none;
+    display: flex; align-items: center; justify-content: center;
+    font-family: ui-monospace, Menlo, monospace; font-size: 14px; }
+  .side-item .label { font-size: 14px; font-weight: 600; letter-spacing: .04em; }
+  .side-item .sub { font-size: 10.5px; color: var(--faint); margin-top: 2px;
+    font-family: ui-monospace, Menlo, monospace; }
+  .content { padding: 32px 36px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; }
+  .kicker { font-family: ui-monospace, Menlo, monospace; font-size: 11px;
+    letter-spacing: .3em; color: var(--signal); }
+  h1.title { font-size: clamp(30px, 4.4vw, 44px); font-weight: 800;
+    letter-spacing: .04em; line-height: 1.1; margin: 6px 0 8px; }
+  p.desc { color: var(--muted); font-size: 14px; line-height: 1.85;
+    max-width: 680px; }
+  .feats { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 6px; }
+  .feat { font-family: ui-monospace, Menlo, monospace; font-size: 10.5px;
+    padding: 4px 9px; border: 1px solid var(--line); color: var(--muted);
+    border-radius: 3px; }
+  .enter { display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 20px; padding: 12px 22px; background: var(--signal);
+    color: #080a09; font-weight: 700; font-size: 13px; letter-spacing: .12em;
+    text-decoration: none; border-radius: 4px; transition: .15s; }
+  .enter:hover { transform: translateY(-1px); }
+  @media (max-width: 760px) {
+    .page { grid-template-columns: 1fr; height: auto; }
+    .side { flex-direction: row; border-right: 0; border-bottom: 1px solid var(--line);
+      padding: 12px; overflow-x: auto; }
+    .side-head { display: none; }
+    .side-item { flex: none; padding: 8px 12px; }
+    .side-item .sub { display: none; }
+  }
 </style>
 </head>
 <body>
 <div class="scanlines"></div>
 <div class="pixel-fault" aria-hidden="true"></div>
 
-<!-- boot 启动 -->
-<div class="boot" aria-hidden="true">
-  <div class="boot-half ht"></div><div class="boot-half hb"></div>
-  <div class="boot-scan"></div>
-  <i class="boot-hud tl"></i><i class="boot-hud tr"></i><i class="boot-hud bl"></i><i class="boot-hud br"></i>
-  <div class="boot-ring"></div>
-  <div class="boot-inner">
-    <div class="boot-word"><span class="w-p">PROJECT</span><span class="w-s">S.T.A.R.</span></div>
-    <div class="boot-meta">GO · CHESS / AI SUGGEST NEXT MOVE</div>
-    <div class="boot-rules"></div>
-  </div>
-  <div class="boot-skip">点击任意处 跳过 · CLICK TO SKIP</div>
-</div>
 <div class="topbar">
   <span class="logo">S.T.A.R.</span>
-  <span class="crumb">GO · CHESS / AI SUGGEST NEXT MOVE</span>
+  <span class="crumb">LOCAL ENGINE · 本地 AI 引擎</span>
   <span class="flex1"></span>
   <span class="mono" style="font-size:10px;color:var(--faint);letter-spacing:.2em">MY-ENGINE · STOCKFISH · KATAGO</span>
   <a href="/admin/login.html" class="admin-entry" data-nav>
@@ -59,48 +69,66 @@
   </a>
 </div>
 
-<div class="hero" data-parallax>
-  <div class="kicker">LOCAL ENGINE · 本地引擎驱动</div>
-  <h1>下一手 <span class="outline glitch" data-text="下哪？">下哪？</span></h1>
-  <p>根据对方的落子，AI 实时分析局面并推荐你下一步的最佳落点。围棋由 <b style="color:var(--signal)">KataGo</b> 驱动，国际象棋由自研 <b style="color:var(--signal)">my-engine</b> 与 <b style="color:var(--signal)">Stockfish</b> 驱动，全部在本机计算。</p>
-</div>
+<div class="page">
+  <aside class="side">
+    <div class="side-head">MODULE</div>
+    <div class="side-item" data-mod="go" onclick="sel('go', this)">
+      <span class="ico">▦</span>
+      <div><div class="label">围棋</div><div class="sub">GO · KATAGO</div></div>
+    </div>
+    <div class="side-item active" data-mod="chess" onclick="sel('chess', this)">
+      <span class="ico">⚔</span>
+      <div><div class="label">引擎对战</div><div class="sub">CHESS · 12 引擎</div></div>
+    </div>
+    <div class="side-item" data-mod="tactics" onclick="sel('tactics', this)">
+      <span class="ico">⧉</span>
+      <div><div class="label">经典题型练习</div><div class="sub">PUZZLES · 32000+</div></div>
+    </div>
+  </aside>
 
-<div class="cards">
-  <a class="card magnetic ripple-host" href="go.html" data-nav>
-    <span class="tag">GO / KATAGO</span>
-    <h2>围棋</h2>
-    <p>点击棋盘落子，落子后自动分析当前局面，用数字标出 Top 候选点与胜率目差。</p>
-    <div class="go">进入棋盘 →</div>
-  </a>
-  <a class="card magnetic ripple-host" href="chess.html" data-nav>
-    <span class="tag">CHESS / MY-ENGINE</span>
-    <h2>国际象棋</h2>
-    <p>拖拽走棋，AI 实时推荐下一步最佳走法并给出评估分与候选列表。</p>
-    <div class="go">进入棋盘 →</div>
-  </a>
-  <a class="card magnetic ripple-host" href="review.html" data-nav>
-    <span class="tag">REVIEW / 复盘</span>
-    <h2>对局复盘</h2>
-    <p>粘贴或载入棋谱，逐步回放，AI 标注关键时刻与改进建议。</p>
-    <div class="go">进入复盘 →</div>
-  </a>
-  <a class="card magnetic ripple-host" href="tactics.html" data-nav>
-    <span class="tag">TACTICS / 题型练习</span>
-    <h2>经典题型练习</h2>
-    <p>双重攻击 · 牵制 · 闪击 · 消除防御 · 底线杀 · 残局杀王……按难度阶梯逐级闯关，棋力稳步提升。</p>
-    <div class="go">开始练习 →</div>
-  </a>
+  <main class="content" id="content">
+    <!-- 由 sel() 注入 -->
+  </main>
 </div>
-
-<div class="foot">PROJECT S.T.A.R. · KATAGO + MY-ENGINE + STOCKFISH · 本地对弈分析</div>
 
 <script src="js/motion.js?v=33"></script>
 <script>
-  Motion.runBoot();
-  Motion.initCursorLine();
-  Motion.initMagnetic();
-  Motion.initRipple();
-  Motion.initParallax();
+  var MODS = {
+    go: {
+      kicker: "GO / KATAGO",
+      title: "围棋 · AI 下一步推荐",
+      desc: "点击棋盘落子，落子后自动分析当前局面，用数字标出 Top 候选点与胜率目差。多模型 KataGo 在树莓派本地推理，毫秒级出推荐。",
+      feats: ["19×19 标准棋盘", "目差 + 胜率", "Top-10 候选点", "本地毫秒级"],
+      href: "go.html", btn: "进入围棋 →"
+    },
+    chess: {
+      kicker: "CHESS / ENGINE BATTLE",
+      title: "国际象棋 · 引擎对战",
+      desc: "12 个世界顶级引擎（Stockfish / Reckless / PlentyChess / Alexandria / Viridithas 等）在线对战。可自定义难度（1320~2600 分）、执棋方与思考时间，并保留完整对局记录。",
+      feats: ["12 个世界顶级引擎", "6 档难度", "AI 推荐 + 实时评估", "完整走法历史"],
+      href: "chess.html", btn: "进入引擎对战 →"
+    },
+    tactics: {
+      kicker: "PUZZLES / CLASSIC TACTICS",
+      title: "经典题型练习",
+      desc: "从 lichess 官方题库筛选 32,000 道题，覆盖 73 个经典主题（双重攻击/牵制/闪击/双将/引离/消除防御/底线杀/闷杀/升变/残局……）。按难度阶梯逐级闯关，支持主题筛选与评分范围。",
+      feats: ["32000 道精选题", "4 档难度", "主题多选 + 评分筛选", "引擎验证解法"],
+      href: "tactics.html", btn: "开始练习 →"
+    }
+  };
+  function sel(k, el) {
+    document.querySelectorAll(".side-item").forEach(function (e) { e.classList.remove("active"); });
+    el.classList.add("active");
+    var m = MODS[k];
+    document.getElementById("content").innerHTML =
+      '<div class="kicker">' + m.kicker + '</div>' +
+      '<h1 class="title">' + m.title + '</h1>' +
+      '<p class="desc">' + m.desc + '</p>' +
+      '<div class="feats">' + m.feats.map(function (f) { return '<span class="feat">' + f + '</span>'; }).join("") + '</div>' +
+      '<a class="enter" href="' + m.href + '" data-nav>' + m.btn + '</a>';
+    if (window.Motion) { Motion.staggerEnter(); Motion.initRipple(); Motion.initMagnetic(); }
+  }
+  sel("chess", document.querySelector('.side-item[data-mod="chess"]'));
 </script>
 </body>
 </html>
