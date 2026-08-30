@@ -1,11 +1,11 @@
 // =============================================================================
 // admin.js — 后台管理系统（鉴权 + 账号体系 + RBAC + API + 系统指标 + 对局日志）
 //   零新增依赖：全部使用 Node 内置模块（crypto / os / fs / child_process）
+//   注册简化：仅用户名 + 密码（验证码/邮箱/手机/自助找回密码已整体移除，
+//   忘记密码由管理员在「账号管理」里重置）
 //   数据存 admin/ 下 JSON 文件：
-//     accounts.json      用户（密码 scrypt 哈希；含邮箱/手机/角色/状态/验证标记）
+//     accounts.json      用户（密码 scrypt 哈希；含角色/状态）
 //     sessions.json      会话（默认 7 天过期，含 userId/ip/ua 用于多设备）
-//     auth_codes.json    注册/验证验证码（6 位，TTL + 尝试上限 + 一次性）
-//     reset_tokens.json  密码重置 token（单次有效、短时效）
 //     games.log.jsonl    对局/分析日志（追加写）
 //     config.json        公告等配置
 //     .secret            会话签名密钥（运行时生成，gitignore）
@@ -19,8 +19,6 @@ const { execFile } = require("child_process");
 const ADMIN_DIR = path.join(__dirname, "admin");
 const ACCOUNTS_FILE = path.join(ADMIN_DIR, "accounts.json");
 const SESSIONS_FILE = path.join(ADMIN_DIR, "sessions.json");
-const CODES_FILE = path.join(ADMIN_DIR, "auth_codes.json");
-const RESETS_FILE = path.join(ADMIN_DIR, "reset_tokens.json");
 const GAMES_LOG = path.join(ADMIN_DIR, "games.log.jsonl");
 const CONFIG_FILE = path.join(ADMIN_DIR, "config.json");
 const SECRET_FILE = path.join(ADMIN_DIR, ".secret");
@@ -48,24 +46,19 @@ function clientIp(req) {
   const ip = (req.socket && req.socket.remoteAddress) || "";
   return ip.replace(/^::ffff:/, "");
 }
-function ctEq(a, b) {
-  const ba = Buffer.from(String(a)), bb = Buffer.from(String(b));
-  if (ba.length !== bb.length) return false;
-  try { return crypto.timingSafeEqual(ba, bb); } catch { return false; }
-}
 function uuid() { return (crypto.randomUUID && crypto.randomUUID()) || crypto.randomBytes(16).toString("hex"); }
 
-const RE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const RE_PHONE = /^[\d+\-()\s]{6,20}$/;
-function validContact(type, val) {
-  if (type === "email") return RE_EMAIL.test(val);
-  if (type === "phone") return RE_PHONE.test(val);
-  return false;
-}
+// 用户名策略：2-32 位字母数字/._-（注册 / 管理员创建 / 用户改名 三处共用）
+const RE_USERNAME = /^[\w.-]{2,32}$/;
 // 密码策略：8-128 位，含小写 + 大写 + 数字
 function validPassword(pw) {
   return typeof pw === "string" && pw.length >= 8 && pw.length <= 128 &&
     /[a-z]/.test(pw) && /[A-Z]/.test(pw) && /\d/.test(pw);
+}
+// 敏感数据落盘：0600 权限（accounts.json 曾是 0644，本机其他用户可读密码哈希/会话 token）
+function writePrivate(file, data) {
+  fs.writeFileSync(file, data, { mode: 0o600 });
+  try { fs.chmodSync(file, 0o600); } catch {}
 }
 
 // ---------- 密码哈希（scrypt + 随机盐）----------
@@ -108,33 +101,29 @@ function normalizeUser(u) {
   return {
     id: u.id || uuid(),
     username: u.username,
-    email: u.email || "",
-    phone: u.phone || "",
     role: ALL_ROLES.includes(u.role) ? u.role : "member",
     pw: u.pw || DUMMY_HASH,
-    status: ["active", "suspended", "unverified"].includes(u.status) ? u.status : "active",
-    isVerified: typeof u.isVerified === "boolean" ? u.isVerified : true,
+    status: ["active", "suspended"].includes(u.status) ? u.status : "active",
     mustChange: !!u.mustChange,
     createdAt: u.createdAt || Date.now(),
     updatedAt: u.updatedAt || Date.now(),
     lastLoginAt: u.lastLoginAt || 0,
-    loginFails: 0,
   };
 }
 function loadAccounts() {
   try { return JSON.parse(fs.readFileSync(ACCOUNTS_FILE, "utf8")); }
   catch { return null; }
 }
-function saveAccounts(a) { fs.writeFileSync(ACCOUNTS_FILE, JSON.stringify(a, null, 2)); }
-// 启动期一次性迁移旧 schema（补齐缺失字段并落盘）
+function saveAccounts(a) { writePrivate(ACCOUNTS_FILE, JSON.stringify(a, null, 2)); }
+// 启动期一次性迁移旧 schema（补齐缺失字段并落盘；同时剥离已废弃的 email/phone/isVerified 字段）
 (function migrateAccounts() {
   const cur = loadAccounts();
   if (!cur) return;
   let changed = false;
   const norm = cur.map(u => {
     const n = normalizeUser(u);
-    if (n.id !== u.id || n.email !== u.email || n.phone !== u.phone ||
-        !ALL_ROLES.includes(u.role) || n.status !== u.status || typeof u.isVerified !== "boolean") changed = true;
+    if (n.id !== u.id || !ALL_ROLES.includes(u.role) || n.status !== u.status ||
+        "email" in u || "phone" in u || "isVerified" in u) changed = true;
     return n;
   });
   if (changed) saveAccounts(norm);
@@ -142,24 +131,22 @@ function saveAccounts(a) { fs.writeFileSync(ACCOUNTS_FILE, JSON.stringify(a, nul
 function getAccounts() { const a = loadAccounts(); return ((a && a.length) ? a : seedAdmin()).map(normalizeUser); }
 function findUser(login) {
   const l = String(login || "").trim().toLowerCase();
-  return getAccounts().find(a =>
-    a.username.toLowerCase() === l || (a.email && a.email.toLowerCase() === l) ||
-    (a.phone && a.phone.replace(/\s/g, "") === login.replace(/\s/g, "")));
+  return getAccounts().find(a => a.username.toLowerCase() === l);
 }
 function seedAdmin() {
   const user = process.env.ADMIN_USER || "admin";
   const pass = process.env.ADMIN_PASS || "admin12345";
   const acc = [normalizeUser({
     username: user, role: "admin",
-    pw: hashPassword(pass), createdAt: Date.now(), mustChange: true, isVerified: true, status: "active",
+    pw: hashPassword(pass), createdAt: Date.now(), mustChange: true, status: "active",
   })];
   saveAccounts(acc);
   return acc;
 }
 function publicAccount(a) {
   return {
-    id: a.id, username: a.username, email: a.email, phone: a.phone, role: a.role,
-    status: a.status, isVerified: a.isVerified, mustChange: !!a.mustChange,
+    id: a.id, username: a.username, role: a.role,
+    status: a.status, mustChange: !!a.mustChange,
     createdAt: a.createdAt, updatedAt: a.updatedAt, lastLoginAt: a.lastLoginAt,
   };
 }
@@ -169,7 +156,7 @@ function loadSessions() {
   try { const v = JSON.parse(fs.readFileSync(SESSIONS_FILE, "utf8")); return (v && typeof v === "object" && !Array.isArray(v)) ? v : {}; }
   catch { return {}; }
 }
-function saveSessions(s) { fs.writeFileSync(SESSIONS_FILE, JSON.stringify(s)); }
+function saveSessions(s) { writePrivate(SESSIONS_FILE, JSON.stringify(s)); }
 function makeToken() { return crypto.randomBytes(24).toString("hex"); }
 function sign(val) { return val + "." + crypto.createHmac("sha256", SECRET).update(val).digest("hex"); }
 function unsign(signed) {
@@ -241,17 +228,6 @@ function logoutAllFor(userId) {
   return n;
 }
 
-// ---------- 验证码 / 重置 token 存储 ----------
-function loadCodes() { try { const v = JSON.parse(fs.readFileSync(CODES_FILE, "utf8")); return (v && typeof v === "object" && !Array.isArray(v)) ? v : {}; } catch { return {}; } }
-function saveCodes(c) { fs.writeFileSync(CODES_FILE, JSON.stringify(c)); }
-function loadResets() { try { const v = JSON.parse(fs.readFileSync(RESETS_FILE, "utf8")); return (v && typeof v === "object" && !Array.isArray(v)) ? v : {}; } catch { return {}; } }
-function saveResets(r) { fs.writeFileSync(RESETS_FILE, JSON.stringify(r)); }
-
-// 本地模式发送钩子（预留 SMTP：把 sendMail 接到 Nodemailer 即可切换为邮件）
-function sendMail(to, subject, body) {
-  console.log(`[auth:local-mail] → ${to}\n  主题: ${subject}\n  内容: ${body}`);
-}
-
 // ---------- 限流 ----------
 // 通用滑动窗口：返回 true 表示未超限（调用即记一次）
 const rateBuckets = new Map();
@@ -261,14 +237,6 @@ function rateCheck(key, max, windowMs) {
   arr.push(now);
   rateBuckets.set(key, arr);
   return arr.length <= max;
-}
-// 验证码发送冷却（按联系方式，60s）
-const codeCooldown = new Map();
-function codeCooldownOk(contact) {
-  const last = codeCooldown.get(contact) || 0;
-  if (Date.now() - last < 60000) return false;
-  codeCooldown.set(contact, Date.now());
-  return true;
 }
 // 登录失败计数（IP + 账号 双维度，5 次/分钟）
 const loginFails = new Map();
@@ -402,7 +370,8 @@ const ADMIN_MIME = {
 function serveAdminFile(res, rel) {
   const base = path.join(PUBLIC_DIR, "admin");
   const filePath = path.normalize(path.join(base, rel));
-  if (!filePath.startsWith(base)) { res.writeHead(403); return res.end("Forbidden"); }
+  // 必须仍在 admin 目录内（加 path.sep 防止同名前缀目录如 adminX 绕过 startsWith）
+  if (!filePath.startsWith(base + path.sep)) { res.writeHead(403); return res.end("Forbidden"); }
   fs.readFile(filePath, (err, data) => {
     if (err) { res.writeHead(404); return res.end("Not Found"); }
     const ext = path.extname(filePath);
@@ -464,122 +433,31 @@ async function handleApi(req, res, u) {
   if (p === "/api/announcement" && m === "GET")
     return json(res, 200, getConfig().announcement || { text: "", enabled: false });
 
-  // 发送验证码（注册 / 验证联系方式）
-  if (p === "/api/auth/send-code" && m === "POST") {
-    const ip = clientIp(req);
-    const body = await readBody(req);
-    const { type, contactType, contact } = body;
-    if (type !== "register" && type !== "verify") return json(res, 400, { error: "用途无效" });
-    if (!validContact(contactType, contact)) return json(res, 400, { error: "联系方式格式不正确" });
-    // 60s 冷却 + 每 contact 10 分钟内最多 5 次
-    if (!codeCooldownOk(contact)) return json(res, 429, { error: "请求过于频繁，请 60 秒后再试" });
-    if (!rateCheck("code:" + ip + ":" + contact, 5, 600000))
-      return json(res, 429, { error: "验证码请求次数过多，请稍后再试" });
-    const code = String(crypto.randomInt(0, 1000000)).padStart(6, "0");
-    const codes = loadCodes();
-    codes[type + ":" + contact] = { code, expires: Date.now() + 10 * 60000, attempts: 0, contact, contactType, type };
-    saveCodes(codes);
-    const label = contactType === "email" ? contact : contact;
-    sendMail(label, "[S.T.A.R.] 验证码", `您的验证码是 ${code}（10 分钟内有效，5 次尝试上限）`);
-    // 本地模式：直接回传前端 + 服务端日志（生产接 SMTP 后移除 dev 字段）
-    return json(res, 200, { ok: true, dev: true, code, message: "本地模式：验证码已回传（生产环境将通过邮件发送）" });
-  }
-
-  // 注册（开放自助注册，需验证码）
+  // 注册（开放自助注册：仅用户名 + 密码，验证码/联系方式已移除）
   if (p === "/api/register" && m === "POST") {
     const ip = clientIp(req);
     const body = await readBody(req);
-    const { username, password, contactType, contact, code } = body;
-    if (typeof username !== "string" || !/^[\w.-]{2,32}$/.test(username))
+    const username = String(body.username || "").trim();
+    const { password } = body;
+    if (!RE_USERNAME.test(username))
       return json(res, 400, { error: "用户名 2-32 位字母数字/._-" });
     if (!validPassword(password))
       return json(res, 400, { error: "密码需 8-128 位，且含大写、小写、数字" });
-    if (!validContact(contactType, contact)) return json(res, 400, { error: "联系方式格式不正确" });
-    if (typeof code !== "string") return json(res, 400, { error: "请填写验证码" });
-    // 限流（注册尝试）
+    // 限流（注册尝试：10 次/10 分钟/IP）
     if (!rateCheck("reg:" + ip, 10, 600000))
       return json(res, 429, { error: "注册请求过于频繁，请稍后再试" });
-    // 验证码校验
-    const codes = loadCodes();
-    const rec = codes["register:" + contact];
-    if (!rec || rec.expires < Date.now()) {
-      if (rec) { delete codes["register:" + contact]; saveCodes(codes); }
-      return json(res, 400, { error: "验证码已过期，请重新获取" });
-    }
-    if (rec.attempts >= 5) {
-      delete codes["register:" + contact]; saveCodes(codes);
-      return json(res, 429, { error: "验证码尝试次数过多，请重新获取" });
-    }
-    if (!ctEq(code, rec.code)) {
-      rec.attempts++; saveCodes(codes);
-      return json(res, 400, { error: "验证码错误" });
-    }
-    delete codes["register:" + contact]; saveCodes(codes); // 一次性使用
-    // 唯一性
     const accounts = getAccounts();
     if (accounts.find(a => a.username.toLowerCase() === username.toLowerCase()))
       return json(res, 409, { error: "用户名已存在" });
-    if (accounts.find(a => a.email && a.email.toLowerCase() === String(contact).toLowerCase()))
-      return json(res, 409, { error: "该邮箱已被注册" });
-    if (accounts.find(a => a.phone && a.phone.replace(/\s/g, "") === String(contact).replace(/\s/g, "")))
-      return json(res, 409, { error: "该手机号已被注册" });
     const user = normalizeUser({
       username, role: "member", pw: hashPassword(password),
-      email: contactType === "email" ? contact : "", phone: contactType === "phone" ? contact : "",
-      isVerified: true, status: "active", createdAt: Date.now(), updatedAt: Date.now(), lastLoginAt: Date.now(),
+      status: "active", createdAt: Date.now(), updatedAt: Date.now(), lastLoginAt: Date.now(),
     });
     accounts.push(user); saveAccounts(accounts);
     const cookie = createSession(user, req);
     return json(res, 200,
-      { username: user.username, role: user.role, isVerified: user.isVerified },
+      { username: user.username, role: user.role },
       { "Set-Cookie": `star_admin=${cookie}${cookieFlags(req)}; Max-Age=604800` });
-  }
-
-  // 申请密码重置（按联系方式查找用户，生成一次性 token）
-  if (p === "/api/auth/request-reset" && m === "POST") {
-    const ip = clientIp(req);
-    const body = await readBody(req);
-    const { contactType, contact } = body;
-    if (!validContact(contactType, contact)) return json(res, 400, { error: "联系方式格式不正确" });
-    if (!rateCheck("reset:" + ip + ":" + contact, 5, 600000))
-      return json(res, 429, { error: "请求次数过多，请稍后再试" });
-    const accounts = getAccounts();
-    const acc = accounts.find(a => (contactType === "email" && a.email.toLowerCase() === String(contact).toLowerCase()) ||
-      (contactType === "phone" && a.phone.replace(/\s/g, "") === String(contact).replace(/\s/g, "")));
-    // 不论是否找到都返回成功，避免账户枚举
-    if (acc) {
-      const token = crypto.randomBytes(32).toString("hex");
-      const resets = loadResets();
-      resets[token] = { userId: acc.id, expires: Date.now() + 30 * 60000 };
-      saveResets(resets);
-      sendMail(contact, "[S.T.A.R.] 密码重置", `重置链接：/admin/reset.html?token=${token}（30 分钟内有效，一次性）`);
-      return json(res, 200, { ok: true, dev: true, token, message: "本地模式：重置链接已回传（生产环境将发至邮箱）" });
-    }
-    return json(res, 200, { ok: true, message: "若该联系方式已注册，重置链接将发送至对应邮箱" });
-  }
-
-  // 执行密码重置（单次有效 token）
-  if (p === "/api/auth/reset-password" && m === "POST") {
-    const body = await readBody(req);
-    const { token, newPassword } = body;
-    if (typeof token !== "string" || !validPassword(newPassword))
-      return json(res, 400, { error: "缺少 token 或新密码不符合强度要求" });
-    const resets = loadResets();
-    const rec = resets[token];
-    if (!rec || rec.expires < Date.now()) {
-      if (rec) { delete resets[token]; saveResets(resets); }
-      return json(res, 400, { error: "重置链接无效或已过期" });
-    }
-    delete resets[token]; saveResets(resets); // 单次有效
-    const accounts = getAccounts();
-    const idx = accounts.findIndex(a => a.id === rec.userId);
-    if (idx < 0) return json(res, 400, { error: "账号不存在" });
-    accounts[idx].pw = hashPassword(newPassword);
-    accounts[idx].mustChange = false;
-    accounts[idx].updatedAt = Date.now();
-    saveAccounts(accounts);
-    const kicked = logoutAllFor(rec.userId); // 重置后踢掉所有设备，强制重新登录
-    return json(res, 200, { ok: true, kicked });
   }
 
   // ===================== 以下均需要登录 =====================
@@ -593,49 +471,49 @@ async function handleApi(req, res, u) {
       return json(res, 403, { error: "请先修改密码后再继续操作", mustChange: true });
   }
 
-  // 当前用户资料 / 改密 / 验证联系方式
+  // 当前用户资料 / 改名 / 改密
   if (p === "/api/me") {
     const accounts = getAccounts();
     const me = accounts.find(a => a.id === s.userId) || accounts.find(a => a.username === s.username);
+    if (!me) return json(res, 401, { error: "账号不存在" });
     if (m === "GET") {
       return json(res, 200, {
-        username: s.username, role: s.role, email: me ? me.email : "", phone: me ? me.phone : "",
-        isVerified: me ? me.isVerified : false, status: me ? me.status : "active",
-        createdAt: me ? me.createdAt : 0, lastLoginAt: me ? me.lastLoginAt : 0, mustChange: !!me.mustChange,
+        username: me.username, role: me.role, status: me.status,
+        createdAt: me.createdAt, lastLoginAt: me.lastLoginAt, mustChange: !!me.mustChange,
       });
     }
     if (m === "PUT") {
       const body = await readBody(req);
-      if (body.password && validPassword(body.password)) {
-        me.pw = hashPassword(body.password); me.mustChange = false; me.updatedAt = Date.now();
-        saveAccounts(accounts);
-        return json(res, 200, { ok: true });
-      }
-      return json(res, 400, { error: "新密码需 8-128 位，且含大写、小写、数字" });
-    }
-  }
+      let changed = false;
 
-  // 验证联系方式（登录后，profile:write）
-  if (p === "/api/me/verify" && m === "POST") {
-    const body = await readBody(req);
-    const { contactType, contact, code } = body;
-    if (!validContact(contactType, contact)) return json(res, 400, { error: "联系方式格式不正确" });
-    if (typeof code !== "string") return json(res, 400, { error: "请填写验证码" });
-    const codes = loadCodes();
-    const rec = codes["verify:" + contact];
-    if (!rec || rec.expires < Date.now()) {
-      if (rec) { delete codes["verify:" + contact]; saveCodes(codes); }
-      return json(res, 400, { error: "验证码已过期，请重新获取" });
+      // 改用户名（本人自助；唯一性 + 与账号创建一致的格式校验）
+      const newUname = typeof body.username === "string" ? body.username.trim() : "";
+      if (newUname && newUname !== me.username) {
+        if (!RE_USERNAME.test(newUname))
+          return json(res, 400, { error: "用户名 2-32 位字母数字/._-" });
+        if (accounts.find(a => a.id !== me.id && a.username.toLowerCase() === newUname.toLowerCase()))
+          return json(res, 409, { error: "用户名已存在" });
+        me.username = newUname; me.updatedAt = Date.now(); changed = true;
+        // 同步所有设备会话里的显示名
+        const sessions = loadSessions();
+        for (const tok of Object.keys(sessions))
+          if (sessions[tok].userId === me.id) sessions[tok].username = newUname;
+        saveSessions(sessions);
+      }
+
+      // 改密码：必须先验证当前密码（否则会话被劫持/XSS 时攻击者可直接改密锁死本人）
+      if (body.password) {
+        if (!body.currentPassword || !verifyPassword(String(body.currentPassword), me.pw))
+          return json(res, 403, { error: "当前密码不正确" });
+        if (!validPassword(body.password))
+          return json(res, 400, { error: "新密码需 8-128 位，且含大写、小写、数字" });
+        me.pw = hashPassword(body.password); me.mustChange = false; me.updatedAt = Date.now(); changed = true;
+      }
+
+      if (!changed) return json(res, 400, { error: "没有需要修改的内容" });
+      saveAccounts(accounts);
+      return json(res, 200, { ok: true, username: me.username });
     }
-    if (rec.attempts >= 5) { delete codes["verify:" + contact]; saveCodes(codes); return json(res, 429, { error: "验证码尝试过多" }); }
-    if (!ctEq(code, rec.code)) { rec.attempts++; saveCodes(codes); return json(res, 400, { error: "验证码错误" }); }
-    delete codes["verify:" + contact]; saveCodes(codes);
-    const accounts = getAccounts();
-    const me = accounts.find(a => a.id === s.userId);
-    if (contactType === "email") me.email = contact; else me.phone = contact;
-    me.isVerified = true; me.updatedAt = Date.now();
-    saveAccounts(accounts);
-    return json(res, 200, { ok: true, isVerified: true, email: me.email, phone: me.phone });
   }
 
   // 多设备会话管理
@@ -676,7 +554,7 @@ async function handleApi(req, res, u) {
     const body = await readBody(req);
     const uname = String(body.username || "").trim();
     const pw = body.password, role = body.role;
-    if (!/^[\w.-]{2,32}$/.test(uname)) return json(res, 400, { error: "用户名 2-32 位字母数字/._-" });
+    if (!RE_USERNAME.test(uname)) return json(res, 400, { error: "用户名 2-32 位字母数字/._-" });
     if (!validPassword(pw)) return json(res, 400, { error: "密码需 8-128 位，且含大写、小写、数字" });
     if (!ALL_ROLES.includes(role)) return json(res, 400, { error: "角色无效" });
     const accounts = getAccounts();
@@ -704,7 +582,7 @@ async function handleApi(req, res, u) {
     const acc = accounts[idx];
     if (uname === s.username && body.role && body.role !== acc.role)
       return json(res, 403, { error: "不能修改自己的角色" });
-    if (body.status && ["active", "suspended", "unverified"].includes(body.status)) acc.status = body.status;
+    if (body.status && ["active", "suspended"].includes(body.status)) acc.status = body.status;
     if (body.password && validPassword(body.password)) { acc.pw = hashPassword(body.password); acc.mustChange = false; }
     if (body.role && ALL_ROLES.includes(body.role)) {
       // 防止把自己/唯一管理员降级导致锁死：editor 不能把别人改成 admin 除非自己也是 admin
@@ -753,8 +631,8 @@ function handleRequest(req, res) {
   }
   if (p.startsWith("/admin/")) {
     const rel = p.slice("/admin/".length) || "login.html";
-    // login / register / reset 公开，其余需登录
-    if (rel === "login.html" || rel === "register.html" || rel === "reset.html") { serveAdminFile(res, rel); return true; }
+    // login / register 公开（自助找回密码页已随验证码系统一并移除）
+    if (rel === "login.html" || rel === "register.html") { serveAdminFile(res, rel); return true; }
     // 静态资源（css/js/图片）放行：前端脚本不含敏感数据，数据均走 /api（已有会话 + RBAC 守卫）
     if (/\.(css|js|png|jpe?g|gif|svg|ico|webp|woff2?|ttf|eot)$/i.test(rel)) { serveAdminFile(res, rel); return true; }
     const s = getSession(req);

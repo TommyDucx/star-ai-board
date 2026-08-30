@@ -204,11 +204,10 @@
         <div id="acc-err" class="login-err"></div>
       </div>
       <div class="panel"><table>
-        <thead><tr><th>账号</th><th>角色</th><th>邮箱/手机</th><th>创建时间</th><th>状态</th><th>操作</th></tr></thead>
+        <thead><tr><th>账号</th><th>角色</th><th>创建时间</th><th>状态</th><th>操作</th></tr></thead>
         <tbody>${list.map(a => `<tr>
           <td>${esc(a.username)}</td>
           <td><span class="tag ${a.role}">${a.role}</span></td>
-          <td class="muted">${esc(a.email || a.phone || "—")}${a.isVerified ? ' <span class="tag on" style="font-size:10px">已验证</span>' : ' <span class="tag warn" style="font-size:10px">未验证</span>'}</td>
           <td class="muted">${new Date(a.createdAt).toLocaleString("zh-CN")}</td>
           <td>${a.status === "suspended" ? '<span class="tag off">已停用</span>' : a.mustChange ? '<span class="tag warn">需改密</span>' : '<span class="tag on">正常</span>'}</td>
           <td><div class="row-actions">
@@ -217,7 +216,6 @@
             <select class="btn sm status-sel" data-u="${esc(a.username)}" ${a.username === state.username ? "disabled" : ""}>
               <option value="active" ${a.status === "active" ? "selected" : ""}>正常</option>
               <option value="suspended" ${a.status === "suspended" ? "selected" : ""}>停用</option>
-              <option value="unverified" ${a.status === "unverified" ? "selected" : ""}>未验证</option>
             </select>
             <button class="btn sm pw-btn" data-u="${esc(a.username)}">改密</button>
             <button class="btn sm danger del-btn" data-u="${esc(a.username)}" ${a.username === state.username ? "disabled" : ""}>删除</button>
@@ -318,6 +316,8 @@
   }
 
   // ---------- 个人资料 / 会话管理 ----------
+  // 与服务端一致的用户名策略：2-32 位字母数字/._-
+  function validUsername(u) { return typeof u === "string" && /^[\w.-]{2,32}$/.test(u); }
   async function renderProfile() {
     const rt = beginRender();
     let me = {}, ses = { sessions: [] };
@@ -326,8 +326,6 @@
       me = rm.data; ses = rs.data;
     } catch (e) { return; }
     if (!rt.ok()) return;
-    const verifiedTag = me.isVerified
-      ? '<span class="tag on">已验证</span>' : '<span class="tag warn">未验证</span>';
     const statusTag = me.status === "suspended" ? '<span class="tag off">已停用</span>'
       : me.mustChange ? '<span class="tag warn">需改密</span>' : '<span class="tag on">正常</span>';
     view.innerHTML = `
@@ -338,9 +336,6 @@
             <tbody>
               <tr><td class="muted" style="border:none;width:96px">用户名</td><td style="border:none"><b>${esc(me.username)}</b></td></tr>
               <tr><td class="muted" style="border:none">角色</td><td style="border:none"><span class="tag ${me.role}">${me.role}</span></td></tr>
-              <tr><td class="muted" style="border:none">邮箱</td><td style="border:none">${esc(me.email || "—")}</td></tr>
-              <tr><td class="muted" style="border:none">手机</td><td style="border:none">${esc(me.phone || "—")}</td></tr>
-              <tr><td class="muted" style="border:none">验证状态</td><td style="border:none">${verifiedTag}</td></tr>
               <tr><td class="muted" style="border:none">账号状态</td><td style="border:none">${statusTag}</td></tr>
               <tr><td class="muted" style="border:none">注册时间</td><td style="border:none">${me.createdAt ? new Date(me.createdAt).toLocaleString("zh-CN") : "—"}</td></tr>
               <tr><td class="muted" style="border:none">上次登录</td><td style="border:none">${me.lastLoginAt ? new Date(me.lastLoginAt).toLocaleString("zh-CN") : "—"}</td></tr>
@@ -349,33 +344,24 @@
         </div>
 
         <div class="panel">
+          <h3>修改用户名</h3>
+          <p class="muted" style="font-size:12px;margin:0 0 12px">2-32 位字母数字/._-。改名后所有已登录设备显示名同步更新。</p>
+          <div class="field"><label>新用户名</label>
+            <input type="text" id="nuser" placeholder="${esc(me.username)}"></div>
+          <div id="un-err" class="login-err"></div>
+          <button class="btn primary ripple-host" id="save-user">保存用户名</button>
+        </div>
+
+        <div class="panel">
           <h3>修改密码</h3>
-          <div class="field"><label>当前/新密码（8+ 位，含大小写与数字）</label>
+          <div class="field"><label>当前密码</label>
+            <input type="password" id="cpw" placeholder="验证身份"></div>
+          <div class="field"><label>新密码（8+ 位，含大小写与数字）</label>
             <input type="password" id="npw" placeholder="新密码"></div>
           <div class="field"><label>确认新密码</label>
             <input type="password" id="npw2" placeholder="再次输入"></div>
           <div id="pw2-err" class="login-err"></div>
           <button class="btn primary ripple-host" id="save-pw">保存新密码</button>
-        </div>
-
-        <div class="panel">
-          <h3>验证联系方式</h3>
-          <p class="muted" style="font-size:12px;margin:0 0 12px">绑定并验证邮箱/手机，可用于找回密码。</p>
-          <div class="form-row">
-            <div class="field"><label>类型</label>
-              <select id="vtype"><option value="email">邮箱</option><option value="phone">手机</option></select></div>
-            <div class="field"><label>联系方式</label>
-              <input type="text" id="vcontact" placeholder="邮箱或手机号"></div>
-          </div>
-          <div class="form-row">
-            <div class="field"><label>验证码</label>
-              <input type="text" id="vcode" placeholder="6 位" maxlength="6"></div>
-            <div class="field" style="flex:0"><label>&nbsp;</label>
-              <button class="btn ripple-host" id="vsend" style="white-space:nowrap">获取验证码</button></div>
-          </div>
-          <div id="v-err" class="login-err"></div>
-          <div id="v-hint"></div>
-          <button class="btn primary ripple-host" id="vverify">验证并绑定</button>
         </div>
 
         <div class="panel">
@@ -387,37 +373,30 @@
       </div>`;
     renderSessList(ses.sessions || []);
 
-    $("#save-pw").onclick = async () => {
-      const pw = $("#npw").value, pw2 = $("#npw2").value, err = $("#pw2-err");
+    $("#save-user").onclick = async () => {
+      const nu = $("#nuser").value.trim(), err = $("#un-err");
       err.textContent = "";
-      if (pw !== pw2) { err.textContent = "两次输入不一致"; return; }
-      if (!validPassword(pw)) { err.textContent = "密码需 8-128 位，且含大写、小写与数字"; return; }
-      const r = await api("/api/me", { method: "PUT", body: JSON.stringify({ password: pw }) });
+      if (!nu || nu === me.username) { err.textContent = "请输入一个新用户名"; return; }
+      if (!validUsername(nu)) { err.textContent = "用户名 2-32 位字母数字/._-"; return; }
+      const r = await api("/api/me", { method: "PUT", body: JSON.stringify({ username: nu }) });
       if (!r.ok) { err.textContent = r.data.error || "失败"; return; }
-      toast("密码已更新"); $("#npw").value = ""; $("#npw2").value = "";
+      state.username = r.data.username || nu;
+      sbUser.innerHTML = "当前：<b>" + esc(state.username) + "</b>";
+      toast("用户名已改为 " + state.username);
+      renderProfile();
     };
 
-    let vCool = 0, vTimer = null;
-    $("#vsend").onclick = async () => {
-      const err = $("#v-err"), hint = $("#v-hint"); err.textContent = ""; hint.innerHTML = "";
-      const contactType = $("#vtype").value, contact = $("#vcontact").value.trim();
-      if (!contact) { err.textContent = "请填写联系方式"; return; }
-      $("#vsend").disabled = true;
-      const r = await api("/api/auth/send-code", { method: "POST", body: JSON.stringify({ type: "verify", contactType, contact }) });
-      const d = await r.data;
-      if (!r.ok) { err.textContent = d.error || "发送失败"; $("#vsend").disabled = false; return; }
-      if (d.dev && d.code) hint.innerHTML = '<div class="code-hint">本地模式验证码：<b>' + d.code + '</b></div>';
-      else hint.innerHTML = '<div class="code-hint">验证码已发送</div>';
-      vCool = 60; $("#vsend").textContent = vCool + " 秒后重发";
-      vTimer = setInterval(() => { vCool--; if (vCool <= 0) { clearInterval(vTimer); $("#vsend").disabled = false; $("#vsend").textContent = "获取验证码"; } else $("#vsend").textContent = vCool + " 秒后重发"; }, 1000);
+    $("#save-pw").onclick = async () => {
+      const cur = $("#cpw").value, pw = $("#npw").value, pw2 = $("#npw2").value, err = $("#pw2-err");
+      err.textContent = "";
+      if (!cur) { err.textContent = "请输入当前密码"; return; }
+      if (pw !== pw2) { err.textContent = "两次输入不一致"; return; }
+      if (!validPassword(pw)) { err.textContent = "密码需 8-128 位，且含大写、小写与数字"; return; }
+      const r = await api("/api/me", { method: "PUT", body: JSON.stringify({ currentPassword: cur, password: pw }) });
+      if (!r.ok) { err.textContent = r.data.error || "失败"; return; }
+      toast("密码已更新"); $("#cpw").value = ""; $("#npw").value = ""; $("#npw2").value = "";
     };
-    $("#vverify").onclick = async () => {
-      const err = $("#v-err"); err.textContent = "";
-      const contactType = $("#vtype").value, contact = $("#vcontact").value.trim(), code = $("#vcode").value.trim();
-      const r = await api("/api/me/verify", { method: "POST", body: JSON.stringify({ contactType, contact, code }) });
-      if (!r.ok) { err.textContent = r.data.error || "验证失败"; return; }
-      toast("已验证并绑定"); renderProfile();
-    };
+
     $("#logout-others").onclick = async () => {
       const r = await api("/api/me/sessions", { method: "DELETE" });
       toast(r.ok ? ("已退出 " + (r.data.removed || 0) + " 台其他设备") : (r.data.error || "失败"));
@@ -465,12 +444,13 @@
   }
   function showPwModal() {
     const mask = $("#pw-modal"); mask.style.display = "flex";
-    $("#new-pw").value = ""; $("#pw-err").textContent = "";
-    $("#new-pw").focus();
+    $("#cur-pw").value = ""; $("#new-pw").value = ""; $("#pw-err").textContent = "";
+    $("#cur-pw").focus();
     $("#pw-save").onclick = async () => {
-      const pw = $("#new-pw").value;
+      const cur = $("#cur-pw").value, pw = $("#new-pw").value;
+      if (!cur) { $("#pw-err").textContent = "请输入当前密码"; return; }
       if (!validPassword(pw)) { $("#pw-err").textContent = "密码需 8-128 位，且含大写、小写与数字"; return; }
-      const r = await api("/api/me", { method: "PUT", body: JSON.stringify({ password: pw }) });
+      const r = await api("/api/me", { method: "PUT", body: JSON.stringify({ currentPassword: cur, password: pw }) });
       if (!r.ok) { $("#pw-err").textContent = r.data.error || "失败"; return; }
       mask.style.display = "none";
       toast("密码已更新");

@@ -23,23 +23,7 @@
       <label>确认密码
         <input type="password" id="password2" placeholder="再次输入密码" required>
       </label>
-      <label>联系方式类型
-        <select id="contactType">
-          <option value="email">邮箱</option>
-          <option value="phone">手机号</option>
-        </select>
-      </label>
-      <label>联系方式
-        <input type="text" id="contact" placeholder="用于接收验证码" required>
-      </label>
-      <label>验证码
-        <div style="display:flex; gap:10px; align-items:flex-end; margin-top:7px">
-          <input type="text" id="code" placeholder="6 位验证码" maxlength="6" style="flex:1; margin-top:0">
-          <button type="button" id="send-btn" style="width:auto; margin-top:0; padding:11px 14px; white-space:nowrap">获取验证码</button>
-        </div>
-      </label>
       <div id="err" class="login-err"></div>
-      <div id="code-hint"></div>
       <button type="submit" id="submit-btn">注 册</button>
     </form>
     <div class="login-links">
@@ -56,52 +40,19 @@ Motion.initMagnetic();
 Motion.staggerEnter();
 
 const $ = s => document.querySelector(s);
-const errEl = $("#err"), hintEl = $("#code-hint"), btn = $("#submit-btn"), sendBtn = $("#send-btn");
-let cooldown = 0, timer = null;
-
-function showHint(code) {
-  hintEl.innerHTML = '<div class="code-hint">本地模式验证码：<b>' + code + '</b><br>生产环境将通过邮件发送，此处仅为本地调试显示。</div>';
-}
-function startCooldown() {
-  cooldown = 60; sendBtn.disabled = true;
-  sendBtn.textContent = cooldown + " 秒后重发";
-  timer = setInterval(() => {
-    cooldown--;
-    if (cooldown <= 0) { clearInterval(timer); sendBtn.disabled = false; sendBtn.textContent = "获取验证码"; }
-    else sendBtn.textContent = cooldown + " 秒后重发";
-  }, 1000);
-}
-
-sendBtn.onclick = async () => {
-  errEl.textContent = ""; hintEl.innerHTML = "";
-  const contactType = $("#contactType").value, contact = $("#contact").value.trim();
-  if (!contact) { errEl.textContent = "请先填写联系方式"; return; }
-  sendBtn.disabled = true;
-  try {
-    const r = await fetch("/api/auth/send-code", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "register", contactType, contact }),
-    });
-    const d = await r.json();
-    if (!r.ok) { errEl.textContent = d.error || "发送失败"; sendBtn.disabled = false; return; }
-    if (d.dev && d.code) showHint(d.code); else hintEl.innerHTML = '<div class="code-hint">验证码已发送（' + (d.message || "") + '）</div>';
-    startCooldown();
-  } catch (e) { errEl.textContent = "网络错误"; sendBtn.disabled = false; }
-};
+const errEl = $("#err"), btn = $("#submit-btn");
 
 $("#reg-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   errEl.textContent = "";
   const username = $("#username").value.trim();
   const password = $("#password").value, password2 = $("#password2").value;
-  const contactType = $("#contactType").value, contact = $("#contact").value.trim();
-  const code = $("#code").value.trim();
   if (password !== password2) { errEl.textContent = "两次密码不一致"; return; }
   btn.disabled = true; btn.textContent = "注册中…";
   try {
     const r = await fetch("/api/register", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password, contactType, contact, code }),
+      body: JSON.stringify({ username, password }),
     });
     const d = await r.json();
     if (!r.ok) { errEl.textContent = d.error || "注册失败"; btn.disabled = false; btn.textContent = "注 册"; return; }
