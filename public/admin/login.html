@@ -5,10 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>S.T.A.R. 后台 · 登录</title>
 <link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="../css/motion.css">
 </head>
 <body class="login-body">
+<div class="scanlines" aria-hidden="true"></div>
 <div class="login-wrap">
-  <div class="login-card">
+  <div class="login-card enter-node magnetic ripple-host">
     <div class="login-logo">S.T.A.R.<span>· ADMIN</span></div>
     <div class="login-sub">后台管理系统 · 仅授权人员</div>
     <form id="login-form" autocomplete="off">
@@ -19,7 +21,7 @@
         <input type="password" id="password" name="password" placeholder="••••••••" required>
       </label>
       <div id="err" class="login-err"></div>
-      <button type="submit" id="submit-btn">登 录</button>
+      <button type="submit" id="submit-btn" class="ripple-host">登 录</button>
     </form>
     <div class="login-links">
       <a href="register.html">注册新账号</a>
@@ -29,7 +31,14 @@
     <div class="login-foot">本地部署 · 数据不出树莓派</div>
   </div>
 </div>
+<script src="../js/motion.js?v=33"></script>
 <script>
+// 站点同款动效初始化（与 main.html / chess.html 一致）
+Motion.initCursorLine();
+Motion.initRipple();
+Motion.initMagnetic();
+Motion.staggerEnter();
+
 const form = document.getElementById("login-form");
 const errEl = document.getElementById("err");
 const btn = document.getElementById("submit-btn");

@@ -1,7 +1,7 @@
 // admin.js — 后台前端逻辑（vanilla JS，无框架依赖）
 (function () {
   "use strict";
-  const state = { role: null, username: null, view: "dashboard", timer: null };
+  const state = { role: null, username: null, view: "dashboard", timer: null, switching: false };
 
   const $ = (s, r) => (r || document).querySelector(s);
   const view = $("#view");
@@ -19,11 +19,18 @@
     t.textContent = msg; t.classList.add("show");
     clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("show"), 2200);
   }
+  // 与服务端一致的口令策略：8-128 位，且含大写、小写、数字
+  function validPassword(pw) {
+    return typeof pw === "string" && pw.length >= 8 && pw.length <= 128 &&
+      /[A-Z]/.test(pw) && /[a-z]/.test(pw) && /\d/.test(pw);
+  }
   async function api(path, opts) {
     const r = await fetch(path, Object.assign({ headers: { "Content-Type": "application/json" } }, opts || {}));
     let data = {};
     try { data = await r.json(); } catch (e) {}
     if (r.status === 401) { location.href = "login.html"; throw new Error("unauthorized"); }
+    // 服务端强制改密硬拦截（403 mustChange）：直接弹窗引导，而不是静默失败
+    if (r.status === 403 && data.mustChange) { showPwModal(); throw new Error("mustChange"); }
     return { ok: r.ok, status: r.status, data };
   }
   function fmtUptime(s) {
@@ -32,6 +39,24 @@
     const h = Math.floor(s / 3600); s -= h * 3600;
     const m = Math.floor(s / 60);
     return (d ? d + "天 " : "") + h + "时" + (d ? "" : m + "分");
+  }
+
+  // 每次渲染后的公共钩子：磁吸重扫 + 延迟修正（无动画重放；动画仅在视图切换时重放）
+  function rescanFx() {
+    if (!window.Motion) return;
+    Motion.staggerEnter();
+    window.dispatchEvent(new Event("resize"));   // initMagnetic 靠 resize 重扫 .magnetic（含新渲染元素）
+  }
+  // 视图切换时重放进场动画（clip-path 展开）
+  function animView() {
+    if (!window.Motion) return;
+    const v = $("#view");
+    v.classList.remove("enter-node"); void v.offsetWidth; v.classList.add("enter-node");
+    Motion.staggerEnter();
+  }
+  function afterRender() {
+    rescanFx();
+    if (state.switching) { state.switching = false; animView(); }
   }
 
   // ---------- 视图路由 ----------
@@ -49,6 +74,7 @@
     document.querySelectorAll(".sb-item").forEach(b => b.classList.toggle("active", b.dataset.view === v));
     $("#sidebar").classList.remove("open");
     if (state.timer) { clearInterval(state.timer); state.timer = null; }
+    state.switching = true;   // 本次渲染完成后重放进场动画（自动刷新不会触发）
     if (v === "dashboard") renderDashboard();
     else if (v === "profile") renderProfile();
     else if (v === "accounts") renderAccounts();
@@ -70,24 +96,24 @@
     const memCls = memPct > 85 ? "danger" : memPct > 60 ? "warn" : "";
     view.innerHTML = `
       <div class="grid metrics">
-        <div class="card metric"><div class="m-label">CPU 占用</div>
+        <div class="card metric magnetic"><div class="m-label">CPU 占用</div>
           <div class="m-val">${m.cpu != null ? m.cpu : "—"}<small>%</small></div>
           <div class="bar-track"><i class="${cpuCls}"></i></div></div>
-        <div class="card metric"><div class="m-label">内存</div>
+        <div class="card metric magnetic"><div class="m-label">内存</div>
           <div class="m-val">${memPct}<small>%</small></div>
           <div class="bar-track"><i class="${memCls}"></i></div>
           <div class="muted" style="font-size:11px;margin-top:6px">${fmtBytes(m.mem && m.mem.used)} / ${fmtBytes(m.mem && m.mem.total)}</div></div>
-        <div class="card metric"><div class="m-label">磁盘 /</div>
+        <div class="card metric magnetic"><div class="m-label">磁盘 /</div>
           <div class="m-val">${diskPct}<small>%</small></div>
           <div class="bar-track"><i class="${diskPct > 85 ? "danger" : diskPct > 60 ? "warn" : "cyan"}"></i></div>
           <div class="muted" style="font-size:11px;margin-top:6px">${fmtBytes(m.disk && m.disk.used)} / ${fmtBytes(m.disk && m.disk.total)}</div></div>
-        <div class="card metric"><div class="m-label">运行时间</div>
+        <div class="card metric magnetic"><div class="m-label">运行时间</div>
           <div class="m-val" style="font-size:22px">${fmtUptime(m.uptime || 0)}</div>
           <div class="muted" style="font-size:11px;margin-top:6px">${esc(m.hostname || "")}</div></div>
-        <div class="card metric"><div class="m-label">在线引擎</div>
+        <div class="card metric magnetic"><div class="m-label">在线引擎</div>
           <div class="m-val">${online}<small>/ ${(m.engines || []).length}</small></div>
           <div class="muted" style="font-size:11px;margin-top:6px">load ${((m.loadavg || [])[0] || 0).toFixed(2)}</div></div>
-        <div class="card metric"><div class="m-label">累计分析</div>
+        <div class="card metric magnetic"><div class="m-label">累计分析</div>
           <div class="m-val">${g.total}</div>
           <div class="muted" style="font-size:11px;margin-top:6px">近24h ${g.last24h ? g.last24h.reduce((a, b) => a + b, 0) : 0} 次</div></div>
       </div>
@@ -114,6 +140,7 @@
     setBarWidth(view, ".metric:nth-child(1) .bar-track i", m.cpu);
     setBarWidth(view, ".metric:nth-child(2) .bar-track i", memPct);
     setBarWidth(view, ".metric:nth-child(3) .bar-track i", diskPct);
+    afterRender();
     state.timer = setInterval(renderDashboard, 5000);
   }
   function setBarWidth(root, sel, pct) { const el = $(sel, root); if (el) el.style.width = Math.max(0, Math.min(100, pct || 0)) + "%"; }
@@ -161,10 +188,10 @@
         <h3>新建账号</h3>
         <div class="form-row">
           <div class="field"><label>账号</label><input id="nu" placeholder="用户名（2-32 位）"></div>
-          <div class="field"><label>密码</label><input id="np" type="password" placeholder="至少 6 位"></div>
+          <div class="field"><label>密码</label><input id="np" type="password" placeholder="8+ 位，含大小写与数字"></div>
           <div class="field"><label>角色</label>
             <select id="nr">${ROLE_OPTS.map(r => `<option value="${r}">${r}</option>`).join("")}</select></div>
-          <div class="field" style="flex:0"><label>&nbsp;</label><button class="btn primary" id="create-btn">＋ 创建</button></div>
+          <div class="field" style="flex:0"><label>&nbsp;</label><button class="btn primary ripple-host" id="create-btn">＋ 创建</button></div>
         </div>
         <div id="acc-err" class="login-err"></div>
       </div>
@@ -194,10 +221,12 @@
     view.querySelectorAll(".status-sel").forEach(s => s.onchange = () => changeStatus(s.dataset.u, s.value));
     view.querySelectorAll(".pw-btn").forEach(b => b.onclick = () => changePw(b.dataset.u));
     view.querySelectorAll(".del-btn").forEach(b => b.onclick = () => delAccount(b.dataset.u));
+    afterRender();
   }
   async function createAccount() {
     const username = $("#nu").value.trim(), password = $("#np").value, role = $("#nr").value;
     const err = $("#acc-err"); err.textContent = "";
+    if (!validPassword(password)) { err.textContent = "密码需 8-128 位，且含大写、小写与数字"; return; }
     const r = await api("/api/admin/accounts", { method: "POST", body: JSON.stringify({ username, password, role }) });
     if (!r.ok) { err.textContent = r.data.error || "创建失败"; return; }
     toast("已创建 " + username); renderAccounts();
@@ -250,6 +279,7 @@
       toast(r2.ok ? (act === "stop" ? "已停止 " : "已启动 ") + k : (r2.data.error || "失败"));
       renderEngines();
     });
+    afterRender();
   }
 
   // ---------- 公告管理 ----------
@@ -262,9 +292,10 @@
       <div class="field"><label>公告内容（最多 500 字）</label>
         <textarea id="ann-text" placeholder="例如：系统将于今晚 23:00 维护…">${esc(cur.text || "")}</textarea></div>
       <label class="switch"><input type="checkbox" id="ann-en" ${cur.enabled ? "checked" : ""}> 启用公告</label>
-      <div style="margin-top:16px"><button class="btn primary" id="ann-save">保存</button></div>
+      <div style="margin-top:16px"><button class="btn primary ripple-host" id="ann-save">保存</button></div>
       <div id="ann-err" class="login-err"></div>
     </div>`;
+    afterRender();
     $("#ann-save").onclick = async () => {
       const r = await api("/api/admin/announcement", {
         method: "PUT",
@@ -310,7 +341,7 @@
           <div class="field"><label>确认新密码</label>
             <input type="password" id="npw2" placeholder="再次输入"></div>
           <div id="pw2-err" class="login-err"></div>
-          <button class="btn primary" id="save-pw">保存新密码</button>
+          <button class="btn primary ripple-host" id="save-pw">保存新密码</button>
         </div>
 
         <div class="panel">
@@ -326,18 +357,18 @@
             <div class="field"><label>验证码</label>
               <input type="text" id="vcode" placeholder="6 位" maxlength="6"></div>
             <div class="field" style="flex:0"><label>&nbsp;</label>
-              <button class="btn" id="vsend" style="white-space:nowrap">获取验证码</button></div>
+              <button class="btn ripple-host" id="vsend" style="white-space:nowrap">获取验证码</button></div>
           </div>
           <div id="v-err" class="login-err"></div>
           <div id="v-hint"></div>
-          <button class="btn primary" id="vverify">验证并绑定</button>
+          <button class="btn primary ripple-host" id="vverify">验证并绑定</button>
         </div>
 
         <div class="panel">
           <h3>登录设备（会话）</h3>
           <p class="muted" style="font-size:12px;margin:0 0 12px">当前账号的所有登录设备。可一键退出其他设备。</p>
           <div id="sess-list"></div>
-          <div style="margin-top:12px"><button class="btn danger" id="logout-others">退出所有其他设备</button></div>
+          <div style="margin-top:12px"><button class="btn danger ripple-host" id="logout-others">退出所有其他设备</button></div>
         </div>
       </div>`;
     renderSessList(ses.sessions || []);
@@ -346,7 +377,7 @@
       const pw = $("#npw").value, pw2 = $("#npw2").value, err = $("#pw2-err");
       err.textContent = "";
       if (pw !== pw2) { err.textContent = "两次输入不一致"; return; }
-      if (pw.length < 8) { err.textContent = "密码至少 8 位，需含大小写与数字"; return; }
+      if (!validPassword(pw)) { err.textContent = "密码需 8-128 位，且含大写、小写与数字"; return; }
       const r = await api("/api/me", { method: "PUT", body: JSON.stringify({ password: pw }) });
       if (!r.ok) { err.textContent = r.data.error || "失败"; return; }
       toast("密码已更新"); $("#npw").value = ""; $("#npw2").value = "";
@@ -378,6 +409,7 @@
       toast(r.ok ? ("已退出 " + (r.data.removed || 0) + " 台其他设备") : (r.data.error || "失败"));
       renderProfile();
     };
+    afterRender();
   }
   function renderSessList(list) {
     const el = $("#sess-list"); if (!el) return;
@@ -392,6 +424,12 @@
 
   // ---------- 初始化 ----------
   async function init() {
+    // 站点动效（与 main.html / chess.html 一致；initRipple 为事件委托，动态按钮无需重绑）
+    if (window.Motion) {
+      Motion.initCursorLine();
+      Motion.initMagnetic();
+      Motion.initRipple();
+    }
     let me;
     try { me = await api("/api/me"); } catch (e) { return; }
     state.role = me.data.role; state.username = me.data.username;
@@ -413,13 +451,16 @@
   }
   function showPwModal() {
     const mask = $("#pw-modal"); mask.style.display = "flex";
+    $("#new-pw").value = ""; $("#pw-err").textContent = "";
+    $("#new-pw").focus();
     $("#pw-save").onclick = async () => {
       const pw = $("#new-pw").value;
-      if (pw.length < 6) { $("#pw-err").textContent = "密码至少 6 位"; return; }
+      if (!validPassword(pw)) { $("#pw-err").textContent = "密码需 8-128 位，且含大写、小写与数字"; return; }
       const r = await api("/api/me", { method: "PUT", body: JSON.stringify({ password: pw }) });
       if (!r.ok) { $("#pw-err").textContent = r.data.error || "失败"; return; }
       mask.style.display = "none";
       toast("密码已更新");
+      afterRender();
     };
   }
   init();

@@ -5,8 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="Ea541KK1mQoKfkdgczaq15">
 <title>S.T.A.R. 后台 · 管理</title>
 <link rel="stylesheet" href="css/admin.css" data-page-node-id="eeQBBFq6GTb1efGcUUApGL">
+<link rel="stylesheet" href="../css/motion.css">
 </head>
 <body class="admin-body" data-page-node-id="YdZrohphs3Zokqz8tYbYxY">
+<div class="scanlines" aria-hidden="true"></div>
+<div class="pixel-fault" aria-hidden="true"></div>
 <div class="admin-layout" data-page-node-id="qHZnJDIpUBDeun7drhgEBK">
   <!-- 侧栏 -->
   <aside class="sidebar" id="sidebar" data-page-node-id="gigVtRoJfA4RoSG2eoOHUL">
@@ -37,15 +40,16 @@
 
 <!-- 强制改密弹窗 -->
 <div id="pw-modal" class="modal-mask" style="display:none" data-page-node-id="74KbwuEdeXP2ysjB4BcI0C">
-  <div class="modal" data-page-node-id="CBA4oTJ0fTutFbNZgj5wIl">
+  <div class="modal enter-node" data-page-node-id="CBA4oTJ0fTutFbNZgj5wIl">
     <h3 data-page-node-id="F1qJynybZW6PfUY9MSwsdC">首次登录 · 请修改密码</h3>
-    <p class="muted" data-page-node-id="DyiQBg27ErZg2X7jdNQH23">出于安全，请设置一个新密码（至少 6 位）。</p>
-    <input type="password" id="new-pw" placeholder="新密码（≥6 位）" data-page-node-id="6uhx8vx30wvhiWIdtzD7rS">
+    <p class="muted" data-page-node-id="DyiQBg27ErZg2X7jdNQH23">出于安全，请设置一个新密码（8-128 位，需含大写、小写与数字）。</p>
+    <input type="password" id="new-pw" placeholder="新密码（8+ 位，含大小写与数字）" data-page-node-id="6uhx8vx30wvhiWIdtzD7rS">
     <div id="pw-err" class="login-err" data-page-node-id="EOH0CgawdLUcnMH8GAqRgj"></div>
-    <button id="pw-save" data-page-node-id="scdnBBCpEcJOaQ1uDSpaIO">保存并进入</button>
+    <button id="pw-save" class="ripple-host" data-page-node-id="scdnBBCpEcJOaQ1uDSpaIO">保存并进入</button>
   </div>
 </div>
 
+<script src="../js/motion.js?v=33"></script>
 <script src="js/admin.js"></script>
 </body>
 </html>

@@ -5,10 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>S.T.A.R. 后台 · 注册</title>
 <link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="../css/motion.css">
 </head>
 <body class="login-body">
+<div class="scanlines" aria-hidden="true"></div>
 <div class="login-wrap">
-  <div class="login-card" style="width:380px">
+  <div class="login-card enter-node magnetic ripple-host" style="width:380px">
     <div class="login-logo">S.T.A.R.<span>· ADMIN</span></div>
     <div class="login-sub">注册新账号 · 开放自助注册</div>
     <form id="reg-form" autocomplete="off">
@@ -46,7 +48,13 @@
     <div class="login-foot">本地部署 · 数据不出树莓派</div>
   </div>
 </div>
+<script src="../js/motion.js?v=33"></script>
 <script>
+Motion.initCursorLine();
+Motion.initRipple();
+Motion.initMagnetic();
+Motion.staggerEnter();
+
 const $ = s => document.querySelector(s);
 const errEl = $("#err"), hintEl = $("#code-hint"), btn = $("#submit-btn"), sendBtn = $("#send-btn");
 let cooldown = 0, timer = null;

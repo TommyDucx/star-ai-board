@@ -5,10 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>S.T.A.R. 后台 · 重置密码</title>
 <link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="../css/motion.css">
 </head>
 <body class="login-body">
+<div class="scanlines" aria-hidden="true"></div>
 <div class="login-wrap">
-  <div class="login-card" style="width:380px">
+  <div class="login-card enter-node magnetic ripple-host" style="width:380px">
     <div class="login-logo">S.T.A.R.<span>· ADMIN</span></div>
     <div class="login-sub">重置密码 · 单次有效链接</div>
     <form id="reset-form" autocomplete="off">
@@ -47,7 +49,13 @@
     <div class="login-foot">本地部署 · 数据不出树莓派</div>
   </div>
 </div>
+<script src="../js/motion.js?v=33"></script>
 <script>
+Motion.initCursorLine();
+Motion.initRipple();
+Motion.initMagnetic();
+Motion.staggerEnter();
+
 const $ = s => document.querySelector(s);
 const errEl = $("#err"), err2El = $("#err2"), hintEl = $("#code-hint");
 const f1 = $("#reset-form"), f2 = $("#reset2-form");
