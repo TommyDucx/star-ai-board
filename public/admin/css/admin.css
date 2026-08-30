@@ -12,6 +12,8 @@
 html,body{margin:0;padding:0}
 body{font-family:-apple-system,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
   background:var(--ink); color:var(--paper); -webkit-font-smoothing:antialiased}
+/* 表单控件继承正文字体（站点 site.css 同款约定，避免 UA 默认 Arial） */
+button,select,textarea,input{font-family:inherit}
 
 /* ---------- 与站点对齐的交互/排版细节（依赖 ../css/motion.css） ---------- */
 .magnetic{position:relative}      /* 磁吸流光 ::after 需要定位宿主，否则会溢出到上层祖先 */
@@ -20,7 +22,10 @@ body{font-family:-apple-system,"PingFang SC","Noto Sans SC","Microsoft YaHei",sa
 .metric .m-label,.section-title,th,.role-badge,.sb-logo span,.login-foot,.sb-item{font-family:var(--mono)}
 
 /* ---------- 登录页 ---------- */
-.login-body{display:flex; min-height:100vh; align-items:center; justify-content:center;
+/* safe center：内容高于视口时改为顶部对齐而非上下同时裁切；不加 overflow 避免制造嵌套滚动容器，
+   文档自然滚动即可到达提交按钮（矮屏下按钮不再被裁掉点不到） */
+.login-body{display:flex; min-height:100vh; align-items:safe center; justify-content:center;
+  padding:24px 0; box-sizing:border-box;
   background:radial-gradient(ellipse at 50% 30%, #16210f 0%, var(--ink) 70%)}
 .login-card{width:340px; max-width:92vw; background:var(--surface); border:1px solid var(--lineStrong);
   padding:34px 28px; border-radius:14px; box-shadow:0 0 60px #00000066}

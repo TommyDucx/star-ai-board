@@ -41,6 +41,10 @@
     return (d ? d + "天 " : "") + h + "时" + (d ? "" : m + "分");
   }
 
+  // 渲染代际标记：视图切换/自动刷新时旧渲染的异步回调不得覆盖新视图（竞态防护）
+  let renderSeq = 0;
+  function beginRender() { const t = ++renderSeq; return { ok: () => t === renderSeq }; }
+
   // 每次渲染后的公共钩子：磁吸重扫 + 延迟修正（无动画重放；动画仅在视图切换时重放）
   function rescanFx() {
     if (!window.Motion) return;
@@ -75,7 +79,7 @@
     $("#sidebar").classList.remove("open");
     if (state.timer) { clearInterval(state.timer); state.timer = null; }
     state.switching = true;   // 本次渲染完成后重放进场动画（自动刷新不会触发）
-    if (v === "dashboard") renderDashboard();
+    if (v === "dashboard") { renderDashboard(); state.timer = setInterval(renderDashboard, 5000); }
     else if (v === "profile") renderProfile();
     else if (v === "accounts") renderAccounts();
     else if (v === "engines") renderEngines();
@@ -84,11 +88,13 @@
 
   // ---------- 看板 ----------
   async function renderDashboard() {
+    const rt = beginRender();
     let m = {}, g = { total: 0, byEngine: {}, byType: {}, last24h: [] };
     try {
       const [rm, rg] = await Promise.all([api("/api/admin/metrics"), api("/api/admin/games")]);
       m = rm.data; g = rg.data;
     } catch (e) { return; }
+    if (!rt.ok()) return;   // 已被更新的渲染取代（如切换到其他视图）
     const online = (m.engines || []).filter(e => e.alive).length;
     const memPct = m.mem ? m.mem.percent : 0;
     const diskPct = m.disk ? m.disk.percent : 0;
@@ -141,7 +147,7 @@
     setBarWidth(view, ".metric:nth-child(2) .bar-track i", memPct);
     setBarWidth(view, ".metric:nth-child(3) .bar-track i", diskPct);
     afterRender();
-    state.timer = setInterval(renderDashboard, 5000);
+    // 注意：自动刷新定时器由 switchView 统一管理（此处不再 setInterval，避免定时器链指数级繁殖）
   }
   function setBarWidth(root, sel, pct) { const el = $(sel, root); if (el) el.style.width = Math.max(0, Math.min(100, pct || 0)) + "%"; }
   function fmtBytes(b) {
@@ -180,8 +186,10 @@
   // ---------- 账号管理 ----------
   const ROLE_OPTS = ["member", "viewer", "editor", "admin"];
   async function renderAccounts() {
+    const rt = beginRender();
     let r;
     try { r = await api("/api/admin/accounts"); } catch (e) { return; }
+    if (!rt.ok()) return;
     const list = r.data.accounts || [];
     view.innerHTML = `
       <div class="panel" style="margin-bottom:16px">
@@ -256,8 +264,10 @@
 
   // ---------- 引擎管理 ----------
   async function renderEngines() {
+    const rt = beginRender();
     let r;
     try { r = await api("/api/admin/engines"); } catch (e) { return; }
+    if (!rt.ok()) return;
     const list = r.data.engines || [];
     view.innerHTML = `<div class="panel"><table>
       <thead><tr><th>引擎</th><th>类型</th><th>可用</th><th>存活</th><th>操作</th></tr></thead>
@@ -284,8 +294,10 @@
 
   // ---------- 公告管理 ----------
   async function renderAnnounce() {
+    const rt = beginRender();
     let cur = { text: "", enabled: false };
     try { const r = await api("/api/announcement"); cur = r.data; } catch (e) {}
+    if (!rt.ok()) return;
     view.innerHTML = `<div class="panel" style="max-width:640px">
       <h3>站点公告</h3>
       <p class="muted" style="font-size:12.5px">启用后会在公开首页顶部显示（仅启用且内容非空时显示）。</p>
@@ -307,11 +319,13 @@
 
   // ---------- 个人资料 / 会话管理 ----------
   async function renderProfile() {
+    const rt = beginRender();
     let me = {}, ses = { sessions: [] };
     try {
       const [rm, rs] = await Promise.all([api("/api/me"), api("/api/me/sessions")]);
       me = rm.data; ses = rs.data;
     } catch (e) { return; }
+    if (!rt.ok()) return;
     const verifiedTag = me.isVerified
       ? '<span class="tag on">已验证</span>' : '<span class="tag warn">未验证</span>';
     const statusTag = me.status === "suspended" ? '<span class="tag off">已停用</span>'
@@ -460,7 +474,7 @@
       if (!r.ok) { $("#pw-err").textContent = r.data.error || "失败"; return; }
       mask.style.display = "none";
       toast("密码已更新");
-      afterRender();
+      switchView(state.view);   // 改密前视图被 403 拦截（数据为空），改密后重渲染当前视图
     };
   }
   init();

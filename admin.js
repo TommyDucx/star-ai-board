@@ -408,7 +408,8 @@ function serveAdminFile(res, rel) {
     const ext = path.extname(filePath);
     res.writeHead(200, {
       "Content-Type": ADMIN_MIME[ext] || "application/octet-stream",
-      "Cache-Control": ext === ".html" ? "no-cache" : "public, max-age=604800",
+      // 后台前端每次验证（no-cache）：JS 曾因 7 天强缓存导致修复后浏览器仍跑旧代码（定时器爆炸 bug 无法热修复）
+      "Cache-Control": "no-cache",
       "X-Content-Type-Options": "nosniff", "X-Frame-Options": "SAMEORIGIN",
     });
     res.end(data);
@@ -754,6 +755,8 @@ function handleRequest(req, res) {
     const rel = p.slice("/admin/".length) || "login.html";
     // login / register / reset 公开，其余需登录
     if (rel === "login.html" || rel === "register.html" || rel === "reset.html") { serveAdminFile(res, rel); return true; }
+    // 静态资源（css/js/图片）放行：前端脚本不含敏感数据，数据均走 /api（已有会话 + RBAC 守卫）
+    if (/\.(css|js|png|jpe?g|gif|svg|ico|webp|woff2?|ttf|eot)$/i.test(rel)) { serveAdminFile(res, rel); return true; }
     const s = getSession(req);
     if (!s) {
       if (rel.endsWith(".html")) { res.writeHead(302, { Location: "/admin/login.html" }); res.end(); }
