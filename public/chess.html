@@ -190,7 +190,7 @@
           <button class="btn" onclick="newGame()">新对局</button>
           <button class="btn" onclick="undo()">悔棋</button>
           <button class="btn" onclick="flipBoard()">翻转</button>
-          <button class="btn" onclick="reviewGame()">复盘</button>
+          <button class="btn" onclick="openTutorial()">教程</button>
         </div>
         <div class="status" id="status">准备就绪</div>
         <div class="thinking" id="thinking">Stockfish 分析中…</div>
@@ -220,6 +220,29 @@
   Motion.initCursorLine();
   Motion.initRipple();
   Motion.staggerEnter();
+</script>
+
+<!-- 引擎对战教程弹窗（覆盖层，移动端自适应） -->
+<div id="tut-mask" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(8,10,9,.78);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px">
+  <div style="width:min(620px,100%);max-height:86vh;overflow-y:auto;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:22px 26px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h2 style="margin:0;font-size:20px">引擎对战 · 分步教程</h2>
+      <button onclick="closeTutorial()" style="background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:5px;padding:5px 12px;cursor:pointer">✕ 关闭</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;font-size:13.5px;line-height:1.8;color:var(--muted)">
+      <div><b style="color:var(--signal)">① 发起对战</b><br>拖动白/黑棋子即开始走棋，或点击「AI 推荐」让引擎先出建议。默认白方先手，你走一步引擎应一步。</div>
+      <div><b style="color:var(--signal)">② 选择引擎</b><br>顶部「引擎」下拉有 12 个引擎：Stockfish 18 / Reckless / PlentyChess 等世界顶级（≈3400-3640 分），以及自研 BiaoZi（≈500-800 分，入门友好）。</div>
+      <div><b style="color:var(--signal)">③ 选择难度</b><br>「难度」下拉可选 1320（新手）~ 2600（大师）与满血最强。数值越低引擎故意失误越多，适合练手；「思考时间」控制每次分析的毫秒数，越大棋力越稳。</div>
+      <div><b style="color:var(--signal)">④ 读评估分</b><br>右侧竖条 + 「评估：」数字表示当前局面：正数白方占优、负数黑方占优；下方「推荐走法」列出引擎认为最好的候选着法及分数。</div>
+      <div><b style="color:var(--signal)">⑤ 理解胜败规则</b><br>将死（无法解将）= 输；超时或认输 = 输。无子可动而未被将军 = 逼和（和棋）；三次重复、50 步无吃子、理论和棋（如王 vs 王）也判和。你执的一边被将死即落败，反之获胜。</div>
+      <div><b style="color:var(--signal)">⑥ 复盘与设置</b><br>「悔棋」回退一步；「新对局」重开；「翻转」切换视角；走子记录保存在「对局记录」区，可逐着回看。</div>
+    </div>
+  </div>
+</div>
+<script>
+  function openTutorial() { var m = document.getElementById("tut-mask"); m.style.display = "flex"; }
+  function closeTutorial() { document.getElementById("tut-mask").style.display = "none"; }
+  document.getElementById("tut-mask").addEventListener("click", function (e) { if (e.target === this) this.style.display = "none"; });
 </script>
 </body>
 </html>

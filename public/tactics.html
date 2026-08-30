@@ -22,12 +22,26 @@
     border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column;
     gap: 6px; overflow: hidden; }
   .mod h3 { margin: 0; font-size: 14px; }
+  /* 顶部标签：题库练习 / 每日残局 */
+  .tabs { display: flex; gap: 6px; }
+  .tab { flex: 1; padding: 9px 0; border: 1px solid var(--line); background: transparent;
+    color: var(--muted); font-size: 13px; border-radius: 5px; cursor: pointer; transition: .15s; }
+  .tab.active { background: var(--signal); color: #080a09; font-weight: 700; border-color: var(--signal); }
   .tier-row { display: flex; gap: 6px; }
   .tier-btn { flex: 1; padding: 8px 0; border: 1px solid var(--line); background: transparent;
     color: var(--muted); font-size: 12.5px; border-radius: 5px; cursor: pointer; transition: .15s; }
   .tier-btn.active { background: var(--signal); color: #080a09; font-weight: 700; border-color: var(--signal); }
   .prog { height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
   .prog i { display: block; height: 100%; background: var(--signal); transition: width .3s; }
+  /* 连击徽章栏 */
+  .streak-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    font-size: 12px; color: var(--muted); }
+  .streak-bar b { color: var(--signal); font-family: ui-monospace, Menlo, monospace; }
+  .badges { display: flex; gap: 4px; margin-top: 2px; }
+  .badge { font-size: 10px; padding: 2px 7px; border: 1px solid var(--line); border-radius: 3px;
+    color: var(--faint); opacity: .45; }
+  .badge.unlocked { opacity: 1; color: var(--signal); border-color: var(--signal);
+    background: rgba(215,255,63,0.08); }
   #themes { display: flex; flex-wrap: wrap; gap: 5px; }
   .tag { font-size: 10.5px; padding: 2px 7px; border: 1px solid var(--signal); color: var(--signal);
     border-radius: 3px; font-family: ui-monospace, Menlo, monospace; }
@@ -37,26 +51,10 @@
   .btns .btn { flex: 1; min-width: 84px; }
   #explain { font-size: 12.5px; color: var(--muted); line-height: 1.7;
     border-top: 1px solid var(--line); padding-top: 8px; overflow-y: auto; flex: 1; min-height: 0; }
-  /* chess.com 风格筛选区 */
-  .filter-bar { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; }
-  .filter-label { font-size: 10.5px; color: var(--faint); font-family: ui-monospace, Menlo, monospace; letter-spacing: .15em; }
-  .theme-chips { display: flex; flex-wrap: wrap; gap: 4px; }
-  .theme-chip { font-size: 11px; padding: 3px 8px; border: 1px solid var(--line);
-    color: var(--muted); border-radius: 3px; cursor: pointer; transition: .12s;
-    user-select: none; }
-  .theme-chip:hover { color: var(--paper); border-color: var(--muted); }
-  .theme-chip.active { background: rgba(215,255,63,0.12); color: var(--signal);
-    border-color: var(--signal); }
-  .theme-chip .cnt { color: var(--faint); font-size: 10px; margin-left: 4px; }
-  .theme-chip.active .cnt { color: var(--signal); }
-  .rating-row { display: flex; align-items: center; gap: 6px; }
-  .rating-row input { width: 64px; padding: 4px 6px; background: var(--ink);
-    color: var(--paper); border: 1px solid var(--line); border-radius: 3px;
-    font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
-  .rating-row input:focus { outline: none; border-color: var(--signal); }
-  .reset-f { font-size: 10.5px; padding: 2px 8px; color: var(--muted);
-    border: 1px solid var(--line); border-radius: 3px; cursor: pointer; }
-  .reset-f:hover { color: var(--signal); border-color: var(--signal); }
+  /* 提示高亮：from 蓝 / to 黄 */
+  #board .square-55d63 { position: relative; }
+  .tac-hl-from { box-shadow: inset 0 0 0 4px rgba(46,211,255,.85); }
+  .tac-hl-to { box-shadow: inset 0 0 0 4px rgba(215,255,63,.9); }
   .shake { animation: shake .3s; }
   @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
   @media (max-width: 960px) {
@@ -86,10 +84,22 @@
   <div id="board"></div>
   <div class="side">
     <section class="mod">
-      <h3>难度阶梯</h3>
-      <div class="tier-row" id="tiers"></div>
-      <div class="prog"><i id="prog" style="width:0%"></i></div>
-      <div style="font-size:11px;color:var(--faint);font-family:ui-monospace,Menlo,monospace" id="pinfo"></div>
+      <div class="tabs">
+        <button class="tab active" data-tab="pool">题库练习</button>
+        <button class="tab" data-tab="daily">每日残局</button>
+      </div>
+      <div id="pool-only" style="display:flex;flex-direction:column;gap:6px">
+        <div class="tier-row" id="tiers"></div>
+        <div class="prog"><i id="prog" style="width:0%"></i></div>
+        <div style="font-size:11px;color:var(--faint);font-family:ui-monospace,Menlo,monospace" id="pinfo"></div>
+      </div>
+      <div id="daily-only" style="display:none;gap:6px;flex-direction:column">
+        <div id="dinfo" style="font-size:11px;color:var(--faint);font-family:ui-monospace,Menlo,monospace"></div>
+      </div>
+      <div class="streak-bar">
+        <span>🔥 连击 <b id="streak-cur">0</b> 天 · 最佳 <b id="streak-best">0</b> 天</span>
+        <div class="badges" id="badges"></div>
+      </div>
     </section>
     <section class="mod">
       <h3 id="ptitle">题型</h3>
@@ -101,23 +111,9 @@
         <button class="btn" id="btn-next">下一题</button>
       </div>
     </section>
-    <section class="mod">
-      <h3>筛选</h3>
-      <div class="filter-bar">
-        <div class="filter-label">主题（多选）</div>
-        <div class="theme-chips" id="theme-chips"></div>
-        <div class="rating-row">
-          <span class="filter-label" style="margin-right:4px">评分</span>
-          <input id="rmin" type="number" placeholder="min">
-          <span style="color:var(--faint)">—</span>
-          <input id="rmax" type="number" placeholder="max">
-          <button class="reset-f" id="btn-reset-f">重置</button>
-        </div>
-      </div>
-    </section>
     <section class="mod" style="flex:1 1 auto; min-height:0">
       <h3>解析</h3>
-      <div id="explain">解答正确后显示题型讲解。</div>
+      <div id="explain">解答正确后显示题型讲解；「提示」会在棋盘上高亮应走的起止格。</div>
     </section>
   </div>
 </div>
@@ -125,7 +121,7 @@
 <script src="js/lib/jquery.min.js?v=26"></script>
 <script src="js/lib/chess.min.js?v=26"></script>
 <script src="js/lib/chessboard.min.js?v=26"></script>
-<script src="js/tactics.js?v=1"></script>
+<script src="js/tactics.js?v=2"></script>
 <script src="js/motion.js?v=33"></script>
 <script>
   Motion.initCursorLine();
