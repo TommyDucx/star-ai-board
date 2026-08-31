@@ -23,6 +23,7 @@ const GAMES_LOG = path.join(ADMIN_DIR, "games.log.jsonl");
 const CONFIG_FILE = path.join(ADMIN_DIR, "config.json");
 const SECRET_FILE = path.join(ADMIN_DIR, ".secret");
 const TACTICS_FILE = path.join(ADMIN_DIR, "tactics_progress.json");
+const CHESS_RATING_FILE = path.join(ADMIN_DIR, "chess_rating.json");
 
 fs.mkdirSync(ADMIN_DIR, { recursive: true });
 
@@ -542,6 +543,176 @@ function publicTactics(prog) {
   };
 }
 
+// ---------- 棋力评估（人机对战 Elo，按账号持久化，跨设备同步）----------
+const CHESS_RATING_MIN = 600;
+const CHESS_RATING_MAX = 2600;
+const CHESS_RATING_START = 1200;
+const CHESS_RATING_TIERS = [
+  { key: "beginner", label: "初级", engineElo: 1000, movetime: 700, desc: "适合刚开始系统评估的用户" },
+  { key: "intermediate", label: "中级", engineElo: 1400, movetime: 800, desc: "适合已有基础、想测试稳定性的用户" },
+  { key: "advanced", label: "高级", engineElo: 1800, movetime: 1000, desc: "适合检验战术失误和残局稳定性" },
+];
+const CHESS_TIER_KEYS = CHESS_RATING_TIERS.map(t => t.key);
+function loadChessRatings() {
+  try {
+    const v = JSON.parse(fs.readFileSync(CHESS_RATING_FILE, "utf8"));
+    return (v && typeof v === "object" && !Array.isArray(v)) ? v : {};
+  } catch { return {}; }
+}
+function saveChessRatings(v) { writePrivate(CHESS_RATING_FILE, JSON.stringify(v, null, 2)); }
+function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
+function defaultChessRating() {
+  return {
+    schemaVersion: 1,
+    rating: CHESS_RATING_START,
+    bestRating: CHESS_RATING_START,
+    games: 0, wins: 0, draws: 0, losses: 0,
+    currentStreak: 0, bestStreak: 0,
+    activeGames: {},
+    history: [],
+    updatedAt: Date.now(),
+  };
+}
+function normalizeChessRating(raw) {
+  const r = Object.assign(defaultChessRating(), raw || {});
+  r.schemaVersion = 1;
+  r.rating = clamp(Math.round(+r.rating || CHESS_RATING_START), CHESS_RATING_MIN, CHESS_RATING_MAX);
+  r.bestRating = clamp(Math.round(+r.bestRating || r.rating), CHESS_RATING_MIN, CHESS_RATING_MAX);
+  r.games = Math.max(0, Math.round(+r.games || 0));
+  r.wins = Math.max(0, Math.round(+r.wins || 0));
+  r.draws = Math.max(0, Math.round(+r.draws || 0));
+  r.losses = Math.max(0, Math.round(+r.losses || 0));
+  r.currentStreak = Math.max(0, Math.round(+r.currentStreak || 0));
+  r.bestStreak = Math.max(r.currentStreak, Math.round(+r.bestStreak || 0));
+  r.activeGames = (r.activeGames && typeof r.activeGames === "object" && !Array.isArray(r.activeGames)) ? r.activeGames : {};
+  r.history = Array.isArray(r.history) ? r.history.slice(-50) : [];
+  r.updatedAt = +r.updatedAt || Date.now();
+  return r;
+}
+function getChessRating(userId) {
+  const all = loadChessRatings();
+  if (!all[userId]) {
+    all[userId] = defaultChessRating();
+    saveChessRatings(all);
+  }
+  const norm = normalizeChessRating(all[userId]);
+  if (JSON.stringify(norm) !== JSON.stringify(all[userId])) {
+    all[userId] = norm;
+    saveChessRatings(all);
+  }
+  return norm;
+}
+function publicChessRating(r) {
+  return {
+    rating: r.rating, bestRating: r.bestRating,
+    games: r.games, wins: r.wins, draws: r.draws, losses: r.losses,
+    currentStreak: r.currentStreak, bestStreak: r.bestStreak,
+    lastGameAt: r.lastGameAt || null,
+    recent: r.history.slice(-8).reverse(),
+    tiers: CHESS_RATING_TIERS,
+    limits: { min: CHESS_RATING_MIN, max: CHESS_RATING_MAX, start: CHESS_RATING_START },
+  };
+}
+function startChessRatingGame(userId, body) {
+  const tier = CHESS_TIER_KEYS.includes(body.tier) ? body.tier : "beginner";
+  const color = ["white", "black"].includes(body.color) ? body.color : (Math.random() < 0.5 ? "white" : "black");
+  const tierDef = CHESS_RATING_TIERS.find(t => t.key === tier) || CHESS_RATING_TIERS[0];
+  const all = loadChessRatings();
+  const prog = normalizeChessRating(all[userId]);
+  const gameId = uuid();
+  prog.activeGames = {};
+  prog.activeGames[gameId] = {
+    id: gameId, tier, color,
+    engine: "stockfish", engineElo: tierDef.engineElo, movetime: tierDef.movetime,
+    userRatingAtStart: prog.rating, createdAt: Date.now(),
+  };
+  prog.updatedAt = Date.now();
+  all[userId] = prog;
+  saveChessRatings(all);
+  return prog.activeGames[gameId];
+}
+function calcChessDelta(rating, engineElo, result, metrics) {
+  const score = result === "win" ? 1 : (result === "draw" ? 0.5 : 0);
+  const expected = 1 / (1 + Math.pow(10, (engineElo - rating) / 400));
+  const k = rating < 1000 || rating > 2200 ? 14 : 18;
+  const resultDelta = Math.round(k * (score - expected));
+  const accuracy = clamp(Math.round(+metrics.accuracy || 70), 0, 100);
+  const acpl = clamp(Math.round(+metrics.acpl || 120), 0, 600);
+  const blunders = clamp(Math.round(+metrics.blunders || 0), 0, 20);
+  let quality = 0;
+  if (accuracy >= 88 && acpl <= 50) quality += 5;
+  else if (accuracy >= 78 && acpl <= 90) quality += 2;
+  if (accuracy < 55 || acpl >= 180) quality -= 4;
+  if (blunders >= 3) quality -= 4;
+  else if (blunders === 0 && acpl <= 80) quality += 2;
+  if (result === "win" && quality < 0) quality = Math.max(quality, -2);
+  if (result === "loss" && quality > 0) quality = Math.min(quality, 2);
+  return clamp(resultDelta + quality, -24, 24);
+}
+function finishChessRatingGame(userId, body) {
+  const all = loadChessRatings();
+  const prog = normalizeChessRating(all[userId]);
+  const gameId = String(body.gameId || "");
+  const active = prog.activeGames[gameId];
+  if (!active) return { error: "测评对局不存在或已结算" };
+  const result = ["win", "draw", "loss"].includes(body.result) ? body.result : null;
+  if (!result) return { error: "对局结果无效" };
+  const moves = clamp(Math.round(+body.moves || 0), 0, 300);
+  if (moves < 8 && result === "draw") return { error: "有效手数不足，无法结算测评" };
+  const metrics = body.metrics && typeof body.metrics === "object" ? body.metrics : {};
+  const before = prog.rating;
+  const delta = calcChessDelta(before, active.engineElo, result, metrics);
+  const after = clamp(before + delta, CHESS_RATING_MIN, CHESS_RATING_MAX);
+  prog.rating = after;
+  prog.bestRating = Math.max(prog.bestRating, after);
+  prog.games += 1;
+  if (result === "win") {
+    prog.wins += 1;
+    prog.currentStreak += 1;
+    prog.bestStreak = Math.max(prog.bestStreak, prog.currentStreak);
+  } else {
+    if (result === "draw") prog.draws += 1;
+    else prog.losses += 1;
+    prog.currentStreak = 0;
+  }
+  const rec = {
+    gameId, tier: active.tier, result, color: active.color,
+    engine: active.engine, engineElo: active.engineElo,
+    before, after, delta, moves,
+    accuracy: clamp(Math.round(+metrics.accuracy || 0), 0, 100),
+    acpl: clamp(Math.round(+metrics.acpl || 0), 0, 600),
+    blunders: clamp(Math.round(+metrics.blunders || 0), 0, 20),
+    mistakes: clamp(Math.round(+metrics.mistakes || 0), 0, 50),
+    playedAt: Date.now(),
+  };
+  prog.history.push(rec);
+  prog.history = prog.history.slice(-50);
+  prog.lastGameAt = rec.playedAt;
+  delete prog.activeGames[gameId];
+  prog.updatedAt = Date.now();
+  all[userId] = prog;
+  saveChessRatings(all);
+  return { progress: prog, record: rec };
+}
+function chessLeaderboard(limit) {
+  const all = loadChessRatings();
+  const accounts = getAccounts();
+  const byId = new Map(accounts.map(a => [a.id, a]));
+  return Object.entries(all).map(([userId, raw]) => {
+    const r = normalizeChessRating(raw);
+    const acc = byId.get(userId);
+    if (!acc || acc.status !== "active") return null;
+    return {
+      userId, username: acc.username,
+      rating: r.rating, bestRating: r.bestRating,
+      games: r.games, wins: r.wins, draws: r.draws, losses: r.losses,
+      currentStreak: r.currentStreak,
+    };
+  }).filter(x => x && x.games > 0)
+    .sort((a, b) => b.rating - a.rating || b.games - a.games || a.username.localeCompare(b.username))
+    .slice(0, clamp(Math.round(+limit || 3), 1, 20));
+}
+
 // ---------- 系统指标 ----------
 let cpuLast = null, cpuCurrent = 0;
 function cpuTimes() {
@@ -717,6 +888,22 @@ async function handleApi(req, res, u) {
     });
   }
 
+  // 棋力评估排行榜公开展示；个人棋力和测评结算仍需登录
+  if (p === "/api/chess-rating/leaderboard" && m === "GET") {
+    return json(res, 200, { leaderboard: chessLeaderboard(u.searchParams.get("limit") || 3) });
+  }
+  if (p === "/api/chess-rating/me" && m === "GET") {
+    const peek = getSession(req);
+    if (!peek) return json(res, 200, { authenticated: false, progress: null });
+    const acc = getAccounts().find(a => a.id === peek.userId);
+    if (!acc || acc.status !== "active") return json(res, 200, { authenticated: false, progress: null });
+    return json(res, 200, {
+      authenticated: true,
+      mustChange: !!acc.mustChange,
+      progress: acc.mustChange ? null : publicChessRating(getChessRating(peek.userId)),
+    });
+  }
+
   // 注册（开放自助注册：仅用户名 + 密码，验证码/联系方式已移除）
   if (p === "/api/register" && m === "POST") {
     const ip = clientIp(req);
@@ -872,6 +1059,35 @@ async function handleApi(req, res, u) {
     if (typeof body.solved !== "boolean") return json(res, 400, { error: "缺少判定结果" });
     const { prog, newly } = applyTacticsResult(s.userId, tier, body.solved);
     return json(res, 200, { progress: publicTactics(prog), newly });
+  }
+
+  // 棋力评估（账号持久化，跨设备同步）
+  if (p === "/api/chess-rating/config" && m === "GET") {
+    return json(res, 200, {
+      tiers: CHESS_RATING_TIERS,
+      limits: { min: CHESS_RATING_MIN, max: CHESS_RATING_MAX, start: CHESS_RATING_START },
+    });
+  }
+  if (p === "/api/chess-rating/game/start" && m === "POST") {
+    const body = await readBody(req);
+    if (body.tier && !CHESS_TIER_KEYS.includes(body.tier)) return json(res, 400, { error: "难度档无效" });
+    if (body.color && !["white", "black", "random"].includes(body.color)) return json(res, 400, { error: "执棋方无效" });
+    const game = startChessRatingGame(s.userId, body);
+    return json(res, 200, {
+      gameId: game.id, tier: game.tier, color: game.color,
+      engine: game.engine, engineElo: game.engineElo, movetime: game.movetime,
+      progress: publicChessRating(getChessRating(s.userId)),
+    });
+  }
+  if (p === "/api/chess-rating/game/finish" && m === "POST") {
+    const body = await readBody(req);
+    const result = finishChessRatingGame(s.userId, body);
+    if (result.error) return json(res, 400, { error: result.error });
+    return json(res, 200, {
+      record: result.record,
+      progress: publicChessRating(result.progress),
+      leaderboard: chessLeaderboard(3),
+    });
   }
 
   // ===================== RBAC 受保护资源 =====================

@@ -62,6 +62,17 @@
     padding: 10px 16px; min-width: 116px; text-align: center; }
   .stat b { display: block; color: var(--signal); font-size: 15px; letter-spacing: .08em; }
   .stat span { font-size: 9.5px; color: var(--muted); letter-spacing: .18em; }
+  .home-rank { max-width: 1080px; margin: -22px auto 44px; padding: 0 24px; }
+  .home-rank-inner { border: 1px solid var(--line); background: var(--surface); padding: 18px 20px; }
+  .home-rank-head { display: flex; justify-content: space-between; gap: 14px; align-items: center; margin-bottom: 12px; }
+  .home-rank-head b { color: var(--signal); letter-spacing: .08em; }
+  .home-rank-head a { color: var(--muted); text-decoration: none; font-size: 12px; }
+  .home-rank-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .home-rank-row { border: 1px solid var(--line); border-radius: 6px; padding: 11px 12px; min-width: 0;
+    display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
+  .home-rank-row .pos { color: var(--signal); font-family: ui-monospace, Menlo, monospace; }
+  .home-rank-row .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .home-rank-row .score { color: var(--muted); font-family: ui-monospace, Menlo, monospace; }
 
   .feats { max-width: 1080px; margin: 8px auto 56px; padding: 0 24px; display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
   .feat { border: 1px solid var(--line); background: var(--surface); padding: 26px 22px; position: relative; }
@@ -76,6 +87,7 @@
   @media (max-width: 860px) {
     .hero { grid-template-columns: 1fr; } .feats { grid-template-columns: 1fr; }
     .hero-right { grid-template-columns: 1fr; } .top .brand { display: none; }
+    .home-rank-list { grid-template-columns: 1fr; }
   }
   @media (max-width: 560px) {
     .top { padding: 0 16px; gap: 10px; }
@@ -150,6 +162,18 @@
   <div class="stat" data-page-node-id="0NpV40O6zhJ5OdVtzcsayi"><b data-page-node-id="f4Fghdj6lhAQ8CIy3DG2oC">实时</b><span data-page-node-id="lP84bSKrF27KspNsDum9bg">落子即分析</span></div>
 </div>
 
+<section class="home-rank">
+  <div class="home-rank-inner">
+    <div class="home-rank-head">
+      <b>棋力评估排行榜 · TOP 3</b>
+      <a href="assessment.html" data-nav>参加测评 →</a>
+    </div>
+    <div class="home-rank-list" id="home-rank-list">
+      <div class="home-rank-row"><span class="pos">--</span><span class="name">排行榜读取中</span><span class="score">--</span></div>
+    </div>
+  </div>
+</section>
+
 <div class="feats" data-page-node-id="RVyXXI8Nw2FgdylrVacjEa">
   <div class="feat magnetic ripple-host" data-page-node-id="zCLgiiHTlLlGX5JKL0KqK4">
     <div class="fid" data-page-node-id="6HRRhQbtVmAYAU7Rbb2BSB">A-01</div>
@@ -186,6 +210,16 @@
 fetch("/api/announcement").then(r=>r.json()).then(d=>{
   if(d && d.enabled && d.text){ var el=document.getElementById("site-ann"); el.textContent="📢 "+d.text; el.style.display="block"; }
 }).catch(()=>{});
+function escRank(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+fetch("/api/chess-rating/leaderboard?limit=3").then(function(r){return r.json();}).then(function(d){
+  var box=document.getElementById("home-rank-list"); if(!box)return;
+  var list=d.leaderboard||[];
+  box.innerHTML=list.length?list.map(function(x,i){
+    return '<div class="home-rank-row"><span class="pos">#'+(i+1)+'</span><span class="name">'+escRank(x.username)+'</span><span class="score">'+x.rating+'</span></div>';
+  }).join(""):'<div class="home-rank-row"><span class="pos">--</span><span class="name">暂无已结算测评</span><span class="score">--</span></div>';
+}).catch(function(){
+  var box=document.getElementById("home-rank-list"); if(box)box.innerHTML='<div class="home-rank-row"><span class="pos">--</span><span class="name">排行榜暂不可用</span><span class="score">--</span></div>';
+});
 </script>
 </body>
 </html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>棋力评估 · 人机测评 — S.T.A.R.</title>
+<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
+<link rel="stylesheet" href="css/site.css?v=32">
+<link rel="stylesheet" href="css/motion.css?v=31">
+<link rel="stylesheet" href="css/chessboard.min.css?v=26">
+<style>
+  html, body { min-height: 100%; }
+  body { display: flex; flex-direction: column; overflow-x: hidden; }
+  .page { flex: 1; display: grid; grid-template-columns: minmax(320px, 520px) minmax(320px, 430px);
+    gap: 18px; align-items: start; justify-content: center; padding: 18px; }
+  .board-shell { display: flex; gap: 10px; align-items: stretch; justify-content: center; min-width: 0; }
+  .board-zone { position: relative; width: min(520px, calc(100vw - 54px)); }
+  #board { width: min(520px, calc(100vw - 54px)); height: min(520px, calc(100vw - 54px)); }
+  .board-b72b1 .square-55d63 { position: relative; }
+  .star-hl { position: absolute; pointer-events: none; }
+  .star-hl.sel { inset: 0; background: rgba(215,255,63,.30); }
+  .star-hl.dot { left: 30%; top: 30%; width: 40%; height: 40%; border-radius: 50%; background: rgba(215,255,63,.50); }
+  .panel { border: 1px solid var(--line); background: var(--surface); border-radius: 8px;
+    padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .panel h1 { font-size: 26px; margin: 0; letter-spacing: .04em; }
+  .muted { color: var(--muted); font-size: 13px; line-height: 1.7; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .metric { border: 1px solid var(--line); background: rgba(255,255,255,.025); border-radius: 6px; padding: 10px; }
+  .metric b { display: block; color: var(--signal); font-size: 19px; font-family: ui-monospace, Menlo, monospace; }
+  .metric span { color: var(--faint); font-size: 11px; letter-spacing: .08em; }
+  .row { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; }
+  label { color: var(--muted); font-size: 12px; }
+  select { min-width: 0; }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn.primary { background: var(--signal); color: #080a09; border-color: var(--signal); font-weight: 800; }
+  .btn[disabled] { opacity: .45; cursor: not-allowed; }
+  .status { min-height: 38px; border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
+    color: var(--muted); font-size: 13px; line-height: 1.5; }
+  .status.alert { color: #ff7b6e; border-color: rgba(255,90,77,.45); }
+  .moves { max-height: 168px; overflow-y: auto; border-top: 1px solid var(--line); padding-top: 8px; }
+  .moves table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .moves td { padding: 2px 4px; }
+  .moves .num { color: var(--faint); width: 28px; }
+  .moves .mv { font-family: ui-monospace, Menlo, monospace; }
+  .report { display: none; border: 1px solid rgba(215,255,63,.38); background: rgba(215,255,63,.06);
+    border-radius: 8px; padding: 14px; }
+  .report.show { display: block; }
+  .report h2 { margin: 0 0 8px; font-size: 18px; }
+  .report-line { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,.06); font-size: 13px; }
+  .report-line:last-child { border-bottom: 0; }
+  .thinking { display: none; color: var(--signal); font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+  .thinking.on { display: block; }
+  @media (max-width: 980px) {
+    .page { grid-template-columns: 1fr; }
+    .panel { width: min(520px, calc(100vw - 36px)); margin: 0 auto; }
+  }
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="pixel-fault" aria-hidden="true"></div>
+<div class="topbar">
+  <a href="main.html" class="logo" data-nav>←</a>
+  <span class="crumb">CHESS / RATING ASSESSMENT</span>
+  <span class="flex1"></span>
+  <a href="/admin/login.html" class="admin-entry" data-nav>
+    <svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    <span class="txt">管理后台</span>
+  </a>
+</div>
+
+<main class="page enter-node">
+  <section class="board-shell">
+    <div class="board-zone"><div id="board"></div></div>
+  </section>
+
+  <section class="panel">
+    <div>
+      <div class="muted" id="login-state">正在读取账号状态...</div>
+      <h1>人机对战棋力评估</h1>
+      <p class="muted">正式测评只使用 Stockfish 限强档位。每局结束后，系统根据胜负和本局走法质量小幅调整账号棋力。</p>
+    </div>
+
+    <div class="grid">
+      <div class="metric"><b id="rating-now">--</b><span>当前棋力</span></div>
+      <div class="metric"><b id="rating-best">--</b><span>历史最高</span></div>
+      <div class="metric"><b id="games-now">--</b><span>已测评局数</span></div>
+      <div class="metric"><b id="streak-now">--</b><span>当前连胜</span></div>
+    </div>
+
+    <div class="row"><label>测评难度</label>
+      <select id="tier">
+        <option value="beginner">初级 · Stockfish 1000</option>
+        <option value="intermediate">中级 · Stockfish 1400</option>
+        <option value="advanced">高级 · Stockfish 1800</option>
+      </select>
+    </div>
+    <div class="row"><label>你的执棋方</label>
+      <select id="color">
+        <option value="white">白方（先手）</option>
+        <option value="black">黑方（后手）</option>
+        <option value="random">随机</option>
+      </select>
+    </div>
+
+    <div class="btns">
+      <button class="btn primary" id="start-btn" disabled>开始测评</button>
+      <button class="btn" id="resign-btn" disabled>认输结算</button>
+      <button class="btn" id="flip-btn">翻转棋盘</button>
+    </div>
+
+    <div class="status" id="status">请登录后开始测评。</div>
+    <div class="thinking" id="thinking">Stockfish 思考中...</div>
+
+    <div class="report" id="report"></div>
+
+    <div>
+      <div class="muted">对局记录</div>
+      <div class="moves"><table id="movelist"><tbody></tbody></table></div>
+    </div>
+  </section>
+</main>
+
+<script src="js/lib/jquery.min.js?v=26"></script>
+<script src="js/lib/chess.min.js?v=26"></script>
+<script src="js/lib/chessboard.min.js?v=26"></script>
+<script src="js/assessment.js?v=1"></script>
+<script src="js/motion.js?v=33"></script>
+<script>
+  Motion.initCursorLine();
+  Motion.initRipple();
+  Motion.staggerEnter();
+</script>
+</body>
+</html>
