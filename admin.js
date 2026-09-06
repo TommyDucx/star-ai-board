@@ -24,6 +24,7 @@ const CONFIG_FILE = path.join(ADMIN_DIR, "config.json");
 const SECRET_FILE = path.join(ADMIN_DIR, ".secret");
 const TACTICS_FILE = path.join(ADMIN_DIR, "tactics_progress.json");
 const CHESS_RATING_FILE = path.join(ADMIN_DIR, "chess_rating.json");
+const ENGAGEMENT_FILE = path.join(ADMIN_DIR, "engagement.json");
 
 fs.mkdirSync(ADMIN_DIR, { recursive: true });
 
@@ -713,6 +714,133 @@ function chessLeaderboard(limit) {
     .slice(0, clamp(Math.round(+limit || 3), 1, 20));
 }
 
+// ---------- 成长中心：每日任务、活跃报告与称号 ----------
+// 所有可领奖条件均由服务端已有的题型/测评记录推导，前端不能提交完成次数。
+const DAILY_QUESTS = [
+  { id: "check-in", label: "今日报到", desc: "打开成长中心，领取今日补给", target: 1, rewardXp: 10, rewardCoins: 5, type: "visit" },
+  { id: "solve-one", label: "热身一题", desc: "今日完成 1 道题型", target: 1, rewardXp: 30, rewardCoins: 10, type: "solved" },
+  { id: "solve-three", label: "战术连击", desc: "今日完成 3 道题型", target: 3, rewardXp: 55, rewardCoins: 20, type: "solved" },
+  { id: "assessment", label: "实战校准", desc: "今日完成 1 局棋力测评", target: 1, rewardXp: 70, rewardCoins: 30, type: "assessment" },
+];
+const HONOR_DEFS = [
+  { id:"rookie", icon:"♙", name:"星尘学徒", desc:"完成第一道题型", type:"solved", target:1 },
+  { id:"scout", icon:"✦", name:"战术斥候", desc:"累计完成 10 题", type:"solved", target:10 },
+  { id:"captain", icon:"♜", name:"棋盘队长", desc:"累计完成 50 题", type:"solved", target:50 },
+  { id:"marshal", icon:"♛", name:"百题统帅", desc:"累计完成 100 题", type:"solved", target:100 },
+  { id:"archivist", icon:"⌘", name:"题库守望者", desc:"累计完成 200 题", type:"solved", target:200 },
+  { id:"spark3", icon:"⚡", name:"三连闪击", desc:"达成 3 连胜", type:"bestStreak", target:3 },
+  { id:"spark5", icon:"☄", name:"五连星火", desc:"达成 5 连胜", type:"bestStreak", target:5 },
+  { id:"spark10", icon:"✹", name:"十连风暴", desc:"达成 10 连胜", type:"bestStreak", target:10 },
+  { id:"rated", icon:"◎", name:"初次定级", desc:"完成 1 局棋力测评", type:"games", target:1 },
+  { id:"veteran", icon:"◈", name:"实战老兵", desc:"完成 10 局棋力测评", type:"games", target:10 },
+  { id:"iron", icon:"◆", name:"铁壁棋手", desc:"完成 50 局棋力测评", type:"games", target:50 },
+  { id:"rise1250", icon:"▲", name:"破晓 1250", desc:"棋力达到 1250", type:"rating", target:1250 },
+  { id:"rise1400", icon:"▲", name:"锋芒 1400", desc:"棋力达到 1400", type:"rating", target:1400 },
+  { id:"rise1600", icon:"▲", name:"恒星 1600", desc:"棋力达到 1600", type:"rating", target:1600 },
+  { id:"rise1800", icon:"▲", name:"星舰 1800", desc:"棋力达到 1800", type:"rating", target:1800 },
+  { id:"active3", icon:"☀", name:"三日航标", desc:"连续活跃 3 天", type:"activeStreak", target:3 },
+  { id:"active7", icon:"☾", name:"七日轨道", desc:"连续活跃 7 天", type:"activeStreak", target:7 },
+  { id:"active30", icon:"✺", name:"月度引擎", desc:"连续活跃 30 天", type:"activeStreak", target:30 },
+];
+function chinaDay(ts = Date.now()) {
+  const parts = new Intl.DateTimeFormat("en", { timeZone:"Asia/Shanghai", year:"numeric", month:"2-digit", day:"2-digit" }).formatToParts(new Date(ts));
+  const get = t => parts.find(x => x.type === t).value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+function previousDay(day) {
+  const [y, m, d] = day.split("-").map(Number);
+  return chinaDay(Date.UTC(y, m - 1, d - 1));
+}
+function loadEngagement() {
+  try { const v = JSON.parse(fs.readFileSync(ENGAGEMENT_FILE, "utf8")); return (v && typeof v === "object" && !Array.isArray(v)) ? v : {}; }
+  catch { return {}; }
+}
+function saveEngagement(v) { writePrivate(ENGAGEMENT_FILE, JSON.stringify(v, null, 2)); }
+function defaultEngagement() {
+  return { schemaVersion:1, xp:0, coins:0, activeDays:0, activeStreak:0, bestActiveStreak:0, lastActiveDay:"", claimed:{}, reports:{}, updatedAt:Date.now() };
+}
+function normalizeEngagement(raw) {
+  const e = Object.assign(defaultEngagement(), raw || {});
+  e.schemaVersion = 1;
+  e.xp = Math.max(0, Math.round(+e.xp || 0)); e.coins = Math.max(0, Math.round(+e.coins || 0));
+  e.activeDays = Math.max(0, Math.round(+e.activeDays || 0)); e.activeStreak = Math.max(0, Math.round(+e.activeStreak || 0));
+  e.bestActiveStreak = Math.max(e.activeStreak, Math.round(+e.bestActiveStreak || 0));
+  e.claimed = (e.claimed && typeof e.claimed === "object" && !Array.isArray(e.claimed)) ? e.claimed : {};
+  e.reports = (e.reports && typeof e.reports === "object" && !Array.isArray(e.reports)) ? e.reports : {};
+  return e;
+}
+function levelForXp(xp) {
+  let level = 1;
+  while ((level + 1) * level * 50 <= xp) level++;
+  const start = level * (level - 1) * 50, next = (level + 1) * level * 50;
+  return { level, current:xp - start, needed:next - start, percent:Math.min(100, Math.round((xp - start) / (next - start) * 100)) };
+}
+function dayActivity(day, tactics, rating) {
+  let solved = 0, assessments = 0;
+  for (const attempt of Object.values((tactics && tactics.attempts) || {})) {
+    if (attempt && attempt.result && attempt.result.solved && chinaDay(attempt.result.at || 0) === day) solved++;
+  }
+  for (const record of ((rating && rating.history) || [])) if (chinaDay(record.playedAt || 0) === day) assessments++;
+  return { visit:1, solved, assessments };
+}
+function honorValue(type, tactics, rating, engagement) {
+  const stats = tactics.stats || {};
+  if (type === "solved") return stats.totalPassedAllTiers || 0;
+  if (type === "bestStreak") return stats.bestStreakAllTiers || 0;
+  if (type === "games") return rating.games || 0;
+  if (type === "rating") return rating.bestRating || rating.rating || 0;
+  if (type === "activeStreak") return engagement.bestActiveStreak || 0;
+  return 0;
+}
+function publicEngagement(userId, touch) {
+  const all = loadEngagement(), today = chinaDay();
+  const e = normalizeEngagement(all[userId]);
+  if (touch && e.lastActiveDay !== today) {
+    e.activeDays++;
+    e.activeStreak = e.lastActiveDay === previousDay(today) ? e.activeStreak + 1 : 1;
+    e.bestActiveStreak = Math.max(e.bestActiveStreak, e.activeStreak);
+    e.lastActiveDay = today;
+  }
+  const tactics = getTactics(userId), rating = getChessRating(userId), activity = dayActivity(today, tactics, rating);
+  const claimedToday = e.claimed[today] || {};
+  const quests = DAILY_QUESTS.map(q => {
+    const progress = q.type === "assessment" ? activity.assessments : activity[q.type] || 0;
+    return Object.assign({}, q, { progress:Math.min(q.target, progress), complete:progress >= q.target, claimed:!!claimedToday[q.id] });
+  });
+  const honors = HONOR_DEFS.map(h => {
+    const progress = honorValue(h.type, tactics, rating, e);
+    return Object.assign({}, h, { progress:Math.min(h.target, progress), unlocked:progress >= h.target });
+  });
+  const complete = quests.filter(q => q.complete).length, claimed = quests.filter(q => q.claimed).length;
+  const report = {
+    day:today, generatedAt:Date.now(), solved:activity.solved, assessments:activity.assessments,
+    activeStreak:e.activeStreak, complete, claimed,
+    headline: complete === quests.length ? "今日航线已满格，明天继续保持节奏。" : activity.solved ? "战术引擎正在升温，再完成一个任务就能拿到更多补给。" : "今日航线已经开启，先用一题让棋感回到棋盘上。",
+  };
+  e.reports[today] = report;
+  for (const day of Object.keys(e.reports).sort().slice(0, -60)) delete e.reports[day];
+  e.updatedAt = Date.now(); all[userId] = e; saveEngagement(all);
+  return { profile:{ xp:e.xp, coins:e.coins, activeDays:e.activeDays, activeStreak:e.activeStreak, bestActiveStreak:e.bestActiveStreak, level:levelForXp(e.xp) }, quests, honors, report, reports:Object.values(e.reports).sort((a,b) => String(b.day).localeCompare(String(a.day))).slice(0, 14) };
+}
+function claimDailyQuest(userId, questId) {
+  const quest = DAILY_QUESTS.find(q => q.id === questId);
+  if (!quest) return { error:"任务不存在" };
+  const state = publicEngagement(userId, true), item = state.quests.find(q => q.id === questId);
+  if (!item.complete) return { error:"任务尚未完成" };
+  if (item.claimed) return { error:"今日已领取该奖励" };
+  const all = loadEngagement(), e = normalizeEngagement(all[userId]), today = chinaDay();
+  if (!e.claimed[today]) e.claimed[today] = {};
+  e.claimed[today][questId] = Date.now(); e.xp += quest.rewardXp; e.coins += quest.rewardCoins; e.updatedAt = Date.now(); all[userId] = e; saveEngagement(all);
+  return { reward:{ xp:quest.rewardXp, coins:quest.rewardCoins }, engagement:publicEngagement(userId, false) };
+}
+function engagementLeaderboard(limit) {
+  const all = loadEngagement(), accounts = new Map(getAccounts().map(a => [a.id, a]));
+  return Object.entries(all).map(([userId, raw]) => {
+    const a = accounts.get(userId), e = normalizeEngagement(raw);
+    return a && a.status === "active" ? { username:a.username, xp:e.xp, level:levelForXp(e.xp).level, activeStreak:e.bestActiveStreak } : null;
+  }).filter(Boolean).sort((a,b) => b.xp - a.xp || b.activeStreak - a.activeStreak || a.username.localeCompare(b.username)).slice(0, clamp(Math.round(+limit || 5), 1, 20));
+}
+
 // ---------- 系统指标 ----------
 let cpuLast = null, cpuCurrent = 0;
 function cpuTimes() {
@@ -892,6 +1020,9 @@ async function handleApi(req, res, u) {
   if (p === "/api/chess-rating/leaderboard" && m === "GET") {
     return json(res, 200, { leaderboard: chessLeaderboard(u.searchParams.get("limit") || 3) });
   }
+  if (p === "/api/engagement/leaderboard" && m === "GET") {
+    return json(res, 200, { leaderboard: engagementLeaderboard(u.searchParams.get("limit") || 5) });
+  }
   if (p === "/api/chess-rating/me" && m === "GET") {
     const peek = getSession(req);
     if (!peek) return json(res, 200, { authenticated: false, progress: null });
@@ -1001,6 +1132,17 @@ async function handleApi(req, res, u) {
       const n = logoutOthers(s.userId, cur);
       return json(res, 200, { ok: true, removed: n });
     }
+  }
+
+  // 成长中心：打开页面即生成当天活跃报告；领奖时再次由服务端校验完成条件。
+  if (p === "/api/engagement/me" && m === "GET") {
+    return json(res, 200, publicEngagement(s.userId, true));
+  }
+  if (p === "/api/engagement/claim" && m === "POST") {
+    const body = await readBody(req);
+    const result = claimDailyQuest(s.userId, String(body.questId || ""));
+    if (result.error) return json(res, 400, { error:result.error });
+    return json(res, 200, Object.assign({ ok:true }, result));
   }
 
   // 题型闯关进度（账号持久化，跨设备同步）

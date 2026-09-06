@@ -24,6 +24,14 @@ body { background: var(--ink); color: var(--paper); font-family: -apple-system, 
 .admin-entry:hover { background: rgba(46,211,255,.14); box-shadow: 0 0 26px #2ed3ff33, inset 0 0 12px #2ed3ff22; transform: translateY(-1px); }
 .admin-entry svg { width: 13px; height: 13px; flex: none; }
 .admin-entry .lk { display: inline-block; }
+/* 普通棋手入口：账号中心和管理后台不是同一个概念，避免把登录误解为仅管理员可用。 */
+.account-entry { font-family: ui-monospace, Menlo, monospace; font-size: 12px; letter-spacing: .12em;
+  display: inline-flex; align-items: center; gap: 7px; padding: 10px 14px; cursor: pointer;
+  color: var(--signal); border: 1px solid #d7ff3f55; background: rgba(215,255,63,.06);
+  text-decoration: none; font-weight: 600; white-space: nowrap;
+  transition: box-shadow .25s var(--ease-out), transform .2s var(--ease-out), background .2s; }
+.account-entry:hover { background: rgba(215,255,63,.13); box-shadow: 0 0 26px #d7ff3f2e, inset 0 0 12px #d7ff3f1b; transform: translateY(-1px); }
+.account-entry svg { width: 14px; height: 14px; flex: none; }
 .mono { font-family: ui-monospace, Menlo, monospace; }
 .row { margin-bottom: 14px; }
 .row label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }

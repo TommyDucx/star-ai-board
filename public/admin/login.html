@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>S.T.A.R. 后台 · 登录</title>
+<title>S.T.A.R. · 登录</title>
 <link rel="stylesheet" href="css/admin.css">
 <link rel="stylesheet" href="../css/motion.css">
 </head>
@@ -11,8 +11,8 @@
 <div class="scanlines" aria-hidden="true"></div>
 <div class="login-wrap">
   <div class="login-card enter-node magnetic ripple-host">
-    <div class="login-logo">S.T.A.R.<span>· ADMIN</span></div>
-    <div class="login-sub">后台管理系统 · 仅授权人员</div>
+    <div class="login-logo">S.T.A.R.<span>· ACCOUNT</span></div>
+    <div class="login-sub">登录后同步你的训练进度与棋力记录</div>
     <form id="login-form" autocomplete="off">
       <label>账号
         <input type="text" id="username" name="username" placeholder="admin" required>
@@ -57,8 +57,8 @@ form.addEventListener("submit", async (e) => {
     });
     const data = await r.json();
     if (!r.ok) { errEl.textContent = data.error || "登录失败"; btn.disabled = false; btn.textContent = "登 录"; return; }
-    // 跳转到看板；若需强制改密，带 ?change=1 由看板弹窗
-    location.href = data.mustChange ? "index.html?change=1" : "index.html";
+    // 普通棋手进入账号中心；管理角色保留后台看板入口。
+    location.href = data.mustChange ? "/account.html" : (data.role === "member" ? "/account.html" : "index.html");
   } catch (e) {
     errEl.textContent = "网络错误";
     btn.disabled = false; btn.textContent = "登 录";
