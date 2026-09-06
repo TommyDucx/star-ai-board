@@ -52,3 +52,6 @@ admin/auth_codes.json
 admin/reset_tokens.json
 admin/games.log.jsonl
 admin/config.json
+admin/chess_rating.json
+admin/engagement.json
+admin/shared_library.json

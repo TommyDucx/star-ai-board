@@ -7,6 +7,7 @@
 <title>S.T.A.R. — 本地引擎 AI 推荐</title>
 <link rel="stylesheet" href="css/site.css?v=32">
 <link rel="stylesheet" href="css/motion.css?v=31">
+<link rel="stylesheet" href="css/shared-library.css?v=1">
 <style>
   /* ===== 侧栏 + 内容区布局 ===== */
   html, body { height: 100%; }
@@ -115,6 +116,10 @@
       <span class="ico">♙</span>
       <div><div class="label">棋力评估</div><div class="sub">RATING · ACCOUNT</div></div>
     </div>
+    <div class="side-item" data-mod="library" onclick="sel('library', this)">
+      <span class="ico">▤</span>
+      <div><div class="label">共享棋谱库</div><div class="sub">LIBRARY · COMMUNITY</div></div>
+    </div>
   </aside>
 
   <main class="content" id="content">
@@ -143,6 +148,7 @@
 </div>
 
 <script src="js/motion.js?v=33"></script>
+<script src="js/shared-library.js?v=1"></script>
 <script>
   // 侧栏切换视图：引擎对战（默认，b2a49a1 风格）/ 经典题型练习
   var VIEW = {
@@ -204,6 +210,9 @@
           '<a class="enter magnetic ripple-host" href="assessment.html" data-nav>开始测评 →</a>' +
         '</div>' +
       '</div>';
+    },
+    library: function () {
+      return '<div id="shared-library-root"></div>';
     }
   };
   function loadRatingRank() {
@@ -225,6 +234,7 @@
     el.classList.add("active");
     document.getElementById("content").innerHTML = VIEW[k]();
     if (k === "assessment") loadRatingRank();
+    if (k === "library" && window.SharedLibrary) SharedLibrary.mount(document.getElementById("shared-library-root"));
     if (window.Motion) { Motion.staggerEnter(); Motion.initRipple(); Motion.initMagnetic(); Motion.initParallax(); }
   }
   // 默认显示「引擎对战」（b2a49a1 风格 hero + 左右两卡：围棋/国际象棋）

@@ -25,6 +25,7 @@ const SECRET_FILE = path.join(ADMIN_DIR, ".secret");
 const TACTICS_FILE = path.join(ADMIN_DIR, "tactics_progress.json");
 const CHESS_RATING_FILE = path.join(ADMIN_DIR, "chess_rating.json");
 const ENGAGEMENT_FILE = path.join(ADMIN_DIR, "engagement.json");
+const LIBRARY_FILE = path.join(ADMIN_DIR, "shared_library.json");
 
 fs.mkdirSync(ADMIN_DIR, { recursive: true });
 
@@ -841,6 +842,154 @@ function engagementLeaderboard(limit) {
   }).filter(Boolean).sort((a,b) => b.xp - a.xp || b.activeStreak - a.activeStreak || a.username.localeCompare(b.username)).slice(0, clamp(Math.round(+limit || 5), 1, 20));
 }
 
+// ---------- 共享棋谱库：目录、研读架、投稿与讨论 ----------
+// 谱库内容按账号归属；公开浏览不要求登录，但收藏、投稿和讨论必须有会话。
+const LIBRARY_CATEGORIES = [
+  { id:"opening", name:"开局档案", mark:"OP" },
+  { id:"middlegame", name:"中局计划", mark:"MP" },
+  { id:"tactics", name:"战术专题", mark:"TC" },
+  { id:"endgame", name:"残局手册", mark:"EG" },
+  { id:"masterpiece", name:"名局复盘", mark:"GM" },
+];
+const LIBRARY_CATEGORY_IDS = new Set(LIBRARY_CATEGORIES.map(x => x.id));
+function librarySeedEntry(id, category, title, summary, tags, pgn, daysAgo) {
+  const now = Date.now() - daysAgo * 864e5;
+  return { id, category, title, summary, tags, pgn, authorId:"", author:"S.T.A.R. 档案室", createdAt:now, updatedAt:now, stars:{}, comments:[], copies:0 };
+}
+function defaultLibrary() {
+  return {
+    schemaVersion:1,
+    entries:[
+      librarySeedEntry("star-opening-ruy", "opening", "西班牙开局：中心反击的 12 个节点", "从 e4-e5 的张力开始，辨认何时该完成发展、何时该用 d5 夺回中心。", ["西班牙开局","中心","发展"], "[Event \"Study: Ruy Lopez\"]\n[Result \"*\"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7 *", 18),
+      librarySeedEntry("star-tactic-pin", "tactics", "绝对牵制：别只看被牵住的子", "用五个短局面训练你先找国王身后的线路，再决定交换还是加压。", ["牵制","线路","战术"], "[Event \"Study: Absolute pin\"]\n[Result \"*\"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Bxc6 dxc6 5. O-O f6 6. d4 exd4 7. Nxd4 c5 8. Nb3 Qxd1 9. Rxd1 *", 12),
+      librarySeedEntry("star-endgame-pawn", "endgame", "王兵残局：通路兵之前，先数节奏", "对王、关键格与兵形节奏的入门索引；每个判断都可在棋盘上自己复现。", ["王兵残局","对王","通路兵"], "[Event \"Study: King and pawn\"]\n[Result \"1-0\"]\n\n1. e4 e5 2. Ke2 Ke7 3. Ke3 Ke6 4. d4 exd4+ 5. Kxd4 d6 6. Nf3 Nc6+ 7. Ke3 1-0", 8),
+      librarySeedEntry("star-master-capablanca", "masterpiece", "卡帕布兰卡：把优势换成残局", "阅读一盘以简化而非猛攻取胜的名局，重点标出每一次主动换子的条件。", ["卡帕布兰卡","简化","名局"], "[Event \"Study: Conversion\"]\n[Result \"*\"]\n\n1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Be7 5. e3 O-O 6. Nf3 h6 7. Bh4 b6 8. cxd5 Nxd5 9. Bxe7 Qxe7 *", 5),
+      librarySeedEntry("star-plan-isolani", "middlegame", "孤兵局面：何时进攻，何时交换", "从开放线、轻子和王翼空间三个信号判断孤兵是资产还是包袱。", ["孤兵","中局","计划"], "[Event \"Study: Isolated pawn\"]\n[Result \"*\"]\n\n1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. cxd5 exd5 5. Bg5 Be7 6. e3 O-O 7. Bd3 c6 8. Qc2 Re8 9. Nge2 Nbd7 *", 3),
+    ],
+    collections:{},
+  };
+}
+function loadLibrary() {
+  try {
+    const v = JSON.parse(fs.readFileSync(LIBRARY_FILE, "utf8"));
+    if (v && Array.isArray(v.entries) && v.collections && typeof v.collections === "object") return v;
+  } catch {}
+  const seed = defaultLibrary(); saveLibrary(seed); return seed;
+}
+function saveLibrary(v) { writePrivate(LIBRARY_FILE, JSON.stringify(v, null, 2)); }
+function cleanLibraryText(value, maxLen) {
+  if (typeof value !== "string") return "";
+  return value.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, "").trim().slice(0, maxLen);
+}
+function libraryAuthor(entry) {
+  if (!entry.authorId) return entry.author || "S.T.A.R. 档案室";
+  const account = getAccounts().find(a => a.id === entry.authorId);
+  return account ? account.username : "已注销棋手";
+}
+function libraryPublicEntry(entry, userId, detail) {
+  const stars = entry.stars && typeof entry.stars === "object" ? entry.stars : {};
+  const collection = userId && loadLibrary().collections && loadLibrary().collections[userId];
+  const out = {
+    id:entry.id, title:entry.title, summary:entry.summary, category:entry.category,
+    tags:Array.isArray(entry.tags) ? entry.tags : [], author:libraryAuthor(entry),
+    createdAt:entry.createdAt, updatedAt:entry.updatedAt, stars:Object.keys(stars).length,
+    comments:Array.isArray(entry.comments) ? entry.comments.length : 0, copies:Math.max(0, +entry.copies || 0),
+    starred:!!(userId && stars[userId]), collected:!!(userId && collection && collection[entry.id]), owned:!!(userId && entry.authorId === userId),
+  };
+  if (detail) {
+    out.pgn = entry.pgn || "";
+    out.commentList = (entry.comments || []).slice(-50).map(c => ({ id:c.id, author:libraryAuthor({ authorId:c.authorId, author:c.author }), text:c.text, createdAt:c.createdAt, owned:!!(userId && c.authorId === userId) }));
+  }
+  return out;
+}
+function libraryList(userId, query) {
+  const data = loadLibrary();
+  const q = cleanLibraryText(query.get("q") || "", 80).toLocaleLowerCase();
+  const category = String(query.get("category") || "all");
+  const sort = ["new", "hot", "copies"].includes(query.get("sort")) ? query.get("sort") : "new";
+  const pageSize = Math.max(4, Math.min(24, Math.round(+query.get("pageSize") || 8)));
+  const page = Math.max(1, Math.round(+query.get("page") || 1));
+  let entries = data.entries.filter(e => {
+    const haystack = [e.title, e.summary].concat(e.tags || []).join(" ").toLocaleLowerCase();
+    return (!q || haystack.includes(q)) && (category === "all" || e.category === category);
+  });
+  entries.sort((a, b) => {
+    if (sort === "hot") return Object.keys(b.stars || {}).length - Object.keys(a.stars || {}).length || b.createdAt - a.createdAt;
+    if (sort === "copies") return (+b.copies || 0) - (+a.copies || 0) || b.createdAt - a.createdAt;
+    return b.createdAt - a.createdAt;
+  });
+  const total = entries.length, pages = Math.max(1, Math.ceil(total / pageSize));
+  return { categories:LIBRARY_CATEGORIES, entries:entries.slice((Math.min(page, pages) - 1) * pageSize, Math.min(page, pages) * pageSize).map(e => libraryPublicEntry(e, userId, false)), total, page:Math.min(page, pages), pages, sort, category, query:q };
+}
+function findLibraryEntry(data, id) { return data.entries.find(e => e.id === id); }
+function createLibraryEntry(userId, body) {
+  const title = cleanLibraryText(body.title, 60), summary = cleanLibraryText(body.summary, 420);
+  const category = String(body.category || "");
+  const pgn = cleanLibraryText(body.pgn, 16000);
+  const tags = Array.isArray(body.tags) ? body.tags.map(x => cleanLibraryText(String(x), 18)).filter(Boolean).slice(0, 6) : [];
+  if (title.length < 3) return { error:"标题至少 3 个字" };
+  if (!LIBRARY_CATEGORY_IDS.has(category)) return { error:"请选择有效分类" };
+  if (summary.length < 12) return { error:"摘要至少 12 个字，说明这份棋谱值得读什么" };
+  if (pgn.length < 12) return { error:"请贴入至少一段 PGN 或棋谱文本" };
+  const data = loadLibrary(), now = Date.now();
+  const entry = { id:"lib-" + uuid(), title, summary, category, tags, pgn, authorId:userId, author:"", createdAt:now, updatedAt:now, stars:{}, comments:[], copies:0 };
+  data.entries.push(entry); saveLibrary(data); return { entry:libraryPublicEntry(entry, userId, true) };
+}
+function toggleLibraryStar(userId, id) {
+  const data = loadLibrary(), entry = findLibraryEntry(data, id);
+  if (!entry) return { error:"资料不存在或已撤下" };
+  if (!entry.stars || typeof entry.stars !== "object") entry.stars = {};
+  if (entry.stars[userId]) delete entry.stars[userId]; else entry.stars[userId] = Date.now();
+  entry.updatedAt = Date.now(); saveLibrary(data); return { entry:libraryPublicEntry(entry, userId, true) };
+}
+function collectLibraryEntry(userId, id) {
+  const data = loadLibrary(), entry = findLibraryEntry(data, id);
+  if (!entry) return { error:"资料不存在或已撤下" };
+  if (!data.collections[userId]) data.collections[userId] = {};
+  if (data.collections[userId][id]) {
+    delete data.collections[userId][id]; saveLibrary(data);
+    return { collected:false, entry:libraryPublicEntry(entry, userId, true) };
+  }
+  data.collections[userId][id] = { collectedAt:Date.now() };
+  entry.copies = Math.max(0, +entry.copies || 0) + 1;
+  saveLibrary(data); return { collected:true, fresh:true, entry:libraryPublicEntry(entry, userId, true) };
+}
+function addLibraryComment(userId, id, raw) {
+  const text = cleanLibraryText(raw, 300), data = loadLibrary(), entry = findLibraryEntry(data, id);
+  if (!entry) return { error:"资料不存在或已撤下" };
+  if (text.length < 2) return { error:"评论至少写 2 个字" };
+  const account = getAccounts().find(a => a.id === userId);
+  if (!account) return { error:"账号不存在" };
+  if (!Array.isArray(entry.comments)) entry.comments = [];
+  entry.comments.push({ id:"comment-" + uuid(), authorId:userId, author:account.username, text, createdAt:Date.now() });
+  entry.updatedAt = Date.now(); saveLibrary(data); return { entry:libraryPublicEntry(entry, userId, true) };
+}
+function libraryMine(userId) {
+  const data = loadLibrary(), collected = data.collections[userId] || {};
+  return {
+    submitted:data.entries.filter(e => e.authorId === userId).sort((a,b) => b.createdAt - a.createdAt).map(e => libraryPublicEntry(e, userId, false)),
+    collected:Object.keys(collected).map(id => findLibraryEntry(data, id)).filter(Boolean).sort((a,b) => (collected[b.id].collectedAt || 0) - (collected[a.id].collectedAt || 0)).map(e => libraryPublicEntry(e, userId, false)),
+  };
+}
+function deleteLibraryEntry(userId, id) {
+  const data = loadLibrary(), entry = findLibraryEntry(data, id);
+  if (!entry) return { error:"资料不存在或已撤下" };
+  const account = getAccounts().find(a => a.id === userId);
+  if (entry.authorId !== userId && !(account && account.role === "admin")) return { error:"只能撤下自己的投稿" };
+  data.entries = data.entries.filter(e => e.id !== id);
+  for (const shelf of Object.values(data.collections)) if (shelf && typeof shelf === "object") delete shelf[id];
+  saveLibrary(data); return { ok:true };
+}
+function deleteLibraryComment(userId, entryId, commentId) {
+  const data = loadLibrary(), entry = findLibraryEntry(data, entryId);
+  if (!entry || !Array.isArray(entry.comments)) return { error:"评论不存在或资料已撤下" };
+  const account = getAccounts().find(a => a.id === userId), comment = entry.comments.find(c => c.id === commentId);
+  if (!comment) return { error:"评论不存在或已删除" };
+  if (comment.authorId !== userId && !(account && account.role === "admin")) return { error:"只能删除自己的评论" };
+  entry.comments = entry.comments.filter(c => c.id !== commentId); entry.updatedAt = Date.now(); saveLibrary(data);
+  return { ok:true };
+}
+
 // ---------- 系统指标 ----------
 let cpuLast = null, cpuCurrent = 0;
 function cpuTimes() {
@@ -1023,6 +1172,20 @@ async function handleApi(req, res, u) {
   if (p === "/api/engagement/leaderboard" && m === "GET") {
     return json(res, 200, { leaderboard: engagementLeaderboard(u.searchParams.get("limit") || 5) });
   }
+  // 共享棋谱库：目录与详情公开可读；登录后会额外返回本人收藏/投稿状态。
+  if (p === "/api/library/entries" && m === "GET") {
+    const peek = getSession(req);
+    return json(res, 200, libraryList(peek && peek.userId, u.searchParams));
+  }
+  {
+    const detailMatch = /^\/api\/library\/entries\/([A-Za-z0-9-]+)$/.exec(p);
+    if (detailMatch && m === "GET") {
+      const data = loadLibrary(), entry = findLibraryEntry(data, detailMatch[1]);
+      if (!entry) return json(res, 404, { error:"资料不存在或已撤下" });
+      const peek = getSession(req);
+      return json(res, 200, { entry:libraryPublicEntry(entry, peek && peek.userId, true) });
+    }
+  }
   if (p === "/api/chess-rating/me" && m === "GET") {
     const peek = getSession(req);
     if (!peek) return json(res, 200, { authenticated: false, progress: null });
@@ -1143,6 +1306,36 @@ async function handleApi(req, res, u) {
     const result = claimDailyQuest(s.userId, String(body.questId || ""));
     if (result.error) return json(res, 400, { error:result.error });
     return json(res, 200, Object.assign({ ok:true }, result));
+  }
+
+  // 共享棋谱库：写操作全部绑定当前账号，不能由前端伪造作者或收藏人。
+  if (p === "/api/library/entries" && m === "POST") {
+    const result = createLibraryEntry(s.userId, await readBody(req));
+    if (result.error) return json(res, 400, result);
+    return json(res, 201, result);
+  }
+  if (p === "/api/library/me" && m === "GET") return json(res, 200, libraryMine(s.userId));
+  {
+    const actionMatch = /^\/api\/library\/entries\/([A-Za-z0-9-]+)\/(favorite|collect|comments)$/.exec(p);
+    if (actionMatch && m === "POST") {
+      const [, id, action] = actionMatch;
+      const body = await readBody(req);
+      const result = action === "favorite" ? toggleLibraryStar(s.userId, id) : action === "collect" ? collectLibraryEntry(s.userId, id) : addLibraryComment(s.userId, id, body.text);
+      if (result.error) return json(res, 400, result);
+      return json(res, 200, result);
+    }
+    const deleteCommentMatch = /^\/api\/library\/entries\/([A-Za-z0-9-]+)\/comments\/([A-Za-z0-9-]+)$/.exec(p);
+    if (deleteCommentMatch && m === "DELETE") {
+      const result = deleteLibraryComment(s.userId, deleteCommentMatch[1], deleteCommentMatch[2]);
+      if (result.error) return json(res, 400, result);
+      return json(res, 200, result);
+    }
+    const deleteMatch = /^\/api\/library\/entries\/([A-Za-z0-9-]+)$/.exec(p);
+    if (deleteMatch && m === "DELETE") {
+      const result = deleteLibraryEntry(s.userId, deleteMatch[1]);
+      if (result.error) return json(res, 400, result);
+      return json(res, 200, result);
+    }
   }
 
   // 题型闯关进度（账号持久化，跨设备同步）
