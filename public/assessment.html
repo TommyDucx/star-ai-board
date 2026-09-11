@@ -6,7 +6,7 @@
 <title>棋力评估 · 人机测评 — S.T.A.R.</title>
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <link rel="stylesheet" href="css/site.css?v=32">
-<link rel="stylesheet" href="css/motion.css?v=31">
+<link rel="stylesheet" href="css/motion.css?v=32">
 <link rel="stylesheet" href="css/chessboard.min.css?v=26">
 <style>
   html, body { min-height: 100%; }
@@ -55,6 +55,11 @@
     .page { grid-template-columns: 1fr; }
     .panel { width: min(520px, calc(100vw - 36px)); margin: 0 auto; }
   }
+  /* 窄屏顶栏：压缩间距/内边距，长 crumb 省略号，避免音效按钮被挤出屏外 */
+  @media (max-width: 560px) {
+    .topbar { gap: 10px; padding: 0 12px; }
+    .topbar .crumb { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  }
 </style>
 </head>
 <body>
@@ -89,14 +94,14 @@
       <div class="metric"><b id="streak-now">--</b><span>当前连胜</span></div>
     </div>
 
-    <div class="row"><label>测评难度</label>
+    <div class="row"><label for="tier">测评难度</label>
       <select id="tier">
         <option value="beginner">初级 · Stockfish 1000</option>
         <option value="intermediate">中级 · Stockfish 1400</option>
         <option value="advanced">高级 · Stockfish 1800</option>
       </select>
     </div>
-    <div class="row"><label>你的执棋方</label>
+    <div class="row"><label for="color">你的执棋方</label>
       <select id="color">
         <option value="white">白方（先手）</option>
         <option value="black">黑方（后手）</option>
@@ -110,7 +115,7 @@
       <button class="btn" id="flip-btn">翻转棋盘</button>
     </div>
 
-    <div class="status" id="status">请登录后开始测评。</div>
+    <div class="status" id="status" role="status" aria-live="polite">请登录后开始测评。</div>
     <div class="thinking" id="thinking">Stockfish 思考中...</div>
 
     <div class="report" id="report"></div>
@@ -125,8 +130,8 @@
 <script src="js/lib/jquery.min.js?v=26"></script>
 <script src="js/lib/chess.min.js?v=26"></script>
 <script src="js/lib/chessboard.min.js?v=26"></script>
-<script src="js/assessment.js?v=1"></script>
-<script src="js/motion.js?v=33"></script>
+<script src="js/assessment.js?v=2"></script>
+<script src="js/motion.js?v=35"></script>
 <script>
   Motion.initCursorLine();
   Motion.initRipple();

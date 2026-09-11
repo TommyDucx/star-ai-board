@@ -6,7 +6,7 @@
 <title>围棋 · AI 下一步推荐 — S.T.A.R.</title>
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <link rel="stylesheet" href="css/site.css?v=32">
-<link rel="stylesheet" href="css/motion.css?v=31">
+<link rel="stylesheet" href="css/motion.css?v=32">
 <style>
   /* ===== 排版 v4（与 chess 同构）：棋盘居左，右侧 2×2 模块网格 ===== */
   html, body { height: 100%; overflow: hidden; }
@@ -14,7 +14,8 @@
   .page { flex: 1; min-height: 0; min-width: 0; display: flex;
     align-items: center; justify-content: center; padding: 10px 16px; }
   .duel { display: flex; gap: 12px; align-items: stretch; max-width: 100%; }
-  .board-card { flex: none; }
+  .board-card { flex: none; max-width: 100%; }
+  svg#board { max-width: 100%; height: auto; }
   .side { flex: 0 1 auto; min-width: 0; align-self: stretch;
     display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
     gap: 10px; width: clamp(330px, calc(100vw - 620px), 620px); }
@@ -47,6 +48,11 @@
     .side { width: min(620px, 100%); grid-template-rows: auto auto; }
     #cands { max-height: 220px; }
   }
+  /* 窄屏顶栏：压缩间距/内边距，长 crumb 省略号，避免音效按钮被挤出屏外 */
+  @media (max-width: 560px) {
+    .topbar { gap: 10px; padding: 0 12px; }
+    .topbar .crumb { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  }
 </style>
 </head>
 <body>
@@ -73,20 +79,20 @@
 
     <div class="side">
       <section class="mod">
-        <div class="row"><label>AI 引擎 / 模型</label>
+        <div class="row"><label for="goengine">AI 引擎 / 模型</label>
           <select id="goengine"><option value="">加载中…</option></select>
         </div>
-        <div class="row"><label>棋盘大小</label>
+        <div class="row"><label for="size">棋盘大小</label>
           <select id="size">
             <option value="9">9 路</option><option value="13">13 路</option><option value="19" selected>19 路</option>
           </select>
         </div>
-        <div class="row"><label>我方执子（决定行棋顺序/视角）</label>
+        <div class="row"><label for="myside">我方执子（决定行棋顺序/视角）</label>
           <select id="myside">
             <option value="B" selected>执黑（先手）</option><option value="W">执白（后手）</option>
           </select>
         </div>
-        <div class="row"><label>AI 分析强度（模拟次数）</label>
+        <div class="row"><label for="visits">AI 分析强度（模拟次数）</label>
           <select id="visits">
             <option value="50">快速 ~50</option><option value="200" selected>标准 ~200</option><option value="600">精细 ~600</option>
           </select>
@@ -100,7 +106,7 @@
           <button class="btn" onclick="clearBoard()">清空</button>
           <button class="btn" onclick="flipBoard()">翻转</button>
         </div>
-        <div class="status" id="status">准备就绪</div>
+        <div class="status" id="status" role="status" aria-live="polite">准备就绪</div>
         <div class="thinking" id="thinking">KataGo 分析中…</div>
       </section>
 
@@ -118,8 +124,8 @@
   </div>
 </div>
 
-<script src="js/go.js?v=17"></script>
-<script src="js/motion.js?v=33"></script>
+<script src="js/go.js?v=20"></script>
+<script src="js/motion.js?v=35"></script>
 <script>
   Motion.initCursorLine();
   Motion.initRipple();

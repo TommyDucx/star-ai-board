@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>S.T.A.R. · 登录</title>
+<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <link rel="stylesheet" href="css/admin.css">
-<link rel="stylesheet" href="../css/motion.css">
+<link rel="stylesheet" href="../css/motion.css?v=32">
 </head>
 <body class="login-body">
 <div class="scanlines" aria-hidden="true"></div>
@@ -31,7 +32,7 @@
     <div class="login-foot">本地部署 · 数据不出树莓派</div>
   </div>
 </div>
-<script src="../js/motion.js?v=33"></script>
+<script src="../js/motion.js?v=35"></script>
 <script>
 // 站点同款动效初始化（与 main.html / chess.html 一致）
 Motion.initCursorLine();
@@ -57,8 +58,9 @@ form.addEventListener("submit", async (e) => {
     });
     const data = await r.json();
     if (!r.ok) { errEl.textContent = data.error || "登录失败"; btn.disabled = false; btn.textContent = "登 录"; return; }
-    // 普通棋手进入账号中心；管理角色保留后台看板入口。
-    location.href = data.mustChange ? "/account.html" : (data.role === "member" ? "/account.html" : "index.html");
+    // 普通棋手进入成长中心；管理员直接进入管理控制台。
+    // 强制改密弹窗由控制台承接，避免管理员登录后被送到首页而找不到后台入口。
+    location.href = data.role === "member" ? "/account.html" : "/admin/index.html";
   } catch (e) {
     errEl.textContent = "网络错误";
     btn.disabled = false; btn.textContent = "登 录";

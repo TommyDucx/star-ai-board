@@ -4,8 +4,9 @@
 <meta charset="UTF-8" data-page-node-id="RGHVwL8XciiE7CUVLamMQS">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="Ea541KK1mQoKfkdgczaq15">
 <title>S.T.A.R. 后台 · 管理</title>
+<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <link rel="stylesheet" href="css/admin.css" data-page-node-id="eeQBBFq6GTb1efGcUUApGL">
-<link rel="stylesheet" href="../css/motion.css">
+<link rel="stylesheet" href="../css/motion.css?v=32">
 </head>
 <body class="admin-body" data-page-node-id="YdZrohphs3Zokqz8tYbYxY">
 <div class="scanlines" aria-hidden="true"></div>
@@ -13,10 +14,11 @@
 <div class="admin-layout" data-page-node-id="qHZnJDIpUBDeun7drhgEBK">
   <!-- 侧栏 -->
   <aside class="sidebar" id="sidebar" data-page-node-id="gigVtRoJfA4RoSG2eoOHUL">
-    <div class="sb-logo" data-page-node-id="XG8Z4A3HFyQfiLPZasc0pw">S.T.A.R.<span data-page-node-id="zcUMKBZwJ3wEOgphwGAsnJ">· ADMIN</span></div>
+    <a class="sb-logo" href="../index.html" data-nav data-page-node-id="XG8Z4A3HFyQfiLPZasc0pw">S.T.A.R.<span data-page-node-id="zcUMKBZwJ3wEOgphwGAsnJ">· ADMIN</span></a>
     <nav class="sb-nav" id="sb-nav" data-page-node-id="rIDdy55qyTlYSgFYyrTB3G">
       <button class="sb-item active" data-view="dashboard" data-page-node-id="jcByg6Bvzv6lCvTIBVl7iF">▦ 数据看板</button>
       <button class="sb-item" data-view="profile" data-page-node-id="PpPpR0fileView">👤 个人资料</button>
+      <a class="sb-item sb-growth" href="../account.html" data-nav>✦ 成长中心</a>
       <button class="sb-item" data-view="accounts" data-roles="admin,editor" data-page-node-id="1Il4DPXU0x4krWSTSmU5Di">⚇ 账号管理</button>
       <button class="sb-item" data-view="engines" data-roles="admin,editor" data-page-node-id="1NToULjeYMlNNDJHYxP8Gh">⚙ 引擎管理</button>
       <button class="sb-item" data-view="announce" data-roles="admin,editor" data-page-node-id="GGWFi6IQ18PUzMCvwSCfK9">📢 公告管理</button>
@@ -32,6 +34,7 @@
     <header class="topbar" data-page-node-id="s0eVx5VBiuAVlwn9ZuejID">
       <button id="menu-toggle" class="menu-toggle" aria-label="菜单" data-page-node-id="lvPnVoEXCU7jmUbmu2bQTI">☰</button>
       <h1 id="view-title" data-page-node-id="UuJnImLjng1RoggbBgmqTd">数据看板</h1>
+      <a class="admin-growth" href="../account.html" data-nav>成长中心 ↗</a>
       <span id="role-badge" class="role-badge" data-page-node-id="b7keRFEPFoNW5ZmvR7ZjbT"></span>
     </header>
     <section id="view" class="view" data-page-node-id="D5u0rexrEiE6mx8f6BtDr6"></section>
@@ -40,7 +43,7 @@
 
 <!-- 强制改密弹窗 -->
 <div id="pw-modal" class="modal-mask" style="display:none" data-page-node-id="74KbwuEdeXP2ysjB4BcI0C">
-  <div class="modal enter-node" data-page-node-id="CBA4oTJ0fTutFbNZgj5wIl">
+  <div class="modal enter-node" role="dialog" aria-modal="true" aria-label="修改密码" tabindex="-1" data-page-node-id="CBA4oTJ0fTutFbNZgj5wIl">
     <h3 data-page-node-id="F1qJynybZW6PfUY9MSwsdC">首次登录 · 请修改密码</h3>
     <p class="muted" data-page-node-id="DyiQBg27ErZg2X7jdNQH23">出于安全，请设置一个新密码（8-128 位，需含大写、小写与数字）。</p>
     <input type="password" id="cur-pw" placeholder="当前密码" data-page-node-id="curPwInputModal">
@@ -50,7 +53,7 @@
   </div>
 </div>
 
-<script src="../js/motion.js?v=33"></script>
+<script src="../js/motion.js?v=35"></script>
 <script src="js/admin.js"></script>
 </body>
 </html>

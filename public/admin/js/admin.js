@@ -72,6 +72,7 @@
     return true; // profile 所有人可见
   }
   function switchView(v) {
+    if (!v || !TITLES[v]) return;
     if (!canView(v)) { toast("无访问权限"); return; }
     state.view = v;
     titleEl.textContent = TITLES[v] || "";
@@ -435,15 +436,28 @@
       if (roles) b.style.display = roles.split(",").includes(me.data.role) ? "" : "none";
     });
     // 绑定
-    document.querySelectorAll(".sb-item").forEach(b => b.onclick = () => switchView(b.dataset.view));
+    document.querySelectorAll(".sb-item[data-view]").forEach(b => b.onclick = () => switchView(b.dataset.view));
     $("#logout-btn").onclick = async () => { await api("/api/logout", { method: "POST" }); location.href = "login.html"; };
     $("#menu-toggle").onclick = () => $("#sidebar").classList.toggle("open");
     // 强制改密
     if (new URLSearchParams(location.search).get("change") === "1") showPwModal();
     switchView(me.data.role === "member" ? "profile" : "dashboard");
   }
+  let pwTrigger = null;
+  function pwFocusables() {
+    const d = document.querySelector("#pw-modal .modal");
+    if (!d) return [];
+    return Array.prototype.slice.call(d.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+      .filter(el => !el.disabled && el.offsetParent !== null);
+  }
+  function closePwModal() {
+    const mask = $("#pw-modal"); if (mask) mask.style.display = "none";
+    if (pwTrigger && pwTrigger.focus) pwTrigger.focus();
+    pwTrigger = null;
+  }
   function showPwModal() {
     const mask = $("#pw-modal"); mask.style.display = "flex";
+    pwTrigger = document.activeElement;
     $("#cur-pw").value = ""; $("#new-pw").value = ""; $("#pw-err").textContent = "";
     $("#cur-pw").focus();
     $("#pw-save").onclick = async () => {
@@ -452,10 +466,27 @@
       if (!validPassword(pw)) { $("#pw-err").textContent = "密码需 8-128 位，且含大写、小写与数字"; return; }
       const r = await api("/api/me", { method: "PUT", body: JSON.stringify({ currentPassword: cur, password: pw }) });
       if (!r.ok) { $("#pw-err").textContent = r.data.error || "失败"; return; }
-      mask.style.display = "none";
+      closePwModal();
       toast("密码已更新");
       switchView(state.view);   // 改密前视图被 403 拦截（数据为空），改密后重渲染当前视图
     };
   }
+  // 弹窗可达性：Esc 关闭、Tab 在弹窗内循环、点击遮罩关闭（保存逻辑不受影响）
+  (function wirePwModalA11y() {
+    const mask = $("#pw-modal");
+    if (!mask) return;
+    mask.addEventListener("click", e => { if (e.target === e.currentTarget) closePwModal(); });
+    document.addEventListener("keydown", e => {
+      if (mask.style.display !== "flex") return;
+      if (e.key === "Escape") { e.preventDefault(); closePwModal(); return; }
+      if (e.key === "Tab") {
+        const f = pwFocusables();
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+  })();
   init();
 })();

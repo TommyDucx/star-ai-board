@@ -4,8 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>S.T.A.R. · 注册</title>
+<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <link rel="stylesheet" href="css/admin.css">
-<link rel="stylesheet" href="../css/motion.css">
+<link rel="stylesheet" href="../css/motion.css?v=32">
+<style>
+  .pw-rules{list-style:none;margin:6px 0 2px;padding:0;display:grid;gap:3px;font:11px ui-monospace,Menlo,monospace;color:#8b96a5}
+  .pw-rules li::before{content:"○ ";color:#6b7684}
+  .pw-rules li.ok{color:#a8ff65}
+  .pw-rules li.ok::before{content:"● ";color:#a8ff65}
+</style>
 </head>
 <body class="login-body">
 <div class="scanlines" aria-hidden="true"></div>
@@ -20,6 +27,12 @@
       <label>密码
         <input type="password" id="password" placeholder="8+ 位，含大小写与数字" required>
       </label>
+      <ul class="pw-rules" id="pw-rules" aria-live="polite">
+        <li data-rule="len">至少 8 位（最多 128 位）</li>
+        <li data-rule="lower">包含小写字母 a-z</li>
+        <li data-rule="upper">包含大写字母 A-Z</li>
+        <li data-rule="digit">包含数字 0-9</li>
+      </ul>
       <label>确认密码
         <input type="password" id="password2" placeholder="再次输入密码" required>
       </label>
@@ -32,7 +45,7 @@
     <div class="login-foot">本地部署 · 数据不出树莓派</div>
   </div>
 </div>
-<script src="../js/motion.js?v=33"></script>
+<script src="../js/motion.js?v=35"></script>
 <script>
 Motion.initCursorLine();
 Motion.initRipple();
@@ -42,11 +55,34 @@ Motion.staggerEnter();
 const $ = s => document.querySelector(s);
 const errEl = $("#err"), btn = $("#submit-btn");
 
+const pwRules = {
+  len: v => v.length >= 8 && v.length <= 128,
+  lower: v => /[a-z]/.test(v),
+  upper: v => /[A-Z]/.test(v),
+  digit: v => /\d/.test(v),
+};
+const pwInput = $("#password");
+function refreshPwRules() {
+  const v = pwInput.value;
+  document.querySelectorAll("#pw-rules li").forEach(li => li.classList.toggle("ok", pwRules[li.dataset.rule](v)));
+}
+function pwError(v) {
+  if (v.length < 8) return "密码至少需要 8 位";
+  if (v.length > 128) return "密码最多 128 位";
+  if (!/[a-z]/.test(v)) return "密码需包含小写字母";
+  if (!/[A-Z]/.test(v)) return "密码需包含大写字母";
+  if (!/\d/.test(v)) return "密码需包含数字";
+  return "";
+}
+pwInput.addEventListener("input", refreshPwRules);
+
 $("#reg-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   errEl.textContent = "";
   const username = $("#username").value.trim();
   const password = $("#password").value, password2 = $("#password2").value;
+  const pwe = pwError(password);
+  if (pwe) { errEl.textContent = pwe; refreshPwRules(); return; }
   if (password !== password2) { errEl.textContent = "两次密码不一致"; return; }
   btn.disabled = true; btn.textContent = "注册中…";
   try {

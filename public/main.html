@@ -6,7 +6,7 @@
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <title>S.T.A.R. — 本地引擎 AI 推荐</title>
 <link rel="stylesheet" href="css/site.css?v=32">
-<link rel="stylesheet" href="css/motion.css?v=31">
+<link rel="stylesheet" href="css/motion.css?v=32">
 <link rel="stylesheet" href="css/shared-library.css?v=1">
 <style>
   /* ===== 侧栏 + 内容区布局 ===== */
@@ -92,7 +92,7 @@
 <div class="pixel-fault" aria-hidden="true"></div>
 
 <div class="topbar">
-  <span class="logo">S.T.A.R.</span>
+  <a href="index.html" class="logo" data-nav>S.T.A.R.</a>
   <span class="crumb">AI 下一手推荐引擎</span>
   <span class="flex1"></span>
   <a href="account.html" class="account-entry" data-nav>
@@ -147,8 +147,8 @@
   </main>
 </div>
 
-<script src="js/motion.js?v=33"></script>
-<script src="js/shared-library.js?v=1"></script>
+<script src="js/motion.js?v=35"></script>
+<script src="js/shared-library.js?v=2"></script>
 <script>
   // 侧栏切换视图：引擎对战（默认，b2a49a1 风格）/ 经典题型练习
   var VIEW = {
@@ -239,6 +239,8 @@
   }
   // 默认显示「引擎对战」（b2a49a1 风格 hero + 左右两卡：围棋/国际象棋）
   document.getElementById("content").innerHTML = VIEW.battle();
+  // 首屏内容注入后同样触发进场/涟漪/磁吸/视差（此前只有切页 sel() 会触发）
+  if (window.Motion) { Motion.staggerEnter(); Motion.initRipple(); Motion.initMagnetic(); Motion.initParallax(); }
 </script>
 </body>
 </html>

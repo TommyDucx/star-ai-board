@@ -6,7 +6,7 @@
 <title>题型练习 · 国际象棋 — S.T.A.R.</title>
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <link rel="stylesheet" href="css/site.css?v=32">
-<link rel="stylesheet" href="css/motion.css?v=31">
+<link rel="stylesheet" href="css/motion.css?v=32">
 <link rel="stylesheet" href="css/chessboard.min.css?v=26">
 <style>
   /* 与 chess.html 一致的视口预算布局 */
@@ -14,7 +14,7 @@
   body { display: flex; flex-direction: column; }
   .tac-wrap { flex: 1; min-height: 0; display: flex; gap: 20px; align-items: center;
     justify-content: center; padding: 12px 16px; flex-wrap: nowrap; }
-  #board { width: 460px; height: 460px; flex-shrink: 0; }
+  #board { width: min(460px, calc(100vw - 32px)); height: auto; flex-shrink: 0; }
   #board .chessboard { border-radius: 8px; overflow: hidden; }
   .side { width: 340px; flex: none; max-height: 100%; min-height: 0;
     display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
@@ -69,6 +69,11 @@
     .tac-wrap { flex-wrap: wrap; }
     .side { width: min(460px, 100%); max-height: none; }
     #explain { flex: none; max-height: 200px; }
+  }
+  /* 窄屏顶栏：压缩间距/内边距，长 crumb 省略号，避免音效按钮被挤出屏外 */
+  @media (max-width: 560px) {
+    .topbar { gap: 10px; padding: 0 12px; }
+    .topbar .crumb { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   }
 </style>
 </head>
@@ -127,8 +132,8 @@
 <script src="js/lib/jquery.min.js?v=26"></script>
 <script src="js/lib/chess.min.js?v=26"></script>
 <script src="js/lib/chessboard.min.js?v=26"></script>
-<script src="js/tactics.js?v=4"></script>
-<script src="js/motion.js?v=33"></script>
+<script src="js/tactics.js?v=7"></script>
+<script src="js/motion.js?v=35"></script>
 <script>
   Motion.initCursorLine();
   Motion.initRipple();

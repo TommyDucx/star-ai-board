@@ -6,7 +6,7 @@
 <title>国际象棋 · AI 下一步推荐 — S.T.A.R.</title>
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <link rel="stylesheet" href="css/site.css?v=32">
-<link rel="stylesheet" href="css/motion.css?v=31">
+<link rel="stylesheet" href="css/motion.css?v=32">
 <link rel="stylesheet" href="css/chessboard.min.css?v=26">
 <style>
   /* ===== 视口预算布局：topbar + 内容区撑满 100vh，无页面滚动 ===== */
@@ -17,7 +17,7 @@
     padding: 12px 16px; flex-wrap: nowrap; }
   .board-card { display: flex; gap: 10px; align-items: stretch; min-height: 0; flex-shrink: 1; }
   .board-card .chessboard { border-radius: 8px; overflow: hidden; }
-  #board { width: 460px; height: 460px; flex-shrink: 0; }
+  #board { width: min(460px, calc(100vw - 32px)); height: auto; flex-shrink: 0; }
   #evalwrap { width: 16px; height: 460px; border-radius: 4px; overflow: hidden; border: 1px solid #3a4048; display: flex; flex-direction: column; background: #2b2b2b; flex-shrink: 0; }
   #evalfill { background: #f2f2f2; width: 100%; height: 50%; transition: height .35s ease; }
   .eval-col { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 0; }
@@ -125,6 +125,11 @@
     .side { width: min(640px, 100%); grid-template-rows: auto auto; }
     .moves { height: 180px; flex: none; }
   }
+  /* 窄屏顶栏：压缩间距/内边距，长 crumb 省略号，避免音效按钮被挤出屏外 */
+  @media (max-width: 560px) {
+    .topbar { gap: 10px; padding: 0 12px; }
+    .topbar .crumb { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  }
   </style>
 </head>
 <body>
@@ -153,7 +158,7 @@
 
     <div class="side">
       <section class="mod">
-        <div class="row"><label>引擎</label>
+        <div class="row"><label for="engine">引擎</label>
           <select id="engine">
             <option value="stockfish">Stockfish 18（≈3640·世界最强）</option>
             <option value="reckless">Reckless 0.10（≈3600·顶级）</option>
@@ -169,17 +174,17 @@
             <option value="my-engine-nnue">BiaoZi NNUE（≈500·实验）</option>
           </select>
         </div>
-        <div class="row"><label>你的执棋方</label>
+        <div class="row"><label for="side">你的执棋方</label>
           <select id="side"><option value="white">白方（先手）</option><option value="black">黑方（后手）</option></select>
         </div>
-        <div class="row"><label>难度（引擎棋力，Reckless 固定）</label>
+        <div class="row"><label for="level">难度（引擎棋力，Reckless 固定）</label>
           <select id="level">
             <option value="1320">新手 ~1320</option><option value="1500">业余 ~1500</option>
             <option value="1800" selected>中级 ~1800</option><option value="2100">高级 ~2100</option>
             <option value="2600">大师 ~2600</option><option value="0">最强（满血）</option>
           </select>
         </div>
-        <div class="row"><label>思考时间：<span id="mtlbl">800</span> ms</label>
+        <div class="row"><label for="movetime">思考时间：<span id="mtlbl">800</span> ms</label>
           <input id="movetime" type="range" min="200" max="3000" step="100" value="800" style="width:100%">
         </div>
       </section>
@@ -192,9 +197,9 @@
           <button class="btn" onclick="flipBoard()">翻转</button>
           <button class="btn" onclick="openTutorial()">教程</button>
         </div>
-        <div class="status" id="status">准备就绪</div>
+        <div class="status" id="status" role="status" aria-live="polite">准备就绪</div>
         <div class="thinking" id="thinking">Stockfish 分析中…</div>
-        <div id="evaltxt" style="font-size:13px;color:var(--muted);font-family:monospace">评估：—</div>
+        <div id="evaltxt" aria-live="polite" style="font-size:13px;color:var(--muted);font-family:monospace">评估：—</div>
         <canvas id="evalchart" width="276" height="56" style="width:100%;height:56px;border:1px solid var(--line);border-radius:4px;background:var(--surface);margin-top:auto"></canvas>
       </section>
 
@@ -214,8 +219,8 @@
 <script src="js/lib/jquery.min.js?v=26"></script>
 <script src="js/lib/chess.min.js?v=26"></script>
 <script src="js/lib/chessboard.min.js?v=26"></script>
-<script src="js/chess.js?v=40"></script>
-<script src="js/motion.js?v=33"></script>
+<script src="js/chess.js?v=44"></script>
+<script src="js/motion.js?v=35"></script>
 <script>
   Motion.initCursorLine();
   Motion.initRipple();
@@ -224,7 +229,7 @@
 
 <!-- 引擎对战教程弹窗（覆盖层，移动端自适应） -->
 <div id="tut-mask" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(8,10,9,.78);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px">
-  <div style="width:min(620px,100%);max-height:86vh;overflow-y:auto;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:22px 26px">
+  <div role="dialog" aria-modal="true" aria-label="引擎对战分步教程" tabindex="-1" style="width:min(620px,100%);max-height:86vh;overflow-y:auto;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:22px 26px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
       <h2 style="margin:0;font-size:20px">引擎对战 · 分步教程</h2>
       <button onclick="closeTutorial()" style="background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:5px;padding:5px 12px;cursor:pointer">✕ 关闭</button>
@@ -240,9 +245,36 @@
   </div>
 </div>
 <script>
-  function openTutorial() { var m = document.getElementById("tut-mask"); m.style.display = "flex"; }
-  function closeTutorial() { document.getElementById("tut-mask").style.display = "none"; }
-  document.getElementById("tut-mask").addEventListener("click", function (e) { if (e.target === this) this.style.display = "none"; });
+  var tutMask = document.getElementById("tut-mask");
+  var tutDialog = tutMask.querySelector('[role="dialog"]');
+  var tutTrigger = null;
+  function tutFocusables() {
+    return Array.prototype.slice.call(tutDialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+      .filter(function (el) { return !el.disabled && el.offsetParent !== null; });
+  }
+  function openTutorial() {
+    tutTrigger = document.activeElement;
+    tutMask.style.display = "flex";
+    var f = tutFocusables();
+    (f[0] || tutDialog).focus();
+  }
+  function closeTutorial() {
+    tutMask.style.display = "none";
+    if (tutTrigger && tutTrigger.focus) tutTrigger.focus();
+    tutTrigger = null;
+  }
+  tutMask.addEventListener("click", function (e) { if (e.target === this) closeTutorial(); });
+  document.addEventListener("keydown", function (e) {
+    if (tutMask.style.display !== "flex") return;
+    if (e.key === "Escape") { e.preventDefault(); closeTutorial(); return; }
+    if (e.key === "Tab") {
+      var f = tutFocusables();
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
 </script>
 </body>
 </html>
