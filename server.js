@@ -175,38 +175,74 @@ function clampInt(v, lo, hi, dflt) {
   return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt;
 }
 
+// 客户端真实 IP：仅当直连来自本机回环（Cloudflare 隧道/反向代理在本地）时才信任转发头，
+// 否则任何客户端都能伪造 cf-connecting-ip/x-forwarded-for 绕过按 IP 的限流。
+function clientIp(req) {
+  let ip = (req.socket && req.socket.remoteAddress) || "";
+  const loop = ip === "127.0.0.1" || ip === "::1" || ip === "::ffff:127.0.0.1";
+  if (loop) {
+    const h = req.headers || {};
+    if (h["cf-connecting-ip"]) ip = String(h["cf-connecting-ip"]).trim();
+    else if (h["x-forwarded-for"]) ip = String(h["x-forwarded-for"]).split(",")[0].trim();
+  }
+  return ip.replace(/^::ffff:/, "");
+}
+
 const server = http.createServer((req, res) => {
-  if (admin.handleRequest(req, res)) return;
-  let urlPath = decodeURIComponent(req.url.split("?")[0]);
-  if (urlPath === "/") urlPath = "/index.html";
-  const filePath = path.join(PUBLIC_DIR, path.normalize(urlPath));
-  // 必须仍在 public 目录内（加 path.sep 防止同名前缀目录绕过 startsWith）
-  if (!filePath.startsWith(PUBLIC_DIR + path.sep)) { res.writeHead(403); return res.end("Forbidden"); }
-  fs.readFile(filePath, (err, data) => {
-    if (err) { res.writeHead(404); return res.end("Not Found"); }
-    const ext = path.extname(filePath);
-    const type = MIME[ext] || "application/octet-stream";
-    // 缓存分级：HTML / CSS / JS 保持 no-cache（改版即时生效，避免 site.css 等未带 ?v 的资源被 7 天强缓存坑住）；
-    // 带 ?v=N 版本的资源与图片/字体等可长缓存
-    const headers = {
-      "Content-Type": type,
-      "Cache-Control": (ext === ".html" || ext === ".css" || ext === ".js") ? "no-cache" : "public, max-age=604800",
-      // 基础安全头：防 MIME 嗅探 / 防被第三方 iframe 嵌套 / 限制 referrer 泄漏
-      "X-Content-Type-Options": "nosniff",
-      "X-Frame-Options": "SAMEORIGIN",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-    };
-    // 文本类资源 gzip（>1KB 才值得压缩）
-    const accept = req.headers["accept-encoding"] || "";
-    if (/^text\/|application\/json/.test(type) && data.length > 1024 && /\bgzip\b/.test(accept)) {
-      headers["Content-Encoding"] = "gzip";
-      headers["Vary"] = "Accept-Encoding";
-      res.writeHead(200, headers);
-      return res.end(zlib.gzipSync(data));
+  try {
+    if (admin.handleRequest(req, res)) return;
+    const qIdx = req.url.indexOf("?");
+    const query = qIdx >= 0 ? req.url.slice(qIdx + 1) : "";
+    // 畸形百分号编码（如 /%）会抛 URIError；未捕获会让整个进程崩溃 → 返回 400
+    let urlPath;
+    try {
+      urlPath = decodeURIComponent(qIdx >= 0 ? req.url.slice(0, qIdx) : req.url);
+    } catch {
+      res.writeHead(400); return res.end("Bad Request");
     }
-    res.writeHead(200, headers);
-    res.end(data);
-  });
+    // 空字节（/%00）会让 fs.readFile 同步抛 ERR_INVALID_ARG_VALUE
+    if (urlPath.includes("\0")) { res.writeHead(400); return res.end("Bad Request"); }
+    if (urlPath === "/") urlPath = "/index.html";
+    const filePath = path.join(PUBLIC_DIR, path.normalize(urlPath));
+    // 必须仍在 public 目录内（加 path.sep 防止同名前缀目录绕过 startsWith）
+    if (!filePath.startsWith(PUBLIC_DIR + path.sep)) { res.writeHead(403); return res.end("Forbidden"); }
+    fs.readFile(filePath, (err, data) => {
+      try {
+        if (err) { res.writeHead(404); return res.end("Not Found"); }
+        const ext = path.extname(filePath);
+        const type = MIME[ext] || "application/octet-stream";
+        // 缓存分级：带 ?v=N 指纹的非 HTML 资源可永久强缓存（内容变更必换 N）；
+        // HTML / CSS / JS 未带版本号时保持 no-cache（改版即时生效）；其余资源 7 天。
+        const hasV = new URLSearchParams(query).has("v");
+        const cacheControl = (hasV && ext !== ".html")
+          ? "public, max-age=31536000, immutable"
+          : ((ext === ".html" || ext === ".css" || ext === ".js") ? "no-cache" : "public, max-age=604800");
+        const headers = {
+          "Content-Type": type,
+          "Cache-Control": cacheControl,
+          // 基础安全头：防 MIME 嗅探 / 防被第三方 iframe 嵌套 / 限制 referrer 泄漏
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "Referrer-Policy": "strict-origin-when-cross-origin",
+        };
+        // 文本类资源 gzip（>1KB 才值得压缩）
+        const accept = req.headers["accept-encoding"] || "";
+        if (/^text\/|application\/json/.test(type) && data.length > 1024 && /\bgzip\b/.test(accept)) {
+          headers["Content-Encoding"] = "gzip";
+          headers["Vary"] = "Accept-Encoding";
+          res.writeHead(200, headers);
+          return res.end(zlib.gzipSync(data));
+        }
+        res.writeHead(200, headers);
+        res.end(data);
+      } catch (e) {
+        // 读文件回调内的意外异常不能外泄（回调在事件循环里，外层 try 捕不到）
+        try { if (!res.headersSent) { res.writeHead(500); res.end("Internal Server Error"); } } catch (_) {}
+      }
+    });
+  } catch (e) {
+    try { if (!res.headersSent) { res.writeHead(400); res.end("Bad Request"); } } catch (_) {}
+  }
 });
 
 /* ===================== 国际象棋：UCI 引擎（Stockfish / Reckless） ===================== */
@@ -674,7 +710,11 @@ setInterval(() => {
 }, 5 * 60 * 1000).unref();
 
 wss.on("connection", (ws, req) => {
-  ws._ip = (req.socket && req.socket.remoteAddress) || "";
+  // 连接级错误兜底：客户端异常断开/写失败不应冒泡成未捕获异常
+  ws.on("error", () => {});
+  ws._ip = clientIp(req);
+  // 保存 cookie：每条分析请求据此重新校验会话（账号被停用/改角色后旧连接立即失效）
+  ws._cookie = (req.headers && req.headers.cookie) || "";
   // 鉴权态在连接建立时一次性快照：避免每条消息重新读 cookie / sessions.json；
   // mustChange 仍按当前账号快照判断（强制改密期内建立新连接会被即时拒绝）
   let session = null;
@@ -714,12 +754,17 @@ wss.on("connection", (ws, req) => {
 
     // 引擎分析（chess / go）必须登录且未处于强制改密期
     if (t === "chess" || t === "go") {
-      if (!ws._session) {
+      // 每条请求重新校验会话：停用/降权/登出后，已建立的旧 WS 连接不得继续调用引擎
+      let fresh = null;
+      try { fresh = admin.getSession({ headers: { cookie: ws._cookie } }); } catch (e) { fresh = null; }
+      if (!fresh) {
+        ws._session = null;
         return ws.send(JSON.stringify({
           type: "error", id: msg.id, code: "AUTH_REQUIRED",
           message: "未登录",
         }));
       }
+      ws._session = fresh;
       if (ws._mustChange) {
         return ws.send(JSON.stringify({
           type: "error", id: msg.id, code: "MUST_CHANGE", mustChange: true,
@@ -805,6 +850,10 @@ function controlEngine(key, action) {
   return false;
 }
 admin.init({ publicDir: PUBLIC_DIR, engineStatus, controlEngine });
+
+// 进程级兜底：仅记录，不让单个异常拖垮整个服务（连接级错误另有 ws.on("error") 兜底）
+process.on("uncaughtException", e => console.error("[fatal]", e));
+process.on("unhandledRejection", e => console.error("[reject]", e));
 
 server.listen(PORT, () => {
   console.log(`S.T.A.R. AI 推荐已启动: http://localhost:${PORT}`);

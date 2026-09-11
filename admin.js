@@ -46,8 +46,16 @@ function loadSecret() {
 let SECRET = loadSecret();
 
 // ---------- 工具 ----------
+// 客户端真实 IP：仅当直连来自本机回环（Cloudflare 隧道/反向代理在本地）时才信任转发头，
+// 否则任何客户端都能伪造 cf-connecting-ip/x-forwarded-for 绕过按 IP 的限流。
 function clientIp(req) {
-  const ip = (req.socket && req.socket.remoteAddress) || "";
+  let ip = (req.socket && req.socket.remoteAddress) || "";
+  const loop = ip === "127.0.0.1" || ip === "::1" || ip === "::ffff:127.0.0.1";
+  if (loop) {
+    const h = req.headers || {};
+    if (h["cf-connecting-ip"]) ip = String(h["cf-connecting-ip"]).trim();
+    else if (h["x-forwarded-for"]) ip = String(h["x-forwarded-for"]).split(",")[0].trim();
+  }
   return ip.replace(/^::ffff:/, "");
 }
 function uuid() { return (crypto.randomUUID && crypto.randomUUID()) || crypto.randomBytes(16).toString("hex"); }
@@ -529,11 +537,6 @@ function applyTacticsAttempt(userId, body) {
   saveUserTactics(userId, prog);
   return { prog, newly, attempt };
 }
-function applyTacticsResult(userId, tier, solved) {
-  const started = startTacticsAttempt(userId, tier);
-  if (started.error) return { prog: started.prog, newly: [] };
-  return applyTacticsAttempt(userId, { attemptId: started.attempt.id, moves: solved ? (started.puzzle.moves || []) : [] });
-}
 function publicTactics(prog) {
   return {
     schemaVersion: 2,
@@ -947,7 +950,9 @@ function collectLibraryEntry(userId, id) {
   if (!entry) return { error:"资料不存在或已撤下" };
   if (!data.collections[userId]) data.collections[userId] = {};
   if (data.collections[userId][id]) {
-    delete data.collections[userId][id]; saveLibrary(data);
+    delete data.collections[userId][id];
+    entry.copies = Math.max(0, (+entry.copies || 0) - 1);   // 取消收藏同步递减计数
+    saveLibrary(data);
     return { collected:false, entry:libraryPublicEntry(entry, userId, true) };
   }
   data.collections[userId][id] = { collectedAt:Date.now() };
@@ -1043,6 +1048,29 @@ function logGame({ type, engine, movetime, ip }) {
   const line = JSON.stringify({ ts: Date.now(), type, engine, movetime: movetime || 0, ip: ip || "" }) + "\n";
   fs.appendFile(GAMES_LOG, line, () => {});
 }
+// 对局日志轮转：超过 5MB 时只保留最后 2 万行，防止长期运行把磁盘写满
+const GAMES_LOG_MAX = 5 * 1024 * 1024;
+const GAMES_LOG_KEEP = 20000;
+let gamesRotating = false;
+function rotateGamesLog() {
+  if (gamesRotating) return;
+  try {
+    if (!fs.existsSync(GAMES_LOG)) return;
+    if (fs.statSync(GAMES_LOG).size <= GAMES_LOG_MAX) return;
+    gamesRotating = true;
+    const raw = fs.readFileSync(GAMES_LOG, "utf8");
+    const lines = raw.split("\n").filter(Boolean).slice(-GAMES_LOG_KEEP);
+    const tmp = GAMES_LOG + ".tmp";
+    fs.writeFileSync(tmp, lines.length ? lines.join("\n") + "\n" : "", { mode: 0o600 });
+    fs.renameSync(tmp, GAMES_LOG);
+  } catch (e) {
+    // 轮转失败不影响主流程；下次定时再试
+  } finally {
+    gamesRotating = false;
+  }
+}
+setInterval(rotateGamesLog, 10 * 60 * 1000).unref();
+rotateGamesLog();
 function getGamesStats() {
   let raw = "";
   try { raw = fs.readFileSync(GAMES_LOG, "utf8"); } catch { raw = ""; }
@@ -1070,7 +1098,11 @@ function parseCookies(req) {
   for (const part of h.split(";")) {
     const i = part.indexOf("=");
     if (i < 0) continue;
-    out[part.slice(0, i).trim()] = decodeURIComponent(part.slice(i + 1).trim());
+    const raw = part.slice(i + 1).trim();
+    // 畸形百分号编码（如 "%"）会让 decodeURIComponent 抛错 → 未捕获异常拖垮服务
+    let val = raw;
+    try { val = decodeURIComponent(raw); } catch { val = raw; }
+    out[part.slice(0, i).trim()] = val;
   }
   return out;
 }
@@ -1080,9 +1112,24 @@ function json(res, code, obj, extraHeaders) {
 }
 function readBody(req) {
   return new Promise((resolve) => {
-    let d = "";
-    req.on("data", c => { d += c; if (d.length > 1e6) req.destroy(); });
-    req.on("end", () => { try { resolve(JSON.parse(d || "{}")); } catch { resolve({}); } });
+    let d = "", done = false;
+    const cleanup = () => {
+      req.removeListener("data", onData);
+      req.removeListener("end", onEnd);
+      req.removeListener("error", onError);
+      req.removeListener("aborted", onError);
+    };
+    const settle = (v) => { if (done) return; done = true; cleanup(); resolve(v); };
+    const onData = c => {
+      d += c;
+      if (d.length > 1e6) { req.destroy(); settle({}); }   // 超限：销毁连接并让 promise 立即落地，调用方校验失败→4xx
+    };
+    const onEnd = () => { try { settle(JSON.parse(d || "{}")); } catch { settle({}); } };
+    const onError = () => settle({});
+    req.on("data", onData);
+    req.on("end", onEnd);
+    req.on("error", onError);
+    req.on("aborted", onError);
   });
 }
 const ADMIN_MIME = {
@@ -1267,16 +1314,20 @@ async function handleApi(req, res, u) {
       }
 
       // 改密码：必须先验证当前密码（否则会话被劫持/XSS 时攻击者可直接改密锁死本人）
+      let pwChanged = false;
       if (body.password) {
         if (!body.currentPassword || !verifyPassword(String(body.currentPassword), me.pw))
           return json(res, 403, { error: "当前密码不正确" });
         if (!validPassword(body.password))
           return json(res, 400, { error: "新密码需 8-128 位，且含大写、小写、数字" });
-        me.pw = hashPassword(body.password); me.mustChange = false; me.updatedAt = Date.now(); changed = true;
+        me.pw = hashPassword(body.password); me.mustChange = false; me.updatedAt = Date.now();
+        changed = true; pwChanged = true;
       }
 
       if (!changed) return json(res, 400, { error: "没有需要修改的内容" });
       saveAccounts(accounts);
+      // 改密后作废本人其它设备的会话，当前会话保持有效
+      if (pwChanged) logoutOthers(me.id, getCurrentToken(req));
       return json(res, 200, { ok: true, username: me.username });
     }
   }
@@ -1387,14 +1438,8 @@ async function handleApi(req, res, u) {
       progress: publicTactics(result.prog),
     });
   }
-  if (p === "/api/tactics/result" && m === "POST") {
-    const body = await readBody(req);
-    const tier = body.tier;
-    if (!TACTICS_TIERS.includes(tier)) return json(res, 400, { error: "难度档无效" });
-    if (typeof body.solved !== "boolean") return json(res, 400, { error: "缺少判定结果" });
-    const { prog, newly } = applyTacticsResult(s.userId, tier, body.solved);
-    return json(res, 200, { progress: publicTactics(prog), newly });
-  }
+  // 注：已移除 /api/tactics/result 死路由——public/ 无任何调用方，且允许客户端
+  // 直接传 solved:true 一键通关（反作弊绕过）。正式流程走 /api/tactics/attempt/start + submit。
 
   // 棋力评估（账号持久化，跨设备同步）
   if (p === "/api/chess-rating/config" && m === "GET") {
@@ -1450,6 +1495,7 @@ async function handleApi(req, res, u) {
     if (!RE_USERNAME.test(uname)) return json(res, 400, { error: "用户名 2-32 位字母数字/._-" });
     if (!validPassword(pw)) return json(res, 400, { error: "密码需 8-128 位，且含大写、小写、数字" });
     if (!ALL_ROLES.includes(role)) return json(res, 400, { error: "角色无效" });
+    if (role === "admin" && s.role !== "admin") return json(res, 403, { error: "仅管理员可授予 admin 角色" });
     const accounts = getAccounts();
     if (accounts.find(a => a.username.toLowerCase() === uname.toLowerCase())) return json(res, 409, { error: "用户名已存在" });
     accounts.push(normalizeUser({ username: uname, role, pw: hashPassword(pw), createdAt: Date.now(), updatedAt: Date.now() }));
@@ -1460,33 +1506,48 @@ async function handleApi(req, res, u) {
   const acctMatch = p.match(/^\/api\/admin\/accounts\/(.+)$/);
   if (acctMatch && (m === "PUT" || m === "DELETE")) {
     if (!need("account:write")) return;
-    const uname = decodeURIComponent(acctMatch[1]);
+    let uname;
+    try { uname = decodeURIComponent(acctMatch[1]); }
+    catch { return json(res, 400, { error: "非法路径参数" }); }
     const accounts = getAccounts();
     const idx = accounts.findIndex(a => a.username === uname);
     if (idx < 0) return json(res, 404, { error: "账号不存在" });
     if (m === "DELETE") {
       if (uname === s.username) return json(res, 400, { error: "不能删除自己" });
       if (accounts[idx].role === "admin") return json(res, 400, { error: "不能删除管理员账号" });
+      const targetId = accounts[idx].id;
       accounts.splice(idx, 1);
       saveAccounts(accounts);
+      logoutAllFor(targetId);
       return json(res, 200, { ok: true });
     }
     const body = await readBody(req);
     const acc = accounts[idx];
+    // 仅管理员可修改管理员账号（覆盖改密/停用/角色），防止 editor 越权锁死管理员
+    if (acc.role === "admin" && s.role !== "admin")
+      return json(res, 403, { error: "仅管理员可修改管理员账号" });
     if (uname === s.username && body.role && body.role !== acc.role)
       return json(res, 403, { error: "不能修改自己的角色" });
-    if (body.status && ["active", "suspended"].includes(body.status)) acc.status = body.status;
-    if (body.password && validPassword(body.password)) { acc.pw = hashPassword(body.password); acc.mustChange = false; }
+    let revoke = false;   // 状态停用 / 角色变更 / 密码重置后，作废该账号所有在线会话
+    if (body.status && ["active", "suspended"].includes(body.status)) {
+      if (body.status === "suspended" && acc.status !== "suspended") revoke = true;
+      acc.status = body.status;
+    }
+    if (body.password && validPassword(body.password)) {
+      acc.pw = hashPassword(body.password); acc.mustChange = false; revoke = true;
+    }
     if (body.role && ALL_ROLES.includes(body.role)) {
       // 防止把自己/唯一管理员降级导致锁死：editor 不能把别人改成 admin 除非自己也是 admin
       if (body.role === "admin" && s.role !== "admin")
         return json(res, 403, { error: "仅管理员可授予 admin 角色" });
       if (acc.role === "admin" && body.role !== "admin" && !accounts.some(a => a !== acc && a.role === "admin"))
         return json(res, 400, { error: "至少保留一个管理员" });
+      if (body.role !== acc.role) revoke = true;
       acc.role = body.role;
     }
     acc.updatedAt = Date.now();
     saveAccounts(accounts);
+    if (revoke) logoutAllFor(acc.id);
     return json(res, 200, { ok: true });
   }
 
@@ -1504,7 +1565,9 @@ async function handleApi(req, res, u) {
   const engMatch = p.match(/^\/api\/admin\/engine\/([^/]+)\/(stop|start)$/);
   if (engMatch && m === "POST") {
     if (!need("engine:control")) return;
-    const key = decodeURIComponent(engMatch[1]);
+    let key;
+    try { key = decodeURIComponent(engMatch[1]); }
+    catch { return json(res, 400, { error: "非法路径参数" }); }
     const ok = controlEngine(key, engMatch[2]);
     return json(res, ok ? 200 : 404, { ok });
   }
