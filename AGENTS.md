@@ -47,6 +47,15 @@
 └──────────────────────────────────────────────────────────────────────┘
 
 GitHub：github.com/TommyDucx/star-ai-board  ← 两目录共用的远程仓库
+
+┌───────────────────────── 公网访问（Cloudflare 快速隧道） ───────────────────────────┐
+│  systemd 服务：cloudflared（开机自启，Restart=always）                              │
+│  转发目标：localhost:8765 → 公网 trycloudflare.com 随机地址                         │
+│  ⚠️ 快速隧道每次重启服务地址都会变！当前地址查询：                                    │
+│    ssh pi@192.168.0.107 "journalctl -u cloudflared --no-pager | grep -oE             │
+│      'https://[a-z0-9-]+\.trycloudflare\.com' | tail -1"                           │
+│  日志：journalctl -u cloudflared；要固定域名需 Cloudflare 账号建 named tunnel        │
+└──────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---

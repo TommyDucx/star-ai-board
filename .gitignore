@@ -52,6 +52,12 @@ admin/auth_codes.json
 admin/reset_tokens.json
 admin/games.log.jsonl
 admin/config.json
+admin/tactics_progress.json
 admin/chess_rating.json
 admin/engagement.json
 admin/shared_library.json
+admin/login_fails.json
+
+# QA / 浏览器测试临时产物（不入库）
+.playwright-cli/
+.write_test_tmp
