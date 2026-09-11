@@ -6,7 +6,7 @@
 <title>星图成长中心 · S.T.A.R.</title>
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <link rel="stylesheet" href="css/site.css?v=34">
-<link rel="stylesheet" href="css/motion.css?v=31">
+<link rel="stylesheet" href="css/motion.css?v=32">
 <style>
   :root{--orbit:#a8ff65;--plasma:#bf8cff;--aurora:#60d8ff;--space:#070b13;--panel:#0e1520;--panel2:#121d2b;--soft:#9da9b7;--gold:#ffd166}
   body{background:radial-gradient(900px 480px at 76% -8%,#263e5648,transparent 60%),radial-gradient(640px 420px at -8% 40%,#452b5e36,transparent 65%),var(--space)}.topbar{background:#080d15e8;backdrop-filter:blur(14px)}
@@ -24,7 +24,7 @@
 </head>
 <body>
 <div class="scanlines"></div><div class="pixel-fault" aria-hidden="true"></div>
-<div class="topbar"><a href="index.html" class="logo" data-nav>S.T.A.R.</a><span class="crumb">PLAYER / STAR MAP</span><span class="flex1"></span><a href="main.html" class="btn" data-nav>开始训练 →</a></div>
+<div class="topbar"><a href="index.html" class="logo" data-nav>S.T.A.R.</a><span class="crumb">PLAYER / STAR MAP</span><span class="flex1"></span><a href="/admin/index.html" class="btn admin-switch hidden" id="admin-switch" data-nav>管理控制台 ↗</a><a href="main.html" class="btn" data-nav>开始训练 →</a></div>
 <main class="account-main enter-node" id="loading"><div class="account-card"><p class="hint">正在校准你的星图与今日任务…</p></div></main>
 <main class="account-main hidden" id="guest"><section class="account-card guest"><div class="eyebrow">PLAYER ACCOUNT</div><h1>让每一次落子留下轨迹</h1><p>登录后保存题型、棋力、奖励和每日成长报告。不收集邮箱或手机号。</p><a class="btn primary" href="/admin/login.html">登录 / 注册</a></section></main>
 <main class="account-main hidden" id="app">
@@ -41,9 +41,9 @@
     <article class="account-card"><div class="eyebrow">STAR LEAGUE</div><h2>活跃榜</h2><p class="hint">按经验值与最佳连续活跃天数排序。</p><div class="leaderboard" id="engagement-leaderboard"></div></article>
     <article class="account-card"><div class="eyebrow">PROFILE</div><h2>棋手资料</h2><p class="hint">改名会同步到全部已登录设备。</p><form id="profile-form"><div class="form-row"><label for="name-input">用户名</label><input id="name-input" minlength="2" maxlength="32" autocomplete="username"></div><div class="form-actions"><button class="btn primary" type="submit">保存资料</button></div><div class="notice" id="profile-notice"></div></form></article>
     <article class="account-card"><div class="eyebrow">SECURITY</div><h2>修改密码</h2><p class="hint" id="password-hint">新密码须含大写、小写字母和数字，长度 8–128 位。</p><form id="password-form"><div class="form-row"><label for="current-password">当前密码</label><input id="current-password" type="password" autocomplete="current-password" required></div><div class="form-row"><label for="new-password">新密码</label><input id="new-password" type="password" autocomplete="new-password" required></div><div class="form-actions"><button class="btn primary" type="submit">更新密码</button></div><div class="notice" id="password-notice"></div></form></article>
-    <article class="account-card wide"><div class="eyebrow">DEVICES</div><h2>登录设备</h2><p class="hint">你可查看当前账号的登录会话，并一键退出其他设备。</p><div id="session-list"></div><div class="form-actions"><button class="btn" id="logout-others">退出其他设备</button><a class="btn" id="admin-link" href="/admin/index.html">管理后台</a></div><div class="notice" id="session-notice"></div></article>
+    <article class="account-card wide"><div class="eyebrow">DEVICES</div><h2>登录设备</h2><p class="hint">你可查看当前账号的登录会话，并一键退出其他设备。</p><div id="session-list"></div><div class="form-actions"><button class="btn" id="logout-others">退出其他设备</button><a class="btn admin-switch hidden" id="admin-link" href="/admin/index.html">进入管理控制台 ↗</a></div><div class="notice" id="session-notice"></div></article>
   </section>
 </main>
-<script src="js/account.js?v=2"></script><script src="js/motion.js?v=33"></script><script>Motion.initCursorLine();Motion.initRipple();Motion.staggerEnter();</script>
+<script src="js/account.js?v=3"></script><script src="js/motion.js?v=35"></script><script>Motion.initCursorLine();Motion.initRipple();Motion.staggerEnter();</script>
 </body>
 </html>

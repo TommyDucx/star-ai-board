@@ -160,9 +160,15 @@ td .tag.off{color:var(--faint)}
   .topbar h1{font-size:15px}
 }
 
-/* ---------- 全扁平化：站点风格（0 圆角），置于末尾覆盖具体规则 ---------- */
+/* ---------- 成长系统统一圆角：后台保留信息密度，但与星图中心使用同一套柔和轮廓 ---------- */
 .login-card,.login-card input,.login-card button,.code-hint,
 .sb-item,.sb-logout,.card,.panel,.modal,.modal input,.toast,
-.bar-track,.role-badge,td .tag,.field input,.field select,.field textarea{border-radius:0}
+.bar-track,.role-badge,td .tag,.field input,.field select,.field textarea{border-radius:12px}
+.bar-track{border-radius:999px}
+.role-badge,td .tag{border-radius:999px}
+.sb-logo{display:block;text-decoration:none}
+.sb-growth{display:block;text-decoration:none}
+.admin-growth{margin-left:auto;color:var(--cyan);border:1px solid #2ed3ff55;background:#2ed3ff0d;padding:7px 11px;border-radius:999px;text-decoration:none;font:11px var(--mono);letter-spacing:.08em;white-space:nowrap}
+.admin-growth:hover{color:var(--paper);border-color:var(--cyan);background:#2ed3ff1a}
 /* 表格操作下拉（复用 .btn 样式的 select）与站点 select 同款：扁平、深底 */
 select.btn{background:var(--ink); color:var(--paper)}

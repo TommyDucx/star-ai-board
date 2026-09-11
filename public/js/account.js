@@ -87,7 +87,9 @@
     $("coins").textContent = p.coins || 0;
     $("rating-streak").textContent = `${rating.currentStreak || 0} 连胜`;
     $("active-days").textContent = p.activeDays || 0;
-    $("admin-link").classList.toggle("hidden", me.role === "member");
+    const canManage = me.role === "admin" || me.role === "editor";
+    $("admin-link").classList.toggle("hidden", !canManage);
+    $("admin-switch").classList.toggle("hidden", !canManage);
     if (me.mustChange) $("password-hint").textContent = "这是管理员创建的初始密码，请先在此设置新的个人密码。";
   }
   function renderAll() { renderMission(); renderQuests(); renderReport(); renderHonors(); renderTactics(); renderLeague(); renderRecentGames(); renderSessions(); renderProfile(); }

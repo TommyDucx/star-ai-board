@@ -191,6 +191,20 @@ body .panel, body .panel-go, body .feat, body .card, body #detail, body #recs, b
   border-radius:50%; background:var(--signal); box-shadow:0 0 10px rgba(215,255,63,.8); }
 @keyframes ringSpin { to{transform:rotate(360deg);} }
 
+/* ---- 全站成长中心圆角与导航壳 ----
+   游戏棋盘仍保留方格秩序；可交互的面板、表单与动作统一为星图的柔和圆角。 */
+:root{--star-radius:16px;--star-radius-sm:10px}
+.btn,.admin-entry,.account-entry,.site-back,.site-corner-nav a,.side-item,.library-action,.library-directory button,.library-pager button{border-radius:999px!important}
+.card,.panel,.mod,.status,.rank-row,.library-card,.library-detail-paper,.library-empty,.quest,.honor,.report-stat,.account-card,.mission,.site-corner-nav{border-radius:var(--star-radius)!important}
+input,select,textarea,.library-search,.library-select,.library-form input,.library-form textarea,.library-form select{border-radius:var(--star-radius-sm)!important}
+.topbar .logo{cursor:pointer}
+.site-back{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border:1px solid var(--lineStrong);color:var(--muted);background:rgba(255,255,255,.025);text-decoration:none;font:11px ui-monospace,Menlo,monospace;letter-spacing:.05em;white-space:nowrap;transition:.18s}
+.site-back:hover{color:var(--signal);border-color:var(--signal);background:rgba(215,255,63,.08)}
+.site-corner-nav{position:fixed;left:18px;top:16px;z-index:80;display:flex;gap:7px;padding:6px;background:rgba(8,10,9,.82);border:1px solid var(--line);backdrop-filter:blur(12px)}
+.site-corner-nav a{display:inline-flex;align-items:center;padding:7px 10px;color:var(--paper);font:11px ui-monospace,Menlo,monospace;letter-spacing:.06em;text-decoration:none;border:1px solid transparent}
+.site-corner-nav a:hover{color:var(--signal);border-color:var(--signal)}
+@media(max-width:660px){.site-back{padding:6px 9px;font-size:10px}.site-corner-nav{left:10px;top:10px}}
+
 /* ---- 标题 glitch（主页 hero） ---- */
 .glitch { position: relative; display: inline-block; }
 .glitch::before,.glitch::after { content: attr(data-text); position:absolute; inset:0; pointer-events:none; opacity:0; }
