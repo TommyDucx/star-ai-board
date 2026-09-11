@@ -6,6 +6,8 @@
   "use strict";
   const REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const SIGNAL = "#d7ff3f";
+  // 一次性绑定守卫：SPA/slice 切换或页面重复调用 init 时不重复挂监听（否则监听器泄漏）
+  let rippleBound = false, magneticBound = false, parallaxBound = false;
 
   /* ---------------- boot 启动：一次引擎 UCI 握手的启动序列 ---------------- */
   function runBoot() {
@@ -180,6 +182,8 @@
   function initMagnetic() {
     if (REDUCED) return;
     if (window.matchMedia && !window.matchMedia("(hover: hover)").matches) return;   // 触屏无 hover 不启用
+    if (magneticBound) { window.dispatchEvent(new Event("resize")); return; }   // 已绑定：仅触发重扫
+    magneticBound = true;
     const MAX_TILT = 6, MAX_SHIFT = 10, LERP = 0.16, EPS = 0.002, EDGE = 48;
     let items = [];
     let raf = null;
@@ -267,7 +271,8 @@
 
   /* ---------------- 点击涟漪 ---------------- */
   function initRipple() {
-    if (REDUCED) return;   // 减动效下动画被禁用，涟漪只剩一个不消失的小圈
+    if (REDUCED || rippleBound) return;   // 减动效下动画被禁用，涟漪只剩一个不消失的小圈
+    rippleBound = true;
     document.addEventListener("pointerdown", e => {
       const hit = e.target.closest(".ripple-host");
       if (!hit) return;
@@ -313,19 +318,15 @@
 
   /* ---------------- 视差（主页 hero） ---------------- */
   function initParallax() {
-    const hero = document.querySelector("[data-parallax]");
-    if (!hero) return;
+    if (parallaxBound) return;
+    parallaxBound = true;
     document.addEventListener("pointermove", e => {
+      // hero 可能被 main.html 动态重建：每次事件都重新查询，缺席则跳过（勿缓存旧节点）
+      const hero = document.querySelector("[data-parallax]");
+      if (!hero) return;
       const r = hero.getBoundingClientRect();
       hero.style.setProperty("--shift-x", ((e.clientX - r.left) / r.width - 0.5).toFixed(3));
       hero.style.setProperty("--shift-y", ((e.clientY - r.top) / r.height - 0.5).toFixed(3));
-    });
-  }
-
-  /* ---------------- 进场 stagger ---------------- */
-  function staggerEnter() {
-    document.querySelectorAll(".enter-node").forEach((el, i) => {
-      el.style.animationDelay = (i * 80) + "ms";
     });
   }
 
@@ -386,7 +387,57 @@
     };
   }
 
-  window.Motion = { runBoot, initCursorLine, initMagnetic, initRipple, sliceRoute, handoff, initParallax, staggerEnter, wireNav };
+  /* ---------------- 全站导航壳 ----------------
+     左上角品牌始终回首页；非首页额外给出“返回上一页”，直接打开时退回首页。
+     这样棋盘、成长中心与后台不会各自长出不一致的返回逻辑。 */
+  function initSiteShell() {
+    const path = window.location.pathname;
+    const inAdmin = path.startsWith("/admin/");
+    // 只有站点根首页才不显示返回按钮；/admin/index.html 仍属于后台页。
+    const isHome = path === "/" || path === "/index.html";
+    const home = inAdmin ? "../index.html" : "index.html";
+    const sameOriginReferrer = () => {
+      try { return !!document.referrer && new URL(document.referrer).origin === location.origin; }
+      catch (_) { return false; }
+    };
+    const makeBack = () => {
+      const back = document.createElement("a");
+      back.className = "site-back";
+      back.href = home;
+      back.dataset.nav = "";
+      back.textContent = "← 返回";
+      back.setAttribute("aria-label", "返回上一页");
+      back.addEventListener("click", event => {
+        if (sameOriginReferrer() && history.length > 1) { event.preventDefault(); history.back(); }
+      });
+      return back;
+    };
+
+    document.querySelectorAll(".topbar .logo").forEach(logo => {
+      if (logo.tagName === "A") { logo.href = home; logo.dataset.nav = ""; }
+    });
+    document.querySelectorAll(".sb-logo").forEach(logo => {
+      if (logo.tagName === "A") { logo.href = home; logo.dataset.nav = ""; }
+    });
+
+    if (!isHome) {
+      const bar = document.querySelector(".topbar");
+      if (bar && !bar.querySelector(".site-back")) {
+        const anchor = bar.querySelector(".crumb") || bar.firstElementChild;
+        bar.insertBefore(makeBack(), anchor || null);
+      } else if (!bar && !document.querySelector(".site-corner-nav")) {
+        const nav = document.createElement("nav");
+        nav.className = "site-corner-nav";
+        nav.setAttribute("aria-label", "页面导航");
+        const homeLink = document.createElement("a");
+        homeLink.href = home; homeLink.dataset.nav = ""; homeLink.textContent = "⌂ 主页";
+        nav.append(homeLink, makeBack());
+        document.body.prepend(nav);
+      }
+    }
+  }
+
+  window.Motion = { runBoot, initCursorLine, initMagnetic, initRipple, sliceRoute, handoff, initParallax, staggerEnter, wireNav, initSiteShell };
   // 初始化放导出之后：initFx 要往 window.Motion 上挂 fx 接口
   /* ---------------- SFX 音效引擎：Web Audio 程序化合成，零音频资源 ---------------- */
   function initSfx() {
@@ -480,6 +531,7 @@
   }
 
   wireNav();   // 委托绑定：脚本加载即生效，无需各页重复内联
+  initSiteShell();
   initAmbient();
   initFx();
   initSfx();

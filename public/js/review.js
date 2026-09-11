@@ -21,14 +21,28 @@
     };
     ws.onmessage = e => {
       const m = JSON.parse(e.data);
+      if (m && (m.code === "AUTH_REQUIRED" || m.code === "MUST_CHANGE")) {
+        const p = pending.get(m.id);
+        if (p && p.silent) {
+          pending.delete(m.id);
+          p.rej(new Error(m.code === "AUTH_REQUIRED" ? "未登录" : "请先修改密码"));
+        } else {
+          location.href = "/admin/login.html";
+        }
+        return;
+      }
       const p = pending.get(m.id);
-      if (p) { pending.delete(m.id); m.err ? p.rej(new Error(m.message)) : p.res(m); }
+      if (p) {
+        pending.delete(m.id);
+        if (m.err || m.type === "error") p.rej(new Error(m.message || "引擎错误"));
+        else p.res(m);
+      }
     };
   }
-  function rpc(type, payload) {
+  function rpc(type, payload, opts) {
     return new Promise((res, rej) => {
       const id = "c" + (++msgId);
-      pending.set(id, { res, rej });
+      pending.set(id, { res, rej, silent: !!(opts && opts.silent) });
       const send = () => ws.send(JSON.stringify({ type, id, ...payload }));
       if (wsReady) send(); else sendQueue.push(send);
     });
@@ -82,11 +96,14 @@
     const g = new Chess();
     const fens = [], turns = [];
     fens.push(g.fen()); turns.push(g.turn());
+    let applied = 0;
     for (const m of moves) {
       if (!g.move({ from: m.from, to: m.to, promotion: m.promotion || "q" })) break;
+      applied++;
       fens.push(g.fen()); turns.push(g.turn());
     }
-    return { fens, turns };
+    // applied = 实际被合法应用的手数；若小于 moves.length 说明数据里有非法着法
+    return { fens, turns, applied };
   }
 
   function cpOf(c) { return c && c.evalCp != null ? c.evalCp : 0; }
@@ -100,47 +117,63 @@
     if (!moves.length) { setStatus("对局为空", true); return; }
 
     setStatus("分析中…");
-    const { fens, turns } = build();
+    const { fens, turns, applied } = build();
+    // 数据里可能混入非法着法（引擎/存储异常）：截断到实际合法应用的手数，
+    // 保证后续 nodes[i+1] 与 moves[i] 一一对应，不越界
+    const truncated = applied < moves.length;
+    if (truncated) moves = moves.slice(0, applied);
     const start = Date.now();
     nodes = [];
-    for (let i = 0; i < fens.length; i++) {
-      // 进度反馈：长对局分析可达数十秒，让用户知道还要等多久
-      setStatus(`分析中 ${i + 1}/${fens.length}…`);
-      const r = await rpc("chess", { engine: "stockfish", fen: fens[i], movetime: 300, multipv: 3 });
-      const cands = (r.candidates || []).slice(0, 3);
-      nodes.push({
-        cp: cpOf(cands[0]),
-        turn: turns[i],                                   // 该局面行棋方
-        bestUci: (cands[0] && cands[0].pv && cands[0].pv[0]) || null,
-        cands,
-      });
+    try {
+      for (let i = 0; i < fens.length; i++) {
+        // 进度反馈：长对局分析可达数十秒，让用户知道还要等多久
+        setStatus(`分析中 ${i + 1}/${fens.length}…`);
+        // 静默：匿名访客打开复盘不应跳转登录
+        const r = await rpc("chess", { engine: "stockfish", fen: fens[i], movetime: 300, multipv: 3 }, { silent: true });
+        const cands = (r.candidates || []).slice(0, 3);
+        nodes.push({
+          cp: cpOf(cands[0]),
+          turn: turns[i],                                   // 该局面行棋方
+          bestUci: (cands[0] && cands[0].pv && cands[0].pv[0]) || null,
+          cands,
+        });
+      }
+    } catch (e) {
+      setStatus("复盘失败: " + e.message + "（请先登录账号）", true);
+      return;
     }
     // 逐手判定（损失 = 走前行棋方优势 - 走后行棋方优势(转回)）
     review = [];
-    for (let i = 0; i < moves.length; i++) {
-      const m = moves[i];
-      const before = nodes[i].cp;                 // 局面 i：轮到该步行棋方，cp 即其视角优势
-      const after = -nodes[i + 1].cp;             // 局面 i+1：轮到对方，取负转为该步行棋方视角
-      const lossCp = Math.max(0, before - after);
-      const jumpCp = after - before;
-      const actualUci = m.from + m.to + (m.promotion ? m.promotion : "");
-      const bestUci = nodes[i].bestUci;
-      const isBest = bestUci && actualUci.slice(0, 4) === bestUci.slice(0, 4);
-      const flags = {
-        attack: /c|t|q/i.test(m.flags || ""),
-        actualTactical: !!m.captured || /[+#]$/.test(m.san || ""),
-      };
-      const book = inBook(moves.map(x => x.san), i + 1) && i < 15;
-      let cls;
-      if (book && lossCp <= 20) cls = CLASSES.book;
-      else cls = grade(lossCp, isBest, actualUci, bestUci, flags, jumpCp);
-      review.push({
-        n: i + 1, san: m.san, p: m.color, color: m.color, piece: m.piece, captured: m.captured,
-        before, after, lossCp, jumpCp, isBest, bestUci,
-        actualUci, flags, cls, key: cls.key, book,
-      });
+    try {
+      for (let i = 0; i < moves.length; i++) {
+        const m = moves[i];
+        const before = nodes[i].cp;                 // 局面 i：轮到该步行棋方，cp 即其视角优势
+        const after = -nodes[i + 1].cp;             // 局面 i+1：轮到对方，取负转为该步行棋方视角
+        const lossCp = Math.max(0, before - after);
+        const jumpCp = after - before;
+        const actualUci = m.from + m.to + (m.promotion ? m.promotion : "");
+        const bestUci = nodes[i].bestUci;
+        const isBest = bestUci && actualUci.slice(0, 4) === bestUci.slice(0, 4);
+        const flags = {
+          attack: /c|t|q/i.test(m.flags || ""),
+          actualTactical: !!m.captured || /[+#]$/.test(m.san || ""),
+        };
+        const book = inBook(moves.map(x => x.san), i + 1) && i < 15;
+        let cls;
+        if (book && lossCp <= 20) cls = CLASSES.book;
+        else cls = grade(lossCp, isBest, actualUci, bestUci, flags, jumpCp);
+        review.push({
+          n: i + 1, san: m.san, p: m.color, color: m.color, piece: m.piece, captured: m.captured,
+          before, after, lossCp, jumpCp, isBest, bestUci,
+          actualUci, flags, cls, key: cls.key, book,
+        });
+      }
+    } catch (e) {
+      // 防御：分析节点与走法不匹配时（历史脏数据）不抛 TypeError，给出可恢复提示
+      setStatus("复盘数据异常，已停止分析", true);
+      return;
     }
-    setStatus(`分析完成 · ${((Date.now() - start) / 1000).toFixed(1)}s`);
+    setStatus(`分析完成 · ${((Date.now() - start) / 1000).toFixed(1)}s` + (truncated ? "（部分非法着法已忽略）" : ""));
     window.__review = review;   // 调试
     window.__nodes = nodes;
     renderAll();

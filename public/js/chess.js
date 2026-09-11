@@ -11,11 +11,6 @@
   const sendQueue = [];   // ws 未就绪时排队的请求（onopen 统一发送，重连不丢）
   let lastCandidates = [];
   let session = 0;   // 对局代次：新对局/悔棋时自增，作废迟到的引擎回复（防污染新棋局）
-  // #region agent log
-  function __dbg(hypothesisId, location, message, data) {
-    fetch("http://127.0.0.1:7587/ingest/3828bfdf-cd92-4ca5-b60b-647b045b2c2b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d49b5a" }, body: JSON.stringify({ sessionId: "d49b5a", hypothesisId, location, message, data, timestamp: Date.now() }) }).catch(() => {});
-  }
-  // #endregion
 
   /* ---------------- WS 连接 ---------------- */
   function connect() {
@@ -33,27 +28,32 @@
       };
       ws.onmessage = e => {
         const m = JSON.parse(e.data);
-        // 鉴权失败/强制改密：服务端拒绝引擎调用，统一跳登录页（登录后会被改密页引导）
-        if (m && m.code === "AUTH_REQUIRED") {
-          location.href = "/admin/login.html";
-          return;
-        }
-        if (m && m.code === "MUST_CHANGE") {
-          location.href = "/admin/login.html";
+        if (m && (m.code === "AUTH_REQUIRED" || m.code === "MUST_CHANGE")) {
+          const p = pending.get(m.id);
+          if (p && p.silent) {
+            pending.delete(m.id);
+            p.rej(new Error(m.code === "AUTH_REQUIRED" ? "未登录" : "请先修改密码"));
+          } else {
+            location.href = "/admin/login.html";
+          }
           return;
         }
         const p = pending.get(m.id);
-        if (p) { pending.delete(m.id); m.err ? p.rej(new Error(m.message)) : p.res(m); }
+        if (p) {
+          pending.delete(m.id);
+          if (m.err || m.type === "error") p.rej(new Error(m.message || "引擎错误"));
+          else p.res(m);
+        }
       };
     } catch (e) {
       // ws 失败不影响棋盘渲染，稍后重试
       setTimeout(connect, 2000);
     }
   }
-  function rpc(type, payload) {
+  function rpc(type, payload, opts) {
     return new Promise((res, rej) => {
       const id = "c" + (++msgId);
-      pending.set(id, { res, rej });
+      pending.set(id, { res, rej, silent: !!(opts && opts.silent) });
       const send = () => ws.send(JSON.stringify({ type, id, ...payload }));
       if (wsReady) send(); else sendQueue.push(send);
     });
@@ -94,14 +94,8 @@
 
   // 执行移动：原位置清空，目标位置放上棋子（chess.js 同步更新棋盘）
   function doMove(from, to) {
-    // #region agent log
-    __dbg("A", "chess.js:doMove", "doMove before", { from, to, hist: game.history().length, fen: game.fen(), boardFen: board && board.fen && board.fen() });
-    // #endregion
     const mv = game.move({ from, to, promotion: "q" });
     if (!mv) {
-      // #region agent log
-      __dbg("A", "chess.js:doMove", "doMove rejected", { from, to, hist: game.history().length, fen: game.fen() });
-      // #endregion
       return false;
     }
     captureFx(mv);
@@ -257,7 +251,7 @@
       const engine = document.getElementById("engine").value;
       const engineName = document.getElementById("engine").options[document.getElementById("engine").selectedIndex].textContent;
       try {
-        const r = await rpc("chess", { engine, fen: game.fen(), movetime: 250, multipv: 1 });
+        const r = await rpc("chess", { engine, fen: game.fen(), movetime: 250, multipv: 1 }, { silent: true });
         if (mySession !== session) return;   // 已重置对局：丢弃迟到的评估
         const c = (r.candidates && r.candidates[0]) || null;
         if (c) updateEval(c);
@@ -311,10 +305,7 @@
     const elo = +document.getElementById("level").value || null;
     const movetime = +document.getElementById("movetime").value;
     try {
-      // #region agent log
-      __dbg("D", "chess.js:engineThink", "think fen", { fen: game.fen(), hist: game.history().length, session: mySession });
-      // #endregion
-      const r = await rpc("chess", { engine, fen: game.fen(), elo, movetime, multipv: 3 });
+      const r = await rpc("chess", { engine, fen: game.fen(), elo, movetime, multipv: 3 }, { silent: true });
       if (mySession !== session) return;   // 期间发生了新对局/悔棋：丢弃迟到回复，不在新棋盘落子
       const cands = (r.candidates || []).map(c => ({ ...c, uci: c.pv && c.pv[0] }));
       renderCands(cands, r.bestmove);
@@ -342,6 +333,11 @@
         }
       }
     } catch (e) {
+      if (e.message === "未登录") {
+        setStatus("引擎功能需登录后使用 · 请点击右上角登录", true);
+        showAuthHint();
+        return;
+      }
       setStatus("分析失败: " + e.message, true);
     } finally {
       setThinking(false);
@@ -520,6 +516,17 @@
     el.textContent = txt;
     el.classList.toggle("alert", !!alert);
   }
+  // 未登录提示：在状态栏下方插入小横幅（仅一次），引导登录而非强制跳转
+  function showAuthHint() {
+    if (document.querySelector(".auth-hint")) return;
+    const anchor = document.getElementById("status");
+    if (!anchor || !anchor.parentNode) return;
+    const a = document.createElement("div");
+    a.className = "auth-hint";
+    a.style.cssText = "margin-top:8px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--muted);font-size:12px";
+    a.innerHTML = '未登录 · 引擎推荐需登录 · <a href="/admin/login.html" style="color:var(--signal)">登录</a>';
+    anchor.parentNode.insertBefore(a, anchor.nextSibling);
+  }
   function setThinking(on) {
     document.getElementById("thinking").classList.toggle("on", on);
     const bz = document.querySelector(".board-zone");
@@ -565,13 +572,10 @@
   function newGame() {
     session++; finaleShown = false; clearKingAlarm();
     document.querySelectorAll(".checkmate-finale").forEach(e => e.remove());
-    // #region agent log
-    __dbg("A", "chess.js:newGame", "newGame before visual reset", { hist: game.history().length, fen: game.fen(), session, hasReset: typeof game.reset === "function" });
-    // #endregion
-    board.position("start"); lastCandidates = []; resetEvalUI(); updateStatus();
-    // #region agent log
-    __dbg("A", "chess.js:newGame", "newGame after visual reset", { hist: game.history().length, fen: game.fen(), boardFen: board && board.fen && board.fen(), movelistRows: document.querySelectorAll("#movelist tbody tr").length });
-    // #endregion
+    game.reset();
+    board.position(game.fen(), false);
+    lastCandidates = []; lastInCheck = false; clearOverlays(); lastEvalCp = null;
+    resetEvalUI(); updateStatus();
     sweepReset();
     assemblePieces();
   }
@@ -606,6 +610,8 @@
 
   connect();
   loadEngines();
+  // 未登录访客：探测 /api/me，401 时显示登录提示（不跳转）
+  fetch("/api/me").then(r => { if (r.status === 401) showAuthHint(); }).catch(() => {});
   // 延迟到 window.load：公网/慢网络下 jQuery/chessboard.min.js 可能未就绪，
   // 立即执行会测到 #board=0 高度导致棋盘消失。所有资源就绪后再初始化。
   if (document.readyState === "complete") {
@@ -613,6 +619,8 @@
   } else {
     window.addEventListener("load", initBoard, { once: true });
   }
+  // 窄屏自适应：视口变化后按容器宽度重算棋盘尺寸
+  window.addEventListener("resize", () => { if (board && board.resize) board.resize(); });
   window.engineThink = engineThink;
   window.newGame = newGame;
   window.undo = undo;

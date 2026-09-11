@@ -293,9 +293,6 @@
     var t = boardEl.querySelector('[data-square="' + uci.slice(2, 4) + '"]');
     var f2 = boardEl.querySelector(".square-" + uci.slice(0, 2));
     var t2 = boardEl.querySelector(".square-" + uci.slice(2, 4));
-    // #region agent log
-    fetch("http://127.0.0.1:7587/ingest/3828bfdf-cd92-4ca5-b60b-647b045b2c2b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d49b5a" }, body: JSON.stringify({ sessionId: "d49b5a", hypothesisId: "E", location: "tactics.js:highlightMove", message: "hint selectors", data: { uci: uci, dataSquareFrom: !!f, dataSquareTo: !!t, classFrom: !!f2, classTo: !!t2 }, timestamp: Date.now() }) }).catch(function () {});
-    // #endregion
     if (f) f.classList.add("tac-hl-from");
     if (t) t.classList.add("tac-hl-to");
   }
@@ -334,14 +331,19 @@
     if (mv) board.position(game.fen());
     return mv;
   }
-  function legalUci(source, target) {
+  function legalUci(source, target, expected) {
     var moves = game.moves({ verbose: true }).filter(function (m) { return m.from === source && m.to === target; });
-    return moves.length ? moves[0].from + moves[0].to + (moves[0].promotion || "") : "";
+    if (!moves.length) return "";
+    // 升变时同一 from/to 会有 4 个候选（q/r/b/n）：优先匹配 expected（含升变子），
+    // 否则回退首个候选——修复升变题（尤其低升变）无法通过的问题
+    var match = moves.filter(function (m) { return m.from + m.to + (m.promotion || "") === expected; })[0];
+    var pick = match || moves[0];
+    return pick.from + pick.to + (pick.promotion || "");
   }
   function onDrop(source, target) {
     if (!cur || solvedCurrent || submitting) return "snapback";
     var expected = cur.moves[moveIdx];
-    var played = legalUci(source, target);
+    var played = legalUci(source, target, expected);
     if (!played) return "snapback";
     var ok = played === expected;
     if (!ok && (cur.themes || []).indexOf("mateIn1") >= 0 && moveIdx === 0) {
@@ -460,6 +462,9 @@
     attemptId = null;
     loadActivePuzzle();
   };
+
+  // 窄屏自适应：视口变化后按容器宽度重算棋盘尺寸
+  window.addEventListener("resize", function () { if (board && board.resize) board.resize(); });
 
   fetch("data/puzzles.json").then(function (r) { return r.json(); }).then(function (d) {
     puzzles = d.puzzles || [];

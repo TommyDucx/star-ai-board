@@ -17,6 +17,8 @@
   const userLosses = [];
   let mistakes = 0;
   let blunders = 0;
+  let gen = 0;   // 测评代次：重新开始/重开对局即自增，用于丢弃迟到的引擎应手与结算结果
+  let thinkingGen = -1;   // 当前有应手在途的代次；同代次重复触发直接忽略（防连点重开时并发应手互撞）
 
   const PIECE_CP = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
 
@@ -185,16 +187,19 @@
     setThinking(false);
     $("resign-btn").disabled = true;
     const m = metrics();
+    const myGen = gen;
     try {
       const d = await api("/api/chess-rating/game/finish", {
         method: "POST",
         body: JSON.stringify({ gameId: active.gameId, result, moves: game.history().length, metrics: m }),
       });
+      if (myGen !== gen) return;   // 已重开：丢弃旧局结算结果，避免污染新局报告
       updateProfile(d.progress);
       showReport(d.record);
       unlockSettings();
       setStatus("测评已结算。", false);
     } catch (e) {
+      if (myGen !== gen) return;
       setStatus("结算失败：" + e.message, true);
     }
   }
@@ -218,6 +223,9 @@
   async function engineMove() {
     if (!active || finished || game.game_over()) { await finishGame(false); return; }
     if (turnIsUser()) { updateStatus(); return; }
+    if (thinkingGen === gen) return;   // 本代次已有应手在途，忽略重复触发
+    thinkingGen = gen;
+    const myGen = gen;
     setThinking(true);
     setStatus("Stockfish 思考中...");
     try {
@@ -228,6 +236,7 @@
         movetime: active.movetime,
         multipv: 1,
       });
+      if (myGen !== gen) return;   // 已重开：迟到的应手不再落到新棋盘
       const uci = r.bestmove;
       if (!uci || uci === "(none)") throw new Error("引擎没有返回走法");
       const mv = game.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: "q" });
@@ -236,9 +245,11 @@
       updateStatus();
       if (game.game_over()) await finishGame(false);
     } catch (e) {
+      if (myGen !== gen) return;
       setStatus("引擎应手失败：" + e.message, true);
     } finally {
-      setThinking(false);
+      // 仅当在途代次仍是我时才收尾；旧代次不干扰新局的思考指示
+      if (thinkingGen === myGen) { thinkingGen = -1; setThinking(false); }
     }
   }
   function userMove(from, to) {
@@ -301,6 +312,8 @@
   }
 
   async function startAssessment() {
+    gen++;   // 作废上一局所有在途请求（引擎应手/结算）
+    const myGen = gen;
     $("report").classList.remove("show");
     setStatus("正在创建测评对局...");
     try {
@@ -308,6 +321,7 @@
         method: "POST",
         body: JSON.stringify({ tier: $("tier").value, color: $("color").value }),
       });
+      if (myGen !== gen) return;   // 连点重开：只采用最后一次创建的测评
       active = d;
       userColor = d.color;
       finished = false;

@@ -45,29 +45,34 @@
         pending.clear();
         setTimeout(connect, 2000);
       };
-      ws.onmessage = e => {
-        const m = JSON.parse(e.data);
-        // 鉴权失败/强制改密：服务端拒绝引擎调用，统一跳登录页（登录后会被改密页引导）
-        if (m && m.code === "AUTH_REQUIRED") {
-          location.href = "/admin/login.html";
-          return;
-        }
-        if (m && m.code === "MUST_CHANGE") {
-          location.href = "/admin/login.html";
-          return;
-        }
+ws.onmessage = e => {
+      const m = JSON.parse(e.data);
+      if (m && (m.code === "AUTH_REQUIRED" || m.code === "MUST_CHANGE")) {
         const p = pending.get(m.id);
-        if (p) { pending.delete(m.id); m.err ? p.rej(new Error(m.message)) : p.res(m); }
-      };
+        if (p && p.silent) {
+          pending.delete(m.id);
+          p.rej(new Error(m.code === "AUTH_REQUIRED" ? "未登录" : "请先修改密码"));
+        } else {
+          location.href = "/admin/login.html";
+        }
+        return;
+      }
+      const p = pending.get(m.id);
+      if (p) {
+        pending.delete(m.id);
+        if (m.err || m.type === "error") p.rej(new Error(m.message || "引擎错误"));
+        else p.res(m);
+      }
+    };
     } catch (e) {
       // ws 失败不影响棋盘渲染，稍后重试
       setTimeout(connect, 2000);
     }
   }
-  function rpc(type, payload) {
+  function rpc(type, payload, opts) {
     return new Promise((res, rej) => {
       const id = "c" + (++msgId);
-      pending.set(id, { res, rej });
+      pending.set(id, { res, rej, silent: !!(opts && opts.silent) });
       const send = () => ws.send(JSON.stringify({ type, id, ...payload }));
       if (wsReady) send(); else sendQueue.push(send);
     });
@@ -91,6 +96,8 @@
   /* ---------------- 棋盘渲染 ---------------- */
   function render() {
     const size = CELL * (N - 1) + PAD * 2;
+    // 整盘由 CSS rotate(180deg) 翻转；文字用局部反向旋转抵消，保持正立可读
+    const rot = (x, y) => flipped ? ` transform="rotate(180 ${x} ${y})"` : "";
     svg.setAttribute("width", size);
     svg.setAttribute("height", size);
     svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
@@ -123,8 +130,8 @@
     });
     // 坐标
     for (let i = 0; i < N; i++) {
-      html += `<text x="${PAD - 10}" y="${PAD + i * CELL + 3.5}" font-size="10" fill="#6b4c26" text-anchor="middle">${N - i}</text>`;
-      html += `<text x="${PAD + i * CELL}" y="${size - PAD + 18}" font-size="10" fill="#6b4c26" text-anchor="middle">${LETTERS[i]}</text>`;
+      html += `<text x="${PAD - 10}" y="${PAD + i * CELL + 3.5}"${rot(PAD - 10, PAD + i * CELL + 3.5)} font-size="10" fill="#6b4c26" text-anchor="middle">${N - i}</text>`;
+      html += `<text x="${PAD + i * CELL}" y="${size - PAD + 18}"${rot(PAD + i * CELL, size - PAD + 18)} font-size="10" fill="#6b4c26" text-anchor="middle">${LETTERS[i]}</text>`;
     }
     // 落子
     for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
@@ -154,7 +161,7 @@
       html += `<circle cx="${x}" cy="${y}" r="${isTop ? 15 : 12}" fill="#d7ff3f" fill-opacity="0.95"
         stroke="${isTop ? "#e6c200" : "#9db314"}" stroke-width="${isTop ? 2.5 : 1.5}"></circle>`;
       // 序号（第1名更大）
-      html += `<text x="${x}" y="${y + (isTop ? 6 : 4.5)}" font-size="${isTop ? 16 : 13}" font-weight="800"
+      html += `<text x="${x}" y="${y + (isTop ? 6 : 4.5)}"${rot(x, y + (isTop ? 6 : 4.5))} font-size="${isTop ? 16 : 13}" font-weight="800"
         fill="#080a09" text-anchor="middle" style="pointer-events:none">${i + 1}</text>`;
       const wrTxt = cd.winrate != null ? (cd.winrate * 100).toFixed(1) + "%" : "--";
       const ldTxt = cd.scoreLead != null ? (cd.scoreLead >= 0 ? "+" : "") + cd.scoreLead.toFixed(1) : "--";
@@ -175,12 +182,12 @@
     svg.innerHTML = html;
     svg.querySelectorAll("[data-r]").forEach(el => {
       el.addEventListener("click", () => {
-        let r = +el.dataset.r, c = +el.dataset.c;
-        // 视图翻转后，点击坐标要映射回真实棋盘坐标
-        if (flipped) { r = N - 1 - r; c = N - 1 - c; }
-        place(r, c);
+        // SVG 由 CSS rotate(180deg) 翻转，命中到的 circle 已携带真实坐标，无需再手动反转
+        place(+el.dataset.r, +el.dataset.c);
       });
     });
+    // 每次重绘后恢复翻转态（棋盘+棋子一起转，文字已反向抵消）
+    svg.style.transform = flipped ? "rotate(180deg)" : "";
   }
 
   /* ---------------- 落子 ---------------- */
@@ -193,7 +200,7 @@
     gen++;          // 新局面：作废进行中的旧分析
     render();
     if (window.Motion && Motion.sfx) Motion.sfx.stone();   // 石子啪嗒
-    aiAnalyze(true); // 落子后自动分析推荐下一步
+    aiAnalyze(true, { silent: true }); // 静默：匿名访客落子不应触发登录跳转
   }
   function undo() {
     const last = moveLog.pop();
@@ -219,12 +226,13 @@
   function flipBoard() {
     // 视图翻转（rotate 180°），不交换棋子颜色——旧实现直接改 board 颜色会破坏
     // moveLog 与局面的对应关系（下一手颜色判断错乱），属于状态污染
+    // 重绘以更新文字的局部反向旋转（保持标签/推荐序号正立）
     flipped = !flipped;
-    svg.style.transform = flipped ? "rotate(180deg)" : "";
+    render();
   }
 
   /* ---------------- 引擎分析 ---------------- */
-  async function aiAnalyze(auto) {
+  async function aiAnalyze(auto, opts) {
     const stones = [];
     for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
       if (board[r][c]) stones.push([colorChar(board[r][c]), gtp(r, c)]);
@@ -232,11 +240,15 @@
     const visits = +document.getElementById("visits").value;
     const engine = document.getElementById("goengine").value;
     const engLabel = document.getElementById("goengine").selectedOptions[0]?.textContent || engine;
-    setThinking(true);
-    setStatus(`${engLabel} 分析中…`);
+    const silent = !!(opts && opts.silent);
+    const showStatus = !(opts && opts.status === false);
+    if (showStatus) {
+      setThinking(true);
+      setStatus(`${engLabel} 分析中…`);
+    }
     const myGen = gen;   // 记住发起时的棋局代次
     try {
-      const m = await rpc("go", { engine, stones, side, boardSize: N, maxVisits: visits });
+      const m = await rpc("go", { engine, stones, side, boardSize: N, maxVisits: visits }, { silent });
       if (myGen !== gen) return;   // 期间落子/悔棋/清盘/切尺寸：丢弃迟到结果，不渲染不写状态
       candidates = (m.moveInfos || []).map(info => ({
         move: info.move, winrate: info.winrate, scoreLead: info.scoreLead,
@@ -246,11 +258,16 @@
       renderWinbar(side, m);
       renderCands();
       // auto（落子后自动分析）也要解除「分析中…」状态，否则状态栏永远卡在分析中
-      setStatus(auto ? `${engLabel} 分析完成 · 轮到 ${side === "B" ? "黑方" : "白方"}` : "分析完成");
+      if (showStatus) setStatus(auto ? `${engLabel} 分析完成 · 轮到 ${side === "B" ? "黑方" : "白方"}` : "分析完成");
     } catch (e) {
-      setStatus("分析失败: " + e.message, true);
+      if (e.message === "未登录") {
+        if (showStatus) setStatus("引擎功能需登录后使用 · 请点击右上角登录", true);
+        showAuthHint();
+        return;
+      }
+      if (showStatus) setStatus("分析失败: " + e.message, true);
     } finally {
-      setThinking(false);
+      if (showStatus) setThinking(false);
     }
   }
 
@@ -293,6 +310,17 @@
     el.textContent = txt;
     el.classList.toggle("alert", !!alert);
   }
+  // 未登录提示：在状态栏下方插入小横幅（仅一次），引导登录而非强制跳转
+  function showAuthHint() {
+    if (document.querySelector(".auth-hint")) return;
+    const anchor = document.getElementById("status");
+    if (!anchor || !anchor.parentNode) return;
+    const a = document.createElement("div");
+    a.className = "auth-hint";
+    a.style.cssText = "margin-top:8px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--muted);font-size:12px";
+    a.innerHTML = '未登录 · 引擎推荐需登录 · <a href="/admin/login.html" style="color:var(--signal)">登录</a>';
+    anchor.parentNode.insertBefore(a, anchor.nextSibling);
+  }
   function setThinking(on) {
     document.getElementById("thinking").classList.toggle("on", on);
     const card = document.querySelector(".board-card");
@@ -327,7 +355,7 @@
     analyzingGen = gen;                       // 防连点重复开局
     try {
       setStatus("AI 代黑方开局…");
-      await aiAnalyze(true);                  // 渲染黑方首选（gen 保护下若用户清盘则丢弃）
+      await aiAnalyze(true, { silent: true });   // 静默：匿名访客切执白不应跳转登录
       const top = candidates[0];
       if (top && top.move && top.move !== "pass" && !moveLog.length) {
         const pos = fromGtp(top.move);
@@ -338,7 +366,10 @@
   connect();
   board = Array.from({ length: N }, () => Array(N).fill(0));
   render();
-  window.aiAnalyze = aiAnalyze;
+  // AI 推荐按钮走静默路径：匿名访客点击不跳转登录，仅在状态栏提示
+  window.aiAnalyze = () => aiAnalyze(false, { silent: true });
+  // 未登录访客：探测 /api/me，401 时显示登录提示（不跳转）
+  fetch("/api/me").then(r => { if (r.status === 401) showAuthHint(); }).catch(() => {});
   window.place = place;
   window.undo = undo;
   window.clearBoard = clearBoard;

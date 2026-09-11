@@ -110,7 +110,11 @@
     var text = (root.querySelector("#library-pgn") || {}).textContent || "";
     if (!text) return;
     var a = document.createElement("a"), blob = new Blob([text], {type:"application/x-chess-pgn"});
-    a.href = URL.createObjectURL(blob); a.download = "star-study.pgn"; a.click(); URL.revokeObjectURL(a.href); notice("PGN 下载已开始。");
+    a.href = URL.createObjectURL(blob); a.download = "star-study.pgn";
+    document.body.appendChild(a); a.click();
+    // 点击后延迟回收：立即 revoke 在部分浏览器会取消尚未开始的下载
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    notice("PGN 下载已开始。");
   }
   function handleClick(event) {
     var el = event.target.closest("[data-entry],[data-action],[data-category],[data-page]"); if (!el || !root.contains(el)) return;
