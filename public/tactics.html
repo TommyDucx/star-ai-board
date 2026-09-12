@@ -135,10 +135,7 @@
 <script src="js/tactics.js?v=7"></script>
 <script src="js/motion.js?v=35"></script>
 <script>
-  Motion.initCursorLine();
-  Motion.initRipple();
-  Motion.initMagnetic();
-  Motion.staggerEnter();
+  if (window.Motion) { Motion.initCursorLine(); Motion.initRipple(); Motion.initMagnetic(); Motion.staggerEnter(); }
 </script>
 </body>
 </html>

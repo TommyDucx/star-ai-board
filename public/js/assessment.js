@@ -97,6 +97,12 @@
 
   // 续局：把进行中的对局落盘到本浏览器 localStorage（仅存客户端已有信息，不引入新信任面）
   function safeParse(s) { try { return JSON.parse(s); } catch { return null; } }
+  // 网络层异常是浏览器原生的英文文本（"Failed to fetch"），直接显示给用户不友好——统一转成中文
+  function errText(e) {
+    const m = (e && e.message) || "";
+    if (/failed to fetch|networkerror|load failed|err_/i.test(m)) return "网络连接失败，请检查网络后重试";
+    return m || "未知错误";
+  }
   function saveActive() {
     if (!active) return;
     try {
@@ -156,7 +162,7 @@
     try {
       const d = await api("/api/chess-rating/me");
       if (!d.authenticated || !d.progress) {
-        $("login-state").textContent = d.mustChange ? "账号需要先修改密码。" : "未登录：请先进入管理后台登录账号。";
+        $("login-state").textContent = d.mustChange ? "账号需要先修改密码。" : "未登录：请先在首页登录账号。";
         $("start-btn").disabled = true;
         setStatus(d.mustChange ? "请先修改密码后再开始测评。" : "未登录账号，不能记录棋力。", true);
         return;
@@ -171,9 +177,10 @@
         maybeRestore();
       }
     } catch (e) {
-      $("login-state").textContent = "未登录：请先进入管理后台登录账号。";
+      // 网络/服务端异常 ≠ 未登录：不要把「连不上服务器」显示成「未登录」，否则用户会去反复重新登录
+      $("login-state").textContent = "无法连接服务器，请稍后重试。";
       $("start-btn").disabled = true;
-      setStatus("未登录账号，不能记录棋力。", true);
+      setStatus("无法连接服务器，暂时不能记录棋力。", true);
     }
   }
 
@@ -257,7 +264,7 @@
       setStatus("测评已结算。", false);
     } catch (e) {
       if (myGen !== gen) return;
-      setStatus("结算失败：" + e.message, true);
+      setStatus("结算失败：" + errText(e), true);
     }
   }
   function showReport(rec) {
@@ -303,7 +310,7 @@
       if (game.game_over()) await finishGame(false);
     } catch (e) {
       if (myGen !== gen) return;
-      setStatus("引擎应手失败：" + e.message, true);
+      setStatus("引擎应手失败：" + errText(e), true);
     } finally {
       // 仅当在途代次仍是我时才收尾；旧代次不干扰新局的思考指示
       if (thinkingGen === myGen) { thinkingGen = -1; setThinking(false); }
@@ -398,7 +405,7 @@
       setStatus(`测评开始：你执${userColor === "white" ? "白" : "黑"}，对手 Stockfish ${d.engineElo}。`);
       if (!turnIsUser()) setTimeout(engineMove, 250);
     } catch (e) {
-      setStatus("开始失败：" + e.message, true);
+      setStatus("开始失败：" + errText(e), true);
     }
   }
   function unlockSettings() {

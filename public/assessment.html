@@ -130,12 +130,10 @@
 <script src="js/lib/jquery.min.js?v=26"></script>
 <script src="js/lib/chess.min.js?v=26"></script>
 <script src="js/lib/chessboard.min.js?v=26"></script>
-<script src="js/assessment.js?v=3"></script>
+<script src="js/assessment.js?v=5"></script>
 <script src="js/motion.js?v=35"></script>
 <script>
-  Motion.initCursorLine();
-  Motion.initRipple();
-  Motion.staggerEnter();
+  if (window.Motion) { Motion.initCursorLine(); Motion.initRipple(); Motion.staggerEnter(); }
 </script>
 </body>
 </html>

@@ -222,9 +222,8 @@
 <script src="js/chess.js?v=44"></script>
 <script src="js/motion.js?v=35"></script>
 <script>
-  Motion.initCursorLine();
-  Motion.initRipple();
-  Motion.staggerEnter();
+  // 守卫：motion.js 加载失败时不要抛 ReferenceError 中断内联初始化（与 main.html 一致）
+  if (window.Motion) { Motion.initCursorLine(); Motion.initRipple(); Motion.staggerEnter(); }
 </script>
 
 <!-- 引擎对战教程弹窗（覆盖层，移动端自适应） -->

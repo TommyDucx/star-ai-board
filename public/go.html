@@ -127,9 +127,7 @@
 <script src="js/go.js?v=20"></script>
 <script src="js/motion.js?v=35"></script>
 <script>
-  Motion.initCursorLine();
-  Motion.initRipple();
-  Motion.staggerEnter();
+  if (window.Motion) { Motion.initCursorLine(); Motion.initRipple(); Motion.staggerEnter(); }
 </script>
 </body>
 </html>
