@@ -19,6 +19,7 @@
   let blunders = 0;
   let gen = 0;   // 测评代次：重新开始/重开对局即自增，用于丢弃迟到的引擎应手与结算结果
   let thinkingGen = -1;   // 当前有应手在途的代次；同代次重复触发直接忽略（防连点重开时并发应手互撞）
+  let ratedPerDay = 10;   // 每日计入棋力的局数上限（由服务端下发，仅用于文案）
 
   const PIECE_CP = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
 
@@ -168,7 +169,11 @@
         return;
       }
       updateProfile(d.progress);
-      $("login-state").textContent = "账号已绑定，测评结果会跨设备同步。";
+      if (d.progress && d.progress.rated && d.progress.rated.perDay) ratedPerDay = d.progress.rated.perDay;
+      $("login-state").textContent = "账号已绑定，测评结果会跨设备同步。"
+        + (d.progress && d.progress.rated
+          ? `每日前 ${d.progress.rated.perDay} 局计入棋力（今日已计 ${d.progress.rated.today} 局）。`
+          : "");
       $("start-btn").disabled = false;
       // 续局：若本浏览器有进行中的对局，且服务端仍认为该局 active，则恢复
       const saved = safeParse(localStorage.getItem("star_assess_active"));
@@ -252,9 +257,12 @@
     const m = metrics();
     const myGen = gen;
     try {
+      // 提交真实着法列表（from+to+promotion）：服务端会校验格式，并据此确认"确实下过棋"，
+      // 只报一个手数会被拒（详见 admin.js 的 finishChessRatingGame）
+      const uciMoves = game.history({ verbose: true }).map(mv => mv.from + mv.to + (mv.promotion || ""));
       const d = await api("/api/chess-rating/game/finish", {
         method: "POST",
-        body: JSON.stringify({ gameId: active.gameId, result, moves: game.history().length, metrics: m }),
+        body: JSON.stringify({ gameId: active.gameId, result, moves: uciMoves, metrics: m }),
       });
       if (myGen !== gen) return;   // 已重开：丢弃旧局结算结果，避免污染新局报告
       updateProfile(d.progress);
@@ -273,6 +281,10 @@
     const advice = rec.blunders >= 2 ? "本局明显失误偏多，优先减少送子和漏吃。"
       : rec.acpl <= 80 ? "本局发挥稳定，可以尝试更高难度档。"
       : "本局中段波动较大，建议复盘关键交换。";
+    // 超过每日计分上限的局数仍然记录战绩，但不改棋力——明确告知，避免用户以为"白下了"
+    const ratedNote = rec.rated === false
+      ? `<div class="report-line"><span>计分</span><b>本局不计入棋力（今日已满 ${rateLimit()} 局）</b></div>`
+      : "";
     $("report").innerHTML = `<h2>本局报告</h2>
       <div class="report-line"><span>结果</span><b>${resultText}</b></div>
       <div class="report-line"><span>棋力变化</span><b>${sign}${rec.delta}</b></div>
@@ -280,8 +292,11 @@
       <div class="report-line"><span>准确率</span><b>${rec.accuracy}%</b></div>
       <div class="report-line"><span>ACPL</span><b>${rec.acpl}</b></div>
       <div class="report-line"><span>明显失误</span><b>${rec.blunders}</b></div>
-      <div class="report-line"><span>建议</span><b>${advice}</b></div>`;
+      <div class="report-line"><span>建议</span><b>${advice}</b></div>${ratedNote}`;
     $("report").classList.add("show");
+  }
+  function rateLimit() {
+    return ratedPerDay || 10;
   }
 
   async function engineMove() {

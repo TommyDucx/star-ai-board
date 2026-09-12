@@ -407,6 +407,14 @@ function normalizeDailyMap(v) {
   while (keys.length > 14) delete m[keys.shift()];   // 只留最近 14 天
   return m;
 }
+// 每日布尔标记（{ "YYYY-MM-DD": true }），用于「今日残局已完成」这类跨设备同步的状态
+function normalizeDayFlags(v) {
+  const m = (v && typeof v === "object" && !Array.isArray(v)) ? Object.assign({}, v) : {};
+  Object.keys(m).forEach(k => { if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || !m[k]) delete m[k]; });
+  const keys = Object.keys(m).sort();
+  while (keys.length > 14) delete m[keys.shift()];
+  return m;
+}
 function normalizeTactics(raw) {
   const prog = raw && typeof raw === "object" ? raw : {};
   const out = {
@@ -417,6 +425,7 @@ function normalizeTactics(raw) {
     stats: {},
     attempts: (prog.attempts && typeof prog.attempts === "object" && !Array.isArray(prog.attempts)) ? prog.attempts : {},
     dailySolved: normalizeDailyMap(prog.dailySolved),
+    dailyDone: normalizeDayFlags(prog.dailyDone),
     updatedAt: prog.updatedAt || Date.now(),
   };
   TACTICS_TIERS.forEach(k => out.tiers[k] = normalizeTierProg(prog.tiers && prog.tiers[k]));
@@ -507,6 +516,9 @@ function movesEqual(a, b) {
   return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((m, i) => String(m) === String(b[i]));
 }
 function applyTacticsAttempt(userId, body) {
+  // ⚠️ 完整性边界：解题正确性只能与下发给客户端的解法做字符串比对，因为后端是零依赖 Node、
+  // 没有走法合法性生成器（且 mateIn1 允许替代杀着）。客户端拿到解法即可"零对弈通关"。
+  // 这是**已评估并接受**的架构约束，详见 AGENTS.md 第十一节；不要靠"最短用时"之类的假防线来补。
   const prog = getTactics(userId);
   const attempt = prog.attempts[String(body.attemptId || "")];
   if (!attempt) return { error: "挑战会话不存在或已过期" };
@@ -561,6 +573,8 @@ function publicTactics(prog) {
     levelsPerTier: TACTICS_LEVELS_PER_TIER,
     tiersDef: TACTICS_TIER_DEFS,
     titleDefs: TACTICS_TITLES,
+    // 每日残局完成标记（跨设备同步）：{ "YYYY-MM-DD": true }
+    dailyDone: prog.dailyDone || {},
   };
 }
 
@@ -571,6 +585,19 @@ const CHESS_RATING_START = 1200;
 const CHESS_RATING_MIN_GAME_MS = 5000;        // 一局最短进行时长，堵瞬时脚本循环刷分
 const CHESS_RATING_FINISH_MAX = 20;           // 每用户结算频率上限（窗口内最大场次）
 const CHESS_RATING_FINISH_WINDOW_MS = 600000; // 频率窗口 = 10min
+// 每天「计入棋力」的局数上限：超出后仍记录胜负与历史，但不再改动 rating。
+// 这是产品规则（同棋类网站的每日计分上限）：把刷分收益从「每小时 +480」压到「每天 +~40」。
+const CHESS_RATING_RATED_PER_DAY = 10;
+// UCI 走法格式白名单（与前端 game.history({verbose:true}) 的 from/to/promotion 对应）。
+// 注意：这是**格式**校验（后端无棋局合法性生成器），只能保证"像一手真棋"，
+// 不能保证"这手棋在该局面下合法"——配合每日计分上限使用，不要误以为它根治了刷分。
+const UCI_MOVE_RE = /^[a-h][1-8][a-h][1-8][qrbn]?$/;
+function validUciList(list) {
+  return Array.isArray(list) && list.length > 0 && list.length <= 400 && list.every(m => {
+    if (typeof m !== "string" || !UCI_MOVE_RE.test(m)) return false;
+    return m.slice(0, 2) !== m.slice(2, 4);   // 起止格相同的占位着法直接拒
+  });
+}
 const CHESS_RATING_TIERS = [
   { key: "beginner", label: "初级", engineElo: 1000, movetime: 700, desc: "适合刚开始系统评估的用户" },
   { key: "intermediate", label: "中级", engineElo: 1400, movetime: 800, desc: "适合已有基础、想测试稳定性的用户" },
@@ -610,6 +637,7 @@ function normalizeChessRating(raw) {
   r.bestStreak = Math.max(r.currentStreak, Math.round(+r.bestStreak || 0));
   r.activeGames = (r.activeGames && typeof r.activeGames === "object" && !Array.isArray(r.activeGames)) ? r.activeGames : {};
   r.history = Array.isArray(r.history) ? r.history.slice(-50) : [];
+  r.ratedByDay = normalizeDailyMap(r.ratedByDay);
   r.updatedAt = +r.updatedAt || Date.now();
   return r;
 }
@@ -639,6 +667,10 @@ function publicChessRating(r) {
     recent: r.history.slice(-8).reverse(),
     tiers: CHESS_RATING_TIERS,
     limits: { min: CHESS_RATING_MIN, max: CHESS_RATING_MAX, start: CHESS_RATING_START },
+    rated: {
+      perDay: CHESS_RATING_RATED_PER_DAY,
+      today: (r.ratedByDay || {})[chinaDay()] || 0,
+    },
   };
 }
 function startChessRatingGame(userId, body) {
@@ -692,12 +724,23 @@ function finishChessRatingGame(userId, body) {
     return { error: "测评提交过于频繁，请稍后再试" };
   const result = ["win", "draw", "loss"].includes(body.result) ? body.result : null;
   if (!result) return { error: "对局结果无效" };
-  const moves = clamp(Math.round(+body.moves || 0), 0, 300);
+  // 反刷分(3)：着法必须是真实的 UCI 列表（前端传 game.history({verbose:true}) 的 from+to+promotion）。
+  // 之前只校验「数量 >= 8」，一个纯数字 moves:8 就能通过 —— 现在必须给数组，且每项通过格式白名单。
+  const moveList = body.moves;
+  if (!Array.isArray(moveList)) return { error: "对局着法缺失，请刷新页面后重试" };
+  if (!validUciList(moveList)) return { error: "对局着法格式无效，无法结算测评" };
+  const moves = moveList.length;
   if (moves < 8) return { error: "有效手数不足，无法结算测评" };
+  // 反刷分(4)：每日计入棋力的局数上限（独立计数，不受 history 50 条上限裁剪影响）
+  const rateDay = chinaDay();
+  prog.ratedByDay = normalizeDailyMap(prog.ratedByDay);
+  const ratedToday = prog.ratedByDay[rateDay] || 0;
+  const rated = ratedToday < CHESS_RATING_RATED_PER_DAY;
   const metrics = body.metrics && typeof body.metrics === "object" ? body.metrics : {};
   const before = prog.rating;
-  const delta = calcChessDelta(before, active.engineElo, result, metrics);
+  const delta = rated ? calcChessDelta(before, active.engineElo, result, metrics) : 0;
   const after = clamp(before + delta, CHESS_RATING_MIN, CHESS_RATING_MAX);
+  if (rated) prog.ratedByDay[rateDay] = ratedToday + 1;
   prog.rating = after;
   prog.bestRating = Math.max(prog.bestRating, after);
   prog.games += 1;
@@ -713,7 +756,7 @@ function finishChessRatingGame(userId, body) {
   const rec = {
     gameId, tier: active.tier, result, color: active.color,
     engine: active.engine, engineElo: active.engineElo,
-    before, after, delta, moves,
+    before, after, delta, moves, rated, ratedToday,
     accuracy: clamp(Math.round(+metrics.accuracy || 0), 0, 100),
     acpl: clamp(Math.round(+metrics.acpl || 0), 0, 600),
     blunders: clamp(Math.round(+metrics.blunders || 0), 0, 20),
@@ -1074,12 +1117,45 @@ function getDisk() {
     });
   });
 }
+// 可用内存：os.freemem() 在 macOS 不含 inactive/cached 页，恒被算成「用了 96~99%」，
+// Linux 也不含可回收的 cache。这里尽量取「真正可用」的口径，让后台的内存条有意义。
+function readMemInfo() {
+  try {
+    const txt = fs.readFileSync("/proc/meminfo", "utf8");
+    const pick = k => { const m = txt.match(new RegExp("^" + k + ":\\s+(\\d+) kB", "m")); return m ? +m[1] * 1024 : 0; };
+    const total = pick("MemTotal"), avail = pick("MemAvailable");
+    return (total && avail) ? { total, free: avail, source: "MemAvailable" } : null;
+  } catch { return null; }
+}
+function darwinAvailableMem() {
+  return new Promise(resolve => {
+    execFile("vm_stat", (err, out) => {
+      if (err) return resolve(null);
+      const psz = +((out.match(/page size of (\d+) bytes/) || [])[1] || 4096);
+      const pick = k => { const m = out.match(new RegExp("^" + k + ":\\s+(\\d+)\\.", "m")); return m ? +m[1] : 0; };
+      const free = (pick("Pages free") + pick("Pages inactive") + pick("Pages speculative")) * psz;
+      resolve(free > 0 ? free : null);
+    });
+  });
+}
+async function getMem() {
+  let total = os.totalmem();
+  let free = os.freemem(), source = "os.freemem";
+  if (process.platform === "linux") {
+    const m = readMemInfo(); if (m) { total = m.total || total; free = m.free; source = m.source; }
+  } else if (process.platform === "darwin") {
+    const f = await darwinAvailableMem(); if (f != null) { free = Math.min(f, total); source = "vm_stat"; }
+  }
+  free = Math.max(0, Math.min(free, total));
+  const used = total - free;
+  return { total, free, used, percent: +((used / total) * 100).toFixed(1), source };
+}
 async function getMetrics() {
   const disk = await getDisk();
-  const mem = os.totalmem(), free = os.freemem();
+  const mem = await getMem();
   return {
     cpu: +cpuCurrent.toFixed(1),
-    mem: { total: mem, free, used: mem - free, percent: +(((mem - free) / mem) * 100).toFixed(1) },
+    mem,
     disk,
     uptime: os.uptime(),
     loadavg: os.loadavg(),
@@ -1439,6 +1515,22 @@ async function handleApi(req, res, u) {
   if (p === "/api/tactics/progress" && m === "GET") {
     return json(res, 200, { progress: publicTactics(getTactics(s.userId)) });
   }
+  // 每日残局完成上报：把「今日已完成」落到账号上，使换设备后不再显示"今日未完成"。
+  // 该标记只影响一个勾选状态、不给任何奖励，因此接受客户端日期；
+  // 但日期必须是合法 YYYY-MM-DD 且与服务端（Asia/Shanghai）相差不超过 1 天，防止回填历史刷记录。
+  if (p === "/api/tactics/daily-done" && m === "POST") {
+    const body = await readBody(req);
+    const raw = String(body.date || "");
+    const serverDay = chinaDay();
+    const day = (/^\d{4}-\d{2}-\d{2}$/.test(raw) && Math.abs(Date.parse(raw) - Date.parse(serverDay)) <= 86400000)
+      ? raw : serverDay;
+    const prog = getTactics(s.userId);
+    prog.dailyDone = normalizeDayFlags(prog.dailyDone);
+    prog.dailyDone[day] = true;
+    prog.updatedAt = Date.now();
+    saveUserTactics(s.userId, prog);
+    return json(res, 200, { ok: true, date: day, progress: publicTactics(prog) });
+  }
   if ((p === "/api/tactics/select-tier" || p === "/api/tactics/current") && (m === "POST" || m === "GET")) {
     const body = m === "POST" ? await readBody(req) : {};
     const tier = body.tier || u.searchParams.get("tier") || getTactics(s.userId).selectedTier || "beginner";
@@ -1636,7 +1728,10 @@ function handleRequest(req, res) {
     return true;
   }
   if (p.startsWith("/admin/")) {
-    const rel = p.slice("/admin/".length) || "login.html";
+    // 归一化末尾：/admin/、/admin/.、/admin// 一律视为「未指定文件」→ 登录页，
+    // 避免同一入口出现 200 / 302 / 401 三种状态码（原先 /admin// 会掉到 401）
+    let rel = p.slice("/admin/".length).replace(/^[./]+/, "");
+    if (!rel) rel = "login.html";
     // login / register 公开（自助找回密码页已随验证码系统一并移除）
     if (rel === "login.html" || rel === "register.html") { serveAdminFile(res, rel); return true; }
     // 静态资源（css/js/图片）放行：前端脚本不含敏感数据，数据均走 /api（已有会话 + RBAC 守卫）

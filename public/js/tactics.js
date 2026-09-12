@@ -277,7 +277,9 @@
   function renderDaily() {
     var p = dailyPuzzle();
     if (!p) { setStatus("题库为空", "bad"); return; }
-    var doneToday = daily[p.id] === dateKey();
+    // 今日完成状态：本机 localStorage 或账号上的服务端标记（跨设备）
+    var serverDone = (prog && prog.dailyDone) || {};
+    var doneToday = daily[p.id] === dateKey() || serverDone[dateKey()] === true;
     dinfoEl.textContent = dateKey() + " · " + (doneToday ? "今日已完成" : "今日未完成") + " · 难度分 " + p.rating;
     loadPuzzle(p, false, true);
   }
@@ -372,6 +374,13 @@
     } else finish();
     return "snapback";
   }
+  function markDailyDone() {
+    // 每日残局完成标记同步到账号：此前只写 localStorage，换设备后仍显示"今日未完成"
+    if (guest) return;
+    apiFetch("/api/tactics/daily-done", { method: "POST", body: JSON.stringify({ date: dateKey() }) })
+      .then(function (r) { if (r.ok && r.data.progress) prog = r.data.progress; })
+      .catch(function () {});
+  }
   function titleNames(ids) {
     var defs = prog.titleDefs || titleDefs();
     return (ids || []).map(function (id) {
@@ -394,7 +403,7 @@
         explainEl.innerHTML = "<b style='color:var(--signal)'>题型讲解</b><br>本题主题：" +
           (cur.themes || []).map(function (x) { return escHtml(cn(x)); }).join("、") +
           "<br><span style='color:var(--faint)'>难度分 " + escHtml(cur.rating) + "</span><br><br>" +
-          (guest ? "<span style='color:var(--faint)'>当前未登录，进度仅保存在本机。登录后可跨设备同步。</span>" : "进度、连胜和称号已同步到账号。");
+          (guest ? "<span style='color:var(--faint)'>当前未登录，进度只存在这台设备的浏览器里；登录后不会自动合并，请登录后再刷进度。</span>" : "进度、连胜和称号已同步到账号。");
       } else {
         loadPuzzle(cur);
       }
@@ -423,6 +432,7 @@
     if (tab === "daily") {
       daily[cur.id] = dateKey();
       try { localStorage.setItem("tactics.daily", JSON.stringify(daily)); } catch (e) {}
+      markDailyDone();
       setStatus("今日残局完成", "good");
       explainEl.innerHTML = "<b style='color:var(--signal)'>题型讲解</b><br>本题主题：" +
         (cur.themes || []).map(function (t) { return escHtml(cn(t)); }).join("、") +

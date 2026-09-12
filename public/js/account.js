@@ -12,6 +12,11 @@
     try { data = await res.json(); } catch (_) {}
     return { res, data };
   }
+  // fetch 的网络层异常是浏览器原生英文文本（"Failed to fetch"），需要与"接口返回未登录"区分开
+  function isNetworkError(err) {
+    const m = String((err && err.message) || err || "");
+    return /failed to fetch|networkerror|load failed|err_|network request failed/i.test(m);
+  }
   function note(id, text, error) { const el = $(id); el.textContent = text || ""; el.classList.toggle("error", !!error); }
   function setBusy(button, busy, label) {
     if (!button.dataset.label) button.dataset.label = button.textContent;
@@ -100,10 +105,27 @@
     if (!res.ok) { setBusy(button, false); return note("quest-notice", data.error || "奖励领取失败", true); }
     engagement = data.engagement; renderAll(); note("quest-notice", `补给已入舱：+${data.reward.xp} XP，+${data.reward.coins} 星币。`);
   }
+  function showLoadError(text) {
+    const g = $("guest");
+    let box = $("load-error");
+    if (!box) {
+      box = document.createElement("p");
+      box.id = "load-error";
+      box.className = "notice error";
+      const card = g.querySelector(".account-card");
+      if (card) card.appendChild(box); else g.appendChild(box);
+    }
+    box.textContent = text;
+  }
   async function load() {
     const profile = await api("/api/me");
     $("loading").classList.add("hidden");
-    if (!profile.res.ok) { $("guest").classList.remove("hidden"); return; }
+    if (!profile.res.ok) {
+      $("guest").classList.remove("hidden");
+      // 5xx = 服务端故障，与「未登录」是两码事：明确提示，别让用户以为要重新登录
+      if (profile.res.status >= 500) showLoadError(`服务器暂时出错（${profile.res.status}），请稍后重试。`);
+      return;
+    }
     me = profile.data;
     const [t, r, s, e, board] = await Promise.all([
       api("/api/tactics/progress"), api("/api/chess-rating/me"), api("/api/me/sessions"), api("/api/engagement/me"), api("/api/engagement/leaderboard?limit=5"),
@@ -130,5 +152,10 @@
     if (!res.ok) return note("session-notice", data.error || "操作失败", true); sessions = sessions.filter(s => s.current); renderSessions(); note("session-notice", `已退出 ${data.removed || 0} 台其他设备。`);
   });
   $("logout").addEventListener("click", async () => { await api("/api/logout", { method:"POST" }); location.href = "index.html"; });
-  load().catch(() => { $("loading").classList.add("hidden"); $("guest").classList.remove("hidden"); });
+  load().catch(err => {
+    $("loading").classList.add("hidden");
+    $("guest").classList.remove("hidden");
+    // fetch 被拒绝（真断网）——同样不能显示成"请登录"
+    if (isNetworkError(err)) showLoadError("无法连接服务器，请稍后重试（下方仅为登录入口）。");
+  });
 })();
