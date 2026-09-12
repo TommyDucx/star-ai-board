@@ -552,6 +552,9 @@ function publicTactics(prog) {
 const CHESS_RATING_MIN = 600;
 const CHESS_RATING_MAX = 2600;
 const CHESS_RATING_START = 1200;
+const CHESS_RATING_MIN_GAME_MS = 5000;        // 一局最短进行时长，堵瞬时脚本循环刷分
+const CHESS_RATING_FINISH_MAX = 20;           // 每用户结算频率上限（窗口内最大场次）
+const CHESS_RATING_FINISH_WINDOW_MS = 600000; // 频率窗口 = 10min
 const CHESS_RATING_TIERS = [
   { key: "beginner", label: "初级", engineElo: 1000, movetime: 700, desc: "适合刚开始系统评估的用户" },
   { key: "intermediate", label: "中级", engineElo: 1400, movetime: 800, desc: "适合已有基础、想测试稳定性的用户" },
@@ -608,11 +611,15 @@ function getChessRating(userId) {
   return norm;
 }
 function publicChessRating(r) {
+  const activeIds = Object.keys(r.activeGames || {});
+  const activeGame = activeIds.length ? activeIds.map(id => r.activeGames[id]).find(Boolean) : null;
   return {
     rating: r.rating, bestRating: r.bestRating,
     games: r.games, wins: r.wins, draws: r.draws, losses: r.losses,
     currentStreak: r.currentStreak, bestStreak: r.bestStreak,
     lastGameAt: r.lastGameAt || null,
+    activeGameId: activeGame ? activeGame.id : null,
+    activeGame,
     recent: r.history.slice(-8).reverse(),
     tiers: CHESS_RATING_TIERS,
     limits: { min: CHESS_RATING_MIN, max: CHESS_RATING_MAX, start: CHESS_RATING_START },
@@ -660,10 +667,17 @@ function finishChessRatingGame(userId, body) {
   const gameId = String(body.gameId || "");
   const active = prog.activeGames[gameId];
   if (!active) return { error: "测评对局不存在或已结算" };
+  // 反刷分(1)：一局最短进行时长，直接使「start 后秒 finish」循环全部失败
+  const elapsed = active.createdAt ? (Date.now() - active.createdAt) : CHESS_RATING_MIN_GAME_MS;
+  if (elapsed < CHESS_RATING_MIN_GAME_MS)
+    return { error: "测评进行时间过短，无法结算（请完成真实对局）" };
+  // 反刷分(2)：单用户结算频率上限，堵高速农分
+  if (!rateCheck("rate:chessrating:" + userId, CHESS_RATING_FINISH_MAX, CHESS_RATING_FINISH_WINDOW_MS))
+    return { error: "测评提交过于频繁，请稍后再试" };
   const result = ["win", "draw", "loss"].includes(body.result) ? body.result : null;
   if (!result) return { error: "对局结果无效" };
   const moves = clamp(Math.round(+body.moves || 0), 0, 300);
-  if (moves < 8 && result === "draw") return { error: "有效手数不足，无法结算测评" };
+  if (moves < 8) return { error: "有效手数不足，无法结算测评" };
   const metrics = body.metrics && typeof body.metrics === "object" ? body.metrics : {};
   const before = prog.rating;
   const delta = calcChessDelta(before, active.engineElo, result, metrics);

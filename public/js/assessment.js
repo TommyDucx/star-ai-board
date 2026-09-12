@@ -95,6 +95,56 @@
     return { acpl: Math.round(avg), accuracy, mistakes, blunders };
   }
 
+  // 续局：把进行中的对局落盘到本浏览器 localStorage（仅存客户端已有信息，不引入新信任面）
+  function safeParse(s) { try { return JSON.parse(s); } catch { return null; } }
+  function saveActive() {
+    if (!active) return;
+    try {
+      localStorage.setItem("star_assess_active", JSON.stringify({
+        gameId: active.gameId, fen: game.fen(), userColor,
+        tier: active.tier, engineElo: active.engineElo, movetime: active.movetime,
+        ts: Date.now(),
+      }));
+    } catch (e) {}
+  }
+  function clearActive() {
+    try { localStorage.removeItem("star_assess_active"); } catch (e) {}
+  }
+  let pendingRestore = null;
+  function maybeRestore() {
+    if (!board || !pendingRestore) return;
+    const saved = pendingRestore;
+    pendingRestore = null;
+    restoreActive(saved);
+  }
+  async function restoreActive(saved) {
+    gen++;   // 作废任何在途请求
+    active = {
+      gameId: saved.gameId,
+      tier: saved.tier,
+      color: saved.userColor,
+      engine: "stockfish",
+      engineElo: saved.engineElo,
+      movetime: saved.movetime,
+    };
+    userColor = saved.userColor;
+    finished = false;
+    userLosses.length = 0;
+    mistakes = 0;
+    blunders = 0;
+    clearSelection();
+    game.load(saved.fen);
+    board.orientation(userColor);
+    render();
+    $("tier").disabled = true;
+    $("color").disabled = true;
+    $("start-btn").textContent = "重新开始测评";
+    $("resign-btn").disabled = false;
+    setStatus("已恢复进行中的测评，可继续。");
+    if (game.game_over()) finishGame(false);
+    else if (!turnIsUser()) setTimeout(engineMove, 250);
+  }
+
   function updateProfile(progress) {
     if (!progress) return;
     $("rating-now").textContent = progress.rating;
@@ -114,6 +164,12 @@
       updateProfile(d.progress);
       $("login-state").textContent = "账号已绑定，测评结果会跨设备同步。";
       $("start-btn").disabled = false;
+      // 续局：若本浏览器有进行中的对局，且服务端仍认为该局 active，则恢复
+      const saved = safeParse(localStorage.getItem("star_assess_active"));
+      if (saved && d.progress && d.progress.activeGameId === saved.gameId) {
+        pendingRestore = saved;
+        maybeRestore();
+      }
     } catch (e) {
       $("login-state").textContent = "未登录：请先进入管理后台登录账号。";
       $("start-btn").disabled = true;
@@ -195,6 +251,7 @@
       });
       if (myGen !== gen) return;   // 已重开：丢弃旧局结算结果，避免污染新局报告
       updateProfile(d.progress);
+      clearActive();
       showReport(d.record);
       unlockSettings();
       setStatus("测评已结算。", false);
@@ -261,6 +318,7 @@
     clearSelection();
     render();
     updateStatus();
+    saveActive();
     if (game.game_over()) finishGame(false);
     else setTimeout(engineMove, 180);
     return true;
@@ -358,6 +416,7 @@
     document.addEventListener("pointermove", boardPointer);
     document.addEventListener("pointerup", boardPointer);
     updateStatus();
+    maybeRestore();   // 棋盘就绪后若需续局则恢复进行中的测评
   }
 
   $("start-btn").addEventListener("click", () => {
