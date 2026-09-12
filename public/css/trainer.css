@@ -1,0 +1,27 @@
+/* 背谱训练（Opening Memory）——复用棋谱库的行卡与结构栏语言；训练态用引擎绿区分档案金 */
+.trainer-shell { --tr:#d7ff3f; --tr-soft:#d7ff3f1f; --tr-line:#d7ff3f3d; }
+.trainer-shell .library-kicker,.trainer-shell .lib-mv-pos { color:var(--tr); }
+.trainer-shell .library-create { background:var(--tr); border-color:var(--tr); color:#0c1108; }
+.trainer-shell .library-create:hover,.trainer-shell .library-create:focus-visible { background:#e6ff85; border-color:#e6ff85; }
+.trainer-shell .library-action { --archive:#d7ff3f; --archive-soft:#d7ff3f1f; --archive-line:#d7ff3f3d; }
+.trainer-shell .lib-code { color:#0c1108; background:var(--tr); }
+.trainer-shell .lib-row:hover,.trainer-shell .lib-row:focus-visible { border-color:var(--tr-line); }
+.trainer-shell .lib-cat,.trainer-shell .lib-stars { color:var(--tr); }
+.trainer-shell .lib-score em b { background:linear-gradient(90deg,var(--tr),#e6ff85); }
+.trainer-shell .lib-mv.current { background:var(--tr); border-color:var(--tr); }
+.trainer-shell .lib-mv.current .lib-mv-no { color:#4a5518; }
+.tr-dim { color:var(--faint); font-size:11px; }
+.tr-box { color:var(--tr); font-size:12px; letter-spacing:2px; }
+.tr-row .lib-row-rail { display:flex; flex-direction:column; gap:8px; align-items:end; justify-content:center; }
+.tr-row .lib-row-rail .library-action { min-height:34px; }
+.tr-stats { display:flex; flex-wrap:wrap; gap:14px; padding:12px 14px; border-bottom:1px solid var(--line); color:var(--muted); font:11px ui-monospace,Menlo,monospace; letter-spacing:.06em; }
+.tr-stats.tr-err span:first-child { color:#ff9d6b; }
+.tr-stats .tr-done { color:var(--tr); font-size:12.5px; }
+.trainer-shell .tr-import .lib-row-sum { -webkit-line-clamp:1; }
+/* 训练棋盘受视口高度约束：整盘必须落在首屏内，否则拖拽坐标会落到屏幕外 */
+.trainer-shell .lib-board-wrap { width: 100%; max-width: calc(100vh - 330px); margin: 0 auto; }
+
+/* 专注模式：训练时隐藏大 hero 并压缩内边距，确保整盘落在首屏内（底排不可见 = 底排棋子无法操作） */
+.tr-focus .library-hero { display: none; }
+.tr-focus .library-shell { padding-top: 14px; }
+.tr-focus .lib-board-wrap { max-width: calc(100vh - 280px); }

@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "lines": {
+    "d63135ea-d8f8-4a49-a619-d243f6feffd0": {
+      "tl-4b88b398-a1b6-4365-80bc-c6c07dd75c53": {
+        "key": "tl-4b88b398-a1b6-4365-80bc-c6c07dd75c53",
+        "sourceId": "lib-2c34b24c-75bc-45b8-8fd4-0a648c9638c5",
+        "title": "QA 背谱线路",
+        "moves": [
+          "e2e4",
+          "e7e5",
+          "g1f3",
+          "b8c6",
+          "f1b5",
+          "a7a6",
+          "b5a4",
+          "g8f6",
+          "e1g1",
+          "f8c5"
+        ],
+        "box": 1,
+        "dueAt": 1789473999773,
+        "streak": 0,
+        "bestStreak": 2,
+        "sessions": 4,
+        "errors": 4,
+        "addedAt": 1789214799747,
+        "lastTrainedAt": 1789214799773
+      }
+    },
+    "96f3927f-d5de-44f0-82a1-493b019afcad": {},
+    "882bc13d-10eb-4800-95fc-ffa8822b4ed4": {
+      "tl-1ca5f715-b371-44c6-aa08-40183b1ada90": {
+        "key": "tl-1ca5f715-b371-44c6-aa08-40183b1ada90",
+        "sourceId": "lib-d0f60792-8923-48b6-805c-eca3c337edb9",
+        "title": "QA 背谱：三步短线路",
+        "moves": [
+          "e2e4",
+          "e7e5",
+          "g1f3",
+          "b8c6",
+          "f1c4"
+        ],
+        "box": 0,
+        "dueAt": 0,
+        "streak": 0,
+        "bestStreak": 0,
+        "sessions": 0,
+        "errors": 0,
+        "addedAt": 1789215384611,
+        "lastTrainedAt": 0
+      },
+      "tl-02157ca9-97bd-4068-9171-a81258d610a4": {
+        "key": "tl-02157ca9-97bd-4068-9171-a81258d610a4",
+        "sourceId": "lib-95cc5f76-a389-464c-915f-6636cfeadbdd",
+        "title": "QA 背谱调试线路B",
+        "moves": [
+          "d2d4",
+          "d7d5",
+          "c2c4",
+          "e7e6",
+          "b1c3"
+        ],
+        "box": 1,
+        "dueAt": 1789476830881,
+        "streak": 1,
+        "bestStreak": 1,
+        "sessions": 1,
+        "errors": 0,
+        "addedAt": 1789215582416,
+        "lastTrainedAt": 1789217630881
+      }
+    }
+  }
+}

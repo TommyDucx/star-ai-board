@@ -101,15 +101,22 @@
     libLibsPromise = new Promise(function (resolve, reject) {
       var link = document.createElement("link");
       link.rel = "stylesheet"; link.href = "css/chessboard.min.css";
+      // 等 CSS 生效再初始化：chessboard 按容器宽度切格子，CSS 未加载会得到 0 宽棋盘
+      var cssOk = new Promise(function (res) { link.onload = res; link.onerror = res; setTimeout(res, 3000); });
       document.head.appendChild(link);
       var seq = ["js/lib/jquery.min.js", "js/lib/chess.min.js", "js/lib/chessboard.min.js"];
-      (function next(i) {
-        if (i >= seq.length) return resolve();
-        var s = document.createElement("script");
-        s.src = seq[i]; s.onload = function () { next(i + 1); };
-        s.onerror = function () { libLibsPromise = null; reject(new Error("棋盘组件加载失败")); };
-        document.head.appendChild(s);
-      })(0);
+      var scripts = new Promise(function (resolve2, reject2) {
+        (function next(i) {
+          if (i >= seq.length) return resolve2();
+          var s = document.createElement("script");
+          s.src = seq[i]; s.onload = function () { next(i + 1); };
+          s.onerror = function () { libLibsPromise = null; reject2(new Error("棋盘组件加载失败")); };
+          document.head.appendChild(s);
+        })(0);
+      });
+      Promise.all([cssOk, scripts]).then(function () {
+        requestAnimationFrame(function () { requestAnimationFrame(function () { resolve(); }); });
+      }).catch(reject);
     });
     return libLibsPromise;
   }

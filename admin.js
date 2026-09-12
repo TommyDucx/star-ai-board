@@ -1015,6 +1015,88 @@ function registerLibraryView(id) {
   saveLibrary(data);
   return entry.views;
 }
+
+// ---------- 背谱训练（Opening Memory）：从共享棋谱导入线路，Leitner 间隔重复 ----------
+// 与闯关相同的一致性边界：训练由客户端进行、服务端只记录会话结果（低风险：仅影响记忆进度，不发奖励）。
+const TRAINER_FILE = path.join(ADMIN_DIR, "trainer.json");
+const TRAINER_INTERVALS_DAYS = [1, 3, 7, 14, 30, 60];   // box 1..6 的复习间隔（天）
+function loadTrainer() {
+  try {
+    const v = JSON.parse(fs.readFileSync(TRAINER_FILE, "utf8"));
+    if (v && v.lines && typeof v.lines === "object" && !Array.isArray(v.lines)) return v;
+  } catch {}
+  const d = { schemaVersion: 1, lines: {} };
+  writePrivate(TRAINER_FILE, JSON.stringify(d, null, 2));
+  return d;
+}
+function saveTrainer(v) { writePrivate(TRAINER_FILE, JSON.stringify(v, null, 2)); }
+function normalizeTrainerLine(l) {
+  return {
+    key: String(l.key || ""), sourceId: String(l.sourceId || ""), code: String(l.code || ""), title: cleanLibraryText(l.title, 60),
+    moves: Array.isArray(l.moves) ? l.moves.slice(0, 160) : [],
+    box: Math.max(0, Math.min(TRAINER_INTERVALS_DAYS.length, Math.round(+l.box || 0))),
+    dueAt: +l.dueAt || 0, streak: Math.max(0, Math.round(+l.streak || 0)),
+    bestStreak: Math.max(0, Math.round(+l.bestStreak || 0)),
+    sessions: Math.max(0, Math.round(+l.sessions || 0)), errors: Math.max(0, Math.round(+l.errors || 0)),
+    addedAt: +l.addedAt || Date.now(), lastTrainedAt: +l.lastTrainedAt || 0,
+  };
+}
+function trainerPublicLine(l) {
+  // moveList 是用户自己的训练数据（导入即由本人提交），随行返回供训练界面使用
+  return { key:l.key, sourceId:l.sourceId, code:l.code || "", title:l.title, moveList:l.moves, moves:l.moves.length,
+    box:l.box, boxMax:TRAINER_INTERVALS_DAYS.length, due:l.dueAt <= Date.now(), dueAt:l.dueAt,
+    nextDays: l.dueAt <= Date.now() ? 0 : (TRAINER_INTERVALS_DAYS[l.box] || 60),
+    streak:l.streak, bestStreak:l.bestStreak, sessions:l.sessions, errors:l.errors, addedAt:l.addedAt };
+}
+function trainerImport(userId, body) {
+  const sourceId = String(body.sourceId || "").slice(0, 64);
+  const title = cleanLibraryText(body.title, 60);
+  const moves = Array.isArray(body.moves) ? body.moves : [];
+  if (!sourceId) return { error:"缺少来源棋谱" };
+  if (moves.length < 2) return { error:"这条棋谱没有可训练的着法" };
+  if (moves.length > 160) return { error:"线路过长（最多 160 手）" };
+  if (!moves.every(m => typeof m === "string" && UCI_MOVE_RE.test(m) && m.slice(0, 2) !== m.slice(2, 4)))
+    return { error:"着法格式无效" };
+  const data = loadTrainer();
+  if (!data.lines[userId] || typeof data.lines[userId] !== "object") data.lines[userId] = {};
+  const userLines = data.lines[userId];
+  if (Object.values(userLines).some(l => l.sourceId === sourceId)) return { error:"这条棋谱已在你的训练计划里" };
+  const key = "tl-" + uuid();
+  const libEntry = findLibraryEntry(loadLibrary(), sourceId);
+  const line = normalizeTrainerLine({ key, sourceId, title, moves, box:0, dueAt:0, addedAt:Date.now(), code: libEntry ? libEntry.code || "" : "" });
+  userLines[key] = line;
+  saveTrainer(data);
+  return { line: trainerPublicLine(userLines[key]) };
+}
+function trainerLines(userId) {
+  const data = loadTrainer();
+  const userLines = data.lines[userId] || {};
+  return { lines: Object.values(userLines).map(trainerPublicLine).sort((a, b) => (a.dueAt - b.dueAt) || (b.addedAt - a.addedAt)), intervals: TRAINER_INTERVALS_DAYS };
+}
+function trainerSession(userId, key, body) {
+  const data = loadTrainer(), userLines = data.lines[userId] || {};
+  const line = userLines[key];
+  if (!line) return { error:"训练线路不存在" };
+  const errors = Math.max(0, Math.min(400, Math.round(+body.errors || 0)));
+  const done = body.done !== false;
+  line.sessions += 1; line.errors += errors; line.lastTrainedAt = Date.now();
+  // Leitner：全对 → 记忆盒 +1（间隔变长）；有错 → 盒 -1，明天再来。中途放弃不动盒子。
+  if (done && errors === 0) {
+    line.streak += 1; line.bestStreak = Math.max(line.bestStreak, line.streak);
+    line.box = Math.min(TRAINER_INTERVALS_DAYS.length, line.box + 1);
+  } else if (done) {
+    line.streak = 0; line.box = Math.max(0, line.box - 1);
+  }
+  const days = line.box >= TRAINER_INTERVALS_DAYS.length ? 60 : TRAINER_INTERVALS_DAYS[line.box];
+  line.dueAt = Date.now() + days * 864e5;
+  saveTrainer(data);
+  return { line: trainerPublicLine(line), nextDays: days };
+}
+function trainerRemove(userId, key) {
+  const data = loadTrainer(), userLines = data.lines[userId] || {};
+  if (!userLines[key]) return { error:"训练线路不存在" };
+  delete userLines[key]; saveTrainer(data); return { ok:true };
+}
 function saveLibrary(v) { writePrivate(LIBRARY_FILE, JSON.stringify(v, null, 2)); }
 function cleanLibraryText(value, maxLen) {
   if (typeof value !== "string") return "";
@@ -1566,6 +1648,35 @@ async function handleApi(req, res, u) {
     return json(res, 201, result);
   }
   if (p === "/api/library/me" && m === "GET") return json(res, 200, libraryMine(s.userId));
+  // 背谱训练（登录可用；仅记录本人学习进度）
+  if (p === "/api/trainer/lines" && m === "GET") {
+    const s2 = getSession(req);
+    if (!s2) return json(res, 401, { error:"请先登录" });
+    return json(res, 200, trainerLines(s2.userId));
+  }
+  if (p === "/api/trainer/import" && m === "POST") {
+    const s2 = getSession(req);
+    if (!s2) return json(res, 401, { error:"请先登录" });
+    const body = await readBody(req);
+    const r = trainerImport(s2.userId, body);
+    return json(res, r.error ? 400 : 200, r.error ? { error: r.error } : r);
+  }
+  {
+    const tk = /^\/api\/trainer\/lines\/([A-Za-z0-9-]+)$/.exec(p);
+    if (tk && m === "DELETE") {
+      const s2 = getSession(req);
+      if (!s2) return json(res, 401, { error:"请先登录" });
+      const r = trainerRemove(s2.userId, tk[1]);
+      return json(res, r.error ? 404 : 200, r.error ? { error: r.error } : r);
+    }
+    if (tk && m === "POST") {
+      const s2 = getSession(req);
+      if (!s2) return json(res, 401, { error:"请先登录" });
+      const body = await readBody(req);
+      const r = trainerSession(s2.userId, tk[1], body);
+      return json(res, r.error ? 404 : 200, r.error ? { error: r.error } : r);
+    }
+  }
   {
     const actionMatch = /^\/api\/library\/entries\/([A-Za-z0-9-]+)\/(favorite|collect|comments)$/.exec(p);
     if (actionMatch && m === "POST") {
