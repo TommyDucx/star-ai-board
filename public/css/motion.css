@@ -224,3 +224,33 @@ input,select,textarea,.library-search,.library-select,.library-form input,.libra
   .enter-node,.ripple,.glitch::before,.glitch::after,.pixel-fault,.scanlines { animation:none !important; }
   .boot{display:none;} .scanlines{display:none;}
 }
+
+/* 窄屏顶栏：压缩间距/内边距 + 长 crumb 省略号，避免音效按钮/返回按钮被挤出屏外。
+   全站统一（原先只有 main.html / tactics.html 各自写了一份，其它页在 320px 会横向溢出）。
+   注：返回按钮由 motion.js 注入为 .site-back，各页顶栏只需一个返回控件。 */
+@media (max-width: 560px) {
+  .topbar { gap: 10px; padding: 0 12px; }
+  .topbar .crumb { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+@media (max-width: 400px) {
+  .topbar { gap: 6px; padding: 0 8px; }
+  .topbar .crumb { display: none; }
+}
+
+/* 超窄屏顶栏二次压缩：品牌字标在 320~375px 占位过大（会挤掉音效/返回按钮）。
+   返回按钮只留箭头，其 aria-label 仍为"返回上一页"，无障碍不受影响。 */
+@media (max-width: 560px) {
+  .topbar .logo { font-size: 16px; letter-spacing: .05em; }
+}
+@media (max-width: 400px) {
+  .topbar .logo { font-size: 13px; letter-spacing: .02em; }
+  .site-back { padding: 6px 8px; font-size: 0; }
+  .site-back::before { content: "←"; font-size: 13px; }
+}
+
+/* 极窄屏兜底（≤360px，如 iPhone SE 一代）：顶栏元素确实放不下时，
+   让顶栏自己横向滚动，而不是把整个文档撑宽（避免页面出现横向滚动条）。 */
+@media (max-width: 360px) {
+  .topbar { overflow-x: auto; scrollbar-width: none; }
+  .topbar::-webkit-scrollbar { display: none; }
+}

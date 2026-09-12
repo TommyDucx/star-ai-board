@@ -6,7 +6,7 @@
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <title>S.T.A.R. — 本地引擎 AI 推荐</title>
 <link rel="stylesheet" href="css/site.css?v=32">
-<link rel="stylesheet" href="css/motion.css?v=32">
+<link rel="stylesheet" href="css/motion.css?v=35">
 <link rel="stylesheet" href="css/shared-library.css?v=1">
 <style>
   /* ===== 侧栏 + 内容区布局 ===== */
@@ -85,16 +85,7 @@
     .side-item .sub { display: none; }
     .cards { grid-template-columns: 1fr; }
   }
-  /* 窄屏顶栏：压缩间距/内边距 + 长 crumb 省略号，避免音效按钮被挤出屏外（与 tactics.html 同款） */
-  @media (max-width: 560px) {
-    .topbar { gap: 10px; padding: 0 12px; }
-    .topbar .crumb { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  }
-  /* 超窄屏（iPhone SE 320px 等）：顶栏放不下副标题，直接隐藏 crumb 并进一步压缩 */
-  @media (max-width: 400px) {
-    .topbar { gap: 6px; padding: 0 8px; }
-    .topbar .crumb { display: none; }
-  }
+  /* 窄屏顶栏规则已统一移到 css/motion.css（全局），此处不再重复 */
 </style>
 </head>
 <body>
