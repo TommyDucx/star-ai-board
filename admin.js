@@ -935,19 +935,19 @@ const LIBRARY_CATEGORIES = [
   { id:"masterpiece", name:"名局复盘", mark:"GM" },
 ];
 const LIBRARY_CATEGORY_IDS = new Set(LIBRARY_CATEGORIES.map(x => x.id));
-function librarySeedEntry(id, category, title, summary, tags, pgn, daysAgo) {
+function librarySeedEntry(id, category, title, summary, tags, pgn, daysAgo, scores) {
   const now = Date.now() - daysAgo * 864e5;
-  return { id, category, title, summary, tags, pgn, authorId:"", author:"S.T.A.R. 档案室", createdAt:now, updatedAt:now, stars:{}, comments:[], copies:0 };
+  return { id, category, title, summary, tags, pgn, authorId:"", author:"S.T.A.R. 档案室", createdAt:now, updatedAt:now, stars:{}, comments:[], copies:0, views:0, scores:scores || { acc:6, freq:6, diff:5, util:6 } };
 }
 function defaultLibrary() {
   return {
     schemaVersion:1,
     entries:[
-      librarySeedEntry("star-opening-ruy", "opening", "西班牙开局：中心反击的 12 个节点", "从 e4-e5 的张力开始，辨认何时该完成发展、何时该用 d5 夺回中心。", ["西班牙开局","中心","发展"], "[Event \"Study: Ruy Lopez\"]\n[Result \"*\"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7 *", 18),
-      librarySeedEntry("star-tactic-pin", "tactics", "绝对牵制：别只看被牵住的子", "用五个短局面训练你先找国王身后的线路，再决定交换还是加压。", ["牵制","线路","战术"], "[Event \"Study: Absolute pin\"]\n[Result \"*\"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Bxc6 dxc6 5. O-O f6 6. d4 exd4 7. Nxd4 c5 8. Nb3 Qxd1 9. Rxd1 *", 12),
-      librarySeedEntry("star-endgame-pawn", "endgame", "王兵残局：通路兵之前，先数节奏", "对王、关键格与兵形节奏的入门索引；每个判断都可在棋盘上自己复现。", ["王兵残局","对王","通路兵"], "[Event \"Study: King and pawn\"]\n[Result \"1-0\"]\n\n1. e4 e5 2. Ke2 Ke7 3. Ke3 Ke6 4. d4 exd4+ 5. Kxd4 d6 6. Nf3 Nc6+ 7. Ke3 1-0", 8),
-      librarySeedEntry("star-master-capablanca", "masterpiece", "卡帕布兰卡：把优势换成残局", "阅读一盘以简化而非猛攻取胜的名局，重点标出每一次主动换子的条件。", ["卡帕布兰卡","简化","名局"], "[Event \"Study: Conversion\"]\n[Result \"*\"]\n\n1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Be7 5. e3 O-O 6. Nf3 h6 7. Bh4 b6 8. cxd5 Nxd5 9. Bxe7 Qxe7 *", 5),
-      librarySeedEntry("star-plan-isolani", "middlegame", "孤兵局面：何时进攻，何时交换", "从开放线、轻子和王翼空间三个信号判断孤兵是资产还是包袱。", ["孤兵","中局","计划"], "[Event \"Study: Isolated pawn\"]\n[Result \"*\"]\n\n1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. cxd5 exd5 5. Bg5 Be7 6. e3 O-O 7. Bd3 c6 8. Qc2 Re8 9. Nge2 Nbd7 *", 3),
+      librarySeedEntry("star-opening-ruy", "opening", "西班牙开局：中心反击的 12 个节点", "从 e4-e5 的张力开始，辨认何时该完成发展、何时该用 d5 夺回中心。", ["西班牙开局","中心","发展"], "[Event \"Study: Ruy Lopez\"]\n[Result \"*\"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7 *", 18, { acc:8.8, freq:9.2, diff:3.5, util:9.0 }),
+      librarySeedEntry("star-tactic-pin", "tactics", "绝对牵制：别只看被牵住的子", "用五个短局面训练你先找国王身后的线路，再决定交换还是加压。", ["牵制","线路","战术"], "[Event \"Study: Absolute pin\"]\n[Result \"*\"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Bxc6 dxc6 5. O-O f6 6. d4 exd4 7. Nxd4 c5 8. Nb3 Qxd1 9. Rxd1 *", 12, { acc:8.2, freq:7.5, diff:4.0, util:8.0 }),
+      librarySeedEntry("star-endgame-pawn", "endgame", "王兵残局：通路兵之前，先数节奏", "对王、关键格与兵形节奏的入门索引；每个判断都可在棋盘上自己复现。", ["王兵残局","对王","通路兵"], "[Event \"Study: King and pawn\"]\n[Result \"1-0\"]\n\n1. e4 e5 2. Ke2 Ke7 3. Ke3 Ke6 4. d4 exd4+ 5. Kxd4 d6 6. Nf3 Nc6+ 7. Ke3 1-0", 8, { acc:9.0, freq:8.0, diff:2.5, util:8.5 }),
+      librarySeedEntry("star-master-capablanca", "masterpiece", "卡帕布兰卡：把优势换成残局", "阅读一盘以简化而非猛攻取胜的名局，重点标出每一次主动换子的条件。", ["卡帕布兰卡","简化","名局"], "[Event \"Study: Conversion\"]\n[Result \"*\"]\n\n1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Be7 5. e3 O-O 6. Nf3 h6 7. Bh4 b6 8. cxd5 Nxd5 9. Bxe7 Qxe7 *", 5, { acc:9.5, freq:6.5, diff:6.0, util:8.8 }),
+      librarySeedEntry("star-plan-isolani", "middlegame", "孤兵局面：何时进攻，何时交换", "从开放线、轻子和王翼空间三个信号判断孤兵是资产还是包袱。", ["孤兵","中局","计划"], "[Event \"Study: Isolated pawn\"]\n[Result \"*\"]\n\n1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. cxd5 exd5 5. Bg5 Be7 6. e3 O-O 7. Bd3 c6 8. Qc2 Re8 9. Nge2 Nbd7 *", 3, { acc:8.6, freq:7.0, diff:6.5, util:7.5 }),
     ],
     collections:{},
   };
@@ -955,9 +955,65 @@ function defaultLibrary() {
 function loadLibrary() {
   try {
     const v = JSON.parse(fs.readFileSync(LIBRARY_FILE, "utf8"));
-    if (v && Array.isArray(v.entries) && v.collections && typeof v.collections === "object") return v;
+    if (v && Array.isArray(v.entries) && v.collections && typeof v.collections === "object") { migrateLibrary(v); return v; }
   } catch {}
   const seed = defaultLibrary(); saveLibrary(seed); return seed;
+}
+// ---- 棋谱 v2：目录编号 / 四维评分 / 研读热度（参考 Project Kylin 的谱库设计）----
+const LIBRARY_SCORE_KEYS = ["acc", "freq", "diff", "util"];   // 准确 / 频率 / 难度 / 实用
+function clampLibraryScore(v) {
+  const n = Math.round((+v || 0) * 10) / 10;
+  return Number.isFinite(n) ? Math.max(0, Math.min(10, n)) : 0;
+}
+function libraryScoreAvg(entry) {
+  const s = entry.scores || {};
+  const sum = LIBRARY_SCORE_KEYS.reduce((a, k) => a + clampLibraryScore(s[k]), 0);
+  return Math.round((sum / LIBRARY_SCORE_KEYS.length) * 10) / 10;
+}
+function libraryRounds(pgn) {
+  const m = String(pgn || "").match(/\b\d+\./g);
+  return m ? m.length : 0;
+}
+// 给缺编号/缺新字段的存量棋谱补齐；编号规则 STAR-年份-四位序号（按创建时间顺序， yearly 递增）
+function migrateLibrary(data) {
+  let changed = false;
+  for (const e of data.entries) {
+    if (!Array.isArray(e.comments)) { e.comments = []; changed = true; }
+    if (typeof e.views !== "number" || !Number.isFinite(e.views)) { e.views = Math.max(0, Math.round(+e.views || 0)); changed = true; }
+    if (!e.scores || typeof e.scores !== "object") { e.scores = { acc:6, freq:6, diff:5, util:6 }; changed = true; }
+  }
+  const missing = data.entries.filter(e => !e.code).sort((a, b) => a.createdAt - b.createdAt);
+  if (missing.length) {
+    changed = true;
+    const nextByYear = new Map();
+    for (const e of data.entries) {
+      const m = /^STAR-(\d{2})-(\d{4})$/.exec(e.code || "");
+      if (m) nextByYear.set(m[1], Math.max(nextByYear.get(m[1]) || 0, +m[2]));
+    }
+    for (const e of missing) {
+      const y = String(new Date(e.createdAt || Date.now()).getFullYear() % 100).padStart(2, "0");
+      const next = (nextByYear.get(y) || 0) + 1;
+      nextByYear.set(y, next);
+      e.code = "STAR-" + y + "-" + String(next).padStart(4, "0");
+    }
+  }
+  if (changed) saveLibrary(data);
+}
+function nextLibraryCode(data) {
+  const y = String(new Date().getFullYear() % 100).padStart(2, "0");
+  let next = 0;
+  for (const e of data.entries) {
+    const m = /^STAR-(\d{2})-(\d{4})$/.exec(e.code || "");
+    if (m && m[1] === y) next = Math.max(next, +m[2]);
+  }
+  return "STAR-" + y + "-" + String(next + 1).padStart(4, "0");
+}
+function registerLibraryView(id) {
+  const data = loadLibrary(), entry = findLibraryEntry(data, id);
+  if (!entry) return null;
+  entry.views = Math.min(1e6, Math.max(0, Math.round(+entry.views || 0)) + 1);
+  saveLibrary(data);
+  return entry.views;
 }
 function saveLibrary(v) { writePrivate(LIBRARY_FILE, JSON.stringify(v, null, 2)); }
 function cleanLibraryText(value, maxLen) {
@@ -972,12 +1028,16 @@ function libraryAuthor(entry) {
 function libraryPublicEntry(entry, userId, detail) {
   const stars = entry.stars && typeof entry.stars === "object" ? entry.stars : {};
   const collection = userId && loadLibrary().collections && loadLibrary().collections[userId];
+  const s = entry.scores && typeof entry.scores === "object" ? entry.scores : {};
   const out = {
     id:entry.id, title:entry.title, summary:entry.summary, category:entry.category,
     tags:Array.isArray(entry.tags) ? entry.tags : [], author:libraryAuthor(entry),
     createdAt:entry.createdAt, updatedAt:entry.updatedAt, stars:Object.keys(stars).length,
     comments:Array.isArray(entry.comments) ? entry.comments.length : 0, copies:Math.max(0, +entry.copies || 0),
     starred:!!(userId && stars[userId]), collected:!!(userId && collection && collection[entry.id]), owned:!!(userId && entry.authorId === userId),
+    code:entry.code || "", views:Math.max(0, Math.round(+entry.views || 0)),
+    scores:Object.fromEntries(LIBRARY_SCORE_KEYS.map(k => [k, clampLibraryScore(s[k])])),
+    score:libraryScoreAvg(entry), rounds:libraryRounds(entry.pgn),
   };
   if (detail) {
     out.pgn = entry.pgn || "";
@@ -989,20 +1049,27 @@ function libraryList(userId, query) {
   const data = loadLibrary();
   const q = cleanLibraryText(query.get("q") || "", 80).toLocaleLowerCase();
   const category = String(query.get("category") || "all");
-  const sort = ["new", "hot", "copies"].includes(query.get("sort")) ? query.get("sort") : "new";
+  const sort = ["new", "hot", "copies", "views", "score", "comments"].includes(query.get("sort")) ? query.get("sort") : "new";
   const pageSize = Math.max(4, Math.min(24, Math.round(+query.get("pageSize") || 8)));
   const page = Math.max(1, Math.round(+query.get("page") || 1));
-  let entries = data.entries.filter(e => {
-    const haystack = [e.title, e.summary].concat(e.tags || []).join(" ").toLocaleLowerCase();
-    return (!q || haystack.includes(q)) && (category === "all" || e.category === category);
+  const matched = data.entries.filter(e => {
+    const haystack = [e.title, e.summary, e.code || ""].concat(e.tags || []).join(" ").toLocaleLowerCase();
+    return (!q || haystack.includes(q));
   });
+  // 分类计数按当前检索词计算（不含分类本身），供目录导航显示“每格几份”
+  const counts = { all:matched.length };
+  for (const c of LIBRARY_CATEGORIES) counts[c.id] = matched.filter(e => e.category === c.id).length;
+  let entries = matched.filter(e => category === "all" || e.category === category);
   entries.sort((a, b) => {
     if (sort === "hot") return Object.keys(b.stars || {}).length - Object.keys(a.stars || {}).length || b.createdAt - a.createdAt;
     if (sort === "copies") return (+b.copies || 0) - (+a.copies || 0) || b.createdAt - a.createdAt;
+    if (sort === "views") return (+b.views || 0) - (+a.views || 0) || b.createdAt - a.createdAt;
+    if (sort === "score") return libraryScoreAvg(b) - libraryScoreAvg(a) || b.createdAt - a.createdAt;
+    if (sort === "comments") return (Array.isArray(b.comments) ? b.comments.length : 0) - (Array.isArray(a.comments) ? a.comments.length : 0) || b.createdAt - a.createdAt;
     return b.createdAt - a.createdAt;
   });
   const total = entries.length, pages = Math.max(1, Math.ceil(total / pageSize));
-  return { categories:LIBRARY_CATEGORIES, entries:entries.slice((Math.min(page, pages) - 1) * pageSize, Math.min(page, pages) * pageSize).map(e => libraryPublicEntry(e, userId, false)), total, page:Math.min(page, pages), pages, sort, category, query:q };
+  return { categories:LIBRARY_CATEGORIES, counts, entries:entries.slice((Math.min(page, pages) - 1) * pageSize, Math.min(page, pages) * pageSize).map(e => libraryPublicEntry(e, userId, false)), total, page:Math.min(page, pages), pages, sort, category, query:q };
 }
 function findLibraryEntry(data, id) { return data.entries.find(e => e.id === id); }
 function createLibraryEntry(userId, body) {
@@ -1015,7 +1082,10 @@ function createLibraryEntry(userId, body) {
   if (summary.length < 12) return { error:"摘要至少 12 个字，说明这份棋谱值得读什么" };
   if (pgn.length < 12) return { error:"请贴入至少一段 PGN 或棋谱文本" };
   const data = loadLibrary(), now = Date.now();
-  const entry = { id:"lib-" + uuid(), title, summary, category, tags, pgn, authorId:userId, author:"", createdAt:now, updatedAt:now, stars:{}, comments:[], copies:0 };
+  const scoresIn = body.scores && typeof body.scores === "object" ? body.scores : {};
+  const entry = { id:"lib-" + uuid(), code:nextLibraryCode(data), title, summary, category, tags, pgn,
+    authorId:userId, author:"", createdAt:now, updatedAt:now, stars:{}, comments:[], copies:0, views:0,
+    scores:Object.fromEntries(LIBRARY_SCORE_KEYS.map(k => [k, clampLibraryScore(scoresIn[k])])) };
   data.entries.push(entry); saveLibrary(data); return { entry:libraryPublicEntry(entry, userId, true) };
 }
 function toggleLibraryStar(userId, id) {
@@ -1347,6 +1417,14 @@ async function handleApi(req, res, u) {
     return json(res, 200, libraryList(peek && peek.userId, u.searchParams));
   }
   {
+    // 研读热度：打开详情时由前端 POST 上报（POST 才产生写盘，符合“只读 GET 无副作用”的约定）
+    const viewMatch = /^\/api\/library\/entries\/([A-Za-z0-9-]+)\/view$/.exec(p);
+    if (viewMatch && m === "POST") {
+      if (!rateCheck("libview:" + clientIp(req), 30, 60000)) return json(res, 429, { error:"上报过于频繁" });
+      const views = registerLibraryView(viewMatch[1]);
+      if (views == null) return json(res, 404, { error:"资料不存在或已撤下" });
+      return json(res, 200, { ok:true, views });
+    }
     const detailMatch = /^\/api\/library\/entries\/([A-Za-z0-9-]+)$/.exec(p);
     if (detailMatch && m === "GET") {
       const data = loadLibrary(), entry = findLibraryEntry(data, detailMatch[1]);
