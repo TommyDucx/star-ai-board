@@ -398,6 +398,15 @@ function normalizeTitles(v, prog) {
   }
   return titles;
 }
+// 每日解题计数（{ "YYYY-MM-DD": n }）——独立于 attempts 保存，
+// 因为 attempts 只有 30 条上限，会把当天早先的解题记录挤掉，导致每日任务进度回退
+function normalizeDailyMap(v) {
+  const m = (v && typeof v === "object" && !Array.isArray(v)) ? Object.assign({}, v) : {};
+  Object.keys(m).forEach(k => { m[k] = Math.max(0, Math.round(+m[k] || 0)); if (!m[k]) delete m[k]; });
+  const keys = Object.keys(m).sort();
+  while (keys.length > 14) delete m[keys.shift()];   // 只留最近 14 天
+  return m;
+}
 function normalizeTactics(raw) {
   const prog = raw && typeof raw === "object" ? raw : {};
   const out = {
@@ -407,6 +416,7 @@ function normalizeTactics(raw) {
     titles: {},
     stats: {},
     attempts: (prog.attempts && typeof prog.attempts === "object" && !Array.isArray(prog.attempts)) ? prog.attempts : {},
+    dailySolved: normalizeDailyMap(prog.dailySolved),
     updatedAt: prog.updatedAt || Date.now(),
   };
   TACTICS_TIERS.forEach(k => out.tiers[k] = normalizeTierProg(prog.tiers && prog.tiers[k]));
@@ -534,6 +544,12 @@ function applyTacticsAttempt(userId, body) {
   const newly = afterTitles.filter(id => !beforeTitles.includes(id));
   attempt.submitted = true;
   attempt.result = { solved, levelNo: attempt.levelNo, nextLevel: t.currentLevel, currentStreak: t.currentStreak, newly, at: Date.now() };
+  // 每日解题计数独立累加（不随 attempts 裁剪丢失），供每日任务/成长报告统计
+  if (solved) {
+    const day = chinaDay(attempt.result.at);
+    prog.dailySolved = normalizeDailyMap(prog.dailySolved);
+    prog.dailySolved[day] = (prog.dailySolved[day] || 0) + 1;
+  }
   saveUserTactics(userId, prog);
   return { prog, newly, attempt };
 }
@@ -795,8 +811,15 @@ function levelForXp(xp) {
 }
 function dayActivity(day, tactics, rating) {
   let solved = 0, assessments = 0;
-  for (const attempt of Object.values((tactics && tactics.attempts) || {})) {
-    if (attempt && attempt.result && attempt.result.solved && chinaDay(attempt.result.at || 0) === day) solved++;
+  // 优先用独立的每日计数：attempts 只有 30 条上限，扫 attempts 会因裁剪而"进度回退"。
+  // 老账号还没有 dailySolved 字段时，回退到扫 attempts（保持向后兼容）。
+  const daily = tactics && tactics.dailySolved;
+  if (daily && typeof daily === "object" && daily[day] != null) {
+    solved = Math.max(0, Math.round(+daily[day] || 0));
+  } else {
+    for (const attempt of Object.values((tactics && tactics.attempts) || {})) {
+      if (attempt && attempt.result && attempt.result.solved && chinaDay(attempt.result.at || 0) === day) solved++;
+    }
   }
   for (const record of ((rating && rating.history) || [])) if (chinaDay(record.playedAt || 0) === day) assessments++;
   return { visit:1, solved, assessments };
@@ -1032,13 +1055,22 @@ setInterval(sampleCpu, 2000); sampleCpu();
 
 function getDisk() {
   return new Promise((resolve) => {
-    execFile("df", ["-k", "/"], (err, out) => {
+    // -P 强制 POSIX 输出：macOS 的 df 默认多出 iused/ifree/%iused 三列，
+    // 按列位置取值会整体错位（曾把 Used 当 total、Available 当 used、iused 当 percent，
+    // 出现 "used > total"、"percent 426864"、"free null" 的不可能值）；Linux 上原下标也差一位。
+    execFile("df", ["-kP", "/"], (err, out) => {
       if (err) return resolve({ total: 0, used: 0, free: 0, percent: 0 });
-      const lines = out.trim().split("\n");
-      const last = lines[lines.length - 1].split(/\s+/);
-      if (last.length < 6) return resolve({ total: 0, used: 0, free: 0, percent: 0 });
-      const total = +last[2] * 1024, used = +last[3] * 1024, free = +last[4] * 1024;
-      resolve({ total, used, free, percent: +(last[5].replace("%", "")) || 0 });
+      const row = out.trim().split("\n").slice(1)
+        .map(l => l.trim().split(/\s+/))
+        .filter(c => c.length >= 6 && c[c.length - 1] === "/")
+        .pop();
+      if (!row) return resolve({ total: 0, used: 0, free: 0, percent: 0 });
+      resolve({
+        total: +row[1] * 1024,
+        used: +row[2] * 1024,
+        free: +row[3] * 1024,
+        percent: +(row[4].replace("%", "")) || 0,
+      });
     });
   });
 }
@@ -1412,8 +1444,12 @@ async function handleApi(req, res, u) {
     const tier = body.tier || u.searchParams.get("tier") || getTactics(s.userId).selectedTier || "beginner";
     if (!TACTICS_TIERS.includes(tier)) return json(res, 400, { error: "难度档无效" });
     const prog = getTactics(s.userId);
-    prog.selectedTier = tier;
-    saveUserTactics(s.userId, prog);
+    // 仅在难度档真的变化时落盘：原先 GET /api/tactics/current 即使 tier 不变也会写一次进度文件，
+    // 让一个只读语义的 GET 每次调用都产生磁盘写入（Pi 上是 SD 卡）。
+    if (prog.selectedTier !== tier) {
+      prog.selectedTier = tier;
+      saveUserTactics(s.userId, prog);
+    }
     const cur = currentTacticsPuzzle(prog, tier);
     return json(res, 200, {
       tier, currentLevel: cur.levelNo, completed: !cur.puzzle,
