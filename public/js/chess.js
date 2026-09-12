@@ -466,13 +466,13 @@
     drawEvalChart();
     if (el) el.textContent = "评估：" + txt + "（深度 " + c.depth + "）";
     // 左侧竖条 + 胜率具体数值（白方视角，统一用 logistic 胜率）
-    document.getElementById("evalfill").style.height = wpct + "%";
+    document.getElementById("evalfill").style.transform = "scaleY(" + (wpct / 100) + ")";
     const pctEl = document.getElementById("evalpct");
     if (pctEl) pctEl.textContent = `白 ${wpct.toFixed(1)}%`;
   }
 
   function resetEvalUI() {
-    document.getElementById("evalfill").style.height = "50%";
+    document.getElementById("evalfill").style.transform = "scaleY(0.5)";
     const pctEl = document.getElementById("evalpct");
     if (pctEl) pctEl.textContent = "白 50.0%";
     evalHist.length = 0;
