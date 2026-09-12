@@ -127,3 +127,28 @@
   .library-mine-columns { grid-template-columns:1fr; }
   .library-comment-form { grid-template-columns:1fr; }
 }
+
+/* 棋盘演示（参考 Kylin 研讨页：左盘右线，逐手推演 + 键盘方向键） */
+.lib-viewer { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:18px; margin:10px 0 26px; align-items:start; }
+.lib-board-wrap { position:relative; }
+#lib-board { width:100%; }
+.lib-board-wrap .board-b72b1 { border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.lib-rail { border:1px solid var(--archive-line); background:rgba(255,255,255,.02); display:flex; flex-direction:column; min-height:0; }
+.lib-rail-head { display:grid; gap:4px; padding:12px 14px; border-bottom:1px solid var(--line); }
+.lib-rail-head b { color:var(--paper); font-size:15px; line-height:1.35; }
+.lib-mv-pos { color:var(--archive); font:11px ui-monospace,Menlo,monospace; }
+.lib-mv-count { color:var(--faint); font:10px ui-monospace,Menlo,monospace; }
+.lib-moves { flex:1 1 auto; min-height:220px; max-height:560px; overflow-y:auto; padding:10px; display:flex; flex-wrap:wrap; gap:6px; align-content:flex-start; }
+.lib-mv { border:1px solid var(--line); background:transparent; color:var(--paper); padding:5px 8px; cursor:pointer; font-size:12.5px; font-family:ui-monospace,Menlo,monospace; }
+.lib-mv:hover { border-color:var(--archive-line); }
+.lib-mv.current { background:var(--archive); border-color:var(--archive); color:#10100e; font-weight:800; }
+.lib-mv-no { color:var(--faint); font-size:10px; margin-right:4px; }
+.lib-mv.current .lib-mv-no { color:#3a3416; }
+.lib-ctrls { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; padding:10px; border-top:1px solid var(--line); }
+.lib-ctrls button { min-height:34px; border:1px solid var(--archive-line); background:transparent; color:var(--archive); cursor:pointer; font-size:11px; font-weight:700; letter-spacing:.04em; }
+.lib-ctrls button:hover,.lib-ctrls button:focus-visible { background:var(--archive-soft); outline:none; }
+.lib-pgn-details { margin:0 0 26px; }
+.lib-pgn-details summary { cursor:pointer; color:var(--faint); font:11px ui-monospace,Menlo,monospace; letter-spacing:.1em; margin-bottom:8px; }
+.lib-pgn-details[open] summary { color:var(--archive); }
+@media (prefers-reduced-motion: reduce) { .lib-row, .lib-mv { transition:none !important; } }
+@media (max-width:860px) { .lib-viewer { grid-template-columns:1fr; } .lib-moves { max-height:300px; } }

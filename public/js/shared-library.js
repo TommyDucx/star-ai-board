@@ -91,7 +91,66 @@
       '<div class="library-kicker">' + esc(c.mark) + ' / ' + esc(c.name) + ' · 作者 ' + esc(entry.author) + '</div><h1>' + esc(entry.title) + '</h1><p>' + esc(entry.summary) + '</p>' +
       scoreBars(entry.scores) +
       '<div class="library-meta">☆ ' + entry.stars + ' 收藏　▣ ' + entry.copies + ' 次加入研读架　◌ ' + entry.comments + ' 条讨论　<span data-views>热度 ' + entry.views + '</span>　约 ' + entry.rounds + ' 回合</div></header>' +
-      entryActions(entry) + '<h2>棋谱文本</h2><pre class="library-pgn" id="library-pgn">' + esc(entry.pgn) + '</pre><section class="library-comments"><h2>研读笔记</h2>' + (state.me ? '<form id="library-comment-form" class="library-comment-form"><input name="comment" maxlength="300" placeholder="写下一个具体判断或问题…" required><button class="library-action">发布</button></form>' : '<p class="library-form-hint">登录后可以为这份棋谱留下研读笔记。</p>') + '<div id="library-comment-list">' + commentHtml + '</div></section></article><div class="library-status" aria-live="polite">' + esc(state.notice) + '</div></div>';
+      entryActions(entry) + '<h2>棋盘演示</h2><div class="lib-viewer" id="lib-viewer"><div class="lib-board-wrap"><div id="lib-board"></div></div><div class="lib-rail"><div class="lib-rail-head"><span class="lib-code">' + esc(entry.code || "--") + '</span><b id="lib-mv-title">' + esc(entry.title) + '</b><span class="lib-mv-pos" id="lib-mv-pos">开局局面</span><span class="lib-mv-count" id="lib-mv-count"></span></div><div class="lib-moves" id="lib-moves"><span class="library-form-hint">正在加载棋盘组件…</span></div><div class="lib-ctrls"><button type="button" data-vgo="first">开局</button><button type="button" data-vgo="prev">← 上一手</button><button type="button" data-vgo="next">下一手 →</button><button type="button" data-vgo="last">末局</button></div></div></div><details class="lib-pgn-details"><summary>PGN 原文（复制 / 下载用）</summary><pre class="library-pgn" id="library-pgn">' + esc(entry.pgn) + '</pre></details><section class="library-comments"><h2>研读笔记</h2>' + (state.me ? '<form id="library-comment-form" class="library-comment-form"><input name="comment" maxlength="300" placeholder="写下一个具体判断或问题…" required><button class="library-action">发布</button></form>' : '<p class="library-form-hint">登录后可以为这份棋谱留下研读笔记。</p>') + '<div id="library-comment-list">' + commentHtml + '</div></section></article><div class="library-status" aria-live="polite">' + esc(state.notice) + '</div></div>';
+  }
+  /* ---------- 棋盘演示器（参考 Kylin 研讨页：左盘右线，逐手推演） ---------- */
+  var viewer = null, libLibsPromise = null;
+  function ensureChessLibs() {
+    if (window.Chess && window.Chessboard) return Promise.resolve();
+    if (libLibsPromise) return libLibsPromise;
+    libLibsPromise = new Promise(function (resolve, reject) {
+      var link = document.createElement("link");
+      link.rel = "stylesheet"; link.href = "css/chessboard.min.css";
+      document.head.appendChild(link);
+      var seq = ["js/lib/jquery.min.js", "js/lib/chess.min.js", "js/lib/chessboard.min.js"];
+      (function next(i) {
+        if (i >= seq.length) return resolve();
+        var s = document.createElement("script");
+        s.src = seq[i]; s.onload = function () { next(i + 1); };
+        s.onerror = function () { libLibsPromise = null; reject(new Error("棋盘组件加载失败")); };
+        document.head.appendChild(s);
+      })(0);
+    });
+    return libLibsPromise;
+  }
+  function initViewer(entry) {
+    ensureChessLibs().then(function () {
+      var parsed = new Chess();
+      if (!parsed.load_pgn(entry.pgn)) throw new Error("PGN 格式无法解析");
+      viewer = { moves: parsed.history(), idx: 0, view: new Chess(), board: null };
+      var slot = root.querySelector("#lib-board");
+      if (!slot || !viewer.moves.length) throw new Error("这份棋谱没有着法");
+      viewer.board = window.Chessboard("lib-board", { position: "start", pieceTheme: "img/chesspieces/wikipedia/{piece}.png", draggable: false });
+      var list = root.querySelector("#lib-moves");
+      if (list) list.innerHTML = viewer.moves.map(function (san, i) {
+        return '<button type="button" class="lib-mv" data-mv="' + (i + 1) + '"><span class="lib-mv-no">' + (i % 2 === 0 ? (i / 2 + 1) + "." : "") + '</span>' + esc(san) + '</button>';
+      }).join("");
+      var h = parsed.header() || {};
+      var t = root.querySelector("#lib-mv-title");
+      if (t && h.White && h.Black) t.textContent = h.White + " vs " + h.Black;
+      viewerGoto(0);
+    }).catch(function (e) {
+      viewer = null;
+      var list = root && root.querySelector("#lib-moves");
+      if (list) list.innerHTML = '<span class="library-form-hint">演示器不可用：' + esc(e.message) + '。可展开下方 PGN 原文自行研究。</span>';
+    });
+  }
+  function viewerGoto(i) {
+    if (!viewer || !viewer.moves || !viewer.board) return;
+    i = Math.max(0, Math.min(viewer.moves.length, i));
+    viewer.idx = i;
+    var v = viewer.view; v.reset();
+    for (var k = 0; k < i; k++) v.move(viewer.moves[k]);
+    viewer.board.position(v.fen());
+    var pos = root.querySelector("#lib-mv-pos");
+    if (pos) pos.textContent = i === 0 ? "开局局面" : "第 " + Math.ceil(i / 2) + " 回合 · " + (i % 2 === 1 ? "白" : "黑") + "方 " + viewer.moves[i - 1];
+    var cnt = root.querySelector("#lib-mv-count");
+    if (cnt) cnt.textContent = "共 " + viewer.moves.length + " 手";
+    [].forEach.call(root.querySelectorAll(".lib-mv"), function (b) {
+      var cur = +b.dataset.mv === i;
+      b.classList.toggle("current", cur);
+      if (cur && b.scrollIntoView) b.scrollIntoView({ block: "nearest" });
+    });
   }
   function showDetail(id) {
     if (!root) return;
@@ -99,6 +158,7 @@
     request("/api/library/entries/" + encodeURIComponent(id)).then(function (r) {
       if (!r.res.ok) throw new Error(r.data.error || "棋谱不存在");
       root.querySelector("#library-body").innerHTML = detailTemplate(r.data.entry);
+      initViewer(r.data.entry);
       // 研读热度上报：不阻塞、不提示、失败静默（匿名也可计）
       request("/api/library/entries/" + encodeURIComponent(id) + "/view", { method:"POST", headers:{"Content-Type":"application/json"}, body:"{}" }).then(function (v) {
         if (v.res.ok && v.data.views != null) { var el = root.querySelector("[data-views]"); if (el) el.textContent = "热度 " + v.data.views; }
@@ -157,12 +217,21 @@
     notice("PGN 下载已开始。");
   }
   function handleClick(event) {
-    var el = event.target.closest("[data-entry],[data-action],[data-category],[data-page]"); if (!el || !root.contains(el)) return;
+    var el = event.target.closest("[data-entry],[data-action],[data-category],[data-page],[data-mv],[data-nav],[data-vgo]"); if (!el || !root.contains(el)) return;
+    if (el.dataset.mv) return viewerGoto(+el.dataset.mv);
     if (el.dataset.entry) return showDetail(el.dataset.entry);
     if (el.dataset.category) { state.category = el.dataset.category; state.page = 1; return loadDirectory(); }
     if (el.dataset.page) { state.page += el.dataset.page === "next" ? 1 : -1; return loadDirectory(); }
     var action = el.dataset.action, id = el.dataset.id;
-    if (action === "back") return loadDirectory();
+    if (el.dataset.vgo && viewer) {
+      var n = el.dataset.vgo;
+      if (n === "first") return viewerGoto(0);
+      if (n === "prev") return viewerGoto(viewer.idx - 1);
+      if (n === "next") return viewerGoto(viewer.idx + 1);
+      if (n === "last") return viewerGoto(viewer.moves.length);
+      return;
+    }
+    if (action === "back") { viewer = null; return loadDirectory(); }
     if (action === "publish") return showPublish();
     if (action === "mine") return showMine();
     if (action === "favorite" || action === "collect") return sendAction(action, id);
@@ -188,10 +257,23 @@
       request("/api/library/entries/" + encodeURIComponent(id) + "/comments", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ text:text }) }).then(function (r) { if (!r.res.ok) throw new Error(r.data.error || "评论未发布"); state.notice = "研读笔记已发布。"; showDetail(id); }).catch(function (e) { notice(e.message); });
     }
   }
+  function handleKey(event) {
+    if (!viewer || !root) return;
+    var t = event.target;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+    if (event.key === "ArrowLeft") { viewerGoto(viewer.idx - 1); event.preventDefault(); }
+    else if (event.key === "ArrowRight") { viewerGoto(viewer.idx + 1); event.preventDefault(); }
+  }
+  var libGlobalBound = false;
   function mount(target) {
-    root = target; state.notice = ""; root.innerHTML = shell();
+    root = target; state.notice = ""; viewer = null; root.innerHTML = shell();
     root.removeEventListener("click", handleClick); root.removeEventListener("input", handleInput); root.removeEventListener("change", handleChange); root.removeEventListener("submit", handleSubmit);
     root.addEventListener("click", handleClick); root.addEventListener("input", handleInput); root.addEventListener("change", handleChange); root.addEventListener("submit", handleSubmit);
+    if (!libGlobalBound) {
+      libGlobalBound = true;
+      document.addEventListener("keydown", handleKey);
+      window.addEventListener("resize", function () { if (viewer && viewer.board && viewer.board.resize) viewer.board.resize(); });
+    }
     request("/api/me").then(function (r) { state.me = r.res.ok ? r.data : null; }).catch(function () { state.me = null; }).then(loadDirectory);
   }
   window.SharedLibrary = { mount:mount };

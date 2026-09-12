@@ -95,6 +95,12 @@ ws.onmessage = e => {
 
   /* ---------------- 棋盘渲染 ---------------- */
   function render() {
+    // 视口自适应：按可用高度/宽度推导 CELL（19 路时整盘 = CELL*18 + PAD*2），大屏放大、小屏保底
+    const wide = window.innerWidth > 880;
+    const availH = Math.max(320, window.innerHeight - (wide ? 210 : 190));
+    const availW = Math.max(320, window.innerWidth - (wide ? 780 : 32));
+    const target = Math.min(availH, availW, 700);
+    CELL = Math.max(14, Math.floor((target - PAD * 2) / (N - 1)));
     const size = CELL * (N - 1) + PAD * 2;
     // 整盘由 CSS rotate(180deg) 翻转；文字用局部反向旋转抵消，保持正立可读
     const rot = (x, y) => flipped ? ` transform="rotate(180 ${x} ${y})"` : "";
@@ -374,4 +380,15 @@ ws.onmessage = e => {
   window.undo = undo;
   window.clearBoard = clearBoard;
   window.flipBoard = flipBoard;
+  // 视口变化时按新尺寸重排棋盘（避免棋盘与窗口比例失衡）；尺寸变化不足 12px 不重绘
+  let rsTimer = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(rsTimer);
+    rsTimer = setTimeout(() => {
+      const wide = window.innerWidth > 880;
+      const target = Math.min(Math.max(320, window.innerHeight - (wide ? 210 : 190)),
+        Math.max(320, window.innerWidth - (wide ? 780 : 32)), 700);
+      if (Math.abs(CELL * (N - 1) + PAD * 2 - target) > 12) render();
+    }, 180);
+  });
 })();
