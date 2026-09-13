@@ -63,22 +63,35 @@
       moved.push({ el: a.el, dx, dy, d: Math.hypot(dx, dy) });
     });
     if (!moved.length) return;
-    moved.sort((a, b) => b.d - a.d);                                      // 位移大的先走，视觉更自然
+    moved.sort((a, b) => b.d - a.d);                     // 位移大的先走，视觉更自然
+    // 单子移动 = 走子（Kylin 用 .22s 干净的街机式位移）；
+    // 多子重排（易位 / 悔棋 / 载入局面）= .46s 半透明模糊滑入 + 错峰。
+    const arcade = moved.length === 1;
     const stagger = moved.length > 1;
     moved.forEach((m, i) => {
-      const img = m.el;
-      img.style.setProperty("--rp-x", m.dx + "px");
-      img.style.setProperty("--rp-y", m.dy + "px");
-      img.style.setProperty("--rp-delay", (stagger ? Math.min(i * STAGGER_STEP, STAGGER_MAX) : 0) + "ms");
-      img.classList.remove("piece-reposition");
-      void img.offsetWidth;                                               // 强制回流，保证动画从头重放
-      img.classList.add("piece-reposition");
+      const el = m.el;
+      if (arcade) {
+        // Kylin 用百分比位移（相对自身格子尺寸），这里按格子边长折算成同样的百分比
+        const cell = el.getBoundingClientRect().width || 1;
+        el.style.setProperty("--piece-dx", (m.dx / cell * 100).toFixed(2) + "%");
+        el.style.setProperty("--piece-dy", (m.dy / cell * 100).toFixed(2) + "%");
+        el.classList.remove("piece-arcade-move");
+        void el.offsetWidth;
+        el.classList.add("piece-arcade-move");
+        return;
+      }
+      el.style.setProperty("--rp-x", m.dx + "px");
+      el.style.setProperty("--rp-y", m.dy + "px");
+      el.style.setProperty("--rp-delay", (stagger ? Math.min(i * STAGGER_STEP, STAGGER_MAX) : 0) + "ms");
+      el.classList.remove("piece-reposition");
+      void el.offsetWidth;                               // 强制回流，保证动画从头重放
+      el.classList.add("piece-reposition");
     });
     window.clearTimeout(clearTimer);
     clearTimer = window.setTimeout(() => {
       moved.forEach(m => {
-        m.el.classList.remove("piece-reposition");
-        ["--rp-x", "--rp-y", "--rp-delay"].forEach(v => m.el.style.removeProperty(v));
+        m.el.classList.remove("piece-reposition", "piece-arcade-move");
+        ["--rp-x", "--rp-y", "--rp-delay", "--piece-dx", "--piece-dy"].forEach(v => m.el.style.removeProperty(v));
       });
     }, DURATION + STAGGER_MAX + 120);
   }
@@ -94,21 +107,57 @@
     play(root, prev);
   }
 
-  /* 落点提示：在 from/to 两格打标记（沿用站点既有 .star-move-mark 样式） */
+  /* 落点反馈三件套（Kylin：_lastMoveSquare 残留高亮 + _moveTrace 轨迹 + _arcadeTrace 淡出）：
+     ① 起止格加淡绿底残留（保留到下一手）；② 画一条绿虚线轨迹，0.44s 内先亮起再流动淡出。 */
+  function ensureLayer(root) {
+    let layer = root.querySelector(":scope > .star-trace-layer");
+    if (!layer) {
+      layer = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      layer.setAttribute("class", "star-trace-layer");
+      root.appendChild(layer);
+    }
+    const w = root.clientWidth, h = root.clientHeight;
+    layer.setAttribute("width", w);
+    layer.setAttribute("height", h);
+    layer.setAttribute("viewBox", "0 0 " + w + " " + h);
+    return layer;
+  }
+  function centerOf(root, square) {
+    const sq = root.querySelector(".square-" + square);
+    if (!sq) return null;
+    const rb = root.getBoundingClientRect(), r = sq.getBoundingClientRect();
+    return { x: r.left - rb.left + r.width / 2, y: r.top - rb.top + r.height / 2 };
+  }
   function pulse(root, move) {
     if (!root || !move) return;
-    window.clearTimeout(pulse._timer);
+    const layer = ensureLayer(root);
+    // 清掉上一手的残留（Kylin 只留当前这一手）
+    root.querySelectorAll(":scope > .star-trace-layer .star-move-trace").forEach(el => el.remove());
+    root.querySelectorAll(".square-55d63.star-last-move").forEach(el => el.classList.remove("star-last-move"));
+    ["from", "to"].forEach(key => {
+      const sq = root.querySelector(".square-" + move[key]);
+      if (sq) sq.classList.add("star-last-move");
+    });
+    const a = centerOf(root, move.from), b = centerOf(root, move.to);
+    if (a && b && layer) {
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", a.x); line.setAttribute("y1", a.y);
+      line.setAttribute("x2", b.x); line.setAttribute("y2", b.y);
+      line.setAttribute("class", "star-move-trace");
+      layer.appendChild(line);
+      window.setTimeout(() => line.remove(), reduced ? 0 : 520);
+    }
+    // 站点既有的落点标记（描边脉冲）保留：与残留高亮叠加成"落点 + 残影"两层反馈
     root.querySelectorAll(".star-move-mark").forEach(el => el.remove());
     ["from", "to"].forEach(key => {
-      const sq = move[key];
+      const sq = root.querySelector(".square-" + move[key]);
       if (!sq) return;
-      const host = root.querySelector(".square-" + sq);
-      if (!host) return;
       const mark = document.createElement("i");
       mark.className = "star-move-mark " + key;
       mark.setAttribute("aria-hidden", "true");
-      host.appendChild(mark);
+      sq.appendChild(mark);
     });
+    window.clearTimeout(pulse._timer);
     pulse._timer = window.setTimeout(() => {
       root.querySelectorAll(".star-move-mark").forEach(el => el.remove());
     }, reduced ? 0 : 620);
