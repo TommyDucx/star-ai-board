@@ -6,9 +6,11 @@
 :root { --ease: cubic-bezier(.76,0,.24,1); --ease-out: cubic-bezier(.16,1,.3,1); }
 
 /* scanlines 覆盖层 */
-.scanlines { pointer-events: none; position: fixed; inset: 0; z-index: 60;
-  background: repeating-linear-gradient(to bottom, transparent 0 4px, rgba(0,0,0,.10) 4px 5px);
-  mix-blend-mode: overlay; opacity: .24; }
+/* 扫描线：原用 mix-blend-mode:overlay 全屏混合（每帧强制整页合成，实测长帧主因），
+   改为普通叠加 + 略加深条纹 + contain 限定绘制范围，观感基本一致而开销大幅下降 */
+.scanlines { pointer-events: none; position: fixed; inset: 0; z-index: 60; contain: strict;
+  background: repeating-linear-gradient(to bottom, transparent 0 4px, rgba(0,0,0,.16) 4px 5px);
+  opacity: .30; }
 
 /* 全屏像素故障 */
 .pixel-fault { position: fixed; inset: 0; z-index: 55; pointer-events: none;
@@ -155,11 +157,11 @@
 @keyframes sheenSweep { from{background-position:130% 0;} to{background-position:-45% 0;} }
 
 /* ---- 全站极光氛围层（motion.js 注入 .aurora） ---- */
-.aurora { position:fixed; inset:-18%; z-index:0; pointer-events:none; mix-blend-mode:screen;
+.aurora { position:fixed; inset:-18%; z-index:0; pointer-events:none; /* 原 mix-blend-mode:screen 会强制全页每帧混合，改为普通叠加 + 略提高透明度保持观感 */
   background:
-    radial-gradient(36% 42% at 20% 30%, rgba(215,255,63,.055), transparent 62%),
-    radial-gradient(32% 38% at 80% 66%, rgba(46,211,255,.05), transparent 60%),
-    radial-gradient(24% 30% at 62% 18%, rgba(215,107,255,.04), transparent 58%);
+    radial-gradient(36% 42% at 20% 30%, rgba(215,255,63,.075), transparent 62%),
+    radial-gradient(32% 38% at 80% 66%, rgba(46,211,255,.065), transparent 60%),
+    radial-gradient(24% 30% at 62% 18%, rgba(215,107,255,.055), transparent 58%);
   animation: auroraDrift 26s ease-in-out infinite alternate; }
 @keyframes auroraDrift { from{transform:translate3d(-1.6%,-1%,0) scale(.99);}
   to{transform:translate3d(1.8%,1.6%,0) scale(1.05);} }
@@ -200,7 +202,7 @@ input,select,textarea,.library-search,.library-select,.library-form input,.libra
 .topbar .logo{cursor:pointer}
 .site-back{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border:1px solid var(--lineStrong);color:var(--muted);background:rgba(255,255,255,.025);text-decoration:none;font:11px ui-monospace,Menlo,monospace;letter-spacing:.05em;white-space:nowrap;transition:.18s}
 .site-back:hover{color:var(--signal);border-color:var(--signal);background:rgba(215,255,63,.08)}
-.site-corner-nav{position:fixed;left:18px;top:16px;z-index:80;display:flex;gap:7px;padding:6px;background:rgba(8,10,9,.82);border:1px solid var(--line);backdrop-filter:blur(12px)}
+.site-corner-nav{position:fixed;left:18px;top:16px;z-index:80;display:flex;gap:7px;padding:6px;background:#0a0c0b;border:1px solid var(--line)}
 .site-corner-nav a{display:inline-flex;align-items:center;padding:7px 10px;color:var(--paper);font:11px ui-monospace,Menlo,monospace;letter-spacing:.06em;text-decoration:none;border:1px solid transparent}
 .site-corner-nav a:hover{color:var(--signal);border-color:var(--signal)}
 @media(max-width:660px){.site-back{padding:6px 9px;font-size:10px}.site-corner-nav{left:10px;top:10px}}

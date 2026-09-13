@@ -161,7 +161,8 @@
         }
         game.move({ from: played.slice(0, 2), to: played.slice(2, 4), promotion: played[4] });
         pos.move({ from: played.slice(0, 2), to: played.slice(2, 4), promotion: played[4] });
-        board.position(pos.fen());
+        if (window.StarChessMotion) { StarChessMotion.sync(board, pos.fen(), true); StarChessMotion.pulse(root.querySelector("#tr-board"), { from: played.slice(0, 2), to: played.slice(2, 4) }); }
+        else board.position(pos.fen());
         idx += 1;
         if (idx >= moves.length) { paint(); finish(); return "snapback"; }
         // 对手应手自动演示
@@ -170,7 +171,8 @@
           if (myGen !== gen) return;
           game.move({ from: reply.slice(0, 2), to: reply.slice(2, 4), promotion: reply[4] });
           pos.move({ from: reply.slice(0, 2), to: reply.slice(2, 4), promotion: reply[4] });
-          board.position(pos.fen());
+          if (window.StarChessMotion) { StarChessMotion.sync(board, pos.fen(), true); StarChessMotion.pulse(root.querySelector("#tr-board"), { from: reply.slice(0, 2), to: reply.slice(2, 4) }); }
+          else board.position(pos.fen());
           idx += 1; paint();
         }, 420);
         paint();

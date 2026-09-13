@@ -44,6 +44,7 @@
   }
 
   let clearTimer = 0;
+  let lastMover = null;          // 最近一次位移的棋子（供拖尾跟随）
 
   function play(root, before) {
     const after = snapshot(root);
@@ -68,6 +69,7 @@
     // 多子重排（易位 / 悔棋 / 载入局面）= .46s 半透明模糊滑入 + 错峰。
     const arcade = moved.length === 1;
     const stagger = moved.length > 1;
+    lastMover = arcade ? moved[0].el : null;   // 拖尾只跟单子（走子）
     moved.forEach((m, i) => {
       const el = m.el;
       if (arcade) {
@@ -142,10 +144,31 @@
     if (a && b && layer) {
       const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
       line.setAttribute("x1", a.x); line.setAttribute("y1", a.y);
-      line.setAttribute("x2", b.x); line.setAttribute("y2", b.y);
+      line.setAttribute("x2", a.x); line.setAttribute("y2", a.y);
       line.setAttribute("class", "star-move-trace");
       layer.appendChild(line);
-      window.setTimeout(() => line.remove(), reduced ? 0 : 520);
+      /* 彗星式拖尾：线从起点格向「棋子的当前位置」生长——尾巴始终在棋子身后，
+         棋子落地时终点自然等于落点格中心，随后整条路径就地淡出，全程与棋子严格对应。
+         注意：pulse() 可能先于 sync() 被页面调用，所以棋子元素在 rAF 里延迟解析。 */
+      const t0 = performance.now();
+      const FLY = 240;                     // 略大于棋子位移时长（.22s），确保落地瞬间仍贴合
+      let raf = 0, mover = root.querySelector("img.piece-arcade-move");
+      if (!reduced) {
+        const step = () => {
+          if (!mover) mover = root.querySelector("img.piece-arcade-move");
+          if (mover && mover.isConnected) {
+            const rb = root.getBoundingClientRect(), r = mover.getBoundingClientRect();
+            line.setAttribute("x2", (r.left - rb.left + r.width / 2).toFixed(1));
+            line.setAttribute("y2", (r.top - rb.top + r.height / 2).toFixed(1));
+          }
+          if (performance.now() - t0 < FLY) raf = requestAnimationFrame(step);
+          else { line.setAttribute("x2", b.x); line.setAttribute("y2", b.y); }   // 归位到落点格中心
+        };
+        raf = requestAnimationFrame(step);
+      } else {
+        line.setAttribute("x2", b.x); line.setAttribute("y2", b.y);
+      }
+      window.setTimeout(() => { window.cancelAnimationFrame(raf); line.remove(); }, reduced ? 0 : 520);
     }
     // 站点既有的落点标记（描边脉冲）保留：与残留高亮叠加成"落点 + 残影"两层反馈
     root.querySelectorAll(".star-move-mark").forEach(el => el.remove());

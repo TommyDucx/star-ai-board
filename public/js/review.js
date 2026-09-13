@@ -209,7 +209,7 @@
     el.querySelectorAll(".rmv").forEach(s => s.addEventListener("click", () => {
       stopPlay();
       cur = +s.dataset.n;
-      if (board) board.position(build().fens[cur]);
+      if (board) (window.StarChessMotion ? StarChessMotion.sync(board, build().fens[cur], true) : board.position(build().fens[cur]));
       renderStep();
       drawCurve();
       el.querySelectorAll(".rmv").forEach(x => x.classList.toggle("on", x === s));
@@ -376,12 +376,12 @@
     const next = Math.max(0, Math.min(moves.length, cur + d));
     if (d > 0 && next > cur && window.Motion && Motion.sfx) Motion.sfx.tick();   // 步进微咔
     cur = next;
-    if (board) board.position(build().fens[cur]);
+    if (board) (window.StarChessMotion ? StarChessMotion.sync(board, build().fens[cur], true) : board.position(build().fens[cur]));
     renderStep();
     drawCurve();
     renderMoveList();
   };
-  window.jumpStart = function () { cur = 0; if (board) board.position(build().fens[0]); renderStep(); drawCurve(); renderMoveList(); };
+  window.jumpStart = function () { cur = 0; if (board) (window.StarChessMotion ? StarChessMotion.sync(board, build().fens[0], true) : board.position(build().fens[0])); renderStep(); drawCurve(); renderMoveList(); };
 
   function isKeyNode(r) { return ["blunder", "miss", "brilliant", "great", "mistake"].includes(r.key); }
   window.autoPlay = function () {

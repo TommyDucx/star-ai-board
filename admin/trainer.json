@@ -70,6 +70,29 @@
         "addedAt": 1789215582416,
         "lastTrainedAt": 1789217630881
       }
+    },
+    "bbfd1333-3491-4fe4-bb6f-d49d8168cf2a": {
+      "tl-0f410908-8f4f-46a4-9b6c-ad09f0152a98": {
+        "key": "tl-0f410908-8f4f-46a4-9b6c-ad09f0152a98",
+        "sourceId": "lib-0a3515ce-57bd-4b73-9e28-aca7984f762b",
+        "code": "STAR-26-0009",
+        "title": "QA 动效验证线路",
+        "moves": [
+          "d2d4",
+          "d7d5",
+          "c2c4",
+          "e7e6",
+          "b1c3"
+        ],
+        "box": 0,
+        "dueAt": 0,
+        "streak": 0,
+        "bestStreak": 0,
+        "sessions": 0,
+        "errors": 0,
+        "addedAt": 1789269152144,
+        "lastTrainedAt": 0
+      }
     }
   }
 }

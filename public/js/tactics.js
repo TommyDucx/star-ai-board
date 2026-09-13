@@ -330,7 +330,10 @@
     var m = { from: uci.slice(0, 2), to: uci.slice(2, 4) };
     if (uci.length > 4) m.promotion = uci[4];
     var mv = game.move(m);
-    if (mv) board.position(game.fen());
+    if (mv) {
+      if (window.StarChessMotion) { StarChessMotion.sync(board, game.fen(), true); StarChessMotion.pulse(document.getElementById("board"), { from: m.from, to: m.to }); }
+      else board.position(game.fen());
+    }
     return mv;
   }
   function legalUci(source, target, expected) {

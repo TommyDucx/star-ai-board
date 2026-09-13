@@ -9,7 +9,7 @@
 body { background: var(--ink); color: var(--paper); font-family: -apple-system, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; min-height: 100vh; }
 /* 页面共用的高度锚点：棋盘页可据此精确计算首屏可用空间。 */
 :root { --topbar-h: 64px; --page-gutter: clamp(12px, 2vw, 28px); }
-.topbar { height: var(--topbar-h); display: flex; align-items: center; gap: clamp(10px, 1.4vw, 20px); padding: 0 var(--page-gutter); border-bottom: 1px solid var(--line); background: rgba(8,10,9,.92); backdrop-filter: blur(14px); position: sticky; top: 0; z-index: 10; }
+.topbar { height: var(--topbar-h); display: flex; align-items: center; gap: clamp(10px, 1.4vw, 20px); padding: 0 var(--page-gutter); border-bottom: 1px solid var(--line); background: #0a0c0b; /* 原为 rgba(8,10,9,.92)+backdrop-filter:blur(14px)：每帧重模糊，实测会造成 800ms 级长帧，已改实色 */ position: sticky; top: 0; z-index: 10; }
 .topbar .logo { font-weight: 800; letter-spacing: .08em; color: var(--signal); text-decoration: none; font-size: 18px; }
 .topbar .crumb { font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: .2em; color: var(--muted); text-transform: uppercase; }
 .topbar .flex1 { flex: 1; }

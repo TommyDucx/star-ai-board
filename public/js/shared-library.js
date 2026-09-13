@@ -147,8 +147,12 @@
     i = Math.max(0, Math.min(viewer.moves.length, i));
     viewer.idx = i;
     var v = viewer.view; v.reset();
-    for (var k = 0; k < i; k++) v.move(viewer.moves[k]);
-    viewer.board.position(v.fen());
+    var applied = null;
+    for (var k = 0; k < i; k++) applied = v.move(viewer.moves[k]);
+    if (window.StarChessMotion) {
+      StarChessMotion.sync(viewer.board, v.fen(), true);
+      if (applied) StarChessMotion.pulse(root.querySelector("#lib-board"), { from: applied.from, to: applied.to });
+    } else viewer.board.position(v.fen());
     var pos = root.querySelector("#lib-mv-pos");
     if (pos) pos.textContent = i === 0 ? "开局局面" : "第 " + Math.ceil(i / 2) + " 回合 · " + (i % 2 === 1 ? "白" : "黑") + "方 " + viewer.moves[i - 1];
     var cnt = root.querySelector("#lib-mv-count");

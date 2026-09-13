@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="K3ETkNdYwQCtjNhHt18ACu">
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <title>S.T.A.R. — 下一手下哪？</title>
-<link rel="stylesheet" href="css/site.css?v=37" data-page-node-id="bXhgF85IR6DZ8p1x17tTDp">
-<link rel="stylesheet" href="css/motion.css?v=36" data-page-node-id="HVT7OH0GnstwfUeutEwc4o">
+<link rel="stylesheet" href="css/site.css?v=38" data-page-node-id="bXhgF85IR6DZ8p1x17tTDp">
+<link rel="stylesheet" href="css/motion.css?v=38" data-page-node-id="HVT7OH0GnstwfUeutEwc4o">
 <link rel="stylesheet" href="css/chessboard.min.css" data-page-node-id="2eWPP539mjTr5AZkYILkJc">
 <style>
   body { overflow-x: hidden; }
@@ -108,6 +108,7 @@
     .lynx-sigil { top:76px; right:12px; width:94px; opacity:.18; }
   }
 </style>
+  <link rel="stylesheet" href="css/chess-motion.css?v=2">
 </head>
 <body data-page-node-id="sMD8geZJdTntSlVvmJXSiq">
 <div class="scanlines" data-page-node-id="viDULyxxYYDfXkDRS9yGMD"></div>
@@ -215,7 +216,7 @@
 <script src="js/lib/chess.min.js"></script>
 <script src="js/lib/chessboard.min.js"></script>
 <script src="js/motion.js?v=36"></script>
-<script src="js/intro.js?v=11"></script>
+<script src="js/intro.js?v=12"></script>
 <div id="site-ann" style="display:none;position:fixed;top:72px;left:0;right:0;z-index:40;
   background:#1a2410;border-bottom:1px solid #d7ff3f57;color:#d7ff3f;
   font-size:13px;letter-spacing:.04em;padding:9px 18px;text-align:center;
@@ -235,5 +236,6 @@ fetch("/api/chess-rating/leaderboard?limit=3").then(function(r){return r.json();
   var box=document.getElementById("home-rank-list"); if(box)box.innerHTML='<div class="home-rank-row"><span class="pos">--</span><span class="name">排行榜暂不可用</span><span class="score">--</span></div>';
 });
 </script>
+  <script src="js/chess-motion.js?v=7"></script>
 </body>
 </html>
