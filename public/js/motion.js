@@ -141,7 +141,7 @@
     window.addEventListener("resize", resize);
 
     const trail = [];
-    const MAX = 48;
+    const MAX = 24;
     let lastSpawn = 0;
     let tx = W / 2, ty = H / 2, mx = tx, my = ty, raf = null;
     function spawn(x, y) { trail.push({ x, y, life: 1 }); if (trail.length > MAX) trail.shift(); }
@@ -150,7 +150,7 @@
       const dx = tx - mx, dy = ty - my;
       mx += dx * 0.22; my += dy * 0.22;
       // 只在指针真的移动时才生成拖尾点——否则静止时拖尾永不消散，rAF 也永远停不下来
-      if (ts - lastSpawn > 16 && (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5)) { spawn(mx, my); lastSpawn = ts; }
+      if (ts - lastSpawn > 28 && (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5)) { spawn(mx, my); lastSpawn = ts; }
       ctx.clearRect(0, 0, W, H);
       ctx.lineCap = "round"; ctx.lineJoin = "round";
       for (let i = 0; i < trail.length - 1; i++) {
@@ -297,9 +297,9 @@
     ov.className = "route-slice";
     ov.innerHTML = '<i></i><i class="shutter"></i>';
     document.body.appendChild(ov);
-    setTimeout(() => { if (href) window.location.href = href; }, 480);
+    setTimeout(() => { if (href) window.location.href = href; }, 320);
     // 导航失败(离线等)也要复位，允许重试
-    setTimeout(() => { ov.remove(); routing = false; }, 980);
+    setTimeout(() => { ov.remove(); routing = false; }, 680);
   }
 
   /* ---------------- handoff 光束（进入页面） ---------------- */

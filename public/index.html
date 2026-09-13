@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="K3ETkNdYwQCtjNhHt18ACu">
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <title>S.T.A.R. — 下一手下哪？</title>
-<link rel="stylesheet" href="css/site.css?v=32" data-page-node-id="bXhgF85IR6DZ8p1x17tTDp">
-<link rel="stylesheet" href="css/motion.css?v=35" data-page-node-id="HVT7OH0GnstwfUeutEwc4o">
+<link rel="stylesheet" href="css/site.css?v=37" data-page-node-id="bXhgF85IR6DZ8p1x17tTDp">
+<link rel="stylesheet" href="css/motion.css?v=36" data-page-node-id="HVT7OH0GnstwfUeutEwc4o">
 <link rel="stylesheet" href="css/chessboard.min.css" data-page-node-id="2eWPP539mjTr5AZkYILkJc">
 <style>
   body { overflow-x: hidden; }
@@ -26,14 +26,24 @@
     transform: translateX(-120%); animation: shine 2.8s ease-in-out infinite; }
   @keyframes shine { 0%{transform:translateX(-120%);} 55%,100%{transform:translateX(120%);} }
 
-  .hero { max-width: 1080px; margin: 0 auto; padding: 54px 24px 38px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 44px; align-items: center; position: relative; }
-  .hero::before { content:""; position:absolute; inset:-70px 0 0; z-index:-1;
+  .hero { max-width: 1080px; margin: 0 auto; padding: 54px 24px 38px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 44px; align-items: center; position: relative; isolation:isolate; }
+  .hero::before { content:""; position:absolute; inset:-70px 0 0; z-index:-2;
     background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
     background-size: 82px 82px; opacity: .38;
     -webkit-mask-image: radial-gradient(ellipse 75% 70% at 55% 42%, black, transparent 76%);
     mask-image: radial-gradient(ellipse 75% 70% at 55% 42%, black, transparent 76%);
     transform: translate(calc(var(--shift-x,0)*-14px), calc(var(--shift-y,0)*-14px)); transition: transform .5s var(--ease-out); }
-  .hero-left { }
+  /* 个人纹章独立放在左上信号区，绝不覆盖两块演示棋盘。 */
+  .lynx-sigil { position:absolute; z-index:2; pointer-events:none;
+    top:clamp(96px, 12vh, 148px); left:max(18px, calc(50% - 760px));
+    width:clamp(116px, 12vw, 190px); aspect-ratio:1;
+    background:url("img/star-lynx-emblem.png") center/contain no-repeat;
+    opacity:.78; mix-blend-mode:screen;
+    filter:drop-shadow(0 0 10px rgba(46,211,255,.52)) drop-shadow(0 0 30px rgba(255,109,100,.24));
+    animation:lynxSignal 9s ease-in-out infinite alternate; }
+  @keyframes lynxSignal { from { transform:translate3d(0,0,0) scale(.97); filter:drop-shadow(0 0 8px rgba(46,211,255,.38)) drop-shadow(0 0 22px rgba(255,109,100,.18)); }
+    to { transform:translate3d(-12px,8px,0) scale(1.03); filter:drop-shadow(0 0 18px rgba(46,211,255,.68)) drop-shadow(0 0 44px rgba(255,109,100,.34)); } }
+  .hero-left,.hero-right { position:relative; z-index:1; }
   .kicker { font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; letter-spacing: .32em; color: var(--signal); margin-bottom: 16px; }
   .hero-left h1 { font-size: clamp(46px, 7vw, 86px); font-weight: 800; letter-spacing: .02em; line-height: 1.02; }
   .hero-left h1 .outline { color: transparent; -webkit-text-stroke: 1px var(--paper); }
@@ -88,12 +98,14 @@
     .hero { grid-template-columns: 1fr; } .feats { grid-template-columns: 1fr; }
     .hero-right { grid-template-columns: 1fr; } .top .brand { display: none; }
     .home-rank-list { grid-template-columns: 1fr; }
+    .lynx-sigil { top:88px; left:auto; right:16px; width:118px; opacity:.24; }
   }
   @media (max-width: 560px) {
     .top { padding: 0 16px; gap: 10px; }
     .enter-btn { padding: 9px 14px; font-size: 11px; }
     .admin-entry { padding: 9px 12px; font-size: 11px; gap: 5px; }
     .admin-entry .txt { display: none; }
+    .lynx-sigil { top:76px; right:12px; width:94px; opacity:.18; }
   }
 </style>
 </head>
@@ -126,6 +138,8 @@
   </a>
   <button class="enter-btn ripple-host" id="enter-btn" data-page-node-id="uPJcx4Jgz4Rg2UQ0MNkXjY">进入系统 →</button>
 </div>
+
+<div class="lynx-sigil" aria-hidden="true"></div>
 
 <div class="hero" data-parallax data-page-node-id="moWdBXucDj4STlvvHA91kx">
   <div class="hero-left" data-page-node-id="LGSwGI0JjQkEJyXBKafJ8r">
@@ -200,7 +214,7 @@
 <script src="js/lib/jquery.min.js"></script>
 <script src="js/lib/chess.min.js"></script>
 <script src="js/lib/chessboard.min.js"></script>
-<script src="js/motion.js?v=35"></script>
+<script src="js/motion.js?v=36"></script>
 <script src="js/intro.js?v=11"></script>
 <div id="site-ann" style="display:none;position:fixed;top:72px;left:0;right:0;z-index:40;
   background:#1a2410;border-bottom:1px solid #d7ff3f57;color:#d7ff3f;

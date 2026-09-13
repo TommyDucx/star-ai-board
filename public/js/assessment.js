@@ -193,8 +193,8 @@
     document.querySelectorAll(".star-hl").forEach(el => el.remove());
   }
   function squareEl(sq) { return document.querySelector(`.board-b72b1 .square-${sq}`); }
-  function render() {
-    board.position(game.fen(), false);
+  function render(animate) {
+    StarChessMotion.sync(board, game.fen(), animate);
     clearMarks();
     if (!selectedSq) return;
     const sel = squareEl(selectedSq);
@@ -320,7 +320,8 @@
       if (!uci || uci === "(none)") throw new Error("引擎没有返回走法");
       const mv = game.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: "q" });
       if (!mv) throw new Error("引擎返回非法走法");
-      render();
+      StarChessMotion.pulse($("board"), mv);
+      render(true);
       updateStatus();
       if (game.game_over()) await finishGame(false);
     } catch (e) {
@@ -331,14 +332,15 @@
       if (thinkingGen === myGen) { thinkingGen = -1; setThinking(false); }
     }
   }
-  function userMove(from, to) {
+  function userMove(from, to, fromDrag) {
     if (!turnIsUser() || thinking) return false;
     const before = userAdvantage();
     const mv = game.move({ from, to, promotion: "q" });
     if (!mv) return false;
     trackUserMove(before, userAdvantage());
     clearSelection();
-    render();
+    StarChessMotion.pulse($("board"), mv);
+    render(!fromDrag);
     updateStatus();
     saveActive();
     if (game.game_over()) finishGame(false);
@@ -374,9 +376,9 @@
     return isWhitePiece === (userColor === "white");
   }
   function onDrop(source, target) {
-    if (!userMove(source, target)) return "snapback";
+    if (!userMove(source, target, true)) return "snapback";
   }
-  function onSnapEnd() { render(); }
+  function onSnapEnd() { render(false); }
 
   let press = null;
   function boardPointer(e) {
@@ -433,6 +435,7 @@
       position: "start",
       onDragStart, onDrop, onSnapEnd,
       pieceTheme: "img/chesspieces/wikipedia/{piece}.png",
+      ...StarChessMotion.boardOptions(),
     });
     $("board").addEventListener("pointerdown", boardPointer);
     document.addEventListener("pointermove", boardPointer);

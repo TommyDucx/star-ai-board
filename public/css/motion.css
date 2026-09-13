@@ -7,13 +7,13 @@
 
 /* scanlines 覆盖层 */
 .scanlines { pointer-events: none; position: fixed; inset: 0; z-index: 60;
-  background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(0,0,0,.12) 3px 4px);
-  mix-blend-mode: overlay; opacity: .55; }
+  background: repeating-linear-gradient(to bottom, transparent 0 4px, rgba(0,0,0,.10) 4px 5px);
+  mix-blend-mode: overlay; opacity: .24; }
 
 /* 全屏像素故障 */
 .pixel-fault { position: fixed; inset: 0; z-index: 55; pointer-events: none;
   background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(215,255,63,.05) 2px 3px);
-  animation: pixelFault 9s steps(1,end) infinite; }
+  animation: pixelFault 18s steps(1,end) infinite; opacity: .42; }
 @keyframes pixelFault { 0%,91.99%,100%{opacity:0;transform:translate(0);}
   92%{opacity:.35;transform:translate(6px,-2px);} 93%{opacity:.18;transform:translate(-4px,1px);} 94%{opacity:0;transform:translate(2px,3px);} }
 
@@ -103,10 +103,10 @@
 /* ---- slice 页面切换 ---- */
 .route-slice { position: fixed; inset: 0; z-index: 250; pointer-events: none; overflow: hidden; }
 .route-slice i { position: absolute; inset: -2% -8%; background: var(--surface2);
-  animation: slicePass .95s var(--ease) both; }
+  animation: slicePass .62s var(--ease) both; }
 .route-slice .shutter { background: var(--signal);
   box-shadow: -22px 0 48px rgba(215,255,63,.32);
-  animation: shutterPass .8s var(--ease) .1s both; }
+  animation: shutterPass .54s var(--ease) .04s both; }
 /* 斜切扫屏：比平移更有速度感；scaleX 放大避免斜切露角 */
 @keyframes slicePass { 0%{transform:translateX(115%) skewX(-7deg);}
   46%{transform:translateX(0) skewX(-7deg);} 100%{transform:translateX(-115%) skewX(-7deg);} }
@@ -127,11 +127,11 @@
 
 /* ---- 进场 stagger ----
    偶数子元素改用「右侧揭示+斜向浮入」变体，同屏多卡片时方向交错更灵动 */
-.enter-node { animation: nodeEnter .6s var(--ease-out) both; }
-@keyframes nodeEnter { 0%{opacity:0;clip-path:inset(0 0 100% 0);transform:translateY(18px);}
+.enter-node { animation: nodeEnter .42s var(--ease-out) both; }
+@keyframes nodeEnter { 0%{opacity:0;clip-path:inset(0 0 100% 0);transform:translateY(10px);}
   to{opacity:1;clip-path:inset(0);transform:translateY(0);} }
 .enter-node:nth-child(even) { animation-name: nodeEnterAlt; }
-@keyframes nodeEnterAlt { 0%{opacity:0;clip-path:inset(0 100% 0 0);transform:translateY(20px) translateX(18px);}
+@keyframes nodeEnterAlt { 0%{opacity:0;clip-path:inset(0 100% 0 0);transform:translateY(10px) translateX(10px);}
   to{opacity:1;clip-path:inset(0);transform:none;} }
 
 /* ---- 磁吸 ---- */

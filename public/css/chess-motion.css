@@ -1,0 +1,17 @@
+/* 棋子位移动画 —— 参数与 Project Kylin 的 _boardPieceReposition 完全一致：
+   .46s / cubic-bezier(.16, 1, .3, 1)，起点半透明 + 1px 模糊，72% 抵达并泛绿光。
+   由 js/chess-motion.js 在棋盘更新后按 FLIP 给位移过的棋子加 .piece-reposition。 */
+@keyframes starPieceReposition {
+  0%   { opacity: .22; transform: translate(var(--rp-x, 0), var(--rp-y, 0)); filter: blur(1px); }
+  72%  { opacity: 1;   transform: translate(0, 0); filter: drop-shadow(0 0 7px #d7ff3f33); }
+  100% { opacity: 1;   transform: translate(0, 0); filter: none; }
+}
+.board-b72b1 img.piece-reposition {
+  z-index: 3;                       /* 移动中的棋子压在其它棋子之上 */
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+  animation: starPieceReposition .46s var(--rp-delay, 0s) cubic-bezier(.16, 1, .3, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .board-b72b1 img.piece-reposition { animation-duration: 1ms !important; animation-delay: 0s !important; }
+}

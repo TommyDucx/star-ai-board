@@ -100,6 +100,7 @@
     }
     captureFx(mv);
     moveSfx(mv);
+    StarChessMotion.pulse(document.getElementById("board"), mv);
     updateStatus();
     scheduleEval();
     return true;
@@ -119,7 +120,6 @@
     if (!pos) return;
     Motion.fx.burst(pos.x, pos.y,
       mv.color === "w" ? ["#f5f5f5", "#b9bfb6", "#d7ff3f"] : ["#5a6167", "#2e343a", "#d7ff3f"]);
-    shakeBoard();
   }
   // 走子/吃子/易位 音效（Motion.sfx 由 motion.js 注入，未就绪时静默）
   function moveSfx(mv) {
@@ -177,9 +177,9 @@
     legalTargets = [];
   }
 
-  // 渲染函数：根据最新状态重绘整个棋盘（重绘会重建格子 DOM，故重绘后重画选中/合法点高亮）
-  function render() {
-    board.position(game.fen(), false);
+  // 同步局面与选中标记。实际落子才开启动画，选中状态更新永不打断棋子行程。
+  function render(animate) {
+    StarChessMotion.sync(board, game.fen(), animate);
     document.querySelectorAll(".star-hl").forEach(el => el.remove());
     if (!selectedSq) return;
     const selEl = squareEl(selectedSq);
@@ -207,13 +207,13 @@
     if (selectedSq) {
       if (square === selectedSq) {           // 点击选中棋子本身：清空选中、清空合法落点
         clearSelection();
-        render();
+        render(false);
         return;
       }
       if (legalTargets.includes(square)) {   // 点击合法落点：执行移动，重置选中与合法落点
         doMove(selectedSq, square);
         clearSelection();
-        render();
+        render(true);
         return;
       }
     }
@@ -240,7 +240,7 @@
   function onDrop(source, target) {
     if (!doMove(source, target)) return "snapback";
   }
-  function onSnapEnd() { render(); }
+  function onSnapEnd() { render(false); }
 
   let evalTimer = null;
   function scheduleEval() {
@@ -281,6 +281,7 @@
       position: "start",
       onDragStart, onDrop, onSnapEnd, onSquareClick,
       pieceTheme: "img/chesspieces/wikipedia/{piece}.png",
+      ...StarChessMotion.boardOptions(),
     });
     window.__board = board;   // 调试/测试用（此处才是真实引用，模块加载时 board 还是 null）
     document.getElementById("board").addEventListener("pointerdown", boardPointer);
@@ -316,7 +317,8 @@
         if (done) {
           captureFx(done);
           moveSfx(done);
-          board.position(game.fen());
+          StarChessMotion.sync(board, game.fen(), true);
+          StarChessMotion.pulse(document.getElementById("board"), done);
           updateStatus();
           const nextSide = game.turn() === "w" ? "白方" : "黑方";
           setStatus(`[${engineName}] AI 落子：${mv} · 轮到 ${nextSide}`, false);
@@ -560,26 +562,18 @@
     document.body.appendChild(edgeFlashEl);
     setTimeout(() => { if (edgeFlashEl) { edgeFlashEl.remove(); edgeFlashEl = null; } }, 650);
   }
-  function shakeBoard() {
-    const bz = document.querySelector(".board-zone");
-    if (!bz) return;
-    bz.classList.remove("shake");
-    void bz.offsetWidth;
-    bz.classList.add("shake");
-  }
-
   /* ---------------- 按钮 ---------------- */
   function newGame() {
     session++; finaleShown = false; clearKingAlarm();
     document.querySelectorAll(".checkmate-finale").forEach(e => e.remove());
     game.reset();
-    board.position(game.fen(), false);
+    StarChessMotion.sync(board, game.fen(), false);
     lastCandidates = []; lastInCheck = false; clearOverlays(); lastEvalCp = null;
     resetEvalUI(); updateStatus();
     sweepReset();
     assemblePieces();
   }
-  function undo() { session++; finaleShown = false; game.undo(); board.position(game.fen()); updateStatus(); }
+  function undo() { session++; finaleShown = false; game.undo(); StarChessMotion.sync(board, game.fen(), true); updateStatus(); }
   function flipBoard() {
     board.flip();
     // flip 会重建格子 DOM，清掉 .star-hl overlay 与将军警报层；重绘选中态并刷新警报
@@ -646,5 +640,3 @@
   };
 
 })();
-
-

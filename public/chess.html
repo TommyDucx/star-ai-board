@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>国际象棋 · AI 下一步推荐 — S.T.A.R.</title>
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
-<link rel="stylesheet" href="css/site.css?v=32">
-<link rel="stylesheet" href="css/motion.css?v=35">
+<link rel="stylesheet" href="css/site.css?v=37">
+<link rel="stylesheet" href="css/motion.css?v=36">
 <link rel="stylesheet" href="css/chessboard.min.css?v=26">
+  <link rel="stylesheet" href="css/chess-motion.css?v=1">
 <style>
   /* ===== 视口预算布局：topbar + 内容区撑满 100vh，无页面滚动 ===== */
   html, body { height: 100%; overflow: hidden; }
@@ -22,9 +23,9 @@
   /* 评估条用 scaleY（GPU 属性）而非 height（逐帧触发布局）；原点在顶，白方优势自顶向下填充 */
   #evalfill { background: #f2f2f2; width: 100%; height: 100%; transform-origin: top center; transform: scaleY(.5); transition: transform .35s cubic-bezier(.16,1,.3,1); }
   @media (prefers-reduced-motion: reduce) { #evalfill { transition: none; } .thinking-glow #board { animation: none; } }
-  .eval-col { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 0; }
+  .eval-col { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 0; flex: 0 0 64px; width: 64px; }
   .eval-col #evalwrap { flex: 1; width: 16px; }
-  #evalpct { font-size: 11px; font-family: ui-monospace, Menlo, monospace; color: var(--muted); white-space: nowrap; }
+  #evalpct { width: 100%; text-align: center; font-variant-numeric: tabular-nums; font-size: 11px; font-family: ui-monospace, Menlo, monospace; color: var(--muted); white-space: nowrap; }
   .panel { width: 300px; flex: none; max-height: 100%; min-height: 0;
     display: flex; flex-direction: column; overflow: hidden; }
   .panel > .row { flex: none; }
@@ -84,8 +85,15 @@
     background:linear-gradient(115deg, transparent 35%, rgba(215,255,63,.22) 50%, rgba(255,255,255,.16) 54%, rgba(215,255,63,.22) 58%, transparent 72%);
     background-size:250% 100%; animation:sweepAcross .5s var(--ease-out) forwards; }
   @keyframes sweepAcross { from{background-position:130% 0;} to{background-position:-40% 0;} }
-  .shake { animation: shakeX .18s linear; }
-  @keyframes shakeX { 25%{transform:translate(2px,-1px);} 50%{transform:translate(-2px,1px);} 75%{transform:translate(1px,1px);} }
+  /* 走子反馈只落在起止格：棋盘框架保持静止，避免每步产生视觉位移。 */
+  #board .piece-417db { will-change: top, left; }
+  .star-move-mark { position:absolute; z-index:5; pointer-events:none; inset:3px;
+    border:1px solid rgba(215,255,63,.42); background:rgba(215,255,63,.10);
+    animation:moveMark .62s cubic-bezier(.16,1,.3,1) both; }
+  .star-move-mark.from { opacity:.35; }
+  .star-move-mark.to { border-color:rgba(46,211,255,.82); background:radial-gradient(circle, rgba(46,211,255,.32), rgba(46,211,255,.05) 65%, transparent 68%); }
+  @keyframes moveMark { 0%{opacity:0; transform:scale(.72);} 24%{opacity:1; transform:scale(1);} 100%{opacity:0; transform:scale(1.06);} }
+  @media (prefers-reduced-motion: reduce) { .star-move-mark { animation:none; } }
   #board { transition: box-shadow .4s ease; }
   .thinking-glow #board { animation: thinkGlow 1.6s ease-in-out infinite; }
   @keyframes thinkGlow { 0%,100%{box-shadow:0 0 14px rgba(215,255,63,.15);}
@@ -100,38 +108,49 @@
   .star-hl.sel { inset: 0; background: rgba(215,255,63,.30); }
   .star-hl.dot { left: 30%; top: 30%; width: 40%; height: 40%; border-radius: 50%; background: rgba(215,255,63,.50); }
 
-  /* ===== 排版 v4：棋盘居左，右侧 2×2 模块网格（与棋盘等高） ===== */
+  /* ===== 棋局工作台：棋盘与控制区共用视口预算，首屏永不被过大棋盘吞没 ===== */
   html, body { height: 100%; overflow: hidden; }
   body { display: flex; flex-direction: column; }
   .page { flex: 1; min-height: 0; min-width: 0; display: flex;
-    align-items: center; justify-content: center; padding: 10px 16px; }
-  .duel { display: flex; gap: 12px; align-items: stretch; max-width: 100%; }
-  .board-zone { flex: none; }
-  .side { flex: 0 1 auto; min-width: 0; align-self: stretch;
-    display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
-    gap: 10px; width: clamp(340px, calc(100vw - 800px), 700px); }
+    align-items: flex-start; justify-content: center; padding: clamp(14px, 2.4vh, 30px) var(--page-gutter); }
+  .duel { --board-size: min(640px, calc(100dvh - var(--topbar-h) - 88px), calc(100vw - 580px));
+    display: flex; gap: clamp(12px, 1.5vw, 24px); align-items: center; max-width: 100%; }
+  .board-zone { flex: none; height: var(--board-size); }
+  #board { width: var(--board-size); height: var(--board-size); }
+  .side { flex: 0 1 auto; min-width: 0; height: var(--board-size);
+    display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0,1.1fr) minmax(0,.9fr);
+    gap: 12px; width: clamp(430px, 34vw, 600px); }
   .mod { min-width: 0; border: 1px solid var(--line); background: var(--surface);
     border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column;
-    gap: 6px; overflow: hidden; }
+    gap: 8px; overflow: hidden; }
   .mod > .row { margin-top: 0; }
   .mod label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .mod .btns { flex-wrap: wrap; gap: 6px; }
   #cands { flex: 1 1 auto; min-height: 0; overflow-y: auto; max-height: none; }
   .moves-mod .moves { flex: 1 1 auto; min-height: 0; margin-top: 4px; border-top: none; padding-top: 0; }
-  /* 仅极窄屏(<880)才换行 */
-  @media (max-width: 880px) {
+  /* 窄笔记本与平板改为纵向工作流，避免为了并排而压缩可操作区域。 */
+  @media (max-width: 920px) {
     html, body { height: auto; overflow: auto; }
     .eval-col { display: none; }   /* 窄屏隐藏评估条：16px 竖条会把棋盘挤出小屏 */
     body { display: block; }
     .page { min-height: 0; }
     .duel { flex-wrap: wrap; justify-content: center; }
-    .side { width: min(640px, 100%); grid-template-rows: auto auto; }
+    .duel { --board-size: min(620px, calc(100vw - 32px)); }
+    .board-zone { height: auto; }
+    .side { width: min(640px, 100%); height: auto; grid-template-rows: auto auto; }
     .moves { height: 180px; flex: none; }
   }
   /* 窄屏顶栏：压缩间距/内边距，长 crumb 省略号，避免音效按钮被挤出屏外 */
   @media (max-width: 560px) {
     .topbar { gap: 10px; padding: 0 12px; }
     .topbar .crumb { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  }
+  @media (max-width: 600px) {
+    .page { padding: 10px 12px 28px; }
+    .duel { gap: 14px; }
+    .side { grid-template-columns: 1fr; grid-template-rows: repeat(4, auto); gap: 10px; }
+    .mod { min-height: 0; padding: 12px; }
+    .moves { height: 156px; }
   }
   </style>
 </head>
@@ -222,8 +241,9 @@
 <script src="js/lib/jquery.min.js?v=26"></script>
 <script src="js/lib/chess.min.js?v=26"></script>
 <script src="js/lib/chessboard.min.js?v=26"></script>
-<script src="js/chess.js?v=45"></script>
-<script src="js/motion.js?v=35"></script>
+<script src="js/chess-motion.js?v=4"></script>
+<script src="js/chess.js?v=47"></script>
+<script src="js/motion.js?v=36"></script>
 <script>
   // 守卫：motion.js 加载失败时不要抛 ReferenceError 中断内联初始化（与 main.html 一致）
   if (window.Motion) { Motion.initCursorLine(); Motion.initRipple(); Motion.staggerEnter(); }

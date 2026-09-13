@@ -7,7 +7,9 @@
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--ink); color: var(--paper); font-family: -apple-system, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; min-height: 100vh; }
-.topbar { height: 64px; display: flex; align-items: center; gap: 20px; padding: 0 26px; border-bottom: 1px solid var(--line); background: var(--ink); position: sticky; top: 0; z-index: 10; }
+/* 页面共用的高度锚点：棋盘页可据此精确计算首屏可用空间。 */
+:root { --topbar-h: 64px; --page-gutter: clamp(12px, 2vw, 28px); }
+.topbar { height: var(--topbar-h); display: flex; align-items: center; gap: clamp(10px, 1.4vw, 20px); padding: 0 var(--page-gutter); border-bottom: 1px solid var(--line); background: rgba(8,10,9,.92); backdrop-filter: blur(14px); position: sticky; top: 0; z-index: 10; }
 .topbar .logo { font-weight: 800; letter-spacing: .08em; color: var(--signal); text-decoration: none; font-size: 18px; }
 .topbar .crumb { font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: .2em; color: var(--muted); text-transform: uppercase; }
 .topbar .flex1 { flex: 1; }
@@ -47,3 +49,22 @@ button { font-family: inherit; }
 .wrbar span { display: block; height: 100%; background: #f0f0f0; transition: width .35s ease; }
 .wrbar::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--lineStrong); }
 .wrmono { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--muted); margin-top: 6px; letter-spacing: .06em; }
+
+@media (max-height: 720px) and (min-width: 881px) {
+  :root { --topbar-h: 54px; }
+  .topbar .logo { font-size: 16px; }
+  .topbar .crumb { font-size: 9px; }
+  .btn { padding: 6px 10px; }
+  .account-entry { padding: 7px 10px; font-size: 10px; }
+}
+
+/* 手机端把导航留给页面内容：保留图标和触控面积，隐藏冗长的辅助文本。 */
+@media (max-width: 480px) {
+  :root { --topbar-h: 56px; --page-gutter: 12px; }
+  .topbar { gap: 8px; padding: 0 10px; }
+  .topbar .logo { font-size: 16px; }
+  .topbar .crumb { display: none; }
+  .topbar .account-entry { min-width: 38px; justify-content: center; padding: 9px 10px; }
+  .topbar .account-entry .txt { display: none; }
+  .topbar #sfxBtn { min-width: 38px !important; padding: 8px 9px !important; }
+}

@@ -5,20 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>围棋 · AI 下一步推荐 — S.T.A.R.</title>
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
-<link rel="stylesheet" href="css/site.css?v=32">
-<link rel="stylesheet" href="css/motion.css?v=35">
+<link rel="stylesheet" href="css/site.css?v=37">
+<link rel="stylesheet" href="css/motion.css?v=36">
 <style>
-  /* ===== 排版 v4（与 chess 同构）：棋盘居左，右侧 2×2 模块网格 ===== */
+  /* ===== 棋局工作台：围棋盘、胜率与控制区按同一视口预算排布 ===== */
   html, body { height: 100%; overflow: hidden; }
   body { display: flex; flex-direction: column; }
   .page { flex: 1; min-height: 0; min-width: 0; display: flex;
-    align-items: center; justify-content: center; padding: 10px 16px; }
-  .duel { display: flex; gap: 12px; align-items: stretch; max-width: 100%; }
-  .board-card { flex: none; max-width: 100%; }
-  svg#board { max-width: 100%; height: auto; }
-  .side { flex: 0 1 auto; min-width: 0; align-self: stretch;
+    align-items: flex-start; justify-content: center; padding: clamp(22px, 4vh, 52px) var(--page-gutter); }
+  .duel { --board-size: min(680px, calc(100dvh - var(--topbar-h) - 132px), calc(100vw - 550px));
+    display: flex; gap: clamp(12px, 1.5vw, 24px); align-items: center; max-width: 100%; }
+  .board-card { flex: none; width: var(--board-size); max-width: 100%; }
+  svg#board { width: var(--board-size); height: var(--board-size); max-width: 100%; }
+  .side { flex: 0 1 auto; min-width: 0; height: var(--board-size); align-self: flex-start;
     display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
-    gap: 10px; width: clamp(330px, calc(100vw - 620px), 620px); }
+    gap: 12px; width: clamp(400px, 36vw, 620px); }
   .mod { min-width: 0; border: 1px solid #eff2e824; background: #121612;
     border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column;
     gap: 6px; overflow: hidden; }
@@ -39,19 +40,27 @@
     background:linear-gradient(115deg, transparent 35%, rgba(215,255,63,.2) 50%, rgba(255,255,255,.14) 54%, rgba(215,255,63,.2) 58%, transparent 72%);
     background-size:250% 100%; animation:sweepAcross .5s ease-out forwards; }
   @keyframes sweepAcross { from{background-position:130% 0;} to{background-position:-40% 0;} }
-  /* 仅极窄屏(<880)才换行；浏览器缩放导致的等效变窄也尽量保持左右布局 */
-  @media (max-width: 880px) {
+  /* 小屏切为单列，让棋盘和操作控件都保留舒适的触控尺度。 */
+  @media (max-width: 920px) {
     html, body { height: auto; overflow: auto; }
     body { display: block; }
     .page { min-height: 0; }
     .duel { flex-wrap: wrap; justify-content: center; }
-    .side { width: min(620px, 100%); grid-template-rows: auto auto; }
+    .duel { --board-size: min(620px, calc(100vw - 32px)); }
+    .side { width: min(620px, 100%); height: auto; grid-template-rows: auto auto; }
     #cands { max-height: 220px; }
   }
   /* 窄屏顶栏：压缩间距/内边距，长 crumb 省略号，避免音效按钮被挤出屏外 */
   @media (max-width: 560px) {
     .topbar { gap: 10px; padding: 0 12px; }
     .topbar .crumb { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  }
+  @media (max-width: 600px) {
+    .page { padding: 10px 12px 28px; }
+    .duel { gap: 14px; }
+    .side { grid-template-columns: 1fr; grid-template-rows: repeat(4, auto); gap: 10px; }
+    .mod { min-height: 0; padding: 12px; }
+    #cands { max-height: 180px; }
   }
 </style>
 </head>
@@ -125,7 +134,7 @@
 </div>
 
 <script src="js/go.js?v=21"></script>
-<script src="js/motion.js?v=35"></script>
+<script src="js/motion.js?v=36"></script>
 <script>
   if (window.Motion) { Motion.initCursorLine(); Motion.initRipple(); Motion.staggerEnter(); }
 </script>
