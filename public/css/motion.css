@@ -256,3 +256,77 @@ input,select,textarea,.library-search,.library-select,.library-form input,.libra
   .topbar { overflow-x: auto; scrollbar-width: none; }
   .topbar::-webkit-scrollbar { display: none; }
 }
+
+/* ============================================================================
+   路由过渡语汇（移植 Project Kylin 的桥牌 / 幕布 / 分页编队；参数对齐其
+   .42s、.62s + cubic-bezier(.76,0,.24,1)）。每种「来源页→目标页」用不同一种，
+   全部只动 clip-path / transform / opacity（走合成层，不触发重排重绘）。
+   ============================================================================ */
+.route-veil { position: fixed; inset: 0; z-index: 250; pointer-events: none; overflow: hidden;
+  contain: strict; will-change: clip-path, transform, opacity; background: #0a0c0b; }
+.route-veil .veil-label { position: absolute; left: clamp(24px, 4vw, 72px); bottom: 46px; display: grid; gap: 12px; }
+.route-veil .veil-label span { color: var(--signal); font: 600 10px ui-monospace, Menlo, monospace; letter-spacing: .34em; text-transform: uppercase; }
+.route-veil .veil-label b { color: var(--paper); font-size: clamp(22px, 3.2vw, 42px); font-weight: 800; letter-spacing: .02em; }
+.route-veil .veil-bar { position: absolute; left: clamp(24px, 4vw, 72px); right: clamp(24px, 4vw, 72px); bottom: 30px; height: 2px;
+  background: linear-gradient(90deg, var(--signal), transparent); transform-origin: left; animation: veilBar .6s cubic-bezier(.76,0,.24,1) both; }
+@keyframes veilBar { from { transform: scaleX(.04); opacity: .35 } to { transform: scaleX(1); opacity: 1 } }
+
+/* ① 桥牌：网格面板自下升起 → 向上擦除（Kylin _libraryEntryBridge，.42s） */
+.route-veil.bridge { background: linear-gradient(#eff2e80a 1px, transparent 1px), linear-gradient(90deg, #eff2e80a 1px, transparent 1px), #0a0c0b;
+  background-size: 84px 84px; display: flex; flex-direction: column; justify-content: flex-end;
+  animation: veilBridgeIn .34s cubic-bezier(.76,0,.24,1) both; }
+.route-veil.bridge.is-out { animation: veilBridgeOut .42s cubic-bezier(.76,0,.24,1) both; }
+@keyframes veilBridgeIn { from { clip-path: inset(100% 0 0); transform: translateY(16px) } to { clip-path: inset(0); transform: none } }
+@keyframes veilBridgeOut { 0% { opacity: 1; clip-path: inset(0) } 58% { opacity: 1 } to { opacity: 0; clip-path: inset(0 0 72%); transform: translateY(-12px) } }
+
+/* ② 幕布：自下揭开（Kylin _studyDirectoryTransition，.62s） */
+.route-veil.curtain { animation: veilCurtain .62s cubic-bezier(.76,0,.24,1) both; }
+@keyframes veilCurtain { 0% { opacity: 0; clip-path: inset(100% 0 0) } 46% { opacity: 1; clip-path: inset(0) } to { opacity: 1; clip-path: inset(0) } }
+
+/* ③ 横向信号横扫 */
+.route-veil.wipeX { animation: veilWipeX .5s cubic-bezier(.76,0,.24,1) both; }
+@keyframes veilWipeX { 0% { opacity: 0; clip-path: inset(0 0 0 100%) } 40% { opacity: 1; clip-path: inset(0 0 0 14%) } to { opacity: 1; clip-path: inset(0) } }
+
+/* ④ 光圈：从触发点扩展 */
+.route-veil.radial { background: radial-gradient(120% 120% at var(--rx, 50%) var(--ry, 50%), #0d100e 0 58%, #060807 100%);
+  animation: veilRadial .56s cubic-bezier(.76,0,.24,1) both; }
+@keyframes veilRadial { from { clip-path: circle(0 at var(--rx, 50%) var(--ry, 50%)); opacity: 0 } 38% { opacity: 1 } to { clip-path: circle(150% at var(--rx, 50%) var(--ry, 50%)); opacity: 1 } }
+
+/* ⑤ 棋盘格聚合：8×8 方块错峰（棋类页面互跳） */
+.route-veil.chessGrid { background: transparent; }
+.route-veil.chessGrid i { position: absolute; width: 12.5%; height: 12.5%; background: #0a0c0b; border: 1px solid rgba(215,255,63,.16);
+  animation: veilTile .46s cubic-bezier(.76,0,.24,1) both; }
+@keyframes veilTile { from { opacity: 0; transform: scale(.32) } 55% { opacity: 1 } to { opacity: 1; transform: none } }
+
+/* ⑥ 对角斜切 */
+.route-veil.diagonal { animation: veilDiagonal .54s cubic-bezier(.76,0,.24,1) both; }
+@keyframes veilDiagonal { from { opacity: 0; clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%) } 34% { opacity: 1 } to { opacity: 1; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%) } }
+
+/* 过渡期间暂停常驻装饰动画：切换时不再叠加扫描线/故障/极光的持续合成（这就是"切换不流畅"的主因） */
+html.route-busy .scanlines, html.route-busy .pixel-fault, html.route-busy .aurora, html.route-busy .cursor-line { animation-play-state: paused !important; }
+html.route-busy .scanlines, html.route-busy .pixel-fault { opacity: .16 !important; }
+
+/* ---- 分页编队（移植 Kylin 的元素级 resolve 关键帧，每页不同） ---- */
+.enter-drop { animation: enterDrop .62s cubic-bezier(.76,0,.24,1) both; }
+@keyframes enterDrop { from { opacity: 0; transform: translateY(-70px) } to { opacity: 1; transform: none } }
+.enter-rail { animation: enterRail .64s cubic-bezier(.76,0,.24,1) both; }
+@keyframes enterRail { from { opacity: 0; clip-path: inset(0 0 100%); transform: translateX(-34px) } to { opacity: 1; clip-path: inset(0); transform: none } }
+.enter-rows { animation: enterRows .58s cubic-bezier(.76,0,.24,1) both; }
+@keyframes enterRows { from { opacity: 0; transform: translateY(36px) } to { opacity: 1; transform: none } }
+.enter-intro { animation: enterIntro .62s cubic-bezier(.76,0,.24,1) both; }
+@keyframes enterIntro { from { opacity: 0; transform: translate(8vw, -22px) } to { opacity: 1; transform: none } }
+.enter-board { animation: enterBoard .58s cubic-bezier(.76,0,.24,1) both; }
+@keyframes enterBoard { from { opacity: 0; transform: scale(.94) } to { opacity: 1; transform: none } }
+.enter-panel { animation: enterPanel .6s cubic-bezier(.76,0,.24,1) both; }
+@keyframes enterPanel { from { opacity: 0; transform: translateX(28px) } to { opacity: 1; transform: none } }
+@media (prefers-reduced-motion: reduce) {
+  .route-veil, .enter-drop, .enter-rail, .enter-rows, .enter-intro, .enter-board, .enter-panel, .route-veil.flipUp, .route-veil.zoomOut { animation: none !important; }
+  .route-veil { display: none !important; }
+}
+
+/* ⑦ 整页上推（回放/时间轴感） */
+.route-veil.flipUp { animation: veilFlipUp .52s cubic-bezier(.76,0,.24,1) both; }
+@keyframes veilFlipUp { from { opacity: 0; transform: translateY(100%) } 45% { opacity: 1 } to { opacity: 1; transform: none } }
+/* ⑧ 中心放大（账号类页面） */
+.route-veil.zoomOut { animation: veilZoom .5s cubic-bezier(.76,0,.24,1) both; }
+@keyframes veilZoom { from { opacity: 0; transform: scale(.62) } 45% { opacity: 1 } to { opacity: 1; transform: none } }

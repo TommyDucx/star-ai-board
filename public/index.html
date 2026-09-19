@@ -6,7 +6,7 @@
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <title>S.T.A.R. — 下一手下哪？</title>
 <link rel="stylesheet" href="css/site.css?v=38" data-page-node-id="bXhgF85IR6DZ8p1x17tTDp">
-<link rel="stylesheet" href="css/motion.css?v=38" data-page-node-id="HVT7OH0GnstwfUeutEwc4o">
+<link rel="stylesheet" href="css/motion.css?v=39" data-page-node-id="HVT7OH0GnstwfUeutEwc4o">
 <link rel="stylesheet" href="css/chessboard.min.css" data-page-node-id="2eWPP539mjTr5AZkYILkJc">
 <style>
   body { overflow-x: hidden; }
@@ -35,11 +35,11 @@
     transform: translate(calc(var(--shift-x,0)*-14px), calc(var(--shift-y,0)*-14px)); transition: transform .5s var(--ease-out); }
   /* 个人纹章独立放在左上信号区，绝不覆盖两块演示棋盘。 */
   .lynx-sigil { position:absolute; z-index:2; pointer-events:none;
-    top:clamp(96px, 12vh, 148px); left:max(18px, calc(50% - 760px));
-    width:clamp(116px, 12vw, 190px); aspect-ratio:1;
+    top:clamp(78px, 9vh, 120px); left:max(10px, calc(50% - 812px));
+    width:clamp(210px, 21vw, 340px); aspect-ratio:1;
     background:url("img/star-lynx-emblem.png") center/contain no-repeat;
-    opacity:.78; mix-blend-mode:screen;
-    filter:drop-shadow(0 0 10px rgba(46,211,255,.52)) drop-shadow(0 0 30px rgba(255,109,100,.24));
+    opacity:.96; mix-blend-mode:screen;
+    filter:drop-shadow(0 0 16px rgba(46,211,255,.72)) drop-shadow(0 0 44px rgba(255,109,100,.34));
     animation:lynxSignal 9s ease-in-out infinite alternate; }
   @keyframes lynxSignal { from { transform:translate3d(0,0,0) scale(.97); filter:drop-shadow(0 0 8px rgba(46,211,255,.38)) drop-shadow(0 0 22px rgba(255,109,100,.18)); }
     to { transform:translate3d(-12px,8px,0) scale(1.03); filter:drop-shadow(0 0 18px rgba(46,211,255,.68)) drop-shadow(0 0 44px rgba(255,109,100,.34)); } }
@@ -98,14 +98,14 @@
     .hero { grid-template-columns: 1fr; } .feats { grid-template-columns: 1fr; }
     .hero-right { grid-template-columns: 1fr; } .top .brand { display: none; }
     .home-rank-list { grid-template-columns: 1fr; }
-    .lynx-sigil { top:88px; left:auto; right:16px; width:118px; opacity:.24; }
+    .lynx-sigil { top:82px; left:auto; right:14px; width:168px; opacity:.42; }
   }
   @media (max-width: 560px) {
     .top { padding: 0 16px; gap: 10px; }
     .enter-btn { padding: 9px 14px; font-size: 11px; }
     .admin-entry { padding: 9px 12px; font-size: 11px; gap: 5px; }
     .admin-entry .txt { display: none; }
-    .lynx-sigil { top:76px; right:12px; width:94px; opacity:.18; }
+    .lynx-sigil { top:72px; right:10px; width:132px; opacity:.34; }
   }
 </style>
   <link rel="stylesheet" href="css/chess-motion.css?v=2">
@@ -215,7 +215,7 @@
 <script src="js/lib/jquery.min.js"></script>
 <script src="js/lib/chess.min.js"></script>
 <script src="js/lib/chessboard.min.js"></script>
-<script src="js/motion.js?v=36"></script>
+<script src="js/motion.js?v=37"></script>
 <script src="js/intro.js?v=12"></script>
 <div id="site-ann" style="display:none;position:fixed;top:72px;left:0;right:0;z-index:40;
   background:#1a2410;border-bottom:1px solid #d7ff3f57;color:#d7ff3f;

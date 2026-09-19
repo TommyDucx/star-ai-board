@@ -265,7 +265,7 @@
       const a = e.target && e.target.closest ? e.target.closest("[data-nav]") : null;
       if (!a) return;
       e.preventDefault();
-      sliceRoute(a.getAttribute("href"));
+      sliceRoute(a.getAttribute("href"), { point: { x: e.clientX, y: e.clientY } });
     });
   }
 
@@ -288,32 +288,95 @@
 
   /* ---------------- slice 页面切换 ---------------- */
   let routing = false;
-  function sliceRoute(href) {
+  /* ---------------- 路由过渡语汇（移植 Project Kylin 的桥牌 / 幕布 / 分页编队） ----------------
+     每种「来源页 → 目标页」用不同一种：index→系统 = 桥牌，回首页 = 幕布，棋类互跳 = 棋盘格，
+     回工作台 = 光圈，其余按目标页分配。曲线与时长对齐 Kylin 的 .42s/.62s + cubic-bezier(.76,0,.24,1)。 */
+  const PAGE_META = {
+    "index.html":      { name: "S.T.A.R.",  label: "HOME · 首页",        enter: ["drop", "intro"] },
+    "main.html":       { name: "工作台",     label: "WORKBENCH",         enter: ["rail", "rows"] },
+    "chess.html":      { name: "国际象棋",   label: "CHESS ENGINE",      enter: ["board", "panel"] },
+    "go.html":         { name: "围棋",       label: "GO ENGINE",         enter: ["board"] },
+    "tactics.html":    { name: "战术闯关",   label: "TACTICS",           enter: ["rows", "panel"] },
+    "assessment.html": { name: "棋力评估",   label: "RATING ASSESSMENT", enter: ["board", "panel"] },
+    "review.html":     { name: "复盘",       label: "GAME REVIEW",       enter: ["rows"] },
+    "account.html":    { name: "我的账号",   label: "ACCOUNT",           enter: ["panel"] }
+  };
+  const FALLBACK_TYPE = { "chess.html": "diagonal", "go.html": "chessGrid", "tactics.html": "wipeX",
+    "assessment.html": "bridge", "review.html": "flipUp", "account.html": "zoomOut", "main.html": "radial" };
+  const TIMING = { bridge: [340, 660], curtain: [400, 740], wipeX: [340, 640], radial: [360, 660],
+    chessGrid: [300, 660], diagonal: [340, 640], flipUp: [340, 660], zoomOut: [320, 620] };
+  const CHESSY = ["chess.html", "go.html"];
+  function pageOf(href) { return String(href || "").split("?")[0].split("#")[0].split("/").pop() || "index.html"; }
+  function flowOf(from, to) {
+    if (from === "index.html" && to !== "index.html") return "bridge";            // 首次进入系统
+    if (to === "index.html") return "curtain";                                     // 回首页
+    if (CHESSY.indexOf(from) >= 0 && CHESSY.indexOf(to) >= 0) return "chessGrid";  // 棋类互跳
+    if (to === "main.html") return "radial";                                       // 回工作台
+    return FALLBACK_TYPE[to] || "wipeX";
+  }
+  function sliceRoute(href, opts) {
     if (routing) return;                 // 切换动画进行中忽略后续触发：防叠层、防中途改道
     routing = true;
     // 减动效偏好下 CSS 动画被禁用，覆盖层会变成静态全屏色块挡脸——直接跳转
     if (REDUCED) { if (href) window.location.href = href; return; }
+    const from = pageOf(location.pathname), to = pageOf(href);
+    const type = (opts && opts.type) || flowOf(from, to);
+    const meta = PAGE_META[to] || { name: to.replace(".html", ""), label: "PAGE" };
+    try { sessionStorage.setItem("star_from", from); } catch (e) {}
+    document.documentElement.classList.add("route-busy");   // 过渡期间暂停常驻装饰动画（切换更顺）
     const ov = document.createElement("div");
-    ov.className = "route-slice";
-    ov.innerHTML = '<i></i><i class="shutter"></i>';
+    ov.className = "route-veil " + type;
+    if (type === "chessGrid") {
+      let html = "";
+      for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++)
+        html += '<i style="left:' + (c * 12.5) + '%;top:' + (r * 12.5) + '%;animation-delay:' + ((r + c) * 13) + 'ms"></i>';
+      ov.innerHTML = html;
+    } else {
+      ov.innerHTML = '<div class="veil-label"><span>' + meta.label + '</span><b>' + meta.name + '</b></div>' +
+        (type === "radial" ? "" : '<div class="veil-bar"></div>');
+    }
+    if (opts && opts.point) { ov.style.setProperty("--rx", opts.point.x + "px"); ov.style.setProperty("--ry", opts.point.y + "px"); }
     document.body.appendChild(ov);
-    setTimeout(() => { if (href) window.location.href = href; }, 320);
+    const T = TIMING[type] || [340, 640];
+    setTimeout(() => { if (href) window.location.href = href; }, T[0]);
     // 导航失败(离线等)也要复位，允许重试
-    setTimeout(() => { ov.remove(); routing = false; }, 680);
+    setTimeout(() => { ov.remove(); routing = false; document.documentElement.classList.remove("route-busy"); }, T[1]);
+  }
+
+  /* 进入编队：按目标页套用 Kylin 式的元素 resolve 动画（页头落下 / 栏位揭开 / 列表推入 / 棋盘缩放 …） */
+  const ENTER_SEL = {
+    drop:  [".top", ".hero"],
+    intro: [".hero-right", ".lynx-sigil", ".cards"],
+    rail:  ["aside", ".side", ".rail"],
+    rows:  ["main > section", "#content > *", ".cards > *"],
+    board: ["#board", ".board-zone", ".demo-board"],
+    panel: [".panel", ".mod", ".library-hero"]
+  };
+  function enterFlow() {
+    const to = pageOf(location.pathname);
+    let from = "";
+    try { from = sessionStorage.getItem("star_from") || ""; sessionStorage.removeItem("star_from"); } catch (e) {}
+    if (!from || REDUCED) return;         // 直接打开页面（无来源）不编队，避免无谓动画
+    const kinds = (PAGE_META[to] && PAGE_META[to].enter) || ["rows"];
+    let n = 0;
+    kinds.forEach(kind => {
+      (ENTER_SEL[kind] || []).forEach(sel => {
+        const el = document.querySelector(sel);
+        if (!el) return;
+        const cls = "enter-" + kind;
+        const delay = n * 70; n++;
+        el.classList.add(cls);
+        el.style.animationDelay = delay + "ms";
+        setTimeout(() => { el.classList.remove(cls); el.style.animationDelay = ""; }, 1500 + delay);
+      });
+    });
   }
 
   /* ---------------- handoff 光束（进入页面） ---------------- */
   let handingOff = false;
   function handoff(href) {
-    if (handingOff) return;
-    handingOff = true;
-    if (REDUCED) { if (href) window.location.href = href; return; }
-    const h = document.createElement("div");
-    h.className = "handoff";
-    h.innerHTML = '<div class="beam"></div><div class="beam echo"></div><div class="cover"></div>';
-    document.body.appendChild(h);
-    setTimeout(() => { if (href) window.location.href = href; }, 620);
-    setTimeout(() => { h.remove(); handingOff = false; }, 1100);
+    // 首页「进入系统」= Kylin 的桥牌过渡（全屏网格面板 + 目的地标签）
+    sliceRoute(href, { type: "bridge" });
   }
 
   /* ---------------- 视差（主页 hero） ---------------- */
@@ -437,7 +500,13 @@
     }
   }
 
-  window.Motion = { runBoot, initCursorLine, initMagnetic, initRipple, sliceRoute, handoff, initParallax, staggerEnter, wireNav, initSiteShell };
+  /* 进入编队：DOM 就绪后执行（main.html 等内容由脚本注入的页面也能覆盖到） */
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(enterFlow, 20); });
+  else setTimeout(enterFlow, 20);
+  // bfcache 恢复时清掉残留的过渡暂停标记，否则装饰动画会一直停着
+  window.addEventListener("pageshow", function () { document.documentElement.classList.remove("route-busy"); });
+
+  window.Motion = {runBoot, initCursorLine, initMagnetic, initRipple, sliceRoute, handoff, initParallax, staggerEnter, wireNav, initSiteShell, enterFlow };
   // 初始化放导出之后：initFx 要往 window.Motion 上挂 fx 接口
   /* ---------------- SFX 音效引擎：Web Audio 程序化合成，零音频资源 ---------------- */
   function initSfx() {
