@@ -167,6 +167,17 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   .brand-name{display:none}
 }
 
+
+/* ============ S.T.A.R. 返回入口 / 文学互动（点赞·评论）============ */
+.nav-back{
+  padding:8px 16px;border-radius:99px;font-size:14.5px;
+  border:1px solid var(--line);color:var(--ink-2);
+  transition:background .25s var(--ease),box-shadow .25s var(--ease),color .25s var(--ease),scale .15s var(--ease);
+}
+.nav-back:hover{color:var(--cyan);background:rgba(40,224,255,.1);box-shadow:0 0 24px -8px var(--cyan)}
+.nav-back:active{scale:.96}
+@media (max-width:560px){ .nav-back{padding:7px 12px;font-size:13px} }
+
 /* ============ dots ============ */
 .dots{
   position:fixed;right:22px;top:50%;transform:translateY(-50%);z-index:40;
@@ -699,6 +710,7 @@ body:not(.audio-on) .eq i{animation-play-state:paused;transform:scaleY(.25)}
         <a href="#literature">文学<i>Literature</i></a>
         <a href="#contact">联系<i>Contact</i></a>
       </nav>
+      <a class="nav-back" href="/" title="回到 S.T.A.R. 国际象棋站">← S.T.A.R.</a>
       <a class="nav-gh" href="https://github.com/TommyDucx" target="_blank" rel="noreferrer">GitHub</a>
     </div>
   </div>
@@ -1680,6 +1692,205 @@ Ex dolore musica, ex musica gloria.
   grab.addEventListener("pointerup",endDrag);
   grab.addEventListener("pointercancel",endDrag);
 
+})();
+</script>
+
+<!-- ==== S.T.A.R. 账号联动：文学板块点赞与评论（相同 origin，复用站点会话） ==== -->
+<style>
+.lit-actions{display:flex;gap:9px;align-items:center;margin-top:14px;padding-top:12px;border-top:1px dashed rgba(140,190,255,.14)}
+.lit-act{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:99px;cursor:pointer;
+  border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--ink-2);
+  font:inherit;font-size:13.5px;line-height:1;transition:all .22s var(--ease)}
+.lit-act svg{width:15px;height:15px;flex:none;transition:transform .22s var(--ease)}
+.lit-act b{font-weight:700;font-variant-numeric:tabular-nums}
+.lit-act:hover{border-color:rgba(140,190,255,.42);color:var(--ink)}
+.lit-act:hover svg{transform:scale(1.12)}
+.lit-act.like.on{border-color:rgba(217,179,106,.62);background:rgba(217,179,106,.14);color:var(--gold)}
+.lit-act.like.on svg{transform:scale(1.08)}
+.lit-act.cmt:hover{border-color:rgba(40,224,255,.55);color:var(--cyan)}
+.lit-cmts{margin-top:34px;padding-top:24px;border-top:1px solid var(--line)}
+.lit-cmts>h4{margin:0 0 6px;font-size:16px;color:var(--ink);font-weight:600;letter-spacing:.02em}
+.lit-cmts>h4 i{font-style:normal;font-family:var(--font-mono);font-size:11.5px;color:var(--ink-3);margin-left:8px;letter-spacing:.12em}
+.lit-cmt-empty{color:var(--ink-3);font-size:13.5px;margin:10px 0 0}
+.lit-cmt{padding:14px 0;border-bottom:1px dashed rgba(140,190,255,.12)}
+.lit-cmt:last-child{border-bottom:0}
+.lit-cmt-head{display:flex;align-items:baseline;gap:10px}
+.lit-cmt-name{color:var(--cyan);font-weight:600;font-size:14px}
+.lit-cmt-time{font-family:var(--font-mono);font-size:11px;color:var(--ink-3);letter-spacing:.06em}
+.lit-cmt-del{margin-left:auto;background:none;border:0;color:var(--ink-3);cursor:pointer;font-size:12px;padding:2px 6px;border-radius:6px;transition:color .2s,background .2s}
+.lit-cmt-del:hover{color:#ff8a8a;background:rgba(255,120,120,.1)}
+.lit-cmt-text{margin:7px 0 0;color:var(--ink-2);font-size:14.5px;line-height:1.9;white-space:pre-wrap;word-break:break-word}
+.lit-cmt-form{margin-top:16px;display:grid;gap:10px}
+.lit-cmt-form textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:74px;padding:12px 14px;
+  border-radius:12px;border:1px solid var(--line);background:rgba(4,8,18,.5);color:var(--ink);
+  font:inherit;font-size:14.5px;line-height:1.75;outline:none;transition:border-color .22s var(--ease),box-shadow .22s var(--ease)}
+.lit-cmt-form textarea:focus{border-color:rgba(40,224,255,.5);box-shadow:0 0 0 3px rgba(40,224,255,.1)}
+.lit-cmt-bar{display:flex;align-items:center;gap:12px}
+.lit-cmt-who{font-family:var(--font-mono);font-size:11px;color:var(--ink-3);letter-spacing:.06em}
+.lit-cmt-submit{margin-left:auto;padding:9px 20px;border-radius:99px;border:1px solid rgba(40,224,255,.4);
+  background:rgba(40,224,255,.12);color:var(--cyan);font:inherit;font-size:14px;cursor:pointer;transition:all .22s var(--ease)}
+.lit-cmt-submit:hover{background:rgba(40,224,255,.2);box-shadow:0 0 26px -8px var(--cyan)}
+.lit-cmt-submit:disabled{opacity:.45;cursor:default;box-shadow:none}
+.lit-hint{margin:14px 0 0;font-size:13.5px;color:var(--ink-2);padding:12px 14px;border-radius:12px;
+  border:1px dashed rgba(255,180,90,.34);background:rgba(255,150,60,.06)}
+.lit-hint a{color:var(--amber);text-decoration:none;border-bottom:1px solid rgba(255,138,61,.5)}
+.lit-toast{position:fixed;left:50%;bottom:32px;transform:translate(-50%,14px);z-index:9999;opacity:0;pointer-events:none;
+  padding:11px 20px;border-radius:99px;background:rgba(8,13,24,.94);border:1px solid var(--line);
+  color:var(--ink);font-size:14px;transition:opacity .28s var(--ease),transform .28s var(--ease)}
+.lit-toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+<script>
+(function(){
+  "use strict";
+  var API="/api/literature", LOGIN="/admin/login.html";
+  var data={}, me=null, current=null, toastEl=null;
+
+  function esc(t){return String(t==null?"":t).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+  function toast(msg){
+    if(!toastEl){ toastEl=document.createElement("div"); toastEl.className="lit-toast"; document.body.appendChild(toastEl); }
+    toastEl.textContent=msg; toastEl.classList.add("on");
+    clearTimeout(toast._t); toast._t=setTimeout(function(){ toastEl.classList.remove("on"); },2400);
+  }
+  function timeText(ts){
+    var d=new Date(ts), n=new Date(), p=function(x){return String(x).padStart(2,"0");};
+    var same=d.toDateString()===n.toDateString();
+    return (same?"":((d.getMonth()+1)+"月"+d.getDate()+"日 "))+p(d.getHours())+":"+p(d.getMinutes());
+  }
+  var ICON_HEART='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.6A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7 2.8C19 15.4 12 20 12 20Z"/></svg>';
+  var ICON_CHAT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a7 7 0 0 1-7 7H9l-4 3v-4.4A7 7 0 0 1 4 12a7 7 0 0 1 7-7h2a7 7 0 0 1 7 7Z"/></svg>';
+
+  /* ---- 卡片按钮 ---- */
+  function injectCards(){
+    document.querySelectorAll(".lit-card").forEach(function(card){
+      if(card.querySelector(".lit-actions")) return;
+      var open=card.querySelector("[data-open]"); if(!open) return;
+      var key=open.getAttribute("data-open");
+      var box=document.createElement("div"); box.className="lit-actions";
+      box.innerHTML='<button class="lit-act like" type="button" data-like="'+esc(key)+'" aria-pressed="false" title="点赞">'+ICON_HEART+'<b>0</b></button>'+
+                    '<button class="lit-act cmt" type="button" data-cmt="'+esc(key)+'" title="查看 / 发表评论">'+ICON_CHAT+'<b>0</b></button>';
+      card.appendChild(box);
+    });
+    paint();
+  }
+  function paint(){
+    document.querySelectorAll("[data-like]").forEach(function(b){
+      var k=b.getAttribute("data-like"), d=data[k]; if(!d) return;
+      b.querySelector("b").textContent=d.likes;
+      b.classList.toggle("on",!!d.liked);
+      b.setAttribute("aria-pressed",d.liked?"true":"false");
+    });
+    document.querySelectorAll("[data-cmt]").forEach(function(b){
+      var k=b.getAttribute("data-cmt"), d=data[k]; if(!d) return;
+      b.querySelector("b").textContent=d.comments.length;
+    });
+  }
+  /* ---- 抽屉内的留言区 ---- */
+  function cmtHTML(c){
+    return '<div class="lit-cmt" data-cid="'+esc(c.id)+'">'+
+      '<div class="lit-cmt-head"><span class="lit-cmt-name">'+esc(c.name)+'</span>'+
+      '<span class="lit-cmt-time">'+timeText(c.ts)+'</span>'+
+      (c.mine?'<button class="lit-cmt-del" type="button" data-del="'+esc(c.id)+'">删除</button>':'')+
+      '</div><p class="lit-cmt-text">'+esc(c.text)+'</p></div>';
+  }
+  function renderSheet(){
+    var body=document.getElementById("sheet-body"), layer=document.getElementById("sheet-layer");
+    if(!body||!layer||layer.hidden) return;
+    if(!current){
+      var t=(document.getElementById("sheet-title")||{}).textContent||"";
+      document.querySelectorAll("[data-open]").forEach(function(b){ if(b.closest(".lit-card") && b.closest(".lit-card").querySelector("h3") && b.closest(".lit-card").querySelector("h3").textContent.indexOf(t)===0) current=b.getAttribute("data-open"); });
+    }
+    if(!current) return;
+    var old=body.querySelector(".lit-cmts"); if(old) old.remove();
+    var d=data[current]||{likes:0,liked:false,comments:[]};
+    var wrap=document.createElement("section"); wrap.className="lit-cmts"; wrap.setAttribute("data-key", current);
+    var list = d.comments.length ? d.comments.map(cmtHTML).join("") : '<p class="lit-cmt-empty">还没有留言，来说点什么。</p>';
+    wrap.innerHTML='<h4>读者留言<i>'+d.comments.length+'</i></h4><div class="lit-cmt-list">'+list+'</div>'+
+      (me ? '<form class="lit-cmt-form"><textarea maxlength="600" rows="3" placeholder="写下你的想法…（最多 600 字）"></textarea>'+
+            '<div class="lit-cmt-bar"><span class="lit-cmt-who">以 '+esc(me.username||"我")+' 的身份留言</span>'+
+            '<button class="lit-cmt-submit" type="submit">发表</button></div></form>'
+          : '<p class="lit-hint">登录 S.T.A.R. 账号后即可点赞与留言 · <a href="'+LOGIN+'">去登录 →</a>（登录后回到本页即可）</p>');
+    body.appendChild(wrap);
+    var form=wrap.querySelector(".lit-cmt-form");
+    if(form) form.addEventListener("submit",function(ev){ ev.preventDefault(); submit(form); });
+    wrap.querySelectorAll("[data-del]").forEach(function(x){
+      x.addEventListener("click",function(){ del(x.getAttribute("data-del")); });
+    });
+  }
+  function submit(form){
+    var ta=form.querySelector("textarea"), text=ta.value.trim();
+    if(!text) return toast("评论不能为空");
+    var btn=form.querySelector(".lit-cmt-submit"); btn.disabled=true;
+    fetch(API+"/"+current+"/comment",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:text})})
+      .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
+      .then(function(res){
+        btn.disabled=false;
+        if(!res.ok) return toast(res.d.error||"发表失败");
+        (data[current]||(data[current]={likes:0,liked:false,comments:[]})).comments.push(res.d.comment);
+        ta.value=""; paint(); renderSheet(); toast("已发表");
+      }).catch(function(){ btn.disabled=false; toast("网络错误，请稍后重试"); });
+  }
+  function del(cid){
+    if(!confirm("删除这条留言？")) return;
+    fetch(API+"/"+current+"/comment/"+cid,{method:"DELETE",credentials:"same-origin"})
+      .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
+      .then(function(res){
+        if(!res.ok) return toast(res.d.error||"删除失败");
+        var d=data[current]; if(d) d.comments=d.comments.filter(function(c){return c.id!==cid;});
+        paint(); renderSheet(); toast("已删除");
+      }).catch(function(){ toast("网络错误"); });
+  }
+  function load(){
+    return fetch(API,{credentials:"same-origin"}).then(function(r){return r.json();}).then(function(d){
+      data=d.articles||{}; paint(); renderSheet();
+    }).catch(function(){});
+  }
+  /* ---- 交互 ---- */
+  document.addEventListener("click",function(e){
+    var t=e.target;
+    var like=t.closest?t.closest("[data-like]"):null;
+    if(like){
+      e.preventDefault();
+      if(!me) return toast("请先登录 S.T.A.R. 账号");
+      var k=like.getAttribute("data-like");
+      fetch(API+"/"+k+"/like",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"}})
+        .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
+        .then(function(res){
+          if(!res.ok) return toast(res.d.error||"操作失败");
+          if(!data[k]) data[k]={likes:0,liked:false,comments:[]};
+          data[k].likes=res.d.likes; data[k].liked=res.d.liked;
+          paint(); if(current===k) renderSheet();
+        }).catch(function(){ toast("网络错误"); });
+      return;
+    }
+    var cmt=t.closest?t.closest("[data-cmt]"):null;
+    if(cmt){
+      e.preventDefault();
+      var key=cmt.getAttribute("data-cmt"), card=cmt.closest(".lit-card");
+      var rb=card&&card.querySelector("[data-open]");
+      current=key;
+      if(rb) rb.click(); else renderSheet();
+      setTimeout(function(){ var w=document.querySelector(".lit-cmts"); if(w) w.scrollIntoView({behavior:"smooth",block:"start"}); },420);
+      return;
+    }
+    var open=t.closest?t.closest("[data-open]"):null;
+    if(open){ current=open.getAttribute("data-open"); setTimeout(ensureSheet,60); }
+  },true);
+  /* 抽屉内容被重建时重挂留言区（幂等：已就绪就不重建，避免清空正在输入的内容） */
+  function ensureSheet(){
+    var layer=document.getElementById("sheet-layer"), body=document.getElementById("sheet-body");
+    if(!layer||layer.hidden||!body||!current) return;
+    var ex=body.querySelector(".lit-cmts");
+    if(ex && ex.getAttribute("data-key")===current) return;   // 已就绪 → 不打断输入
+    renderSheet();
+  }
+  var bodyEl=document.getElementById("sheet-body");
+  if(bodyEl && window.MutationObserver){
+    new MutationObserver(function(){ setTimeout(ensureSheet,0); }).observe(bodyEl,{childList:true});
+  }
+  /* 会话状态 */
+  fetch("/api/me",{credentials:"same-origin"}).then(function(r){ return r.ok?r.json():null; })
+    .then(function(m){ me=m; injectCards(); return load(); })
+    .catch(function(){ injectCards(); return load(); });
 })();
 </script>
 </body>

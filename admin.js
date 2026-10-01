@@ -1008,6 +1008,94 @@ function nextLibraryCode(data) {
   }
   return "STAR-" + y + "-" + String(next + 1).padStart(4, "0");
 }
+
+// ---------- 文学板块：点赞与评论（绑定站点账号）----------
+// 数据：admin/literature.json  { schemaVersion, articles: { <key>: { likes:[userId], comments:[{id,userId,name,text,ts}], createdAt } } }
+const LIT_FILE = path.join(ADMIN_DIR, "literature.json");
+const LIT_KEY_RE = /^[a-z0-9][a-z0-9_-]{0,31}$/;   // 文章 key：小写字母数字与 _-，≤32 字符
+const LIT_TEXT_MAX = 600;                          // 单条评论最大长度
+const LIT_KEEP = 200;                              // 每篇保留的评论条数（取最新）
+const LIT_COOLDOWN_MS = 5000;                      // 同一用户对同一篇的评论冷却
+const litCooldown = new Map();                     // "userId:key" -> 上次评论时间
+function loadLit() {
+  try {
+    const v = JSON.parse(fs.readFileSync(LIT_FILE, "utf8"));
+    if (v && v.articles && typeof v.articles === "object" && !Array.isArray(v.articles)) return v;
+  } catch {}
+  const d = { schemaVersion: 1, articles: {} };
+  writePrivate(LIT_FILE, JSON.stringify(d, null, 2));
+  return d;
+}
+function saveLit(v) { writePrivate(LIT_FILE, JSON.stringify(v, null, 2)); }
+function litArticle(data, key, create) {
+  let a = data.articles[key];
+  if (!a && create) { a = data.articles[key] = { likes: [], comments: [], createdAt: Date.now() }; }
+  if (!a) return null;
+  if (!Array.isArray(a.likes)) a.likes = [];
+  if (!Array.isArray(a.comments)) a.comments = [];
+  return a;
+}
+function litName(userId) {
+  const accounts = loadAccounts();
+  if (Array.isArray(accounts)) {
+    const u = accounts.find(x => x && x.id === userId);
+    if (u && u.username) return String(u.username).slice(0, 24);
+  }
+  return "读者";
+}
+function litPublic(data, userId) {
+  const out = {};
+  for (const key of Object.keys(data.articles)) {
+    const a = litArticle(data, key, false);
+    if (!a) continue;
+    out[key] = {
+      likes: a.likes.length,
+      liked: !!userId && a.likes.indexOf(userId) >= 0,
+      comments: a.comments.slice(-LIT_KEEP).map(c => ({
+        id: c.id, name: c.name, text: c.text, ts: c.ts, mine: !!userId && c.userId === userId,
+      })),
+    };
+  }
+  return { articles: out };
+}
+function litToggleLike(userId, key) {
+  const data = loadLit();
+  const a = litArticle(data, key, true);
+  const i = a.likes.indexOf(userId);
+  if (i >= 0) a.likes.splice(i, 1); else a.likes.push(userId);
+  saveLit(data);
+  return { likes: a.likes.length, liked: i < 0 };
+}
+function litComment(userId, key, rawText) {
+  let text = String(rawText == null ? "" : rawText);
+  // 去掉控制字符与零宽字符，压缩连续空白
+  text = text.replace(/[\u0000-\u001f\u007f\u200b-\u200f\u2028\u2029]/g, " ").replace(/\s+/g, " ").trim();
+  if (!text) return { error: "评论不能为空" };
+  if (text.length > LIT_TEXT_MAX) return { error: "评论过长（最多 " + LIT_TEXT_MAX + " 字）" };
+  const ck = userId + ":" + key;
+  const last = litCooldown.get(ck) || 0;
+  if (Date.now() - last < LIT_COOLDOWN_MS) return { error: "评论太频繁，请稍后再试" };
+  litCooldown.set(ck, Date.now());
+  const data = loadLit();
+  const a = litArticle(data, key, true);
+  const c = { id: uuid(), userId, name: litName(userId), text, ts: Date.now() };
+  a.comments.push(c);
+  if (a.comments.length > LIT_KEEP) a.comments = a.comments.slice(-LIT_KEEP);
+  saveLit(data);
+  return { comment: { id: c.id, name: c.name, text: c.text, ts: c.ts, mine: true }, likes: a.likes.length };
+}
+function litDeleteComment(userId, key, cid, isAdmin) {
+  const data = loadLit();
+  const a = litArticle(data, key, false);
+  if (!a) return { error: "文章不存在" };
+  const i = a.comments.findIndex(c => c.id === cid);
+  if (i < 0) return { error: "评论不存在" };
+  if (a.comments[i].userId !== userId && !isAdmin) return { error: "只能删除自己的评论" };
+  a.comments.splice(i, 1);
+  saveLit(data);
+  return { ok: true };
+}
+
 function registerLibraryView(id) {
   const data = loadLibrary(), entry = findLibraryEntry(data, id);
   if (!entry) return null;
@@ -1554,6 +1642,11 @@ async function handleApi(req, res, u) {
       { "Set-Cookie": `star_admin=${cookie}${cookieFlags(req)}; Max-Age=604800` });
   }
 
+  // 文学板块：点赞与评论（读公开，写需登录）
+  if (p === "/api/literature" && m === "GET") {
+    const s2 = getSession(req);
+    return json(res, 200, litPublic(loadLit(), s2 && s2.userId));
+  }
   // ===================== 以下均需要登录 =====================
   const s = getSession(req);
   if (!s) return json(res, 401, { error: "未登录" });
@@ -1648,6 +1741,23 @@ async function handleApi(req, res, u) {
     return json(res, 201, result);
   }
   if (p === "/api/library/me" && m === "GET") return json(res, 200, libraryMine(s.userId));
+  {
+    const lk = /^\/api\/literature\/([a-z0-9][a-z0-9_-]{0,31})\/(like|comment)$/.exec(p);
+    if (lk && m === "POST") {
+      const s2 = getSession(req);
+      if (!s2) return json(res, 401, { error: "请先登录 S.T.A.R. 账号" });
+      const body = await readBody(req);
+      const r = lk[2] === "like" ? litToggleLike(s2.userId, lk[1]) : litComment(s2.userId, lk[1], body.text);
+      return json(res, r.error ? 400 : 200, r.error ? { error: r.error } : r);
+    }
+    const ld = /^\/api\/literature\/([a-z0-9][a-z0-9_-]{0,31})\/comment\/([A-Za-z0-9-]+)$/.exec(p);
+    if (ld && m === "DELETE") {
+      const s2 = getSession(req);
+      if (!s2) return json(res, 401, { error: "请先登录" });
+      const r = litDeleteComment(s2.userId, ld[1], ld[2], s2.role === "admin");
+      return json(res, r.error ? 404 : 200, r.error ? { error: r.error } : r);
+    }
+  }
   // 背谱训练（登录可用；仅记录本人学习进度）
   if (p === "/api/trainer/lines" && m === "GET") {
     const s2 = getSession(req);
