@@ -157,6 +157,10 @@ const MIME = {
   ".svg": "image/svg+xml",
   ".ico": "image/x-icon",
   ".gz": "application/gzip",
+  ".m4a": "audio/mp4", ".mp3": "audio/mpeg", ".wav": "audio/wav", ".ogg": "audio/ogg",
+  ".mp4": "video/mp4", ".webm": "video/webm",
+  ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".gif": "image/gif",
+  ".woff2": "font/woff2", ".woff": "font/woff", ".ttf": "font/ttf", ".txt": "text/plain; charset=utf-8",
 };
 
 // 输入校验工具：所有客户端参数在进入引擎 stdin 前必须过这里（防 UCI/GTP 换行注入与类型滥用）
@@ -203,6 +207,8 @@ const server = http.createServer((req, res) => {
     // 空字节（/%00）会让 fs.readFile 同步抛 ERR_INVALID_ARG_VALUE
     if (urlPath.includes("\0")) { res.writeHead(400); return res.end("Bad Request"); }
     if (urlPath === "/") urlPath = "/index.html";
+    // 目录走默认页（如 /me/ → /me/index.html）；只对以 / 结尾的路径生效，不影响普通文件
+    else if (urlPath.endsWith("/")) urlPath += "index.html";
     const filePath = path.join(PUBLIC_DIR, path.normalize(urlPath));
     // 必须仍在 public 目录内（加 path.sep 防止同名前缀目录绕过 startsWith）
     if (!filePath.startsWith(PUBLIC_DIR + path.sep)) { res.writeHead(403); return res.end("Forbidden"); }

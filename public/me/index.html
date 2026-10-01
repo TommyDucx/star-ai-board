@@ -1,0 +1,1686 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="杜承轩 / Chengxuan Du 的个人主页：科技、音乐与文学。">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/avatar.png">
+<title>杜承轩 / Chengxuan Du · 主页</title>
+<style>
+/* ============ fonts ============ */
+@font-face{
+  font-family:"FangSong SC";
+  src:local("FangSong"),local("仿宋"),local("STFangsong"),local("FangSong_GB2312");
+  font-display:swap;
+}
+@font-face{
+  font-family:"Snell Display";
+  src:local("Snell Roundhand"),local("SnellRoundhand");
+  font-display:swap;
+}
+
+/* ============ tokens ============ */
+:root{
+  --bg:#04060d;
+  --ink:#e9f2ff;
+  --ink-2:#9db0cc;
+  --ink-3:#67788f;
+  --cyan:#28e0ff;
+  --cyan-soft:rgba(40,224,255,.16);
+  --amber:#ff8a3d;
+  --violet:#a77bff;
+  --gold:#d9b36a;
+  --gold-deep:#b8934e;
+  --parch:#f4e9d2;
+  --parch-2:#e7d5ae;
+  --ink-paper:#2b2318;
+  --ink-paper-2:#5c4d36;
+  --glass:rgba(14,22,40,.42);
+  --glass-strong:rgba(8,13,24,.68);
+  --line:rgba(140,190,255,.16);
+  --shadow:0 30px 70px -34px rgba(0,0,0,.85);
+  --font-zh:"FangSong SC","FangSong","STFangsong","Songti SC",serif;
+  --font-en:"Snell Display","Snell Roundhand","Segoe Script",cursive;
+  --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.22,.72,.18,1);
+  --radius:26px;
+  --accent:var(--cyan);
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none !important}
+html{
+  scroll-behavior:smooth;
+  -webkit-text-size-adjust:100%;
+}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-zh);
+  font-size:16.5px;
+  line-height:1.75;
+  letter-spacing:.015em;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--cyan-soft)}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px}
+@media (min-width:900px) and (min-height:640px){
+  html{scroll-snap-type:y proximity}
+}
+
+/* ============ global fx ============ */
+.fx{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.fx-noise{
+  position:absolute;inset:-50%;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  opacity:.05;mix-blend-mode:screen;
+}
+.fx-vignette{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 40%,transparent 45%,rgba(0,0,0,.55) 100%)}
+.fx-scan{
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px);
+  opacity:.5;
+}
+.fx-beam{
+  position:absolute;left:0;right:0;height:220px;top:-240px;
+  background:linear-gradient(180deg,transparent,rgba(40,224,255,.05) 45%,rgba(40,224,255,.1) 50%,transparent);
+  animation:beam 9s linear infinite;
+}
+@keyframes beam{to{transform:translateY(calc(100vh + 480px))}}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;will-change:transform}
+.blob.b1{width:56vmax;height:56vmax;left:-18vmax;top:-22vmax;background:radial-gradient(closest-side,rgba(40,224,255,.24),transparent 70%);animation:drift1 26s ease-in-out infinite alternate}
+.blob.b2{width:48vmax;height:48vmax;right:-16vmax;top:12vmax;background:radial-gradient(closest-side,rgba(255,138,61,.16),transparent 70%);animation:drift2 32s ease-in-out infinite alternate}
+.blob.b3{width:52vmax;height:52vmax;left:22vmax;bottom:-26vmax;background:radial-gradient(closest-side,rgba(167,123,255,.16),transparent 70%);animation:drift3 38s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(8vmax,10vmax) scale(1.1)}}
+@keyframes drift2{to{transform:translate(-10vmax,6vmax) scale(.92)}}
+@keyframes drift3{to{transform:translate(6vmax,-8vmax) scale(1.08)}}
+
+/* ============ glass ============ */
+.glass{
+  position:relative;border-radius:var(--radius);
+  background:
+    linear-gradient(155deg,rgba(255,255,255,.1),rgba(255,255,255,.03) 34%,rgba(255,255,255,0) 62%),
+    var(--glass);
+  -webkit-backdrop-filter:blur(30px) saturate(170%);
+  backdrop-filter:blur(30px) saturate(170%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    inset 0 0 0 1px rgba(130,190,255,.07),
+    var(--shadow),
+    0 0 70px -34px var(--accent);
+}
+.glass::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;
+  background:linear-gradient(140deg,rgba(160,225,255,.55),rgba(160,225,255,.06) 32%,rgba(255,138,61,.26) 68%,rgba(160,225,255,.4));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  opacity:.75;pointer-events:none;
+}
+.glass::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(460px circle at var(--mx,50%) var(--my,0%),rgba(165,225,255,.15),transparent 46%);
+  opacity:0;transition:opacity .4s var(--ease);
+}
+.glass:hover::after,.glass.lit::after{opacity:1}
+
+/* ============ nav ============ */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:60}
+.progress{position:absolute;top:0;left:0;right:0;height:2px;background:rgba(255,255,255,.06)}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--violet));box-shadow:0 0 12px var(--cyan)}
+.nav-wrap{display:flex;justify-content:center;padding:14px 18px 0}
+.nav{
+  display:flex;align-items:center;gap:16px;
+  padding:8px 10px 8px 12px;border-radius:99px;
+}
+.nav .brand{display:flex;align-items:center;gap:10px;padding-right:6px}
+.brand-mark{
+  width:32px;height:32px;border-radius:50%;object-fit:contain;
+  background:rgba(255,255,255,.08);border:1px solid var(--line);
+  box-shadow:0 0 18px -6px var(--cyan);
+}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:.06em;white-space:nowrap}
+.brand-name em{display:block;font-family:var(--font-en);font-style:normal;font-size:13px;line-height:.9;color:var(--cyan);text-shadow:0 0 12px rgba(40,224,255,.6)}
+.nav-links{display:flex;gap:2px}
+.nav-links a{
+  position:relative;padding:7px 14px;border-radius:99px;font-size:14.5px;color:var(--ink-2);
+  transition:color .25s var(--ease),background .25s var(--ease);
+}
+.nav-links a i{font-family:var(--font-en);font-style:normal;font-size:13.5px;margin-left:6px;color:var(--ink-3);transition:color .25s var(--ease)}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a.active{color:var(--ink);background:rgba(40,224,255,.12);box-shadow:inset 0 0 0 1px rgba(40,224,255,.25)}
+.nav-links a.active i{color:var(--cyan)}
+.nav-gh{
+  padding:8px 16px;border-radius:99px;font-size:14.5px;
+  border:1px solid var(--line);color:var(--ink);
+  transition:background .25s var(--ease),box-shadow .25s var(--ease),scale .15s var(--ease);
+}
+.nav-gh:hover{background:rgba(40,224,255,.1);box-shadow:0 0 24px -8px var(--cyan)}
+.nav-gh:active{scale:.96}
+@media (max-width:760px){
+  .nav-links{display:none}
+  .brand-name{display:none}
+}
+
+/* ============ dots ============ */
+.dots{
+  position:fixed;right:22px;top:50%;transform:translateY(-50%);z-index:40;
+  display:flex;flex-direction:column;gap:14px;
+}
+.dots button{
+  position:relative;width:10px;height:10px;border-radius:99px;
+  background:rgba(255,255,255,.22);transition:background .3s var(--ease),box-shadow .3s var(--ease),scale .2s var(--ease);
+}
+.dots button:hover{scale:1.25}
+.dots button.active{background:var(--cyan);box-shadow:0 0 14px var(--cyan)}
+.dots button span{
+  position:absolute;right:22px;top:50%;translate:0 -50%;
+  font-size:12px;letter-spacing:.12em;color:var(--ink-2);white-space:nowrap;
+  opacity:0;transition:opacity .25s var(--ease);pointer-events:none;
+  font-family:var(--font-mono);
+}
+.dots button:hover span,.dots button.active span{opacity:1}
+@media (max-width:900px){.dots{display:none}}
+
+/* ============ panels ============ */
+main{position:relative;z-index:0}
+.panel{
+  position:relative;overflow:hidden;
+  min-height:100vh;min-height:100svh;
+  display:flex;align-items:center;
+  scroll-snap-align:start;
+  padding:clamp(96px,13vh,150px) 0 clamp(56px,9vh,90px);
+}
+.p-inner{width:min(1180px,92vw);margin:0 auto;position:relative;z-index:2}
+.bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+
+.p-index{
+  margin:0 0 12px;font-family:var(--font-mono);font-size:12px;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--accent);opacity:.9;
+}
+.p-title{
+  position:relative;margin:0;line-height:1;
+  display:flex;align-items:baseline;gap:clamp(14px,2vw,26px);flex-wrap:wrap;
+}
+.p-title .zh{
+  font-family:var(--font-zh);
+  font-size:clamp(52px,7.2vw,112px);
+  letter-spacing:.05em;
+  color:var(--ink);
+  text-shadow:0 0 36px color-mix(in srgb,var(--accent) 30%,transparent),0 0 100px color-mix(in srgb,var(--accent) 12%,transparent);
+}
+.p-title .en{
+  font-family:var(--font-en);
+  font-size:clamp(34px,4.8vw,74px);
+  color:var(--accent);
+  text-shadow:0 0 22px color-mix(in srgb,var(--accent) 55%,transparent);
+  transform:translateY(-.12em);
+  white-space:nowrap;
+}
+.p-desc{margin:22px 0 0;max-width:60ch;color:var(--ink-2);font-size:16.5px;line-height:1.9}
+
+/* generic reveal */
+.anim{
+  opacity:0;transform:translateY(28px);filter:blur(9px);
+  transition:opacity .85s var(--ease) var(--d,0s),transform .85s var(--ease) var(--d,0s),filter .85s var(--ease) var(--d,0s);
+}
+.panel.on .anim{opacity:1;transform:none;filter:none}
+
+/* titles fx */
+.hero .p-title .zh{clip-path:polygon(0 0,0 0,-25% 100%,-25% 100%)}
+.hero.on .p-title .zh{animation:diagWipe .95s var(--ease) .1s both}
+@keyframes diagWipe{
+  0%{clip-path:polygon(0 0,0 0,-25% 100%,-25% 100%);opacity:0}
+  1%{opacity:1}
+  100%{clip-path:polygon(0 0,125% 0,100% 100%,-25% 100%);opacity:1}
+}
+.tech .p-title .zh{position:relative}
+.tech .p-title .zh::before,.tech .p-title .zh::after{
+  content:attr(data-t);position:absolute;left:0;top:0;opacity:0;pointer-events:none;
+}
+.tech.on .p-title .zh::before{color:var(--cyan);animation:glitchA .72s steps(2,end) .12s 1 both}
+.tech.on .p-title .zh::after{color:var(--amber);animation:glitchB .72s steps(2,end) .12s 1 both}
+@keyframes glitchA{
+  0%{opacity:.9;transform:translate(-7px,2px);clip-path:inset(8% 0 62% 0)}
+  18%{clip-path:inset(56% 0 14% 0);transform:translate(6px,-2px)}
+  36%{clip-path:inset(28% 0 42% 0);transform:translate(-5px,1px)}
+  54%{clip-path:inset(70% 0 6% 0);transform:translate(4px,0)}
+  72%{clip-path:inset(18% 0 56% 0);transform:translate(-2px,1px)}
+  100%{opacity:0;transform:none}
+}
+@keyframes glitchB{
+  0%{opacity:.8;transform:translate(6px,-2px);clip-path:inset(62% 0 10% 0)}
+  18%{clip-path:inset(12% 0 60% 0);transform:translate(-6px,2px)}
+  36%{clip-path:inset(44% 0 26% 0);transform:translate(5px,-1px)}
+  54%{clip-path:inset(6% 0 72% 0);transform:translate(-4px,1px)}
+  72%{clip-path:inset(52% 0 18% 0);transform:translate(2px,-1px)}
+  100%{opacity:0;transform:none}
+}
+.music .p-title{position:relative}
+.music .p-title::after{
+  content:"";position:absolute;left:0;bottom:-16px;height:2px;width:min(420px,60%);
+  background:linear-gradient(90deg,var(--accent),transparent 85%);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform 1s var(--ease) .35s;
+}
+.music.on .p-title::after{transform:scaleX(1)}
+.lit .p-title .zh{color:var(--gold);text-shadow:0 0 30px rgba(217,179,106,.25)}
+.lit .p-title .en{color:var(--gold);text-shadow:0 0 20px rgba(217,179,106,.45)}
+.end .end-title{
+  filter:blur(18px);opacity:0;
+  transition:filter 1.1s var(--ease) .1s,opacity 1.1s var(--ease) .1s;
+}
+.end.on .end-title{filter:none;opacity:1}
+
+/* ============ hero ============ */
+.hero{--accent:var(--cyan)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(26px,4vw,70px);align-items:center}
+.hero .tagline{
+  margin:0 0 18px;font-family:var(--font-mono);font-size:12.5px;letter-spacing:.2em;
+  color:var(--cyan);text-transform:uppercase;
+}
+.hero .p-title .zh{font-size:clamp(64px,9.6vw,150px)}
+.hero .p-title{flex-direction:column;gap:0;align-items:flex-start}
+.hero .p-title .en{transform:none;margin-top:.08em}
+.hero .lead{margin:26px 0 0;max-width:36ch;font-size:clamp(16px,1.6vw,19px);line-height:1.9}
+.hero .lead.en-line{
+  margin-top:10px;font-family:var(--font-en);font-size:clamp(20px,2vw,26px);
+  color:var(--ink-3);letter-spacing:.02em;
+}
+.hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:38px}
+.btn-neon{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:13px 26px;border-radius:99px;font-size:15.5px;letter-spacing:.08em;
+  color:#041018;background:linear-gradient(135deg,var(--cyan),#7fe9ff);
+  box-shadow:0 0 30px -8px var(--cyan),inset 0 1px 0 rgba(255,255,255,.5);
+  transition:transform .2s var(--ease),box-shadow .3s var(--ease);
+}
+.btn-neon:hover{box-shadow:0 0 44px -6px var(--cyan),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn-neon:active{transform:scale(.97)}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:13px 26px;border-radius:99px;font-size:15.5px;letter-spacing:.08em;
+  color:var(--ink);border:1px solid var(--line);
+  transition:background .3s var(--ease),box-shadow .3s var(--ease),transform .2s var(--ease);
+}
+.btn-ghost:hover{background:rgba(255,255,255,.06);box-shadow:0 0 30px -12px rgba(255,255,255,.4)}
+.btn-ghost:active{transform:scale(.97)}
+.hero-stats{
+  display:flex;flex-wrap:wrap;gap:clamp(26px,5vw,64px);
+  margin:clamp(40px,6vh,64px) 0 0;padding:24px 0 0;list-style:none;
+  border-top:1px solid rgba(255,255,255,.1);
+}
+.hero-stats b{display:block;font-family:var(--font-mono);font-size:24px;font-weight:600;letter-spacing:.02em}
+.hero-stats b em{font-style:normal;color:var(--cyan)}
+.hero-stats span{font-size:13px;color:var(--ink-3);letter-spacing:.12em}
+.hero-figure{position:relative;justify-self:end;perspective:1100px}
+.avatar-halo{
+  position:absolute;inset:-18% -18% -12%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side,var(--cyan-soft),transparent 72%);
+}
+.avatar-tilt{
+  position:relative;width:clamp(190px,25vw,330px);aspect-ratio:1;
+  transform-style:preserve-3d;will-change:transform;
+  animation:floaty 5.5s ease-in-out infinite alternate;
+}
+@keyframes floaty{to{translate:0 -12px}}
+.avatar-img{
+  display:block;width:100%;height:100%;object-fit:contain;
+  filter:drop-shadow(0 30px 50px rgba(0,0,0,.65)) drop-shadow(0 0 34px rgba(40,224,255,.22));
+}
+.avatar-cap{
+  margin:16px 0 0;text-align:center;font-family:var(--font-mono);
+  font-size:11px;letter-spacing:.24em;color:var(--ink-3);text-transform:uppercase;
+}
+.scroll-hint{
+  position:absolute;left:50%;bottom:26px;transform:translateX(-50%);
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.3em;color:var(--ink-3);
+}
+.scroll-hint::after{
+  content:"";width:1px;height:34px;
+  background:linear-gradient(180deg,var(--cyan),transparent);
+  animation:hint 1.8s var(--ease) infinite;
+}
+@keyframes hint{0%{opacity:0;transform:translateY(-8px)}40%{opacity:1}100%{opacity:0;transform:translateY(10px)}}
+@media (max-width:860px){
+  .hero-grid{grid-template-columns:1fr;gap:30px}
+  .hero-figure{order:-1;justify-self:start}
+  .avatar-tilt{width:min(44vw,190px)}
+  .avatar-cap{text-align:left}
+  .scroll-hint{display:none}
+}
+
+/* ============ tech ============ */
+.tech{--accent:var(--cyan)}
+.bg-tech .grid{
+  position:absolute;left:-30%;right:-30%;bottom:-12%;height:74%;
+  background-image:
+    linear-gradient(rgba(80,170,255,.16) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(80,170,255,.16) 1px,transparent 1px);
+  background-size:64px 64px;
+  transform:perspective(620px) rotateX(62deg);
+  transform-origin:50% 100%;
+  animation:gridMove 1.6s linear infinite;
+  opacity:.5;
+}
+@keyframes gridMove{to{background-position:0 64px,64px 0}}
+.bg-tech .glow{
+  position:absolute;width:60vmax;height:60vmax;border-radius:50%;
+  filter:blur(110px);opacity:.5;
+}
+.bg-tech .g1{left:-22vmax;top:-24vmax;background:radial-gradient(closest-side,rgba(40,224,255,.22),transparent 70%)}
+.bg-tech .g2{right:-24vmax;bottom:-28vmax;background:radial-gradient(closest-side,rgba(255,138,61,.16),transparent 70%)}
+.bg-tech .scan{
+  position:absolute;inset:0;opacity:.5;
+  background:repeating-linear-gradient(0deg,rgba(120,220,255,.05) 0 1px,transparent 1px 4px);
+}
+.rail-wrap{padding:22px;margin-top:clamp(26px,4vh,42px)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.filters button{
+  padding:7px 16px;border-radius:99px;font-size:13.5px;letter-spacing:.06em;color:var(--ink-2);
+  border:1px solid transparent;transition:all .25s var(--ease);
+}
+.filters button:hover{color:var(--ink);background:rgba(255,255,255,.05)}
+.filters button.active{
+  color:var(--cyan);border-color:rgba(40,224,255,.4);background:rgba(40,224,255,.1);
+  box-shadow:0 0 20px -8px var(--cyan);
+}
+.rail{
+  display:flex;gap:16px;overflow-x:auto;padding:6px 2px 16px;
+  scroll-snap-type:x mandatory;cursor:grab;
+  scrollbar-width:thin;scrollbar-color:rgba(40,224,255,.4) transparent;
+}
+.rail.dragging{cursor:grabbing;scroll-snap-type:none}
+.rail::-webkit-scrollbar{height:6px}
+.rail::-webkit-scrollbar-thumb{background:rgba(40,224,255,.35);border-radius:99px}
+.rail::-webkit-scrollbar-track{background:rgba(255,255,255,.05);border-radius:99px}
+.card{
+  flex:0 0 286px;scroll-snap-align:start;
+  display:flex;flex-direction:column;gap:10px;min-height:190px;
+  padding:20px;border-radius:20px;
+  background:rgba(10,17,32,.55);
+  border:1px solid rgba(120,180,255,.14);
+  transition:transform .35s var(--ease),border-color .35s var(--ease),box-shadow .35s var(--ease);
+  animation:cardIn .5s var(--ease) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+.card:hover{
+  transform:translateY(-5px);
+  border-color:rgba(40,224,255,.45);
+  box-shadow:0 0 40px -14px var(--cyan);
+}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.card-name{font-family:var(--font-mono);font-size:15px;font-weight:600;letter-spacing:-.01em;word-break:break-word}
+.card-arrow{color:var(--ink-3);flex:none;transition:color .25s var(--ease),transform .3s var(--ease)}
+.card:hover .card-arrow{color:var(--cyan);transform:translate(3px,-3px)}
+.card-desc{flex:1;color:var(--ink-2);font-size:14.5px;line-height:1.8}
+.card-meta{display:flex;align-items:center;gap:16px;font-family:var(--font-mono);font-size:12.5px;color:var(--ink-3)}
+.card-meta .dot{width:8px;height:8px;border-radius:99px;display:inline-block;margin-right:6px}
+.fork-tag{
+  font-family:var(--font-zh);font-size:11px;letter-spacing:.08em;color:var(--ink-3);
+  border:1px solid rgba(255,255,255,.16);border-radius:99px;padding:1px 8px;
+}
+.rail-wrap[data-filter="ai"] .card:not([data-group="ai"]),
+.rail-wrap[data-filter="tools"] .card:not([data-group="tools"]),
+.rail-wrap[data-filter="notes"] .card:not([data-group="notes"]){display:none}
+.rail-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:8px}
+.rail-hint{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.18em;color:var(--ink-3)}
+.rail-btns{display:flex;gap:8px}
+.rail-btns button{
+  width:38px;height:38px;border-radius:99px;display:grid;place-items:center;color:var(--ink-2);
+  border:1px solid var(--line);transition:all .25s var(--ease);
+}
+.rail-btns button:hover{color:var(--cyan);border-color:rgba(40,224,255,.5);box-shadow:0 0 22px -10px var(--cyan)}
+.rail-btns button:active{transform:scale(.94)}
+
+/* ============ music ============ */
+.music{--accent:var(--violet)}
+.bg-music{display:flex;align-items:flex-end;justify-content:center;gap:min(1.2vw,13px);padding:0 3vw 4vh;opacity:.45}
+.bg-music i{
+  flex:1;max-width:20px;height:calc(var(--h,40) * 1%);
+  border-radius:5px 5px 0 0;
+  background:linear-gradient(to top,rgba(167,123,255,.05),rgba(167,123,255,.6) 85%);
+  transform-origin:bottom;
+  animation:eq var(--t,2s) ease-in-out var(--dl,0s) infinite alternate;
+}
+@keyframes eq{from{transform:scaleY(.18)}to{transform:scaleY(1)}}
+body.audio-on .bg-music{opacity:.85}
+body.audio-on .bg-music i{animation-duration:calc(var(--t,2s) * .5)}
+.music .ring{
+  position:absolute;left:50%;top:46%;width:64vmin;height:64vmin;border-radius:50%;
+  border:1px solid rgba(167,123,255,.22);
+  transform:translate(-50%,-50%);
+  animation:ring 7s ease-out infinite;
+}
+.music .ring.r2{animation-delay:3.5s}
+@keyframes ring{
+  0%{transform:translate(-50%,-50%) scale(.72);opacity:.65}
+  100%{transform:translate(-50%,-50%) scale(1.3);opacity:0}
+}
+.music-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(20px,3vw,36px);align-items:start;margin-top:clamp(26px,4vh,44px)}
+.player{padding:20px 22px}
+.player-row{display:flex;align-items:center;gap:16px}
+.play-btn{
+  width:52px;height:52px;flex:none;border-radius:99px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--violet),#c9a6ff);color:#14091f;
+  box-shadow:0 0 30px -8px var(--violet),inset 0 1px 0 rgba(255,255,255,.45);
+  transition:transform .18s var(--ease),box-shadow .3s var(--ease);
+}
+.play-btn:hover{box-shadow:0 0 44px -6px var(--violet),inset 0 1px 0 rgba(255,255,255,.45)}
+.play-btn:active{transform:scale(.94)}
+.eq{display:flex;align-items:flex-end;gap:3px;height:26px;margin-left:2px}
+.eq i{
+  width:3px;border-radius:2px;background:var(--violet);
+  height:100%;transform-origin:bottom;transform:scaleY(.3);
+  animation:eqbar 1.1s ease-in-out infinite alternate;
+}
+.eq i:nth-child(1){animation-delay:.0s}.eq i:nth-child(2){animation-delay:.18s}
+.eq i:nth-child(3){animation-delay:.36s}.eq i:nth-child(4){animation-delay:.12s}
+.eq i:nth-child(5){animation-delay:.28s}
+@keyframes eqbar{from{transform:scaleY(.25)}to{transform:scaleY(1)}}
+body:not(.audio-on) .eq i{animation-play-state:paused;transform:scaleY(.25)}
+.player-main{flex:1;min-width:0}
+.player-title{display:flex;justify-content:space-between;gap:12px;font-size:14.5px;margin-bottom:12px}
+.player-title b{font-weight:700;letter-spacing:.04em}
+.player-title b em{font-family:var(--font-en);font-style:normal;font-size:15px;color:var(--violet);margin-left:8px}
+.player-title span{font-family:var(--font-mono);font-size:12px;color:var(--ink-3);white-space:nowrap}
+.track{position:relative;height:22px;display:flex;align-items:center;cursor:pointer;touch-action:none}
+.track::before{content:"";position:absolute;left:0;right:0;height:4px;border-radius:99px;background:rgba(255,255,255,.12)}
+.track-fill{position:absolute;left:0;height:4px;width:0;border-radius:99px;background:linear-gradient(90deg,var(--violet),var(--cyan));pointer-events:none}
+.track-knob{
+  position:absolute;width:13px;height:13px;border-radius:99px;background:#fff;
+  border:2px solid var(--violet);translate:-50% 0;scale:0;pointer-events:none;
+  transition:scale .18s var(--ease);box-shadow:0 0 12px var(--violet);
+}
+.track:hover .track-knob,.track.dragging .track-knob{scale:1}
+.exp-list{list-style:none;margin:0;padding:6px 22px}
+.exp-list li{display:grid;grid-template-columns:44px 1fr;gap:14px;padding:15px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.exp-list li:last-child{border-bottom:0}
+.exp-num{font-family:var(--font-mono);font-size:12px;color:var(--violet);padding-top:4px}
+.exp-list h3{margin:0 0 5px;font-size:16px;font-weight:700;letter-spacing:.03em}
+.exp-list p{margin:0;color:var(--ink-2);font-size:14px;line-height:1.8}
+.exp-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.exp-tags span{
+  font-family:var(--font-mono);font-size:11px;color:var(--ink-3);
+  border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:2px 9px;
+}
+.music-note{
+  margin-top:20px;padding:14px 20px;border-radius:16px;color:var(--ink-2);font-size:14px;
+  background:rgba(167,123,255,.07);border:1px solid rgba(167,123,255,.2);
+}
+@media (max-width:860px){
+  .music-grid{grid-template-columns:1fr}
+}
+
+/* ============ literature (classical) ============ */
+.lit{--accent:var(--gold);background:linear-gradient(180deg,rgba(38,18,10,.5),rgba(12,8,16,.2) 60%,transparent)}
+.bg-lit .vign{position:absolute;inset:0;background:radial-gradient(80% 70% at 50% 30%,rgba(217,179,106,.12),transparent 70%)}
+.bg-lit .frame{
+  position:absolute;inset:26px;border:1px solid rgba(217,179,106,.28);border-radius:8px;
+  box-shadow:inset 0 0 0 5px rgba(217,179,106,.05),inset 0 0 90px rgba(217,179,106,.06);
+}
+.bg-lit .frame::before,.bg-lit .frame::after{
+  font-family:var(--font-en);content:"❦";position:absolute;left:50%;translate:-50% 0;
+  color:rgba(217,179,106,.6);font-size:20px;line-height:1;background:transparent;
+}
+.bg-lit .frame::before{top:-11px}
+.bg-lit .frame::after{bottom:-11px}
+.lit .p-desc{color:rgba(233,213,175,.75)}
+.lit-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(14px,1.8vw,22px);margin-top:clamp(26px,4vh,44px)}
+.panel.lit .lit-wrap{
+  transform-origin:left center;
+  transform:perspective(2200px) rotateY(-68deg) translateX(-40px);
+  opacity:0;
+  transition:transform 1.05s var(--ease) .1s,opacity .8s var(--ease) .1s;
+}
+.panel.lit.on .lit-wrap{transform:none;opacity:1}
+.lit-card{
+  position:relative;display:flex;flex-direction:column;gap:12px;
+  padding:24px 22px;border-radius:10px;min-height:330px;
+  background:
+    linear-gradient(160deg,rgba(255,255,255,.5),rgba(255,255,255,0) 40%),
+    linear-gradient(180deg,var(--parch),var(--parch-2));
+  color:var(--ink-paper);
+  box-shadow:0 24px 50px -26px rgba(0,0,0,.85),inset 0 0 0 1px rgba(120,90,40,.35),inset 0 0 40px rgba(160,120,60,.14);
+}
+.lit-card::before{
+  content:"";position:absolute;inset:7px;border:1px solid rgba(120,90,40,.35);border-radius:6px;pointer-events:none;
+}
+.lit-tags{display:flex;gap:8px}
+.lit-tag{
+  font-size:11px;letter-spacing:.1em;padding:2px 9px;border-radius:99px;
+  border:1px solid rgba(90,66,30,.45);color:var(--ink-paper-2);
+}
+.lit-tag.own{background:rgba(150,40,40,.12);border-color:rgba(150,40,40,.5);color:#8c2f2f}
+.lit-card h3{
+  margin:0;font-family:var(--font-zh);font-size:25px;letter-spacing:.1em;font-weight:700;color:#241b10;
+}
+.lit-card h3 em{display:block;font-family:var(--font-en);font-style:normal;font-size:19px;color:#8a6a33;margin-top:2px;letter-spacing:.02em}
+.lit-author{font-size:12.5px;letter-spacing:.2em;color:var(--ink-paper-2)}
+.lit-excerpt{
+  flex:1;font-size:14px;line-height:2;color:#4a3c28;
+  display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;
+}
+.lit-excerpt::first-letter{font-size:2.1em;line-height:1;color:#8c2f2f;font-weight:700;margin-right:2px}
+.lit-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px}
+.read-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:13.5px;letter-spacing:.1em;color:#f6ecd6;
+  background:#3a2a14;border:1px solid rgba(120,90,40,.6);
+  padding:9px 16px;border-radius:99px;
+  transition:all .25s var(--ease);
+}
+.read-btn:hover{background:#54390f;box-shadow:0 0 22px -8px rgba(217,179,106,.8)}
+.read-btn:active{transform:scale(.96)}
+.read-btn svg{transition:transform .25s var(--ease)}
+.read-btn:hover svg{transform:translateX(3px)}
+.lit-len{font-family:var(--font-mono);font-size:11px;color:var(--ink-paper-2)}
+@media (max-width:1100px){.lit-wrap{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:640px){.lit-wrap{grid-template-columns:1fr}.panel.lit .lit-wrap{transform:none;opacity:1}}
+
+/* ============ end ============ */
+.end{--accent:var(--cyan);text-align:left}
+.end-inner{max-width:880px}
+.end-title{margin:0;line-height:1.05}
+.end-title .zh{display:block;font-size:clamp(46px,6.4vw,96px);letter-spacing:.06em;text-shadow:0 0 40px rgba(40,224,255,.25)}
+.end-title .en{display:block;font-family:var(--font-en);font-size:clamp(34px,4.4vw,64px);color:var(--cyan);margin-top:10px;text-shadow:0 0 26px rgba(40,224,255,.5)}
+.end .p-desc{margin-top:26px}
+.end-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:38px}
+.foot{
+  margin-top:clamp(46px,8vh,80px);padding-top:22px;border-top:1px solid rgba(255,255,255,.1);
+  display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;
+  font-size:13px;color:var(--ink-3);letter-spacing:.06em;
+}
+.foot .sig{font-family:var(--font-mono);font-size:11px;letter-spacing:.22em}
+
+/* ============ sheet (page turn) ============ */
+.sheet-layer{position:fixed;inset:0;z-index:90}
+.sheet-layer[hidden]{display:none}
+.sheet-scrim{
+  position:absolute;inset:0;background:rgba(2,4,8,.6);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  opacity:0;transition:opacity .4s var(--ease);
+}
+.sheet-scrim.show{opacity:1}
+.sheet{
+  position:absolute;left:50%;top:50%;width:min(760px,92vw);max-height:86svh;
+  display:flex;flex-direction:column;
+  border-radius:14px;overflow:hidden;
+  background:
+    linear-gradient(160deg,rgba(255,255,255,.55),rgba(255,255,255,0) 34%),
+    linear-gradient(180deg,var(--parch),#eedfbe);
+  color:var(--ink-paper);
+  box-shadow:0 50px 120px -40px rgba(0,0,0,.95),inset 0 0 0 1px rgba(110,82,40,.4),inset 0 0 120px rgba(150,110,50,.15);
+  opacity:0;will-change:transform,opacity;
+}
+.sheet::after{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:22px;pointer-events:none;
+  background:linear-gradient(90deg,rgba(90,60,20,.22),transparent);
+}
+.sheet:focus{outline:none}
+.sheet-grab{
+  position:absolute;top:0;left:0;right:0;height:34px;z-index:3;
+  display:none;justify-content:center;padding-top:10px;cursor:grab;touch-action:none;
+}
+.sheet-grab::before{content:"";width:38px;height:5px;border-radius:99px;background:rgba(90,66,30,.35)}
+.sheet-head{
+  position:relative;padding:36px 34px 18px;border-bottom:1px solid rgba(90,66,30,.25);
+  display:flex;align-items:flex-start;gap:16px;
+}
+.sheet-head h2{margin:0;font-family:var(--font-zh);font-size:clamp(26px,3.6vw,34px);letter-spacing:.12em;color:#241b10}
+.sheet-meta{margin:8px 0 0;font-size:12.5px;letter-spacing:.18em;color:var(--ink-paper-2)}
+.sheet-close{
+  flex:none;width:36px;height:36px;border-radius:99px;display:grid;place-items:center;
+  color:#4a3c28;border:1px solid rgba(90,66,30,.4);
+  transition:background .25s var(--ease),transform .15s var(--ease);
+}
+.sheet-close:hover{background:rgba(90,66,30,.12)}
+.sheet-close:active{transform:scale(.93)}
+.sheet-body{overflow-y:auto;overscroll-behavior:contain;padding:28px 34px 46px;-webkit-overflow-scrolling:touch}
+.sheet-body p{margin:0 0 1.15em;font-size:17px;line-height:2.05;letter-spacing:.02em;color:#33291b}
+.sheet-body p.epigraph{
+  text-align:center;font-family:var(--font-en);font-size:20px;color:#7a5c2b;margin:1.6em 0;
+}
+.sheet-seal{
+  display:flex;justify-content:flex-end;margin-top:30px;
+}
+.sheet-seal span{
+  font-size:13px;letter-spacing:.2em;color:#8c2f2f;border:1px solid rgba(140,47,47,.55);
+  border-radius:6px;padding:5px 9px;
+}
+@media (max-width:820px){
+  .sheet{top:auto;bottom:0;left:0;width:100%;max-height:92svh;border-radius:18px 18px 0 0}
+  .sheet-grab{display:flex}
+  .sheet-head{padding-top:40px}
+}
+
+/* ============ reduced prefs ============ */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.2s !important}
+  .anim,.end .end-title,.panel.lit .lit-wrap{opacity:1 !important;transform:none !important;filter:none !important}
+  .bg-music i,.fx-beam,.blob{animation:none !important}
+}
+@media (prefers-reduced-transparency: reduce){
+  .glass{background:rgba(10,16,30,.94);-webkit-backdrop-filter:none;backdrop-filter:none}
+  .nav{background:rgba(8,12,22,.96)}
+}
+@media (prefers-contrast: more){
+  .p-desc,.card-desc,.exp-list p{color:#c9d7ee}
+}
+</style>
+</head>
+<body>
+<div class="fx" aria-hidden="true">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="fx-beam"></div>
+  <div class="fx-scan"></div>
+  <div class="fx-noise"></div>
+  <div class="fx-vignette"></div>
+</div>
+
+<header class="topbar">
+  <div class="progress"><i id="progress"></i></div>
+  <div class="nav-wrap">
+    <div class="nav glass">
+      <a class="brand" href="#hero" aria-label="回到顶部">
+        <img class="brand-mark" src="assets/avatar.png" alt="" width="32" height="32">
+        <span class="brand-name">杜承轩<em>Chengxuan Du</em></span>
+      </a>
+      <nav class="nav-links" aria-label="页面导航">
+        <a href="#tech">科技<i>Tech</i></a>
+        <a href="#music">音乐<i>Music</i></a>
+        <a href="#literature">文学<i>Literature</i></a>
+        <a href="#contact">联系<i>Contact</i></a>
+      </nav>
+      <a class="nav-gh" href="https://github.com/TommyDucx" target="_blank" rel="noreferrer">GitHub</a>
+    </div>
+  </div>
+</header>
+
+<nav class="dots" aria-label="板块导航">
+  <button data-go="hero" aria-label="首页"><span>// 00 HOME</span></button>
+  <button data-go="tech" aria-label="科技"><span>// 01 TECH</span></button>
+  <button data-go="music" aria-label="音乐"><span>// 02 MUSIC</span></button>
+  <button data-go="literature" aria-label="文学"><span>// 03 LITERATURE</span></button>
+  <button data-go="contact" aria-label="联系"><span>// 04 CONTACT</span></button>
+</nav>
+
+<main>
+  <!-- 00 · HERO -->
+  <section class="panel hero on" id="hero" data-fx="hero">
+    <div class="p-inner hero-grid">
+      <div class="hero-copy">
+        <p class="tagline anim" style="--d:.05s">// System online — 杜承轩的个人主页</p>
+        <h1 class="p-title">
+          <span class="zh">杜承轩</span>
+          <span class="en">Chengxuan&nbsp;Du</span>
+        </h1>
+        <p class="lead anim" style="--d:.3s">在动手实践中学习，也用项目把抽象原理讲清楚。</p>
+        <p class="lead en-line anim" style="--d:.38s">Learning by building. Building to explain.</p>
+        <div class="hero-actions anim" style="--d:.48s">
+          <a class="btn-neon" href="#tech">探索项目 <span aria-hidden="true">→</span></a>
+          <a class="btn-ghost" href="#literature">阅读作品</a>
+        </div>
+        <ul class="hero-stats anim" style="--d:.58s">
+          <li><b>10<em>+</em></b><span>GITHUB 仓库</span></li>
+          <li><b>4</b><span>篇文学作品</span></li>
+          <li><b>3</b><span>个音乐实验</span></li>
+          <li><b><em>∞</em></b><span>进行中的探索</span></li>
+        </ul>
+      </div>
+      <figure class="hero-figure anim" style="--d:.22s">
+        <div class="avatar-halo" aria-hidden="true"></div>
+        <div class="avatar-tilt" id="avatar-tilt">
+          <img class="avatar-img" src="assets/avatar.png" alt="杜承轩的头像：赛博朋克风格的猫" width="512" height="512">
+        </div>
+        <figcaption class="avatar-cap">Schrödinger's Cat · 薛定谔的猫</figcaption>
+      </figure>
+    </div>
+    <div class="scroll-hint" aria-hidden="true">SCROLL</div>
+  </section>
+
+  <!-- 01 · TECH -->
+  <section class="panel tech" id="tech" data-fx="tech">
+    <div class="bg bg-tech" aria-hidden="true">
+      <i class="grid"></i><i class="glow g1"></i><i class="glow g2"></i><i class="scan"></i>
+    </div>
+    <div class="p-inner">
+      <header class="p-head">
+        <p class="p-index anim">// 01 — Technology · github.com/TommyDucx</p>
+        <h2 class="p-title glitch-title anim" style="--d:.06s">
+          <span class="zh" data-t="科技">科技</span>
+          <span class="en">Technology</span>
+        </h2>
+        <p class="p-desc anim" style="--d:.14s">
+          从联邦学习到实时棋盘识别，仓库记录了一条「做小实验、提出更好的问题」的路径。
+          小数据集、波动结果和局限性，都是记录的一部分。
+        </p>
+      </header>
+      <div class="rail-wrap glass anim" style="--d:.2s" id="rail-wrap" data-filter="all">
+        <div class="filters" id="filters" role="tablist" aria-label="仓库分类">
+          <button class="active" data-filter="all">全部 10</button>
+          <button data-filter="ai">AI · 机器学习</button>
+          <button data-filter="tools">工具 · 系统</button>
+          <button data-filter="notes">记录 · 笔记</button>
+        </div>
+        <div class="rail" id="rail" tabindex="0" aria-label="仓库列表，可横向滚动">
+          <a class="card" data-group="ai" href="https://github.com/TommyDucx/Machine-Learning" target="_blank" rel="noreferrer">
+            <div class="card-top"><span class="card-name">Machine-Learning</span>
+              <svg class="card-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+            </div>
+            <p class="card-desc">MLForTommy：面向零基础学习者的机器学习 + 联邦学习仿真框架，含 Iris、MNIST、iWildCam、乳腺癌分类实验，单机 92.12% vs 联邦 88.58%。</p>
+            <div class="card-meta"><span><i class="dot" style="background:#3572A5"></i>Python</span><span>★ 3</span></div>
+          </a>
+          <a class="card" data-group="ai" href="https://github.com/TommyDucx/wildlife_federated" target="_blank" rel="noreferrer">
+            <div class="card-top"><span class="card-name">wildlife_federated</span>
+              <svg class="card-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+            </div>
+            <p class="card-desc">基于 LLM 与联邦多模态学习的自循环野生动物识别框架，让模型在数据不出域的前提下持续进化。</p>
+            <div class="card-meta"><span><i class="dot" style="background:#3572A5"></i>Python</span><span>★ 2</span></div>
+          </a>
+          <a class="card" data-group="ai" href="https://github.com/TommyDucx/PFLlib" target="_blank" rel="noreferrer">
+            <div class="card-top"><span class="card-name">PFLlib</span>
+              <svg class="card-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+            </div>
+            <p class="card-desc">联邦学习算法实验库：两小时内跑通主流个性化联邦学习算法，作为学习与复现的底座。<span class="fork-tag">Fork</span></p>
+            <div class="card-meta"><span><i class="dot" style="background:#8e8e93"></i>Federated Learning</span><span>★ 1</span></div>
+          </a>
+          <a class="card" data-group="ai" href="https://github.com/TommyDucx/TAAC2026" target="_blank" rel="noreferrer">
+            <div class="card-top"><span class="card-name">TAAC2026</span>
+              <svg class="card-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+            </div>
+            <p class="card-desc">广告算法大赛方案：初赛 top1、复赛 top17，最终获得统一模块创新奖。<span class="fork-tag">Fork</span></p>
+            <div class="card-meta"><span><i class="dot" style="background:#3572A5"></i>Python</span><span>★ 2</span></div>
+          </a>
+          <a class="card" data-group="tools" href="https://github.com/TommyDucx/GoEye" target="_blank" rel="noreferrer">
+            <div class="card-top"><span class="card-name">GoEye</span>
+              <svg class="card-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+            </div>
+            <p class="card-desc">macOS 上的实时屏幕围棋棋盘识别 + 引擎着法分析，看棋、复盘两不误。</p>
+            <div class="card-meta"><span><i class="dot" style="background:#3572A5"></i>Python</span><span>★ 2</span></div>
+          </a>
+          <a class="card" data-group="tools" href="https://github.com/TommyDucx/star-ai-board" target="_blank" rel="noreferrer">
+            <div class="card-top"><span class="card-name">star-ai-board</span>
+              <svg class="card-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+            </div>
+            <p class="card-desc">围棋（KataGo）与国际象棋（Stockfish）的 AI 下一步推荐系统。</p>
+            <div class="card-meta"><span><i class="dot" style="background:#f1e05a"></i>JavaScript</span><span>★ 1</span></div>
+          </a>
+          <a class="card" data-group="tools" href="https://github.com/TommyDucx/automatic-downloading-music" target="_blank" rel="noreferrer">
+            <div class="card-top"><span class="card-name">automatic-downloading-music</span>
+              <svg class="card-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+            </div>
+            <p class="card-desc">批量下载高品质 FLAC 音乐，自动内嵌完整元数据与歌词（多音源），并附带 skill 工作流。</p>
+            <div class="card-meta"><span><i class="dot" style="background:#f1e05a"></i>JavaScript</span><span>★ 1</span></div>
+          </a>
+          <a class="card" data-group="tools" href="https://github.com/TommyDucx/agent-skills" target="_blank" rel="noreferrer">
+            <div class="card-top"><span class="card-name">agent-skills</span>
+              <svg class="card-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+            </div>
+            <p class="card-desc">本机全部 AI Agent 技能汇总（WorkBuddy 41 + Codex 18 + Codex 系统 6），含全量索引与同步脚本。</p>
+            <div class="card-meta"><span><i class="dot" style="background:#3178c6"></i>TypeScript</span><span>★ 0</span></div>
+          </a>
+          <a class="card" data-group="notes" href="https://github.com/TommyDucx/Terminology-Notes" target="_blank" rel="noreferrer">
+            <div class="card-top"><span class="card-name">Terminology-Notes</span>
+              <svg class="card-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+            </div>
+            <p class="card-desc">高中跨学科专业术语积累：格物致知、破窗效应、认知失调、议程设置……把模糊的概念一个个讲清楚。</p>
+            <div class="card-meta"><span><i class="dot" style="background:#8e8e93"></i>Notes</span><span>★ 3</span></div>
+          </a>
+          <a class="card" data-group="notes" href="https://github.com/TommyDucx/TommyDucx" target="_blank" rel="noreferrer">
+            <div class="card-top"><span class="card-name">TommyDucx</span>
+              <svg class="card-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+            </div>
+            <p class="card-desc">GitHub 个人简介仓库：研究与项目展示，也是这个主页的源头。</p>
+            <div class="card-meta"><span><i class="dot" style="background:#e34c26"></i>HTML</span><span>★ 2</span></div>
+          </a>
+        </div>
+        <div class="rail-foot">
+          <span class="rail-hint">// 拖动或横向滚动浏览</span>
+          <div class="rail-btns">
+            <button id="rail-prev" aria-label="向左滚动">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5.5 8.5 12l6.5 6.5"/></svg>
+            </button>
+            <button id="rail-next" aria-label="向右滚动">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5.5 15.5 12 9 18.5"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · MUSIC -->
+  <section class="panel music" id="music" data-fx="music">
+    <div class="bg bg-music" id="bg-music" aria-hidden="true"></div>
+    <div class="bg" aria-hidden="true"><i class="ring"></i><i class="ring r2"></i></div>
+    <div class="p-inner">
+      <header class="p-head">
+        <p class="p-index anim">// 02 — Music · Logic Pro · 制作中</p>
+        <h2 class="p-title anim" style="--d:.06s">
+          <span class="zh">音乐</span>
+          <span class="en">Music</span>
+        </h2>
+        <p class="p-desc anim" style="--d:.14s">
+          正在用 Logic Pro 学习编曲与声音设计。还没有成型的作品，
+          下面是把想法变成声音的实验档案——它们会随着作品完成持续更新。
+        </p>
+      </header>
+      <div class="music-grid">
+        <div class="player glass anim" id="player" style="--d:.2s" hidden>
+          <div class="player-row">
+            <button class="play-btn" id="play-btn" aria-label="播放">
+              <svg id="icon-play" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.6c0-1.2 1.3-1.9 2.3-1.3l9.2 5.9c1 .6 1 2 0 2.6l-9.2 5.9c-1 .6-2.3-.1-2.3-1.3V5.6z"/></svg>
+              <svg id="icon-pause" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="6.5" y="5" width="3.6" height="14" rx="1.4"/><rect x="13.9" y="5" width="3.6" height="14" rx="1.4"/></svg>
+            </button>
+            <div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="player-main">
+              <div class="player-title"><b>Rainy Night in F Minor<em>demo</em></b><span id="player-time">0:00 / 0:00</span></div>
+              <div class="track" id="track" role="slider" aria-label="播放进度" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0">
+                <div class="track-fill" id="track-fill"></div>
+                <div class="track-knob" id="track-knob"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="exp-list glass anim" style="--d:.28s">
+          <li>
+            <span class="exp-num">01</span>
+            <div>
+              <h3>AI 音乐生成测试</h3>
+              <p>本地 CPU 运行 facebook/musicgen-small，用 jazzy hip-hop、lofi、Rhodes 电钢、88 BPM 的提示词生成约 20 秒纯音乐。</p>
+              <div class="exp-tags"><span>MusicGen</span><span>Lo-fi</span><span>88 BPM</span></div>
+            </div>
+          </li>
+          <li>
+            <span class="exp-num">02</span>
+            <div>
+              <h3>Rainy Night in F Minor</h3>
+              <p>用 ABC 记谱写下主题旋律，再以 FM 合成渲染成音频：F 小调、82 BPM。目前唯一一段可以听的 demo。</p>
+              <div class="exp-tags"><span>ABC Notation</span><span>FM 合成</span><span>F minor</span></div>
+            </div>
+          </li>
+          <li>
+            <span class="exp-num">03</span>
+            <div>
+              <h3>Nujabes 风格 Beat Lab</h3>
+              <p>88 BPM、带 swing 的鼓组与分轨编曲，用 Pedalboard 效果链做 lo-fi 母带处理，向喜欢的制作人靠近一步。</p>
+              <div class="exp-tags"><span>Stem 编曲</span><span>Pedalboard</span><span>Dusty Master</span></div>
+            </div>
+          </li>
+        </ol>
+      </div>
+      <p class="music-note anim" style="--d:.34s">后续计划：在 Logic Pro 中完成第一首完整作品，并把成品与制作笔记更新到这里。</p>
+    </div>
+  </section>
+
+  <!-- 03 · LITERATURE -->
+  <section class="panel lit" id="literature" data-fx="lit">
+    <div class="bg bg-lit" aria-hidden="true"><i class="vign"></i><i class="frame"></i></div>
+    <div class="p-inner">
+      <header class="p-head">
+        <p class="p-index anim">// 03 — Literature · 手稿与同窗</p>
+        <h2 class="p-title anim" style="--d:.06s">
+          <span class="zh">文学</span>
+          <span class="en">Literature</span>
+        </h2>
+        <p class="p-desc anim" style="--d:.14s">
+          我发表了两篇作品《巴赫旧约》与《茉莉雨》；另外两篇是我很赞赏的同窗之作——
+          《薄荷雨》与《悬置的黄昏》，经作者同意一并放在这里。
+        </p>
+      </header>
+      <div class="lit-wrap">
+        <article class="lit-card">
+          <div class="lit-tags"><span class="lit-tag own">原创 · 已发表</span><span class="lit-tag">散文</span></div>
+          <h3>巴赫旧约<em>Bach</em></h3>
+          <p class="lit-author">杜承轩</p>
+          <p class="lit-excerpt">河谷吹来的风裹着赫瑟尔河的潮气，钻过克滕宫居室的木窗，拂过摊开在案上的羊皮纸。巴赫垂首坐着，鹅毛笔悬在纸面上方，迟迟没有落下。那些被硬生生按住的眼泪，不曾划过面颊，不曾打湿稿纸，却向内浸透了他全部的乐思。</p>
+          <div class="lit-foot">
+            <button class="read-btn" data-open="bach">阅读全文
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5 18.5 12 13 17.5"/></svg>
+            </button>
+            <span class="lit-len">2,000 字</span>
+          </div>
+        </article>
+        <article class="lit-card">
+          <div class="lit-tags"><span class="lit-tag own">原创 · 已发表</span><span class="lit-tag">科幻</span></div>
+          <h3>茉莉雨<em>Jasmine</em></h3>
+          <p class="lit-author">杜承轩</p>
+          <p class="lit-excerpt">今天下雨。她在地下八千米处，借我的眼睛看了十分钟。在这个什么都能明码标价的时代，记忆本就是最廉价的耗材。只是我没想到，有一天我会愿意，把所有和茉莉雨有关的碎片，都换给八千米底下的一个人。</p>
+          <div class="lit-foot">
+            <button class="read-btn" data-open="jasmine">阅读全文
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5 18.5 12 13 17.5"/></svg>
+            </button>
+            <span class="lit-len">3,000 字</span>
+          </div>
+        </article>
+        <article class="lit-card">
+          <div class="lit-tags"><span class="lit-tag">推荐阅读</span><span class="lit-tag">小说</span></div>
+          <h3>薄荷雨<em>Mint Rain</em></h3>
+          <p class="lit-author">李巧姿</p>
+          <p class="lit-excerpt">“曾经沧海难为水，除却巫山不是云。”我没有见过沧海，也没有见过巫山的云，我只见过他。可就那一眼，就成了执念。她的喜欢只属于那年春天，青春总是喜欢烂尾在雨季。</p>
+          <div class="lit-foot">
+            <button class="read-btn" data-open="mint">阅读全文
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5 18.5 12 13 17.5"/></svg>
+            </button>
+            <span class="lit-len">4,000 字</span>
+          </div>
+        </article>
+        <article class="lit-card">
+          <div class="lit-tags"><span class="lit-tag">推荐阅读</span><span class="lit-tag">散文</span></div>
+          <h3>悬置的黄昏<em>Dusk</em></h3>
+          <p class="lit-author">李巧姿</p>
+          <p class="lit-excerpt">这是一种难以名状的倦怠，如梅雨时节黏稠的空气，无声地浸润着存在的每一道缝隙。岁月是生命投掷出的硬币，而那悬置的、不断旋转的第三面，才是我们真正的栖身之所。</p>
+          <div class="lit-foot">
+            <button class="read-btn" data-open="dusk">阅读全文
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5 18.5 12 13 17.5"/></svg>
+            </button>
+            <span class="lit-len">2,000 字</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · CONTACT -->
+  <section class="panel end" id="contact" data-fx="end">
+    <div class="p-inner end-inner">
+      <p class="p-index anim">// 04 — Transmission</p>
+      <h2 class="end-title">
+        <span class="zh">保持联系</span>
+        <span class="en">Let's build something.</span>
+      </h2>
+      <p class="p-desc anim" style="--d:.2s">
+        如果你想交流项目、音乐或文字，欢迎来 GitHub 找我。
+        做小实验，提出更好的问题，把学到的东西讲清楚。
+      </p>
+      <div class="end-actions anim" style="--d:.3s">
+        <a class="btn-neon" href="https://github.com/TommyDucx" target="_blank" rel="noreferrer">GitHub @TommyDucx</a>
+        <a class="btn-ghost" href="#hero">回到顶部</a>
+      </div>
+      <footer class="foot anim" style="--d:.4s">
+        <span>© 2026 杜承轩 Chengxuan Du · 用 Logic Pro、Python 和一点点文字记录世界。</span>
+        <span class="sig">// END OF TRANSMISSION</span>
+      </footer>
+    </div>
+  </section>
+</main>
+
+<div class="sheet-layer" id="sheet-layer" hidden>
+  <div class="sheet-scrim" id="sheet-scrim" data-close></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1">
+    <div class="sheet-grab" id="sheet-grab" aria-hidden="true"></div>
+    <header class="sheet-head">
+      <div>
+        <h2 id="sheet-title"></h2>
+        <p class="sheet-meta" id="sheet-meta"></p>
+      </div>
+      <button class="sheet-close" id="sheet-close" data-close aria-label="关闭">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </header>
+    <div class="sheet-body" id="sheet-body"></div>
+  </div>
+</div>
+
+<script type="text/plain" id="text-bach">
+Jesus Juva — Soli Deo Gloria.
+
+河谷吹来的风裹着赫瑟尔河的潮气，钻过克滕宫居室的木窗，拂过摊开在案上的羊皮纸。巴赫垂首坐着，鹅毛笔悬在纸面上方，迟迟没有落下。案角摊开一卷磨损的旧约，纸页边缘被反复摩挲得发软。阴影之中，大键琴静默伫立，薄尘覆在琴键。魏玛宫廷石廊浸满月色的寒寂，大公施加的禁锢与屈辱，那些压在骨血里的过往，正一层层在他心间翻涌。
+
+胸腔里坠着两块沉甸甸的重负，一块来自命运无情的剥夺，一块来自凡尘生计的磋磨。自玛丽亚·芭芭拉骤然离世那日起，丧妻的哀恸便沉埋心底。那次随亲王远行归来，迎向他的只有一座空荡荡的屋宇，连最后一面都无缘得见。身为宫廷乐长，职责束缚着他，排练不能搁置，誊稿不得延误，孩童尚待抚育，世俗的重轭压在肩头，他不被允许肆意恸哭。悲伤无处向外倾泻，只往眼底汇聚，凝成一层薄薄的湿膜。泪水悬在眼睑内侧，没有滚落，只模糊了烛火摇晃的光晕。指尖轻触眼角，便能触到那一层隐忍积攒起来的潮润，他只能够悄悄拭去，绝不让半点水渍玷污谱稿，也绝不打湿手边的旧约圣经。
+
+不久之前，他将数首耗费无数晨昏打磨的管弦乐编纂成套，恭谨地呈献给勃兰登堡侯爵。他倾尽技艺，将心中的乐思尽数封存在手稿之中，盼这份心血能够被看见，也盼望借此为一家人谋求一份更为安稳的生计。可这份寄托了期许的稿本，转眼便被丢进藏书室，堆叠在无人翻阅的典籍之间，得不到一次演奏的机会。现实的冷水浇灭心底微弱的希冀，谋生的惶惑又一次卷上来。他翻开旧约，目光掠过那些古老的誓约，经文写尽苦难与等候，写尽世人在尘世的颠沛。可神圣的字句，也消弭不了现世的窘迫。眼底那层不肯坠落的泪意，又悄悄漫了上来，这是属于谋生者心酸的潮润，混着丧亲的哀戚，一并锁在眼眶之内。
+
+窗外的克滕宫庭园安谧寂静。安哈尔特克滕亲王偏爱器乐，给过他可以自由驰骋乐思的时光，可再优厚的礼遇，也终究是寄人篱下。往日屋里回荡的笑语、孩童追逐的脚步声，都已经消散殆尽。他深谙复调的奥秘，懂得如何让主题与对题相互应答缠绕，织就严密华丽的声部，可再精巧的对位，也唤不回已经离去的人，更无法凭音符换得俗世里一份安稳无忧的生活。
+
+思绪飘回年少的爱森纳赫。那时他常在赫瑟尔河畔漫步，流水叮咚，无数细碎的旋律随水波在脑海里浮沉。少年的他诵读旧约，相信上帝会眷顾虔诚之人，尚不知前路辗转流离的苦楚，预料不到魏玛宫墙内身不由己的困顿，预料不到呕心沥血的卷册会被漠然搁置，一腔才学要不断向世俗权贵折腰，只为换取家人的衣食温饱。
+
+此刻他本应当落笔，将脑中盘旋的动机化为音符，可最先涌上来的，是化不开的哀戚。他的意识已经望见遥远的将来：日后落脚莱比锡，履职于圣托马斯教堂，置身高耸的哥特拱顶之下，巨型管风琴轰鸣震荡殿堂，彩绘花窗漏下破碎斑斓的光。礼拜的信众埋首祷告，诵读圣经的篇章，只听见乐声宏大庄严，没有人能辨出，声响缝隙里，埋藏着怎样一份无处流淌的泪。乐声撞击梁柱，最后消散在空旷穹顶，所有隐忍，终究归于无人知晓。
+
+烛火摇曳，滚烫的烛油顺着烛台缓缓垂落，凝固成扭曲的纹路，像乐曲里尚未书写的休止符。那股积攒在眼底的潮湿，始终不肯化作泪珠砸在纸上。若是泪水晕开羊皮纸上的符号，连这唯一可以向上帝祷告、寄存心事的载体，都将被损毁。于是他把全部欲落未落的泪，全部预留给即将诞生的乐曲。他在手稿的角落，习惯写下“荣耀归于上帝”，把所有苦难交付于信仰，可肉身的酸涩依旧真实地啃噬着他。
+
+他在心中描摹乐曲的轮廓。魏玛宫廷的月色，是清冷克制的咏叹序奏；声部层层叠叠生长开来，外表繁复盛大，底色却是化不开的孤凉。乐句反复回旋、折返，如同人一遍遍回望已经消逝的过往，伸手去抓，只握得满手虚空。下行的旋律缓缓沉降，那便是眼泪本该坠落的轨迹，只是在现实之中，它被硬生生困在了眼眶。旧约记载过无数凡人的苦难与等候，那些订立又破碎的盟约，恰如凡人世间的际遇，虔诚并不代表现世可以免于颠簸。
+
+他比谁都清楚音乐的魔力，音符可以描摹世间万般情绪，向上帝传递内心的祷告，却终究无法追回逝去的朝夕，也难以抹平人间生存的窘迫。神圣的誓约尚且要经受命运试炼，何况凡人世俗的期盼。真正的泪水被现实囚禁，便只好寻找另一条出路，寄居在旋律的褶皱之间。
+
+遥远的赫瑟尔河的水汽依旧随风漫入房间，仿佛整条河谷的怅惘都奔赴到此。眼底的潮意愈发浓重，他不再抬手擦拭。那些被硬生生按住的眼泪，不曾划过面颊，不曾打湿稿纸，却向内浸透了他全部的乐思。丧亲的怀念、求而不得的委屈、为生计奔波的不甘、虔诚信仰之下仍要承受的世间苦楚，全部消解成无形的湿意，渗入每一个动机，每一次模进，每一处静默的休止。
+
+眼泪不必跌落，却可以活在音乐里。它藏进旋律向下沉坠的线条，藏在声部彼此应答之后留下的空寂，藏在每一段隐忍、克制、欲言又止的咏叹之中。如同旧约里那些沉默受难的人，把悲苦交付给信仰，把无声的泪交付给音符。
+
+Quod cor tacitum fert, musica cantat.
+
+巴赫深深吸入一口微凉的空气，目光短暂落回案边那卷旧约，而后握紧手中的鹅毛笔。眼底盛着一汪始终没有坠落的悲伤，笔尖，终于轻轻触碰上羊皮纸。
+
+Ex dolore musica, ex musica gloria.
+</script>
+<script type="text/plain" id="text-jasmine">
+今天下雨。她在地下八千米处，借我的眼睛看了十分钟。
+
+雨丝裹着终年不散的薄尘，斜斜扫过钢化玻璃，洇开一圈圈灰蒙蒙的水痕。我站在通风廊的转角，后颈爬过熟悉的微麻——视线像被一股软力托起来，飘过高楼的檐角，穿过沉降的尘雾，一路沉下去，沉进八千米深的岩层里。
+
+等麻意退去时，雨还在下。我抬手抹了下脸颊，指尖沾着湿凉。心里又空了一小块。我总觉得这场雨该有股味道。淡的，清的，裹着点甜的香气。可我搜遍了脑子，也抓不住那香气的影子，更想不起是哪年哪月，我曾闻过这样一场雨。
+
+这是我们共享的第三年。
+
+起初只是平台上随机匹配的交易。我点进“地底视角”的链接，接通瞬间，无边的潮湿裹着泥土的气息涌过来，无数细密的根须在黑暗里缓缓舒展，像大地在轻轻呼吸。她没说话，我也没说话。十分钟后链路自动断开，像什么都没发生过。
+
+后来就成了习惯。每天黄昏十分钟，我把眼睛借给她看地表，她带我摸地底的根。
+
+我让她看晚霞把灰天浸成暖橘，看巷口的三花猫蜷在檐下甩尾巴，看风卷着碎叶在路边打旋，看雨珠顺着玻璃纹路往下滑，“啪”地碎在窗沿上。下雨的时候我总睁得格外久一点，隐约想把雨里那点淡得几乎不存在的甜香也送下去。这些地表最不值钱的琐碎，是她暗无天日的岁月里，唯一的光。
+
+她带我触老树根皲裂的表皮，感受新芽顶开硬土的软，听地下水顺着根脉慢慢渗，沙沙的，像谁在耳边翻旧书。那些盘绕的根须像无数只手，攥住松动的岩层，滤着污浊的水，托着整座城市的重量。我隔着八千米岩层，碰得到她日复一日的安静。
+
+最先模糊的就是那股香气。某个雨天我盯着窗沿的水珠发呆，脑子里忽然闪过一片碎白——是花，落在雨里。我记起小时候老院墙角有株茉莉，每到花季遇雨，花瓣就簌簌铺在青石板上，浸在浅水里，甜香混着潮气漫开，老人都叫它茉莉雨。可再仔细想，花瓣的形状、香气的浓淡，却都已经糊成了一团。
+
+那是我第一次清晰地察觉到：有什么东西，正在从我脑子里悄悄溜走。是从某个雨天开始的。我站在廊口等她接通，看着雨往下落，忽然就愣了神——我好像忘了，以前的雨是什么样子。小时候也下过这样的雨吗？母亲有没有撑着伞接我放学？我有没有踩过积水的水洼，溅得裤脚全是泥？我努力想，脑子里却只有一片模糊的白。雨的触感还在，凉的，湿的，可关于雨的从前，像被谁悄悄擦掉了。
+
+后来忘的东西越来越多。我忘了第一次看海是几岁，忘了海风咸不咸；忘了中学毕业那天的天气，忘了同桌的名字；甚至有天早上醒来，我盯着镜子看了半天，想不起自己左眼下方那颗小痣，是什么时候长出来的。
+
+记忆像被雨水慢慢泡软的纸，字迹一天比一天淡。我以为是自己记性差。这城市里的人都这样，每天接收到的信息太多，忘点旧事实在太正常了。直到有一次共享结束，系统弹了条极淡的灰色提示，快得像错觉：
+
+「本次共享已完成。您的对应情景记忆已同步移除。」
+
+我盯着那行字消失的地方，站了很久。雨还在窗外下着，沙沙地打在玻璃上。我忽然就懂了——那些凭空消失的过往，不是我记不住，是被拿走了。一分钟感官，换一分钟记忆。原来这世上从来没有白看的风景。
+
+而我最先典当出去的，就是那场埋在童年深处的茉莉雨。
+
+我没告诉她。第二天黄昏，我还是准时站在了廊口。雨丝飘过来，沾在脸上，凉丝丝的。我用力睁大眼睛，想把雨里仅剩的那点茉莉残香，都顺着视线送下去，送到八千米的黑暗里。
+
+在这个什么都能明码标价的时代，记忆本就是最廉价的耗材。有人用童年换一场极光，有人用初恋换一次山顶日出，大家都觉得划算——过去的事，哪有眼前的真切重要。只是我没想到，有一天我会愿意，把所有和茉莉雨有关的碎片，都换给八千米底下的一个人。
+
+岩层异动是后半夜来的。先是床沿微微发麻，接着是低沉的闷响，从很远的地底传上来。天没亮新闻就播了，语气平稳得像念一份耗材清单：青山工程根系多处断裂，为保障城区安全，启动意识融合预案，驻站人员全员接入主根网络。没有告别仪式，没有额外补偿。
+
+那天黄昏她没有等我连接。她发来了通讯请求，画面里的她工装沾着泥点，身后是忽明忽暗的应急灯，可她的眼睛很静，像早就料到了这一天。“我要进去了。”她声音很轻，混着岩层的闷响，“以后不用再借我眼睛了。留点记忆，给自己。”
+
+我喉咙发紧，半天只挤出一句：“最后一次。这次换我看你。”
+
+那是我们唯一一次颠倒的共享。我沉入她的世界，看见千万条根须在黑暗里缓缓搏动，像大地最后的心跳；看见岩缝里渗出水珠，清亮地打在嫩绿色的新芽上；看见她站在巨大的主根前，而头顶的通风口里，正有雨丝细细地、一缕一缕地落进来。
+
+忽然，一股淡得几乎抓不住的甜香，从视线的尽头漫过来。是茉莉。香味顺着共享的链路，飘到了八千米地底，轻轻落在了她面前。
+
+然后，链路断了。一切都空了。
+
+像一场大梦骤然醒转。我站在通风廊里，窗外雨还在下，可我什么都不记得了。忘了八千米的黑暗，忘了每天黄昏的十分钟，忘了有个人曾借我的眼睛看雨，忘了我曾把一整个夏天的茉莉香，都送进了地底。我甚至忘了，世界上曾经有过一种雨，叫茉莉雨。
+
+世界变得很轻，也很空。像被雨水洗干净的天，一望无垠，却什么都没剩下。
+
+很多年就这么过去了。毒尘散了，岩层稳了。城市里种满了树，街边也栽了茉莉。又一个傍晚，雨又落下来。我沿着街边走，经过一棵开得正盛的茉莉树，风卷着雨丝扑过来，裹着清甜的香气，砸在我脸上。
+
+我猛地停住了脚步。心口像被什么轻轻撞了一下，空落落的疼。雨珠砸在脚边的水洼里，漾开一圈又一圈细碎的涟漪。我想不起任何事，就只是觉得，这场雨，我好像欠谁的。又好像，我曾把很重要的什么东西，永远留在了这场雨里。
+
+这时城市的播报响了，温柔的女声穿过雨幕，漫过茉莉花香，轻轻落下来。“今日有雨。请记得抬头。”
+
+我抬起头。雨丝落在睫毛上，带着清甜的香。满目新绿，落英缤纷。
+
+可我永远不会知道，很多很多年前，有个人在八千米的地底，借着我的眼睛，也曾闻过一场这样的雨。而她从此化作了漫山的根须，永远留在了那场温柔的雨里。
+</script>
+<script type="text/plain" id="text-mint">
+“曾经沧海难为水，除却巫山不是云。”我没有见过沧海，也没有见过巫山的云，我只见过他。可就那一眼，就成了执念，困在每一个寻常的日子里，困在每一次的心跳里，困在所有我以为已经过去，却从未真正离开的瞬间里。
+
+亲爱的X：
+
+展信佳。
+
+我似乎不是在期待春天，而是盼望你。
+
+如果你还记得那个晚上，第一次与新同学同坐一间教室。至于具体做了什么，其实已经记不太清了。只记得教室里的灯光很白，白得晃眼，晃得人心里空落落的。轮流自我介绍的时候，你站起来说了几句话。大家都笑了，我也跟着笑了。那种笑很轻，像风吹过水面，起了一点涟漪，就是这样，仅此而已。
+
+再之后和朋友讨论新同学的时候，朋友轻描淡写地说了一个名字。
+
+是你的名字。
+
+“他这个人挺好的，很耐心，但是有点内向。”三个短句，是我对你的初步了解。
+
+回头看你。
+
+大家都在与旁边的人说笑，而你微低着头，一言不发。像一块石头，沉在喧哗的水底。后来每次回想起来，脑海中的画面都如此清晰——阳光打在你侧脸上，将五官映照出一点轮廓，而其余的都是阴影，宛若神明。
+
+那时对你的印象应该是薄荷雨，浅浅的湿冷感过后是初夏的薄荷曼波绿。殊不知你只是我走马观花路过的遗憾人间，恍若车窗外一闪而过的阑珊灯火，或是一簇模糊树影。
+
+只是我始终不愿意承认，那一刻起，我的世界开始与众不同。眼中四周的面孔在视网膜上的成像都开始变得虚化模糊，唯独剩下你是清晰的。若是没有你，这过眼的春色，都悉数泛了黄。
+
+那天回家后我加了你的好友，于是开启了我们的对话。屏幕上的内容很快证实了朋友的话，却让所有伪装的、躲藏的、假装不在意的情绪，都无所遁形。之后我一直在试着了解你。从别人口中得知你的兴趣爱好，你平时做的事情，你爱看的小说，你常听的歌。从微信运动的步数里推测你今天是否忙碌；收藏你点赞的每一首歌，在每个夜晚循环播放；看视频号里你推荐的视频，一遍又一遍。也曾虚构着半真半假的幸福。为了找你说几句无关痛痒的话煞费苦心，用尽借口。不过你不知道的是，看似热情自在的屏幕背后，是我思来想去只敲出无聊的话题和迟迟不敢点击发送却颤抖着的手。我无法丈量我于你而言的重要程度，所以像个无药可救的痴情者，久久不从泥潭里爬出来，甚至开始习惯。
+
+除夕那天把给你的跨年信息编辑了无数次，你的一句谢谢让我开心了好久。我怕这是一个短暂的白日梦，是一段注定擦肩的萍水相逢。我曾询问你怎样才能给你留下深刻的印象，你说可能不可控，是在不经意间。可是我不知道该抓住哪个瞬间，也不知道自己到底有没有给你留下深刻的印象，于是这些，我刻意为之。
+
+请允许我以这样的方式试图和你产生交集。
+
+那之后的第一周，又或许是每一周，我的视线都固定在了你身上。进出教室的时候看你，上课的时候看你，写作业的时候看你，甚至在全班因为某个点哄堂大笑的时候，早操和体育课下楼排队的时候，朋友来班上找我的时候，我的余光都在注意着你。我不喜欢坐在讲台上看晚自习，一直以来都是如此，但是这样可以更清楚地看到你，而不是模糊一瞥留下大致形象，所以我开始期待每周四的晚上。自习时未免会不经意抬头，可是只有你，连余光都没有分给我一点。你永远在我视线的一个角落里，不声不响，一动不动。由它碾碎我痛苦的臆想，逼我直视自己的拙劣与错误。
+
+看你的次数很多，应该说是无时无刻不，偶尔与你对视的机会也随之增加。明明是人声鼎沸的嘈杂，聒噪不安。但无论是心里再难安分，还是周遭喧闹频频，见你时总有沉沦下去般的寂静。只是每到这个时候，我总是会慌张移开视线，偷偷在日记本上一笔一划地记下这个幸运的瞬间。然后自卑于自己不够漂亮，不够明媚，否则我多想直视你的眼，透过层层宁静与清澈，看出我们对视的那0.8秒里，可曾有刹那一瞬间，你也为我心动几分，却故作平静，不肯承认。
+
+暗自掂量着所得与付出，却不敢赌，赌死灰复燃，予以我一抹火，烫穿这寒夜，哪只一秒。
+
+古人把心事托给鸿雁与明月，我藏进无声的代码和凌晨未发送的消息。那句始终没有落下的，是二十一世纪最温柔的辞文——比竹简上的情诗更含蓄，比电报里的暗语更滚烫。宿命说，有些花开不为结果，只为在最美的时刻被看见。
+
+你的名字撇捺对我而言，山遥水远。
+
+后来再有人向我提起你，我也只是静静听着，心里空荡荡的，像是破了个洞。有冰冷的风从洞里吹进来，让心上的每一处都泛起了剧烈的疼。
+
+我的思绪锈迹斑斑，只是你的瞳孔沉默无言。
+
+你是人间寻常客，略显愧怍，又跌撞漂泊。我也说不清楚，什么时候会被这样的你浸透。也不知道为什么你说过的这些话，做过的这些动作和表情，会在我的脑海中留下这么深的痕迹。
+
+或许是某一句话太过没头没尾，又或许是傍晚的风太过萧瑟。没有太多的因由与果。
+
+我其实也会无声地惋惜，为何苦苦追求的东西，总是与我失之交臂。于是，我时常毫无征兆地困在某一个特定的场景里，试图从中找到一个可以解释的理由，亦或是可以归咎的节点。到现在我都想不通，为什么只要有你在的地方，我的目光就永远会不听使唤。也想不通不听使唤的到底是我的目光，还是我的心。只可惜我在反复的推演与回溯中一无所获。只能靠回忆勉强拼凑出几分难以言喻的失落与意难平。你是我嵌在心里的残象，而我，至今为止仍探查不透。于是我也有过自我怀疑，审视自己是否真的付出过努力。我想，总该有个掷地有声的理由，来解释这一切。让我远离自我消耗与精神剥离，而不是在日复一日的臆想里，虚构着不同于现实的平行时空，臆想着圆满与成功的幻梦。
+
+我想，即使是越挫越勇的少年，内心也需要一个足以支撑的锚点，和持久燃烧的火焰。放下你这件事，我练习了无数遍，每一遍都像第一次。
+
+无论如何，年少时的泥泞都因你的来过而晴朗。
+
+所以，在我的执念里，你与春天无异。
+
+——第二十封情书
+
+人们都说养成一个习惯的周期是二十一天，可是她写给他的情书停在了第二十封。但她知道无论多少夜半写得不忍的信纸，他都从来不可能会看。
+
+“所以，在我的执念里，你与春天无异。”她不知道，执念只会徒增回忆的痛苦，而遗忘才是深层次的救赎。
+
+她渐渐意识到了自己喜欢的只是想象出来的他，只是加上厚重滤镜的他，而不是现实里的他。她以往一直是沉浸在自己的幻想之中，只是浅浅一瞥留下淡淡的颜音然后匆匆掠过，从来没有认真打量过。旁人说她已经沦陷得无药可救了，他的冷漠也早已让她不再想入非非，那些看似不经意实际敷衍的话语早已将她敏感脆弱的心扎得千疮百孔。她再也找不到借口去了了解他、关注他。所以她这次选择看清他，然后放下他。无论爬出泥潭有多艰难。她再也不想等自己的灵魂与他的影子接轨了。
+
+如果说泪是一场连绵的雨季，那么滑过眼角那颗痣的时候，她想，他已经读懂了她的隐喻。或许下次春寒料峭之时，她会鼓起勇气，把所有生斑发霉的回忆交予命运回收。
+
+“爱你，不仅局限于春天。”
+
+可是春天早就过去了。
+
+胆小鬼的爱是雨季里的半熟青梅，酸苦包裹着涩意，灼热却被风吹散。磕绊得像淤血的青绿，来得悄无声息，毫无里头。
+
+后来有一天，她做了一个梦。
+
+梦里不是学校。而是一个她从没去过的地方，却又似乎很熟悉。那是一条很长的巷子，两边老房子的墙上爬满了青苔。下雨了，雨不大，细细的，混杂着大大小小的花瓣飘落，落在青石板上，声音很轻。
+
+他站在巷子那头，撑着伞。穿着校服，袖子略微挽起来，露出半截稍显青筋的手臂。他的头发比现在短，被雨打湿了一点，贴在脸颊上。
+
+她想走过去，但腿抬不起来。她想喊他，但发不出声音。他就那么站着，看着她。巷子很长，雨一直在下。
+
+青苔的味道飘过来，潮湿的，涩的，又有一点绿意。
+
+她想，这大概就是薄荷雨。
+
+然后她转身走了。伞沿甩出一串水珠，落在地上，碎了。
+
+巷子空了。
+
+醒过来的时候，枕头湿了一块。可能是汗，又或许是别的什么。
+
+那天上午上课，他坐在她后面两排。她回头拿书，看见他的眼睛，愣了一下。她把书抽出来，发现里面夹着几片花瓣。不知道什么时候夹进去的。
+
+她看着那片花瓣，看了很久。它们已经干了，一碰就碎了。
+
+她想起那个梦。巷子里的雨。她转身的背影。水珠碎在地上。还有那个味道——薄荷雨的味道。
+
+她想告诉他这个梦。想说那条巷子，想说花瓣，想说雨。想说在那个梦里，他穿着校服，袖子略微挽起来，露出半截稍显青筋的手臂。想说他看着她的时候，眼睛里有光。
+
+但她说不出口。
+
+因为那个梦里，他看的不是她。他看的是巷子那头，另一个方向。她只是站在雨里，看着他看别人。
+
+她把那片碎掉的花瓣重新夹进书里。
+
+同一场雨隔了两个世界，雨停后走进不同的晴天。
+
+后来她再也没有翻到那一页。不知道那片花瓣还在不在。
+
+大概不在了吧。
+
+她的喜欢只属于那年春天，青春总是喜欢烂尾在雨季。
+
+那天晚上她做了一个梦。梦里有条长巷，有雨，有花瓣。她站在巷子这头，看着一个背影慢慢走远。她知道那是谁。她想喊，喊不出声。她想追，迈不动腿。
+
+然后她醒了。
+
+窗外有风。2033年的风。
+</script>
+<script type="text/plain" id="text-dusk">
+这是一种难以名状的倦怠，如梅雨时节黏稠的空气，无声地浸润着存在的每一道缝隙。灵魂仿佛一张被反复揉搓的宣纸，纵使竭力抚平，那些细密的褶皱里仍沉淀着时光的碎屑，映不出完整的光影。
+
+记忆总在不经意间突袭。那个午后，红与蓝的玻璃将光线切割得支离破碎，斑驳地投射在地板与墙壁上，也涂抹在他的面容，将轮廓模糊成濒临解体的形状。他静坐如雕塑，姿态与椅子融为一体——椅腿是他的延伸，椅背是他的脊梁，仿佛某种共生体，抑或是在这霉变的房间里最先凝固的部分。
+
+静默在此处拥有了质量与湿度，包裹着两个遥相对望的个体。
+
+我透过这滞重的空气凝视他，如同隔着一层梦境的水膜。失重感自后脑蔓延，躯体在下沉，双足却轻盈欲飞。这感觉牵引着我，并非坠向深渊，而是滑入某个似曾相识却未曾真正抵达的领域——一个精心伪装的陷阱，一段未被揭穿的虚言，一截细节模糊的往事。
+
+他的面颊残留着水痕，或许是泪，又或许只是情绪洒出的潮气。毕竟，那双眼睛里从未袒露过可被称之为“真挚”的内核。他的感恩与他的暴虐，他的反思与他的背叛，竟出自同一种淡漠的神情。这种神情让我恍然，因它竟镜像着某个遥远午后，我自己的面孔。
+
+不知从何时起，我们丧失了剧烈悲恸的能力。没有锥心刺骨的痛楚，没有至死方休的纠缠。然而最终，我们之间只剩下这压抑的、似是而非的对峙。
+
+那并非我，却又像极了我。
+
+那凝视如同一只柔软的手掌，轻触面颊，不痛，却在皮肤之下烙印下向内渗透的、微妙的耻感与哀愁。
+
+胸腔滞闷，仿佛肋骨间嵌入了异物——一张从未显影的底片，边缘泛着浑浊，或是一张永难复原的纸屑。
+
+日常的郁结在键盘的敲击中堆积。穿过无人的街巷，坐在你的后座，风掠过时，万物仿佛随之消散。城市的路灯依次亮起，那些关于居住地与食物的琐碎对话已然模糊，唯有“与你同行”的确认，以及那些简短的应允，沉淀下来。
+
+入心之人，存在本身便构成一种恒久的奢念。风不可见，如同某些情感的不可见，但颤动的树梢，以及我在窗前独自守候的整个长夜，都是其存在的坐标。
+
+这个世界固执地以二元划分万物，用锈迹斑斑的轨迹界定“应然”的疆域。无边的暗色浸染成无形的围城，汹涌的暗流吞噬着年少时的星火，将未来的锐气沉埋于寂静的深洋。
+
+我近乎执拗地栖身于这苦楚之中，仿佛远离它，便远离了某种真实。在这无垠的虚空里，我依然垂首。
+
+即便将整个春天移植于我，我也开不出那朵被期待的花。
+
+我的生命或将崩裂，或将沉沦。航船急惶地漂泊，曾有的芬芳早已零落成泥。生命不过是一场温存的筵席，我在此处，与每一个逝去的春日作别，甘甜与悲伤交织成同一杯酒酿。我们错过了彼此的时间刻度。
+
+我将未寄出的信笺折成舟楫，任其去亲吻那些尚未枯萎的触碰，还有没有岸的港湾。泪水成为唯一的导航。
+
+我依然会喉间哽咽，将稀薄的情意误认为晨间的恩泽，以至于仓促地绽放，又仓促地凋零，辜负了四十八次升起的月轮。
+
+此刻，未来如同一幅待描的线稿。成绩单上起伏的数字，如同心绪在希望与叹息间摆荡。或许命运的草蛇灰线，早已悄然埋下。几岁的迷惘与十几岁的怅然，原来是同一条河流的上下游。
+
+我仍不愿轻易被命运规训。
+
+岁月是生命投掷出的硬币，而那悬置的、不断旋转的第三面，才是我们真正的栖身之所——非喜，非悲，而是所有可能与所有不可能同时鸣响的瞬间，所有获得与所有丧失彼此抵消的平衡点，所有炽热与所有冰冷相互渗透的永恒悬宕。
+
+存在的本质或许正在于此：不容宏旨，却自有其幽微的回响。如同那枚永远旋转的硬币，我们既期盼它落定的瞬间，又恐惧那落定后的寂然。
+
+在这漫长的悬置中，与自我疑惧共存，允许情绪如季风般降临，在楚河汉界的规则之外，杀出一条通往宿命荒野的路径。
+
+让蛰伏的翼渐次锋利，以不绝的意念撞击世界的壁垒，撬动那第三种可能。
+
+在或许永不相遇的未来降临之前，唯愿平安。
+</script>
+
+<script>
+(function(){
+  "use strict";
+
+  var reduceMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var $=function(s,c){return (c||document).querySelector(s)};
+  var $$=function(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s))};
+
+  /* ---------- spring ---------- */
+  function spring(opts){
+    var from=opts.from||0,to=opts.to==null?1:opts.to,v=opts.v||0;
+    var damping=opts.damping==null?1:opts.damping,response=opts.response||.35;
+    var onUpdate=opts.onUpdate||function(){},onDone=opts.onDone;
+    var w0=2*Math.PI/response,x=from,vel=v,last=performance.now(),raf=0,stopped=false;
+    function step(now){
+      if(stopped)return;
+      var dt=Math.min((now-last)/1000,1/30);last=now;
+      var a=-w0*w0*(x-to)-2*damping*w0*vel;
+      vel+=a*dt;x+=vel*dt;
+      onUpdate(x,vel);
+      if(Math.abs(x-to)<.0006&&Math.abs(vel)<.006){onUpdate(to,0);if(onDone)onDone();return;}
+      raf=requestAnimationFrame(step);
+    }
+    raf=requestAnimationFrame(step);
+    return {stop:function(){stopped=true;cancelAnimationFrame(raf)},value:function(){return x},velocity:function(){return vel}};
+  }
+
+  /* ---------- glass spotlight ---------- */
+  var spotPending=false,spotEvent=null;
+  document.addEventListener("pointermove",function(e){
+    spotEvent=e;
+    if(spotPending)return;
+    spotPending=true;
+    requestAnimationFrame(function(){
+      spotPending=false;
+      var e=spotEvent;
+      var g=e.target&&e.target.closest?e.target.closest(".glass"):null;
+      if(!g)return;
+      var r=g.getBoundingClientRect();
+      g.style.setProperty("--mx",(e.clientX-r.left)+"px");
+      g.style.setProperty("--my",(e.clientY-r.top)+"px");
+    });
+  },{passive:true});
+
+  /* ---------- panels ---------- */
+  var panels=$$(".panel");
+  var panelIds=panels.map(function(p){return p.id});
+  var navLinks=$$(".nav-links a"),dots=$$(".dots button");
+  var progress=$("#progress");
+
+  function setActive(id){
+    navLinks.forEach(function(a){a.classList.toggle("active",a.getAttribute("href")==="#"+id)});
+    dots.forEach(function(d){d.classList.toggle("active",d.getAttribute("data-go")===id)});
+  }
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      en.target.classList.toggle("on",en.isIntersecting);
+      if(en.isIntersecting)setActive(en.target.id);
+    });
+  },{rootMargin:"-42% 0px -42% 0px",threshold:0});
+  panels.forEach(function(p){io.observe(p)});
+
+  function goTo(id){
+    var el=document.getElementById(id);
+    if(el)el.scrollIntoView({behavior:reduceMotion?"auto":"smooth",block:"start"});
+  }
+  dots.forEach(function(d){d.addEventListener("click",function(){goTo(d.getAttribute("data-go"))})});
+
+  addEventListener("scroll",function(){
+    var h=document.documentElement.scrollHeight-innerHeight;
+    var p=h>0?Math.min(scrollY/h,1):0;
+    if(progress)progress.style.width=(p*100)+"%";
+  },{passive:true});
+
+  /* keyboard section nav */
+  addEventListener("keydown",function(e){
+    if($("#sheet-layer")&&!$("#sheet-layer").hidden)return;
+    var tag=(document.activeElement&&document.activeElement.tagName)||"";
+    if(tag==="INPUT"||tag==="TEXTAREA")return;
+    var idx=panelIds.indexOf(currentPanel());
+    if(e.key==="ArrowDown"||e.key==="PageDown"){
+      if(idx<panelIds.length-1){e.preventDefault();goTo(panelIds[idx+1]);}
+    }else if(e.key==="ArrowUp"||e.key==="PageUp"){
+      if(idx>0){e.preventDefault();goTo(panelIds[idx-1]);}
+    }
+  });
+  function currentPanel(){
+    var mid=innerHeight/2,best=panelIds[0],bestD=1e9;
+    panels.forEach(function(p){
+      var r=p.getBoundingClientRect();
+      var d=Math.abs((r.top+r.height/2)-mid);
+      if(r.bottom>0&&r.top<innerHeight&&d<bestD){bestD=d;best=p.id;}
+    });
+    return best;
+  }
+
+  /* ---------- avatar tilt ---------- */
+  var heroFigure=$(".hero-figure"),avatarTilt=$("#avatar-tilt");
+  if(heroFigure&&avatarTilt&&!reduceMotion&&matchMedia("(hover:hover)").matches){
+    var tx={x:0,v:0,s:null},ty={x:0,v:0,s:null};
+    var applyTilt=function(){
+      avatarTilt.style.transform="rotateX("+tx.x.toFixed(2)+"deg) rotateY("+ty.x.toFixed(2)+"deg)";
+    };
+    var moveAxis=function(axis,target){
+      if(axis.s)axis.s.stop();
+      axis.s=spring({from:axis.x,to:target,v:axis.v,damping:.9,response:.3,
+        onUpdate:function(x,v){axis.x=x;axis.v=v;applyTilt()},
+        onDone:function(){axis.x=target;axis.v=0;applyTilt()}});
+    };
+    heroFigure.addEventListener("pointermove",function(e){
+      var r=heroFigure.getBoundingClientRect();
+      moveAxis(ty,((e.clientX-r.left)/r.width-.5)*14);
+      moveAxis(tx,-((e.clientY-r.top)/r.height-.5)*12);
+    });
+    heroFigure.addEventListener("pointerleave",function(){moveAxis(ty,0);moveAxis(tx,0)});
+  }
+
+  /* ---------- music background bars ---------- */
+  var bgMusic=$("#bg-music");
+  if(bgMusic){
+    var n=28,html="";
+    for(var i=0;i<n;i++){
+      var h=22+Math.round(Math.random()*68);
+      var t=(1.3+Math.random()*1.6).toFixed(2);
+      var dl=(Math.random()*1.5).toFixed(2);
+      html+='<i style="--h:'+h+';--t:'+t+'s;--dl:'+dl+'s"></i>';
+    }
+    bgMusic.innerHTML=html;
+  }
+
+  /* ---------- tech rail ---------- */
+  var rail=$("#rail"),railWrap=$("#rail-wrap");
+  if(rail){
+    $("#rail-prev").addEventListener("click",function(){rail.scrollBy({left:-320,behavior:reduceMotion?"auto":"smooth"})});
+    $("#rail-next").addEventListener("click",function(){rail.scrollBy({left:320,behavior:reduceMotion?"auto":"smooth"})});
+    $("#filters").addEventListener("click",function(e){
+      var b=e.target.closest("button");if(!b)return;
+      $$("#filters button").forEach(function(x){x.classList.toggle("active",x===b)});
+      railWrap.setAttribute("data-filter",b.getAttribute("data-filter"));
+      rail.scrollTo({left:0,behavior:"auto"});
+      $$(".card",rail).forEach(function(c){c.style.animation="none";void c.offsetWidth;c.style.animation=""});
+    });
+    var down=false,startX=0,startLeft=0,lastX=0,lastT=0,vel=0,moved=0,raf=0;
+    rail.addEventListener("pointerdown",function(e){
+      if(e.pointerType!=="mouse")return;
+      down=true;moved=0;
+      startX=e.clientX;startLeft=rail.scrollLeft;lastX=e.clientX;lastT=performance.now();vel=0;
+      cancelAnimationFrame(raf);
+      rail.setPointerCapture(e.pointerId);
+      rail.classList.add("dragging");
+    });
+    rail.addEventListener("pointermove",function(e){
+      if(!down)return;
+      var dx=e.clientX-startX;
+      moved=Math.max(moved,Math.abs(dx));
+      rail.scrollLeft=startLeft-dx;
+      var now=performance.now(),dt=now-lastT;
+      if(dt>0){vel=(e.clientX-lastX)/dt*1000;lastX=e.clientX;lastT=now;}
+      e.preventDefault();
+    });
+    function endDrag(){
+      if(!down)return;
+      down=false;rail.classList.remove("dragging");
+      var v=vel;var last=performance.now();
+      function momentum(now){
+        var dt=Math.min((now-last)/1000,1/30);last=now;
+        rail.scrollLeft-=v*dt;
+        v*=Math.pow(.0025,dt);
+        if(Math.abs(v)>40)raf=requestAnimationFrame(momentum);
+      }
+      if(Math.abs(v)>120)raf=requestAnimationFrame(momentum);
+    }
+    rail.addEventListener("pointerup",endDrag);
+    rail.addEventListener("pointercancel",endDrag);
+    rail.addEventListener("click",function(e){
+      if(moved>8){e.preventDefault();e.stopPropagation();}
+    },true);
+    rail.addEventListener("keydown",function(e){
+      if(e.key==="ArrowRight"){e.preventDefault();rail.scrollBy({left:320,behavior:"smooth"})}
+      if(e.key==="ArrowLeft"){e.preventDefault();rail.scrollBy({left:-320,behavior:"smooth"})}
+    });
+  }
+
+  /* ---------- audio player ---------- */
+  var player=$("#player"),audio=new Audio("audio/rainy_night_fm.m4a"),
+      playBtn=$("#play-btn"),iconPlay=$("#icon-play"),iconPause=$("#icon-pause"),
+      timeEl=$("#player-time"),track=$("#track"),fill=$("#track-fill"),knob=$("#track-knob");
+
+  function fmt(s){
+    if(!isFinite(s))return "0:00";
+    var m=Math.floor(s/60),r=Math.floor(s%60);
+    return m+":"+(r<10?"0":"")+r;
+  }
+  function showPlayer(){
+    if(!player.hidden)return;
+    player.hidden=false;
+    if(reduceMotion)return;
+    player.style.opacity="0";
+    player.style.transform="translateY(16px)";
+    void player.offsetWidth;
+    player.style.transition="opacity .7s var(--ease),transform .7s var(--ease)";
+    player.style.opacity="1";
+    player.style.transform="none";
+  }
+  audio.addEventListener("loadedmetadata",function(){
+    track.setAttribute("aria-valuemax",String(Math.round(audio.duration)));
+    timeEl.textContent="0:00 / "+fmt(audio.duration);
+    showPlayer();
+  });
+  audio.addEventListener("canplay",showPlayer);
+  audio.addEventListener("error",function(){player.hidden=true});
+  audio.addEventListener("timeupdate",function(){
+    var p=audio.duration?audio.currentTime/audio.duration:0;
+    fill.style.width=(p*100)+"%";knob.style.left=(p*100)+"%";
+    timeEl.textContent=fmt(audio.currentTime)+" / "+fmt(audio.duration);
+    track.setAttribute("aria-valuenow",String(Math.round(audio.currentTime)));
+  });
+  audio.addEventListener("play",function(){iconPlay.hidden=true;iconPause.hidden=false;document.body.classList.add("audio-on")});
+  audio.addEventListener("pause",function(){iconPlay.hidden=false;iconPause.hidden=true;document.body.classList.remove("audio-on")});
+  audio.addEventListener("ended",function(){audio.currentTime=0;document.body.classList.remove("audio-on")});
+  playBtn.addEventListener("click",function(){audio.paused?audio.play():audio.pause()});
+  var seeking=false;
+  function seek(e){
+    var r=track.getBoundingClientRect();
+    var p=Math.min(Math.max((e.clientX-r.left)/r.width,0),1);
+    if(audio.duration)audio.currentTime=p*audio.duration;
+  }
+  track.addEventListener("pointerdown",function(e){seeking=true;track.classList.add("dragging");track.setPointerCapture(e.pointerId);seek(e)});
+  track.addEventListener("pointermove",function(e){if(seeking)seek(e)});
+  track.addEventListener("pointerup",function(){seeking=false;track.classList.remove("dragging")});
+  track.addEventListener("keydown",function(e){
+    if(!audio.duration)return;
+    if(e.key==="ArrowRight")audio.currentTime=Math.min(audio.currentTime+5,audio.duration);
+    if(e.key==="ArrowLeft")audio.currentTime=Math.max(audio.currentTime-5,0);
+  });
+
+  /* ---------- reading sheet ---------- */
+  var articles={
+    bach:{title:"巴赫旧约",en:"Bach",meta:"杜承轩 · 原创 · 已发表 · 散文",text:"text-bach"},
+    jasmine:{title:"茉莉雨",en:"Jasmine Rain",meta:"杜承轩 · 原创 · 已发表 · 科幻",text:"text-jasmine"},
+    mint:{title:"薄荷雨",en:"Mint Rain",meta:"李巧姿 · 推荐阅读 · 小说",text:"text-mint"},
+    dusk:{title:"悬置的黄昏",en:"Suspended Dusk",meta:"李巧姿 · 推荐阅读 · 散文",text:"text-dusk"}
+  };
+  var layer=$("#sheet-layer"),sheet=$("#sheet"),scrim=$("#sheet-scrim"),sBody=$("#sheet-body"),
+      sTitle=$("#sheet-title"),sMeta=$("#sheet-meta"),grab=$("#sheet-grab");
+  var isOpen=false,lastFocus=null,activeSpring=null,drag=null;
+  var isMobile=function(){return matchMedia("(max-width: 820px)").matches};
+
+  function buildBody(id){
+    var raw=document.getElementById(articles[id].text).textContent.trim();
+    sBody.innerHTML="";
+    raw.split(/\n{2,}/).forEach(function(p){
+      var t=p.trim();if(!t)return;
+      var el=document.createElement("p");
+      if(/^[A-Za-z]/.test(t))el.className="epigraph";
+      el.textContent=t.replace(/\n/g,"");
+      sBody.appendChild(el);
+    });
+    var seal=document.createElement("div");
+    seal.className="sheet-seal";
+    seal.innerHTML='<span>杜承轩 藏</span>';
+    sBody.appendChild(seal);
+  }
+  function finalTransform(){
+    return isMobile()?"translateY(0)":"translate(-50%,-50%)";
+  }
+  function openSheet(id,card){
+    if(isOpen)return;
+    isOpen=true;lastFocus=document.activeElement;
+    var a=articles[id];
+    sTitle.textContent=a.title;
+    sMeta.textContent=a.meta;
+    buildBody(id);
+    sBody.scrollTop=0;
+    layer.hidden=false;
+    sheet.style.transformOrigin=isMobile()?"center top":"left center";
+    if(reduceMotion){
+      scrim.classList.add("show");
+      sheet.style.opacity=1;
+      sheet.style.transform=finalTransform();
+      sheet.focus();return;
+    }
+    if(activeSpring)activeSpring.stop();
+    scrim.classList.add("show");
+    if(isMobile()){
+      activeSpring=spring({from:0,to:1,damping:1,response:.42,
+        onUpdate:function(p){
+          sheet.style.opacity=Math.min(p*1.6,1);
+          sheet.style.transform="translateY("+((1-p)*60)+"px)";
+        },
+        onDone:function(){activeSpring=null;sheet.style.transform="translateY(0)";sheet.focus();}
+      });
+    }else{
+      activeSpring=spring({from:0,to:1,damping:1,response:.5,
+        onUpdate:function(p){
+          sheet.style.opacity=Math.min(p*1.5,1);
+          sheet.style.transform="translate(-50%,-50%) perspective(2200px) rotateY("+(-92*(1-p))+"deg) translateZ("+(-46*(1-p))+"px)";
+        },
+        onDone:function(){activeSpring=null;sheet.style.transform=finalTransform();sheet.focus();}
+      });
+    }
+  }
+  function closeSheet(velocity){
+    if(!isOpen)return;
+    isOpen=false;
+    if(activeSpring)activeSpring.stop();
+    scrim.classList.remove("show");
+    if(reduceMotion){
+      finishClose();return;
+    }
+    if(isMobile()){
+      var startY=parseFloat(sheet.dataset.y||"0");
+      activeSpring=spring({from:startY,to:90,v:velocity||0,damping:1,response:.3,
+        onUpdate:function(y){
+          sheet.style.opacity=String(Math.max(1-y/120,.2));
+          sheet.style.transform="translateY("+y+"px)";
+        },
+        onDone:finishClose
+      });
+    }else{
+      activeSpring=spring({from:0,to:1,damping:1,response:.4,
+        onUpdate:function(p){
+          sheet.style.opacity=String(Math.max(1-p*1.4,0));
+          sheet.style.transform="translate(-50%,-50%) perspective(2200px) rotateY("+(92*p)+"deg) translateZ("+(-46*p)+"px)";
+        },
+        onDone:finishClose
+      });
+    }
+  }
+  function finishClose(){
+    layer.hidden=true;
+    sheet.style.opacity=0;
+    sheet.style.transform="";
+    sheet.dataset.y="0";
+    activeSpring=null;
+    if(lastFocus&&lastFocus.focus)lastFocus.focus();
+  }
+  $$("[data-open]").forEach(function(btn){
+    btn.addEventListener("click",function(){openSheet(btn.getAttribute("data-open"),btn.closest(".lit-card"))});
+  });
+  $$("[data-close]").forEach(function(el){el.addEventListener("click",function(){closeSheet(0)})});
+  addEventListener("keydown",function(e){
+    if(e.key==="Escape"&&isOpen)closeSheet(0);
+    if(e.key!=="Tab"||!isOpen)return;
+    var f=sheet.querySelectorAll("button,[tabindex='0']");
+    if(!f.length)return;
+    var first=f[0],last=f[f.length-1];
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+  });
+  function project(v){return (v/1000)*.998/(1-.998)}
+  function rubberband(o,dim,c){c=c||.55;return (o*dim*c)/(dim+c*Math.abs(o))}
+  grab.addEventListener("pointerdown",function(e){
+    if(!isOpen||reduceMotion)return;
+    if(activeSpring){activeSpring.stop();activeSpring=null;}
+    drag={y:0,startY:e.clientY,hist:[],time:performance.now()};
+    grab.setPointerCapture(e.pointerId);
+  });
+  grab.addEventListener("pointermove",function(e){
+    if(!drag)return;
+    var now=performance.now();
+    var raw=e.clientY-drag.startY;
+    var y=raw>0?raw:rubberband(raw,300);
+    drag.y=y;drag.hist.push({y:y,t:now});
+    if(drag.hist.length>6)drag.hist.shift();
+    sheet.dataset.y=String(y);
+    sheet.style.transform="translateY("+Math.max(y,0)+"px)";
+    scrim.style.opacity=String(Math.max(1-Math.max(y,0)/460,.25));
+  });
+  function endDrag(){
+    if(!drag)return;
+    var hist=drag.hist,y=drag.y,v=0;
+    if(hist.length>1){
+      var a=hist[0],b=hist[hist.length-1],dt=(b.t-a.t)/1000;
+      if(dt>0)v=(b.y-a.y)/dt;
+    }
+    var h=sheet.getBoundingClientRect().height;
+    var dismissed=(y+project(v))>h*.3||v>720;
+    drag=null;scrim.style.opacity="";
+    if(dismissed){closeSheet(Math.max(v,0));return}
+    sheet.dataset.y="0";
+    activeSpring=spring({from:y,to:0,v:v,damping:.88,response:.34,
+      onUpdate:function(val){sheet.style.transform="translateY("+Math.max(val,0)+"px)"},
+      onDone:function(){activeSpring=null;sheet.style.transform="translateY(0)"}
+    });
+  }
+  grab.addEventListener("pointerup",endDrag);
+  grab.addEventListener("pointercancel",endDrag);
+
+})();
+</script>
+</body>
+</html>
