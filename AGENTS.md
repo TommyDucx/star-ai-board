@@ -48,13 +48,15 @@
 
 GitHub：github.com/TommyDucx/star-ai-board  ← 两目录共用的远程仓库
 
-┌───────────────────────── 公网访问（Cloudflare 快速隧道） ───────────────────────────┐
-│  systemd 服务：cloudflared（开机自启，Restart=always）                              │
-│  转发目标：localhost:8765 → 公网 trycloudflare.com 随机地址                         │
-│  ⚠️ 快速隧道每次重启服务地址都会变！当前地址查询：                                    │
-│    ssh pi@192.168.0.107 "journalctl -u cloudflared --no-pager | grep -oE             │
-│      'https://[a-z0-9-]+\.trycloudflare\.com' | tail -1"                           │
-│  日志：journalctl -u cloudflared；要固定域名需 Cloudflare 账号建 named tunnel        │
+┌───────────────────────── 公网访问（Cloudflare 具名隧道 + 自有域名） ────────────────┐
+│  正式地址：https://starchess.dpdns.org         （Cloudflare 托管，自动 HTTPS）      │
+│  systemd 服务：cloudflared（开机自启，Restart=always）→ 本地 localhost:8765         │
+│  隧道：star-chess  (id 8038b2d4-52d9-4534-b1f1-8160ea1df233)                        │
+│  配置：/home/pi/.cloudflared/config.yml  凭据：~/.cloudflared/<id>.json              │
+│  区域：starchess.dpdns.org 已委派给 Cloudflare（lee/ulla.ns.cloudflare.com）        │
+│  常用命令：systemctl status cloudflared / journalctl -u cloudflared -f              │
+│            cloudflared tunnel list | info star-chess                                │
+│  ⚠️ 旧的“快速隧道”（随机 *.trycloudflare.com）已废弃——地址每次重启都变。            │
 └──────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -66,7 +68,8 @@ GitHub：github.com/TommyDucx/star-ai-board  ← 两目录共用的远程仓库
 |---|---|
 | 树莓派 SSH | `ssh pi@192.168.0.107`，密码见环境变量 `$PI_PASS`（勿写回文档） |
 | 树莓派主机名 | `pi-wildlife2`（Debian 13 aarch64） |
-| 网站地址 | `http://192.168.0.107:8765` |
+| 网站地址（局域网） | `http://192.168.0.107:8765` |
+| 网站地址（公网） | `https://starchess.dpdns.org`（Cloudflare 具名隧道，见文末说明） |
 | 网站服务 | `systemctl restart star-ai-board`（systemd） |
 | GitHub 仓库 | `https://github.com/TommyDucx/star-ai-board.git` |
 | GitHub 推送 Token | 本机凭据存储（`git credential` / keychain），命令里用 `$GITHUB_TOKEN`，勿写回文档 |
@@ -360,3 +363,32 @@ Lichess/chess-position-evaluations (HF, parquet, 957M 行, cp/mate 均白方视�
 `dailySolved` 计数）、`GET /api/tactics/current` 写盘、`main.html` 窄屏顶栏溢出、
 `Motion is not defined`（缺 `window.Motion` 守卫）、测评页把网络异常显示成"未登录"、
 后台入口 `/admin/` 系列状态码混用（已归一化到登录页）。
+
+---
+
+## 十二、公网域名与隧道运维（2026-10-01 建立）
+
+| 项目 | 值 |
+|---|---|
+| 正式地址 | `https://starchess.dpdns.org` |
+| DNS | 区域 `starchess.dpdns.org` 已委派给 Cloudflare（`lee.ns.cloudflare.com` / `ulla.ns.cloudflare.com`）；`starchess` 的 CNAME 指向 `8038b2d4-52d9-4534-b1f1-8160ea1df233.cfargotunnel.com`（Proxied） |
+| 隧道 | 具名隧道 `star-chess`，id `8038b2d4-52d9-4534-b1f1-8160ea1df233` |
+| 配置 | 树莓派 `/home/pi/.cloudflared/config.yml`（ingress: starchess.dpdns.org → `http://localhost:8765`） |
+| 凭据 | 树莓派 `~/.cloudflared/<id>.json` + `cert.pem`（`cloudflared tunnel login` 授权所得） |
+| 服务 | `systemctl status cloudflared`（开机自启、Restart=always）；日志 `journalctl -u cloudflared -f` |
+
+### 常用操作
+```bash
+# 看隧道是否在线（本地查询易受树莓派到 CF API 的网络抖动影响，可改用日志）
+ssh pi@192.168.0.107 "journalctl -u cloudflared -n 20 | grep -E 'Registered tunnel connection'"
+# 改完 config.yml 后重启
+ssh pi@192.168.0.107 "sudo systemctl restart cloudflared"
+# 域名可达性（本机）
+curl -sI https://starchess.dpdns.org/ | head -3
+```
+
+### 注意
+- **WebSocket 走同一隧道**（引擎网关用 `wss://starchess.dpdns.org`，页面按 `location.protocol` 自动切换 ws/wss），已验证引擎列表与分析回包正常。
+- 树莓派到 `api.cloudflare.com` 偶发 TLS 证书告警（`certificate is not valid for any names`，疑似运营商侧干扰）——**只影响 CLI 查询类命令**（`tunnel list/info`），不影响隧道本身；遇到时重试即可。
+- 若将来要换域名：Cloudflare 后台加 Public Hostname 后，改 `config.yml` 的 ingress 并重启即可。
+- 旧的快速隧道单元已废弃（若发现 `ExecStart` 里带 `--url trycloudflare` 说明被回退，需改回 `--config ... tunnel run`）。
