@@ -1697,43 +1697,59 @@ Ex dolore musica, ex musica gloria.
 
 <!-- ==== S.T.A.R. 账号联动：文学板块点赞与评论（相同 origin，复用站点会话） ==== -->
 <style>
-.lit-actions{display:flex;gap:9px;align-items:center;margin-top:14px;padding-top:12px;border-top:1px dashed rgba(140,190,255,.14)}
-.lit-act{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:99px;cursor:pointer;
-  border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--ink-2);
-  font:inherit;font-size:13.5px;line-height:1;transition:all .22s var(--ease)}
+/* 文学板块互动：与卡片/抽屉的「羊皮纸」配色保持一致（深色页上的浅色卡片） */
+.lit-actions{display:flex;gap:9px;align-items:center;margin-top:4px}
+.lit-act{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:99px;cursor:pointer;
+  font:inherit;font-size:13.5px;letter-spacing:.1em;line-height:1;
+  color:#4a3c28;background:rgba(255,255,255,.42);border:1px solid rgba(120,90,40,.45);
+  transition:all .25s var(--ease)}
 .lit-act svg{width:15px;height:15px;flex:none;transition:transform .22s var(--ease)}
 .lit-act b{font-weight:700;font-variant-numeric:tabular-nums}
-.lit-act:hover{border-color:rgba(140,190,255,.42);color:var(--ink)}
+.lit-act:hover{background:rgba(255,255,255,.72);border-color:rgba(120,90,40,.72);color:#2b2318;
+  box-shadow:0 0 18px -8px rgba(217,179,106,.75)}
 .lit-act:hover svg{transform:scale(1.12)}
-.lit-act.like.on{border-color:rgba(217,179,106,.62);background:rgba(217,179,106,.14);color:var(--gold)}
+.lit-act:active{transform:scale(.96)}
+.lit-act.like.on{background:#8a6a33;border-color:#8a6a33;color:#f8f0dc}
 .lit-act.like.on svg{transform:scale(1.08)}
-.lit-act.cmt:hover{border-color:rgba(40,224,255,.55);color:var(--cyan)}
-.lit-cmts{margin-top:34px;padding-top:24px;border-top:1px solid var(--line)}
-.lit-cmts>h4{margin:0 0 6px;font-size:16px;color:var(--ink);font-weight:600;letter-spacing:.02em}
-.lit-cmts>h4 i{font-style:normal;font-family:var(--font-mono);font-size:11.5px;color:var(--ink-3);margin-left:8px;letter-spacing:.12em}
-.lit-cmt-empty{color:var(--ink-3);font-size:13.5px;margin:10px 0 0}
-.lit-cmt{padding:14px 0;border-bottom:1px dashed rgba(140,190,255,.12)}
-.lit-cmt:last-child{border-bottom:0}
-.lit-cmt-head{display:flex;align-items:baseline;gap:10px}
-.lit-cmt-name{color:var(--cyan);font-weight:600;font-size:14px}
-.lit-cmt-time{font-family:var(--font-mono);font-size:11px;color:var(--ink-3);letter-spacing:.06em}
-.lit-cmt-del{margin-left:auto;background:none;border:0;color:var(--ink-3);cursor:pointer;font-size:12px;padding:2px 6px;border-radius:6px;transition:color .2s,background .2s}
-.lit-cmt-del:hover{color:#ff8a8a;background:rgba(255,120,120,.1)}
-.lit-cmt-text{margin:7px 0 0;color:var(--ink-2);font-size:14.5px;line-height:1.9;white-space:pre-wrap;word-break:break-word}
-.lit-cmt-form{margin-top:16px;display:grid;gap:10px}
-.lit-cmt-form textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:74px;padding:12px 14px;
-  border-radius:12px;border:1px solid var(--line);background:rgba(4,8,18,.5);color:var(--ink);
-  font:inherit;font-size:14.5px;line-height:1.75;outline:none;transition:border-color .22s var(--ease),box-shadow .22s var(--ease)}
-.lit-cmt-form textarea:focus{border-color:rgba(40,224,255,.5);box-shadow:0 0 0 3px rgba(40,224,255,.1)}
-.lit-cmt-bar{display:flex;align-items:center;gap:12px}
-.lit-cmt-who{font-family:var(--font-mono);font-size:11px;color:var(--ink-3);letter-spacing:.06em}
-.lit-cmt-submit{margin-left:auto;padding:9px 20px;border-radius:99px;border:1px solid rgba(40,224,255,.4);
-  background:rgba(40,224,255,.12);color:var(--cyan);font:inherit;font-size:14px;cursor:pointer;transition:all .22s var(--ease)}
-.lit-cmt-submit:hover{background:rgba(40,224,255,.2);box-shadow:0 0 26px -8px var(--cyan)}
-.lit-cmt-submit:disabled{opacity:.45;cursor:default;box-shadow:none}
-.lit-hint{margin:14px 0 0;font-size:13.5px;color:var(--ink-2);padding:12px 14px;border-radius:12px;
-  border:1px dashed rgba(255,180,90,.34);background:rgba(255,150,60,.06)}
-.lit-hint a{color:var(--amber);text-decoration:none;border-bottom:1px solid rgba(255,138,61,.5)}
+.lit-act.like.on:hover{background:#96733a;box-shadow:0 0 20px -8px rgba(217,179,106,.9)}
+
+/* —— 抽屉内留言区：羊皮纸原生（浅底深字，金色/印章红点缀） —— */
+#sheet-body .lit-cmts{margin-top:36px;padding-top:24px;border-top:1px solid rgba(110,82,40,.3)}
+#sheet-body .lit-cmts>h4{margin:0 0 8px;font-family:var(--font-zh);font-size:17px;font-weight:700;letter-spacing:.1em;color:#3a2f1d}
+#sheet-body .lit-cmts>h4 i{font-style:normal;font-family:var(--font-mono);font-size:11.5px;color:#8a7448;margin-left:8px;letter-spacing:.14em}
+#sheet-body .lit-cmt-empty{color:#8a7448;font-size:14px;margin:12px 0 0;line-height:1.9}
+#sheet-body .lit-cmt{padding:15px 0;border-bottom:1px dashed rgba(110,82,40,.24)}
+#sheet-body .lit-cmt:last-child{border-bottom:0}
+#sheet-body .lit-cmt-head{display:flex;align-items:baseline;gap:10px}
+#sheet-body .lit-cmt-name{color:#8c2f2f;font-weight:700;font-size:14.5px;letter-spacing:.02em}
+#sheet-body .lit-cmt-time{font-family:var(--font-mono);font-size:11px;color:#a3906f;letter-spacing:.06em}
+#sheet-body .lit-cmt-del{margin-left:auto;background:none;border:0;cursor:pointer;font-size:12px;padding:3px 7px;
+  border-radius:6px;color:#a3906f;transition:color .2s,background .2s}
+#sheet-body .lit-cmt-del:hover{color:#8c2f2f;background:rgba(140,47,47,.09)}
+#sheet-body .lit-cmt-text{margin:8px 0 0;color:#33291b;font-size:16px;line-height:1.98;letter-spacing:.01em;
+  white-space:pre-wrap;word-break:break-word}
+#sheet-body .lit-cmt-form{margin-top:18px;display:grid;gap:10px}
+#sheet-body .lit-cmt-form textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:76px;padding:12px 14px;
+  border-radius:10px;border:1px solid rgba(120,90,40,.35);background:rgba(255,255,255,.55);color:#2b2318;
+  font:inherit;font-size:15px;line-height:1.85;outline:none;
+  transition:border-color .22s var(--ease),box-shadow .22s var(--ease)}
+#sheet-body .lit-cmt-form textarea::placeholder{color:#a3906f}
+#sheet-body .lit-cmt-form textarea:focus{border-color:#8a6a33;box-shadow:0 0 0 3px rgba(138,106,51,.15)}
+#sheet-body .lit-cmt-bar{display:flex;align-items:center;gap:12px}
+#sheet-body .lit-cmt-who{font-family:var(--font-mono);font-size:11px;color:#8a7448;letter-spacing:.06em}
+#sheet-body .lit-cmt-submit{margin-left:auto;padding:9px 20px;border-radius:99px;cursor:pointer;
+  font:inherit;font-size:13.5px;letter-spacing:.1em;color:#f6ecd6;
+  background:#3a2a14;border:1px solid rgba(120,90,40,.6);
+  transition:all .25s var(--ease)}
+#sheet-body .lit-cmt-submit:hover{background:#54390f;box-shadow:0 0 22px -8px rgba(217,179,106,.85)}
+#sheet-body .lit-cmt-submit:active{transform:scale(.96)}
+#sheet-body .lit-cmt-submit:disabled{opacity:.5;cursor:default;box-shadow:none}
+#sheet-body .lit-hint{margin:16px 0 0;font-size:13.5px;line-height:1.9;color:#5c4d36;padding:12px 15px;border-radius:10px;
+  border:1px dashed rgba(140,47,47,.34);background:rgba(140,47,47,.05)}
+#sheet-body .lit-hint a{color:#8c2f2f;text-decoration:none;border-bottom:1px solid rgba(140,47,47,.5)}
+#sheet-body .lit-hint a:hover{color:#a83a3a}
+
+/* 全局轻提示（深色页面上使用） */
 .lit-toast{position:fixed;left:50%;bottom:32px;transform:translate(-50%,14px);z-index:9999;opacity:0;pointer-events:none;
   padding:11px 20px;border-radius:99px;background:rgba(8,13,24,.94);border:1px solid var(--line);
   color:var(--ink);font-size:14px;transition:opacity .28s var(--ease),transform .28s var(--ease)}
