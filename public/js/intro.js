@@ -58,8 +58,10 @@
     const mv = CHESS_SEQ[chessDemoIdx++];
     if (mv === "o-o") demoGame.move({ from: demoGame.turn() === "w" ? "e1" : "e8", to: demoGame.turn() === "w" ? "g1" : "g8" });
     else demoGame.move({ from: mv.slice(0,2), to: mv.slice(2,4) });
-    if (window.StarChessMotion) StarChessMotion.sync(demoBoard, demoGame.fen(), true);
-    else demoBoard.position(demoGame.fen());
+    if (window.StarChessMotion) {
+      StarChessMotion.sync(demoBoard, demoGame.fen(), true);
+      StarChessMotion.pulse(document.getElementById("chess-demo"), { from: mv.slice(0, 2), to: mv.slice(2, 4) });
+    } else demoBoard.position(demoGame.fen());
   }
 
   /* ---------------- hero 网格视差（磁吸统一由 motion.js 按 hover 处理） ---------------- */

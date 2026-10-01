@@ -143,6 +143,10 @@
     const a = centerOf(root, move.from), b = centerOf(root, move.to);
     if (a && b && layer) {
       const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      // 线宽随棋盘缩放（Kylin 的 7px 对应 ~600px 棋盘）：小棋盘（如首页演示盘）按格子边长折算，避免过粗
+      const sqEl = root.querySelector(".square-" + (move.from || "e2"));
+      const cell = sqEl ? sqEl.getBoundingClientRect().width : 0;
+      if (cell) line.style.setProperty("--trace-w", Math.max(3, Math.min(8, cell / 11)).toFixed(1) + "px");
       line.setAttribute("x1", a.x); line.setAttribute("y1", a.y);
       line.setAttribute("x2", a.x); line.setAttribute("y2", a.y);
       line.setAttribute("class", "star-move-trace");

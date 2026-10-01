@@ -20,7 +20,7 @@
 /* ② 轨迹残留：从起格到落格的绿色虚线，先亮起再流动淡出 */
 .star-trace-layer { position: absolute; inset: 0; z-index: 4; pointer-events: none; overflow: visible; }
 .star-move-trace {
-  stroke: #d7ff3f; stroke-width: 7px; stroke-linecap: round;
+  stroke: #d7ff3f; stroke-width: var(--trace-w, 7px); stroke-linecap: round;  /* 线宽由 JS 按格子边长折算，小棋盘不至于过粗 */
   stroke-dasharray: 19 12; opacity: 0;
   filter: drop-shadow(0 0 4px #d7ff3fb8);
   animation: starMoveTrace .44s cubic-bezier(.16, 1, .3, 1) both;

@@ -209,7 +209,11 @@
     el.querySelectorAll(".rmv").forEach(s => s.addEventListener("click", () => {
       stopPlay();
       cur = +s.dataset.n;
-      if (board) (window.StarChessMotion ? StarChessMotion.sync(board, build().fens[cur], true) : board.position(build().fens[cur]));
+      if (board) (window.StarChessMotion ? (function () {
+      StarChessMotion.sync(board, build().fens[cur], true);
+      var mv = cur > 0 ? moves[cur - 1] : null;
+      if (mv && mv.from && mv.to) StarChessMotion.pulse(document.getElementById("board"), { from: mv.from, to: mv.to });
+    })() : board.position(build().fens[cur]));
       renderStep();
       drawCurve();
       el.querySelectorAll(".rmv").forEach(x => x.classList.toggle("on", x === s));
@@ -376,12 +380,18 @@
     const next = Math.max(0, Math.min(moves.length, cur + d));
     if (d > 0 && next > cur && window.Motion && Motion.sfx) Motion.sfx.tick();   // 步进微咔
     cur = next;
-    if (board) (window.StarChessMotion ? StarChessMotion.sync(board, build().fens[cur], true) : board.position(build().fens[cur]));
+    if (board) (window.StarChessMotion ? (function () {
+      StarChessMotion.sync(board, build().fens[cur], true);
+      var mv = cur > 0 ? moves[cur - 1] : null;
+      if (mv && mv.from && mv.to) StarChessMotion.pulse(document.getElementById("board"), { from: mv.from, to: mv.to });
+    })() : board.position(build().fens[cur]));
     renderStep();
     drawCurve();
     renderMoveList();
   };
-  window.jumpStart = function () { cur = 0; if (board) (window.StarChessMotion ? StarChessMotion.sync(board, build().fens[0], true) : board.position(build().fens[0])); renderStep(); drawCurve(); renderMoveList(); };
+  window.jumpStart = function () { cur = 0; if (board) (window.StarChessMotion ? (function () {
+    StarChessMotion.sync(board, build().fens[0], true);
+  })() : board.position(build().fens[0])); renderStep(); drawCurve(); renderMoveList(); };
 
   function isKeyNode(r) { return ["blunder", "miss", "brilliant", "great", "mistake"].includes(r.key); }
   window.autoPlay = function () {
