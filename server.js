@@ -14,6 +14,7 @@ const zlib = require("zlib");
 const { spawn } = require("child_process");
 const { WebSocketServer } = require("ws");
 const rooms = require("./rooms");
+const uploads = require("./uploads");   // 启动时的孤儿附件清理
 /* 房间广播注册表：roomId -> Set<ws>（一个连接可同时在多个房间？不需要，按单房间订阅） */
 const roomSockets = new Map();
 function roomBroadcast(roomId, payload, exceptWs) {
@@ -255,6 +256,23 @@ const server = http.createServer((req, res) => {
           "X-Frame-Options": "SAMEORIGIN",
           "Referrer-Policy": "strict-origin-when-cross-origin",
         };
+        /* 用户上传的附件：危险类型（html/svg/js/xml…）一律强制下载 + octet-stream，
+           否则同源内联渲染会变成存储型 XSS。安全类型（图片/音频/视频/PDF/纯文本）内联展示。 */
+        if (urlPath.startsWith("/uploads/")) {
+          const ext = path.extname(filePath).slice(1).toLowerCase();
+          const RISKY = ["html", "htm", "xhtml", "shtml", "svg", "xml", "xsl", "mhtml", "hta", "jar", "apk", "exe", "dll", "so", "dylib", "bat", "cmd", "com", "scr", "msi", "vbs", "ps1", "app", "dmg", "deb", "rpm"];
+          const INLINE_EXT = ["png", "jpg", "jpeg", "gif", "webp", "bmp", "avif", "ico", "mp3", "wav", "ogg", "oga", "m4a", "aac", "flac", "opus", "weba", "mp4", "webm", "mov", "m4v", "ogv", "pdf", "txt", "md", "markdown", "csv", "tsv", "log", "json", "yml", "yaml", "ini", "conf", "srt", "vtt", "c", "h", "cpp", "hpp", "py", "rs", "go", "rb", "java", "kt", "swift", "lua", "sql", "css", "ts", "tsx", "jsx", "sh", "pl"];
+          const isRisky = RISKY.includes(ext);
+          const canInline = !isRisky && INLINE_EXT.includes(ext);
+          if (!canInline) {
+            headers["Content-Type"] = "application/octet-stream";
+            headers["Content-Disposition"] = 'attachment; filename="upload.' + (ext || "bin").replace(/[^a-z0-9]/g, "") + '"';
+          } else {
+            headers["Content-Disposition"] = "inline";
+          }
+          // 缓存 1 小时（而非 7 天）：附件内容不可变，但用户删除评论后不应让 CDN 长期继续吐文件
+          headers["Cache-Control"] = "public, max-age=3600";
+        }
         // 文本类资源 gzip（>1KB 才值得压缩）
         const accept = req.headers["accept-encoding"] || "";
         if (/^text\/|application\/json/.test(type) && data.length > 1024 && /\bgzip\b/.test(accept)) {
@@ -838,7 +856,7 @@ wss.on("connection", (ws, req) => {
       }
 
       if (action === "chat") {
-        const r = rooms.chat(msg.roomId, { token: ws._roomToken || me.token, guestId: ws._roomGuest || me.guestId, text: msg.text });
+        const r = rooms.chat(msg.roomId, { token: ws._roomToken || me.token, guestId: ws._roomGuest || me.guestId, text: msg.text, att: msg.att });
         if (r.error) return reply({ error: r.error, code: r.code });
         roomBroadcast(r.room.id, { type: "room", action: "chat", item: r.item });
         return reply({ ok: true });
@@ -958,6 +976,25 @@ function controlEngine(key, action) {
 }
 admin.init({ publicDir: PUBLIC_DIR, engineStatus, controlEngine, engineMove });
 rooms.start();
+
+/* 启动时清理孤儿附件：收集 still 被引用的附件 id（文学评论 + 房间评论），其余超 24 小时的删除 */
+(function sweepUploads() {
+  try {
+    const refs = [];
+    try {
+      const lit = JSON.parse(fs.readFileSync(path.join(__dirname, "admin", "literature.json"), "utf8"));
+      Object.keys(lit.articles || {}).forEach(k => {
+        (lit.articles[k].comments || []).forEach(c => (c.att || []).forEach(a => a && a.id && refs.push(a.id)));
+      });
+    } catch (e) {}
+    try {
+      const rm = JSON.parse(fs.readFileSync(path.join(__dirname, "admin", "rooms.json"), "utf8"));
+      (rm.rooms || []).forEach(r => (r.chat || []).forEach(c => (c.att || []).forEach(a => a && a.id && refs.push(a.id))));
+    } catch (e) {}
+    const n = uploads.sweepUnreferenced(refs, 24 * 60 * 60 * 1000);
+    if (n) console.log("[uploads] 已清理孤儿附件 " + n + " 个");
+  } catch (e) {}
+})();
 
 // 进程级兜底：仅记录，不让单个异常拖垮整个服务（连接级错误另有 ws.on("error") 兜底）
 process.on("uncaughtException", e => console.error("[fatal]", e));

@@ -7,9 +7,10 @@ cd "$(dirname "$0")"
 echo "== 打包 =="
 rm -rf /tmp/deploy_acl && mkdir -p /tmp/deploy_acl/star-ai-board
 # public/ 全量（排除引擎二进制与棋子缓存等大文件）
-rsync -a --exclude 'stockfish' --exclude 'reckless' --exclude 'katago' --exclude 'engines' --exclude '*.nnue' \
+rsync -a --exclude 'uploads' --exclude 'stockfish' --exclude 'reckless' --exclude 'katago' --exclude 'engines' --exclude '*.nnue' \
   public/ /tmp/deploy_acl/star-ai-board/public/
 cp admin.js /tmp/deploy_acl/star-ai-board/
+cp uploads.js /tmp/deploy_acl/star-ai-board/        # 附件上传模块（文学/对局评论区共用）
 cp rooms.js /tmp/deploy_acl/star-ai-board/          # 对局房间模块（server.js / routes/rooms.js 都 require 它）
 cp server.js /tmp/deploy_acl/star-ai-board/         # WS 房间广播与残局 AI 接口都在 server.js
 mkdir -p /tmp/deploy_acl/star-ai-board/admin

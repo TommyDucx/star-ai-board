@@ -40,7 +40,7 @@ module.exports.authed = async function (ctx) {
         if (!s2) return json(res, 401, { error: "请先登录 S.T.A.R. 账号" });
         if (!litKnown(lk[1])) return json(res, 404, { error: "作品不存在" });
         const body = await readBody(req);
-        const r = lk[2] === "like" ? litToggleLike(s2.userId, lk[1]) : litComment(s2.userId, lk[1], body.text);
+        const r = lk[2] === "like" ? litToggleLike(s2.userId, lk[1]) : litComment(s2.userId, lk[1], body.text, body.att);
         return json(res, r.error ? 400 : 200, r.error ? { error: r.error } : r);
       }
       const ld = /^\/api\/literature\/([a-z0-9][a-z0-9_-]{0,31})\/comment\/([A-Za-z0-9-]+)$/.exec(p);

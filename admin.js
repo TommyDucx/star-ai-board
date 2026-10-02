@@ -13,6 +13,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const uploads = require("./uploads");   // 附件上传（文学评论区 / 对局评论区共用）
 const os = require("os");
 const { execFile } = require("child_process");
 
@@ -1107,6 +1108,7 @@ function litPublic(data, userId) {
       liked: !!userId && a.likes.indexOf(userId) >= 0,
       comments: a.comments.slice(-LIT_KEEP).map(c => ({
         id: c.id, uid: c.userId, name: c.name, text: c.text, ts: c.ts, mine: !!userId && c.userId === userId,
+        att: Array.isArray(c.att) ? c.att : [],
       })),
     };
   }
@@ -1120,11 +1122,15 @@ function litToggleLike(userId, key) {
   saveLit(data);
   return { likes: a.likes.length, liked: i < 0 };
 }
-function litComment(userId, key, rawText) {
+function litComment(userId, key, rawText, rawAtts) {
   let text = String(rawText == null ? "" : rawText);
   // 去掉控制字符与零宽字符，压缩连续空白
   text = text.replace(/[\u0000-\u001f\u007f\u200b-\u200f\u2028\u2029]/g, " ").replace(/\s+/g, " ").trim();
-  if (!text) return { error: "评论不能为空" };
+  // 附件（图片/音频/文本/…）：校验存在 + 归属本人 + 数量上限
+  const at = uploads.normalizeAtts(rawAtts, "u:" + userId);
+  if (at.error) return { error: at.error };
+  const atts = at.atts || [];
+  if (!text && !atts.length) return { error: "评论不能为空" };
   if (text.length > LIT_TEXT_MAX) return { error: "评论过长（最多 " + LIT_TEXT_MAX + " 字）" };
   {
     const acc = litAccess(key, userId);
@@ -1137,10 +1143,11 @@ function litComment(userId, key, rawText) {
   const data = loadLit();
   const a = litArticle(data, key, true);
   const c = { id: uuid(), userId, name: litName(userId), text, ts: Date.now() };
+  if (atts.length) c.att = atts;
   a.comments.push(c);
   if (a.comments.length > LIT_KEEP) a.comments = a.comments.slice(-LIT_KEEP);
   saveLit(data);
-  return { comment: { id: c.id, name: c.name, text: c.text, ts: c.ts, mine: true }, likes: a.likes.length };
+  return { comment: { id: c.id, name: c.name, text: c.text, ts: c.ts, mine: true, att: Array.isArray(c.att) ? c.att : [] }, likes: a.likes.length };
 }
 function litDeleteComment(userId, key, cid, isAdmin) {
   const data = loadLit();
@@ -1149,8 +1156,11 @@ function litDeleteComment(userId, key, cid, isAdmin) {
   const i = a.comments.findIndex(c => c.id === cid);
   if (i < 0) return { error: "评论不存在" };
   if (a.comments[i].userId !== userId && !isAdmin) return { error: "只能删除自己的评论" };
+  const gone = a.comments[i];
   a.comments.splice(i, 1);
   saveLit(data);
+  // 评论的附件随之删除（附件是评论的一部分，不做悬挂文件）
+  if (Array.isArray(gone.att)) gone.att.forEach(x => { try { uploads.remove(x.id); } catch (e) {} });
   return { ok: true };
 }
 
@@ -1620,6 +1630,24 @@ function json(res, code, obj, extraHeaders) {
   res.writeHead(code, Object.assign({ "Content-Type": "application/json; charset=utf-8" }, extraHeaders || {}));
   res.end(JSON.stringify(obj));
 }
+/* 大 body 读取（仅用于附件上传）：string 拼接在 MB 级会爆栈与内存翻倍，这里收集 Buffer 再解码 */
+function readBodyLarge(req, maxBytes) {
+  const cap = maxBytes || 9 * 1024 * 1024;
+  return new Promise((resolve) => {
+    const chunks = [];
+    let len = 0, done = false;
+    const cleanup = () => { req.removeListener("data", onData); req.removeListener("end", onEnd); req.removeListener("error", onError); req.removeListener("aborted", onError); };
+    const settle = (v) => { if (done) return; done = true; cleanup(); resolve(v); };
+    const onData = c => {
+      len += c.length;
+      if (len > cap) { req.destroy(); return settle({}); }     // 超限：断连并让 promise 立即落地
+      chunks.push(c);
+    };
+    const onEnd = () => { try { settle(JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}")); } catch { settle({}); } };
+    const onError = () => settle({});
+    req.on("data", onData); req.on("end", onEnd); req.on("error", onError); req.on("aborted", onError);
+  });
+}
 function readBody(req) {
   return new Promise((resolve) => {
     let d = "", done = false;
@@ -1680,8 +1708,9 @@ const routeTrainer = require("./routes/trainer");
 const routeAdmin = require("./routes/admin");
 const routeFriends = require("./routes/friends");
 const routeRooms = require("./routes/rooms");
+const routeUploads = require("./routes/uploads");
 const routeFun = require("./routes/fun");
-const PUBLIC_ROUTES = [routeAuth, routeFun, routeRooms, routeTactics, routeRating, routeEngagement, routeLibrary, routeLiterature];
+const PUBLIC_ROUTES = [routeAuth, routeFun, routeRooms, routeUploads, routeTactics, routeRating, routeEngagement, routeLibrary, routeLiterature];
 const AUTHED_ROUTES = [routeAuth, routeEngagement, routeLibrary, routeLiterature, routeTrainer, routeTactics, routeRating, routeFriends, routeAdmin];
 
 async function handleApi(req, res, u) {
@@ -1766,6 +1795,7 @@ async function handleApi(req, res, u) {
     publicTactics,
     rateCheck,
     readBody,
+    readBodyLarge,
     registerLibraryView,
     saveAccounts,
     saveConfig,

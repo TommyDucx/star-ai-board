@@ -63,6 +63,27 @@
   @keyframes pl{0%,100%{opacity:1}50%{opacity:.25}}
 
   [hidden]{display:none !important}
+  .room-files{display:flex;flex-wrap:wrap;gap:6px}
+  .room-files:empty{display:none}
+  .rfile-btn{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;flex:none;border:1px solid var(--lineStrong);
+    border-radius:50%;background:#ffffff0a;cursor:pointer;font-size:15px;transition:.18s}
+  .rfile-btn:hover{border-color:#d7ff3f88}
+  .rfile-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border:1px solid var(--lineStrong);
+    border-radius:999px;background:var(--surface2);font-size:11.5px;color:var(--muted);max-width:100%}
+  .rfile-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px}
+  .rfile-chip button{border:0;background:none;color:#ff8a80;cursor:pointer;font-size:13px;padding:0 2px}
+  .cl .att{margin-top:6px;display:flex;flex-wrap:wrap;gap:8px}
+  .cl img.att-img{max-width:min(220px,100%);max-height:170px;border-radius:8px;border:1px solid var(--line);display:block;cursor:zoom-in}
+  .cl audio{height:34px;max-width:240px}
+  .cl video{max-width:240px;max-height:180px;border-radius:8px;border:1px solid var(--line)}
+  .cl a.att-doc{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--line);border-radius:8px;
+    background:#ffffff0a;color:var(--signal);text-decoration:none;font-size:12px;max-width:100%}
+  .cl a.att-doc:hover{border-color:#d7ff3f88}
+  .cl a.att-doc b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;color:var(--paper)}
+  .cl a.att-doc em{font-style:normal;font-size:10px;opacity:.7}
+  .cl pre.att-text{margin:6px 0 0;padding:8px 10px;border:1px dashed var(--lineStrong);border-radius:8px;
+    background:#00000040;max-height:180px;overflow:auto;white-space:pre-wrap;word-break:break-word;font-size:11.5px;line-height:1.7;color:#c9cfc6}
+  .att-load{border:0;background:none;color:var(--signal);cursor:pointer;font-size:11px;padding:0;margin-left:6px;text-decoration:underline}
   #nick-input{padding:9px 14px;border:1px solid var(--lineStrong);background:var(--ink);color:var(--paper);border-radius:999px;font-size:14px;min-width:200px}
   .name-gate{position:fixed;inset:0;z-index:300;background:rgba(4,6,5,.9);backdrop-filter:blur(6px);display:grid;place-items:center;padding:20px}
   .ng-card{background:var(--surface);border:1px solid #d7ff3f33;border-radius:16px;padding:24px;display:grid;gap:12px;width:min(360px,94vw);text-align:center}
@@ -128,10 +149,15 @@
         <div class="moves" id="moves"><span style="color:var(--faint)">尚未开始</span></div>
       </section>
       <section class="rpanel">
-        <h2>房间消息</h2>
+        <h2>评论区</h2>
         <div class="chat">
           <div class="chat-log" id="chatlog"></div>
-          <div class="chat-in"><input id="chatin" maxlength="200" placeholder="说点什么…"><button class="rbtn" id="chatsend">发送</button></div>
+          <div class="room-files" id="room-files"></div>
+          <div class="chat-in">
+            <label class="rfile-btn" title="添加附件（图片/音频/文本等，单个 ≤5MB）">📎<input type="file" id="room-file" multiple hidden></label>
+            <input id="chatin" maxlength="200" placeholder="对这一步说点什么…（观战者也能评论）">
+            <button class="rbtn" id="chatsend">发送</button>
+          </div>
         </div>
       </section>
     </div>
@@ -265,6 +291,11 @@
       mySeat = m.seat; myRole = m.role; if (m.token) myToken = m.token;
       if (mySeat) saveRoom(roomId, { token: myToken, seat: mySeat, name: myName });
       applyState(m.state, true);
+      /* 回放已有评论：晚进来的观战者/玩家能看到之前的讨论 */
+      if (m.state && Array.isArray(m.state.chat) && m.state.chat.length) {
+        sysChat("— 之前的评论 —");
+        m.state.chat.forEach(function (it) { if (it && it.text || (it && it.att && it.att.length)) addChat(it); });
+      }
       if (mySeat) note("已入座：" + (mySeat === "w" ? "白方" : "黑方") + "，等对方就位即可开始。", "ok");
       else note("你以观战者身份进入：可以实时看棋，但不能落子。", "");
       bindBoard(true);
@@ -276,7 +307,11 @@
       if (m.action === "restarted") { sel = null; note("新对局开始（黑白已交换）", "ok"); $id("report").hidden = true; $id("rematch").hidden = true; }
       return;
     }
-    if (m.action === "chat") { addChat(m.item); return; }
+    if (m.action === "chat") {
+      // 服务端对发送者本人的回执也带 action:"chat"（只有 ok，没有 item）——不是评论，跳过
+      if (m.item) addChat(m.item);
+      return;
+    }
   }
 
   function deadRoom(msg) {
@@ -345,12 +380,41 @@
     el.scrollTop = el.scrollHeight;
   }
 
+  function attHTML(a) {
+    var url = esc(a.url), nm = esc(a.name || "文件"), sz = a.size ? " <em>" + fmtSize(a.size) + "</em>" : "";
+    if (a.kind === "image") return '<a href="' + url + '" target="_blank" rel="noopener"><img class="att-img" loading="lazy" src="' + url + '" alt="' + nm + '"></a>';
+    if (a.kind === "audio") return '<audio controls preload="none" src="' + url + '"></audio>';
+    if (a.kind === "video") return '<video controls preload="metadata" src="' + url + '"></video>';
+    if (a.kind === "text" || a.kind === "code") {
+      return '<span data-txtwrap><a class="att-doc" href="' + url + '" target="_blank" rel="noopener"><b>' + nm + "</b>" + sz + '</a><button class="att-load" type="button" data-load="' + url + '">预览</button><pre class="att-text" hidden></pre></span>';
+    }
+    var icon = a.kind === "pdf" ? "📕" : (a.kind === "archive" ? "🗜" : (a.kind === "doc" ? "📝" : "📎"));
+    return '<a class="att-doc" href="' + url + '"' + (a.inline ? ' target="_blank" rel="noopener"' : ' download') + '><i style="font-style:normal">' + icon + '</i><b>' + nm + "</b>" + sz + "</a>";
+  }
+  var seenChat = {};
   function addChat(item) {
+    if (!item) return;
+    var sig = String(item.ts || "") + "|" + String(item.name || "") + "|" + String(item.text || "");
+    if (seenChat[sig]) return;              // 去重：服务端广播 + 回执可能带来同一条
+    seenChat[sig] = 1;
     var box = $id("chatlog");
     var d = document.createElement("div");
-    d.className = "cl"; d.innerHTML = "<b>" + esc(item.name) + "</b>" + esc(item.text);
+    d.className = "cl";
+    d.innerHTML = "<b>" + esc(item.name) + "</b>" + esc(item.text) +
+      (item.att && item.att.length ? '<div class="att">' + item.att.map(attHTML).join("") + "</div>" : "");
     box.appendChild(d); box.scrollTop = box.scrollHeight;
   }
+  /* 文本附件按需预览 */
+  $id("chatlog").addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("[data-load]") : null; if (!b) return;
+    var wrap = b.parentNode, pre = wrap.querySelector("pre.att-text");
+    if (!pre.hidden) { pre.hidden = true; b.textContent = "预览"; return; }
+    b.textContent = "加载中…";
+    fetch(b.getAttribute("data-load")).then(function (r) { return r.text(); }).then(function (t) {
+      pre.textContent = t.slice(0, 20000) + (t.length > 20000 ? "\n\n…（已截断，完整内容请下载）" : "");
+      pre.hidden = false; b.textContent = "收起";
+    }).catch(function () { b.textContent = "预览"; });
+  });
   function sysChat(t) { var box = $id("chatlog"); var d = document.createElement("div"); d.className = "cl sys"; d.textContent = t; box.appendChild(d); box.scrollTop = box.scrollHeight; }
 
   /* ---------- 时钟本地走秒 ---------- */
@@ -484,9 +548,59 @@
   });
   $id("chatsend").addEventListener("click", sendChat);
   $id("chatin").addEventListener("keydown", function (e) { if (e.key === "Enter") sendChat(); });
+  /* ---------- 评论附件（访客身份上传，scope=room） ---------- */
+  var roomFiles = [];
+  function fmtSize(n) { n = Number(n) || 0; return n < 1024 ? n + " B" : (n < 1048576 ? (n / 1024).toFixed(1) + " KB" : (n / 1048576).toFixed(2) + " MB"); }
+  function paintRoomFiles() {
+    $id("room-files").innerHTML = roomFiles.map(function (x, i) {
+      return '<span class="rfile-chip"><span>' + esc(x.name) + '</span><em style="font-style:normal;opacity:.7">' + fmtSize(x.size) + '</em><button type="button" data-rmf="' + i + '">×</button></span>';
+    }).join("");
+  }
+  $id("room-file").addEventListener("change", function () {
+    var picked = Array.prototype.slice.call(this.files || []); this.value = "";
+    picked.forEach(function (x) {
+      if (roomFiles.length >= 4) return note("每条评论最多 4 个附件", "warn");
+      if (x.size > 5 * 1024 * 1024) return note("「" + x.name + "」超过 5MB", "warn");
+      if (roomFiles.some(function (y) { return y.name === x.name && y.size === x.size; })) return;
+      roomFiles.push(x);
+    });
+    paintRoomFiles();
+  });
+  $id("room-files").addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("[data-rmf]") : null; if (!b) return;
+    roomFiles.splice(Number(b.getAttribute("data-rmf")), 1); paintRoomFiles();
+  });
+  function uploadOne(file) {
+    return new Promise(function (resolve, reject) {
+      var fr = new FileReader();
+      fr.onerror = function () { reject(new Error("读取文件失败")); };
+      fr.onload = function () {
+        fetch("/api/uploads", { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ scope: "room", guestId: guestId, name: file.name, size: file.size, data: String(fr.result) }) })
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) { if (!res.ok) return reject(new Error((res.d && res.d.error) || "上传失败")); resolve(res.d.file); })
+          .catch(function () { reject(new Error("上传失败，请检查网络")); });
+      };
+      fr.readAsDataURL(file);
+    });
+  }
   function sendChat() {
-    var v = $id("chatin").value.trim(); if (!v) return;
-    send("chat", { text: v }); $id("chatin").value = "";
+    var v = $id("chatin").value.trim();
+    var files = roomFiles.slice();
+    if (!v && !files.length) return;
+    var btn = $id("chatsend"); btn.disabled = true;
+    var chain = Promise.resolve([]);
+    files.forEach(function (fl, i) {
+      chain = chain.then(function (ids) {
+        btn.textContent = "上传 " + (i + 1) + "/" + files.length;
+        return uploadOne(fl).then(function (m) { ids.push({ id: m.id }); return ids; });
+      });
+    });
+    chain.then(function (atts) {
+      send("chat", { text: v, att: atts });
+      $id("chatin").value = ""; roomFiles = []; paintRoomFiles();
+      btn.disabled = false; btn.textContent = "发送";
+    }).catch(function (e) { btn.disabled = false; btn.textContent = "发送"; note((e && e.message) || "上传失败", "warn"); });
   }
   setInterval(function () { if (WS_OK) send("ping"); }, 20000);
 

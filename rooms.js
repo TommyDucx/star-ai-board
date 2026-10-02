@@ -22,6 +22,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const Chess = require("./public/js/lib/chess.min.js").Chess;
+const uploads = require("./uploads");   // 评论区附件（归属 = g:<guestId>）
 
 const ADMIN_DIR = path.join(__dirname, "admin");
 const ROOMS_FILE = path.join(ADMIN_DIR, "rooms.json");
@@ -247,7 +248,7 @@ function rematch(roomId, { token: tk }) {
 }
 
 /* ---------------- 聊天（房间内轻量文字，房内所有人可用） ---------------- */
-function chat(roomId, { token: tk, guestId, text }) {
+function chat(roomId, { token: tk, guestId, text, att }) {
   const room = rooms.get(String(roomId || ""));
   if (!room) return { error: "房间不存在或已失效", code: "ROOM_NOT_FOUND" };
   let name = null, role = "spectator";
@@ -255,8 +256,13 @@ function chat(roomId, { token: tk, guestId, text }) {
   if (seat) { name = room.seats[seat].name; role = seatRole(room, seat, room.seats[seat].guestId); }
   else { const sp = room.spectators.find(s => s.guestId === String(guestId || "")); if (!sp) return { error: "你不在该房间", code: "FORBIDDEN" }; name = sp.name; }
   const t = String(text == null ? "" : text).replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim();
-  if (!t) return { error: "内容为空", code: "EMPTY" };
+  // 附件：校验存在 + 归属本人（访客用 guestId 归属）
+  const at = uploads.normalizeAtts(att, "g:" + String(guestId || ""));
+  if (at.error) return { error: at.error, code: "BAD_ATT" };
+  const atts = at.atts || [];
+  if (!t && !atts.length) return { error: "内容为空", code: "EMPTY" };
   const item = { name, role, text: t.slice(0, 200), ts: now() };
+  if (atts.length) item.att = atts;
   room.chat.push(item);
   if (room.chat.length > L.maxChat) room.chat.splice(0, room.chat.length - L.maxChat);
   room.lastActivity = now();
