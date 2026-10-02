@@ -1,0 +1,20 @@
+# 图谱聚焦「网页 + 服务端」代码；以下目录不参与解析
+node_modules/
+data/
+run/
+mcts/
+data-etl/
+my-engine/
+qa/
+.code-review-graph/
+*.bak-*
+*.jsonl
+*.pgn
+*.7z
+*.gz
+public/stockfish
+public/reckless
+public/katago
+public/engines
+public/*.nnue
+public/img/

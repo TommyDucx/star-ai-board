@@ -1027,6 +1027,13 @@ function loadLit() {
   return d;
 }
 function saveLit(v) { writePrivate(LIT_FILE, JSON.stringify(v, null, 2)); }
+// 允许互动的作品 key：页面上的四篇 + 受保护正文文件里登记的作品。
+// 不加校验的话，任何人都能对任意 key 点赞/评论 → 服务器上会被灌出无限垃圾记录。
+const LIT_KNOWN_KEYS = ["bach", "jasmine", "mint", "dusk"];
+function litKnown(key) {
+  if (LIT_KNOWN_KEYS.indexOf(key) >= 0) return true;
+  return !!litGatedMeta(key);
+}
 function litArticle(data, key, create) {
   let a = data.articles[key];
   if (!a && create) { a = data.articles[key] = { likes: [], comments: [], createdAt: Date.now() }; }
@@ -1049,6 +1056,7 @@ function litPublic(data, userId) {
   const keys = Object.keys(data.articles);
   Object.keys(loadLitContent().articles || {}).forEach(k => { if (keys.indexOf(k) < 0) keys.push(k); });
   for (const key of keys) {
+    if (!litKnown(key)) continue;          // 脏数据（不在白名单里的 key）不对外暴露
     let a = litArticle(data, key, false);
     const acc = litAccess(key, userId);
     // 受保护但还没人互动过：也要返回状态（前端靠它渲染锁标识），只是计数为 0
@@ -1865,6 +1873,7 @@ async function handleApi(req, res, u) {
     if (lk && m === "POST") {
       const s2 = getSession(req);
       if (!s2) return json(res, 401, { error: "请先登录 S.T.A.R. 账号" });
+      if (!litKnown(lk[1])) return json(res, 404, { error: "作品不存在" });
       const body = await readBody(req);
       const r = lk[2] === "like" ? litToggleLike(s2.userId, lk[1]) : litComment(s2.userId, lk[1], body.text);
       return json(res, r.error ? 400 : 200, r.error ? { error: r.error } : r);
@@ -1880,7 +1889,10 @@ async function handleApi(req, res, u) {
   // 文学：申请授权 / 审批 / 通知（需登录）
   {
     const lr = /^\/api\/literature\/([a-z0-9][a-z0-9_-]{0,31})\/access\/request$/.exec(p);
-    if (lr && m === "POST") return json(res, 200, litRequestAccess(s.userId, lr[1]));
+    if (lr && m === "POST") {
+      if (!litKnown(lr[1])) return json(res, 404, { error: "作品不存在" });
+      return json(res, 200, litRequestAccess(s.userId, lr[1]));
+    }
     const ld2 = /^\/api\/literature\/([a-z0-9][a-z0-9_-]{0,31})\/access\/decide$/.exec(p);
     if (ld2 && m === "POST") {
       const body = await readBody(req);
