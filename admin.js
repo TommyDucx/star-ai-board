@@ -1034,6 +1034,39 @@ function litKnown(key) {
   if (LIT_KNOWN_KEYS.indexOf(key) >= 0) return true;
   return !!litGatedMeta(key);
 }
+// ---------- 好友系统（好友关系 / 申请 / 留言）----------
+// 数据：admin/friends.json  { schemaVersion, requests:[{id,from,to,ts,status,decidedAt}], friends:[{a,b,since}], messages:[{id,from,to,text,ts}] }
+const FRIENDS_FILE = path.join(ADMIN_DIR, "friends.json");
+function loadFriends() {
+  try {
+    const v = JSON.parse(fs.readFileSync(FRIENDS_FILE, "utf8"));
+    if (v && Array.isArray(v.requests) && Array.isArray(v.friends) && Array.isArray(v.messages)) return v;
+  } catch {}
+  const d = { schemaVersion: 1, requests: [], friends: [], messages: [] };
+  writePrivate(FRIENDS_FILE, JSON.stringify(d, null, 2));
+  return d;
+}
+function saveFriends(v) { writePrivate(FRIENDS_FILE, JSON.stringify(v, null, 2)); }
+function friendUser(id) {
+  const accounts = loadAccounts();
+  if (Array.isArray(accounts)) { const u = accounts.find(a => a && a.id === id); if (u) return { id: u.id, username: u.username }; }
+  return { id, username: "已注销" };
+}
+function isFriend(a, b) {
+  if (!a || !b) return false;
+  const f = loadFriends();
+  return f.friends.some(x => (x.a === a && x.b === b) || (x.a === b && x.b === a));
+}
+function friendRelation(me, other) {
+  if (!other) return "none";
+  if (me === other) return "self";
+  if (isFriend(me, other)) return "friend";
+  const f = loadFriends();
+  if (f.requests.some(r => r.from === me && r.to === other && r.status === "pending")) return "pending_out";
+  if (f.requests.some(r => r.from === other && r.to === me && r.status === "pending")) return "pending_in";
+  return "none";
+}
+
 function litArticle(data, key, create) {
   let a = data.articles[key];
   if (!a && create) { a = data.articles[key] = { likes: [], comments: [], createdAt: Date.now() }; }
@@ -1072,7 +1105,7 @@ function litPublic(data, userId) {
       likes: a.likes.length,
       liked: !!userId && a.likes.indexOf(userId) >= 0,
       comments: a.comments.slice(-LIT_KEEP).map(c => ({
-        id: c.id, name: c.name, text: c.text, ts: c.ts, mine: !!userId && c.userId === userId,
+        id: c.id, uid: c.userId, name: c.name, text: c.text, ts: c.ts, mine: !!userId && c.userId === userId,
       })),
     };
   }
@@ -1644,8 +1677,9 @@ const routeEngagement = require("./routes/engagement");
 const routeLibrary = require("./routes/library");
 const routeTrainer = require("./routes/trainer");
 const routeAdmin = require("./routes/admin");
+const routeFriends = require("./routes/friends");
 const PUBLIC_ROUTES = [routeAuth, routeTactics, routeRating, routeEngagement, routeLibrary, routeLiterature];
-const AUTHED_ROUTES = [routeAuth, routeEngagement, routeLibrary, routeLiterature, routeTrainer, routeTactics, routeRating, routeAdmin];
+const AUTHED_ROUTES = [routeAuth, routeEngagement, routeLibrary, routeLiterature, routeTrainer, routeTactics, routeRating, routeFriends, routeAdmin];
 
 async function handleApi(req, res, u) {
   const p = u.pathname;
@@ -1655,6 +1689,7 @@ async function handleApi(req, res, u) {
   const responded = () => res.writableEnded || res.headersSent;
   const baseCtx = {
     req, res, p, m, u,
+    uuid, loadAccounts, loadFriends, saveFriends, isFriend, friendUser, friendRelation,
     ALL_ROLES,
     CHESS_RATING_MAX,
     CHESS_RATING_MIN,

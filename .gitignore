@@ -70,3 +70,4 @@ admin/trainer.json
 # 任何本地备份（可能含账号哈希）
 admin/*.bak-*
 *.bak-*
+admin/friends.json

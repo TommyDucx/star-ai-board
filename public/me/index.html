@@ -1677,6 +1677,9 @@ body:not(.audio-on) .eq i{animation-play-state:paused;transform:scaleY(.25)}
 #sheet-body .lit-cmt-del{margin-left:auto;background:none;border:0;cursor:pointer;font-size:12px;padding:3px 7px;
   border-radius:6px;color:#a3906f;transition:color .2s,background .2s}
 #sheet-body .lit-cmt-del:hover{color:#8c2f2f;background:rgba(140,47,47,.09)}
+#sheet-body .lit-cmt-add{margin-left:auto;border:1px solid rgba(120,90,40,.45);background:rgba(255,255,255,.5);
+  color:#6b5220;cursor:pointer;font-size:11px;padding:3px 9px;border-radius:99px;transition:all .2s var(--ease)}
+#sheet-body .lit-cmt-add:hover{background:#8a6a33;border-color:#8a6a33;color:#f8f0dc}
 #sheet-body .lit-cmt-text{margin:8px 0 0;color:#33291b;font-size:16px;line-height:1.98;letter-spacing:.01em;
   white-space:pre-wrap;word-break:break-word}
 #sheet-body .lit-cmt-form{margin-top:18px;display:grid;gap:10px}
@@ -1857,7 +1860,8 @@ body:not(.audio-on) .eq i{animation-play-state:paused;transform:scaleY(.25)}
     return '<div class="lit-cmt" data-cid="'+esc(c.id)+'">'+
       '<div class="lit-cmt-head"><span class="lit-cmt-name">'+esc(c.name)+'</span>'+
       '<span class="lit-cmt-time">'+timeText(c.ts)+'</span>'+
-      (c.mine?'<button class="lit-cmt-del" type="button" data-del="'+esc(c.id)+'">删除</button>':'')+
+      (c.mine?'<button class="lit-cmt-del" type="button" data-del="'+esc(c.id)+'">删除</button>'
+             :(c.uid?'<button class="lit-cmt-add" type="button" data-add="'+esc(c.uid)+'" data-addname="'+esc(c.name)+'">＋ 加好友</button>':''))+
       '</div><p class="lit-cmt-text">'+esc(c.text)+'</p></div>';
   }
   function renderSheet(){
@@ -1946,6 +1950,17 @@ body:not(.audio-on) .eq i{animation-play-state:paused;transform:scaleY(.25)}
     }
     var req=t.closest?t.closest("[data-req]"):null;
     if(req){ e.preventDefault(); if(!me) return toast("请先登录 S.T.A.R. 账号"); return requestAccess(req.getAttribute("data-req")); }
+    var add=t.closest?t.closest("[data-add]"):null;
+    if(add){ e.preventDefault();
+      if(!me) return toast("请先登录 S.T.A.R. 账号");
+      add.disabled=true;
+      fetch("/api/friends/request",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({to:add.getAttribute("data-add")})})
+        .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
+        .then(function(res){
+          if(res.ok){ toast(res.d.status==="accepted"?"对方也申请过你，已互加好友":"好友申请已发送，等待对方处理"); add.textContent="已申请"; add.disabled=true; }
+          else { toast((res.d&&res.d.error)||"申请失败"); add.disabled=false; }
+        }).catch(function(){ add.disabled=false; toast("网络错误，请稍后重试"); });
+      return; }
     var cmt=t.closest?t.closest("[data-cmt]"):null;
     if(cmt){
       e.preventDefault();

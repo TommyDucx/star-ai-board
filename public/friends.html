@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.T.A.R. · 好友</title>
+<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
+<link rel="stylesheet" href="css/site.css?v=40">
+<link rel="stylesheet" href="css/motion.css?v=40">
+<style>
+  .friends-main { width: min(1120px, calc(100vw - 32px)); margin: 0 auto; padding: 28px 0 60px; }
+  .friends-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; }
+  .friends-head h1 { margin: 0; font-size: 26px; color: var(--paper); letter-spacing: .04em; }
+  .friends-head .sub { font-size: 11px; color: var(--signal); letter-spacing: .3em; text-transform: uppercase; }
+  .friends-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 860px) { .friends-grid { grid-template-columns: 1fr; } }
+  .f-card { border: 1px solid var(--lineStrong); background: var(--surface); border-radius: 12px; padding: 16px; }
+  .f-card h2 { margin: 0 0 12px; font-size: 12px; color: var(--signal); letter-spacing: .28em; text-transform: uppercase; }
+  .f-search { display: flex; gap: 8px; }
+  .f-search input { flex: 1; padding: 10px 12px; border: 1px solid var(--lineStrong); background: var(--ink); color: var(--paper); border-radius: 999px; font-size: 14px; }
+  .f-search button { border: 1px solid #d7ff3f55; background: rgba(215,255,63,.08); color: var(--signal); border-radius: 999px; padding: 0 18px; cursor: pointer; }
+  .f-list { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+  .f-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface2); }
+  .f-item .name { flex: 1; color: var(--paper); font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .f-item .id { font-size: 10px; color: var(--faint); letter-spacing: .08em; }
+  .f-item .rel { font-size: 10px; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
+  .f-btn { border: 1px solid #d7ff3f55; background: rgba(215,255,63,.08); color: var(--signal); border-radius: 999px; padding: 6px 14px; cursor: pointer; font-size: 12px; white-space: nowrap; transition: all .15s; }
+  .f-btn:hover { background: rgba(215,255,63,.18); box-shadow: 0 0 16px #d7ff3f2e; }
+  .f-btn.ghost { border-color: var(--lineStrong); background: transparent; color: var(--muted); }
+  .f-btn.danger { border-color: #ff6d6455; background: rgba(255,109,100,.08); color: #ff8a80; }
+  .f-btn:disabled { opacity: .4; cursor: default; box-shadow: none; }
+  .f-empty { color: var(--faint); font-size: 13px; padding: 8px 2px; }
+  .f-req { display: flex; align-items: center; gap: 8px; }
+  .f-req .acts { display: flex; gap: 6px; }
+  /* 留言面板 */
+  .chat { display: flex; flex-direction: column; height: 460px; }
+  .chat-head { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .chat-head b { color: var(--paper); font-size: 16px; }
+  .chat-log { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 14px 0; }
+  .msg { max-width: 78%; padding: 9px 13px; border-radius: 12px; font-size: 14px; line-height: 1.6; position: relative; }
+  .msg.mine { align-self: flex-end; background: rgba(215,255,63,.12); border: 1px solid #d7ff3f33; color: var(--paper); }
+  .msg.theirs { align-self: flex-start; background: var(--surface2); border: 1px solid var(--line); color: var(--paper); }
+  .msg .meta { font-size: 10px; color: var(--faint); margin-top: 4px; display: flex; gap: 8px; align-items: center; }
+  .msg .del { border: 0; background: none; color: var(--faint); cursor: pointer; font-size: 10px; padding: 0; }
+  .msg .del:hover { color: #ff8a80; }
+  .chat-input { display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .chat-input input { flex: 1; padding: 10px 14px; border: 1px solid var(--lineStrong); background: var(--ink); color: var(--paper); border-radius: 999px; font-size: 14px; }
+  .chat-input button { border: 1px solid #d7ff3f55; background: rgba(215,255,63,.1); color: var(--signal); border-radius: 999px; padding: 0 20px; cursor: pointer; }
+  .chat-pick { color: var(--faint); text-align: center; padding: 60px 0; font-size: 14px; }
+  .toast { position: fixed; left: 50%; bottom: 32px; transform: translate(-50%, 16px); background: var(--surface2); border: 1px solid var(--lineStrong); color: var(--paper); padding: 10px 18px; border-radius: 999px; font-size: 13px; opacity: 0; pointer-events: none; transition: all .25s; z-index: 300; }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+</style>
+</head>
+<body>
+<main class="friends-main enter-node">
+  <div class="friends-head"><span class="sub">FRIENDS</span><h1>好友 · 留言</h1></div>
+
+  <div class="friends-grid">
+    <!-- 左：搜索 + 申请 -->
+    <div>
+      <section class="f-card">
+        <h2>查找用户</h2>
+        <div class="f-search">
+          <input id="q" type="text" placeholder="输入用户名或用户 ID…" autocomplete="off">
+          <button id="doSearch" type="button">搜索</button>
+        </div>
+        <ul class="f-list" id="searchList"></ul>
+      </section>
+
+      <section class="f-card" id="reqCard" hidden>
+        <h2>待处理申请</h2>
+        <div id="reqList"></div>
+      </section>
+    </div>
+
+    <!-- 右：好友列表 + 留言 -->
+    <div>
+      <section class="f-card">
+        <h2>我的好友</h2>
+        <div id="friendList"></div>
+      </section>
+      <section class="f-card">
+        <h2 id="chatTitle">留言</h2>
+        <div id="chatBox"><p class="chat-pick">选择左侧好友开始留言</p></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+<script src="js/motion.js?v=37"></script>
+<script>
+(function () {
+  "use strict";
+  var me = null, friends = [], current = null;
+  var $ = (id) => document.getElementById(id);
+  function toast(msg) { var t = $("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("on"), 2200); }
+  function esc(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function api(path, method, body) {
+    return fetch(path, { method: method || "GET", headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, status: r.status, d: d }; }); });
+  }
+  function timeText(ts) { var d = new Date(ts), n = new Date(), p = (x) => String(x).padStart(2, "0"); return (d.toDateString() === n.toDateString() ? "" : (d.getMonth() + 1) + "月" + d.getDate() + "日 ") + p(d.getHours()) + ":" + p(d.getMinutes()); }
+  var REL = { none: ["＋ 加好友", "f-btn"], pending_out: ["已申请", "f-btn ghost"], pending_in: ["接受申请", "f-btn"], friend: ["已是好友", "f-btn ghost"] };
+
+  function renderSearch(users) {
+    var el = $("searchList");
+    if (!users.length) { el.innerHTML = '<li class="f-empty">没有匹配的用户</li>'; return; }
+    el.innerHTML = users.map(function (u) {
+      var r = REL[u.relation] || REL.none;
+      return '<li class="f-item"><span class="name">' + esc(u.username) + '</span><span class="id">' + esc(u.id.slice(0, 8)) + '</span>' +
+        (u.relation === "none" || u.relation === "pending_out" || u.relation === "friend"
+          ? '<button class="' + r[1] + '" data-act="request" data-id="' + esc(u.id) + '"' + (u.relation !== "none" ? " disabled" : "") + '>' + r[0] + '</button>'
+          : '<button class="f-btn" data-act="accept" data-id="' + esc(u.id) + '">' + r[0] + '</button>') + '</li>';
+    }).join("");
+  }
+  function renderRequests() {
+    var inc = (window.__inc || []), out = (window.__out || []);
+    var html = "";
+    if (inc.length) {
+      html += '<div class="f-empty" style="color:var(--muted)">收到：</div>';
+      inc.forEach(function (r) {
+        html += '<div class="f-item"><span class="name">' + esc(r.from.username) + '</span><div class="acts">' +
+          '<button class="f-btn" data-act="respond" data-id="' + esc(r.id) + '" data-accept="1">接受</button>' +
+          '<button class="f-btn danger" data-act="respond" data-id="' + esc(r.id) + '" data-accept="0">拒绝</button></div></div>';
+      });
+    }
+    if (out.length) {
+      html += '<div class="f-empty" style="color:var(--muted)">已发送：</div>';
+      out.forEach(function (r) { html += '<div class="f-item"><span class="name">' + esc(r.to.username) + '</span><span class="rel">等待对方处理</span></div>'; });
+    }
+    if (!html) html = '<p class="f-empty">暂无待处理申请</p>';
+    $("reqList").innerHTML = html;
+    $("reqCard").hidden = !(inc.length || out.length);
+  }
+  function renderFriends() {
+    var el = $("friendList");
+    if (!friends.length) { el.innerHTML = '<p class="f-empty">还没有好友，去搜索添加吧</p>'; return; }
+    el.innerHTML = '<ul class="f-list">' + friends.map(function (f) {
+      return '<li class="f-item"><span class="name">' + esc(f.username) + '</span><button class="f-btn" data-act="chat" data-id="' + esc(f.id) + '">留言</button></li>';
+    }).join("") + '</ul>';
+  }
+  function renderChat(messages) {
+    var el = $("chatBox");
+    if (!current) { el.innerHTML = '<p class="chat-pick">选择左侧好友开始留言</p>'; return; }
+    var msgs = messages || [];
+    el.innerHTML = '<div class="chat"><div class="chat-head"><b>' + esc(current.username) + '</b><span class="rel">好友</span></div>' +
+      '<div class="chat-log">' + (msgs.length ? msgs.map(function (m) {
+        return '<div class="msg ' + (m.mine ? "mine" : "theirs") + '">' + esc(m.text) +
+          '<div class="meta">' + timeText(m.ts) + (m.mine ? '<button class="del" data-del="' + esc(m.id) + '">删除</button>' : "") + '</div></div>';
+      }).join("") : '<p class="f-empty">还没有留言，打个招呼吧</p>') + '</div>' +
+      '<div class="chat-input"><input id="msgText" placeholder="输入留言…（最多 500 字）"><button id="sendMsg" type="button">发送</button></div></div>';
+    $("chatTitle").textContent = "留言 · " + current.username;
+  }
+  function loadChat(id) {
+    api("/api/friends/messages?with=" + id).then(function (r) { if (r.ok) { current = r.d.with; renderChat(r.d.messages); } else toast(r.d.error || "加载失败"); });
+  }
+  function refresh() {
+    api("/api/friends").then(function (r) {
+      if (!r.ok) return;
+      friends = r.d.friends; window.__inc = r.d.incoming; window.__out = r.d.outgoing;
+      renderFriends(); renderRequests();
+    });
+  }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("[data-act]") : null;
+    if (!b) return;
+    var act = b.getAttribute("data-act"), id = b.getAttribute("data-id");
+    if (act === "request") {
+      b.disabled = true;
+      api("/api/friends/request", "POST", { to: id }).then(function (r) {
+        if (r.ok) { toast(r.d.status === "accepted" ? "对方也申请过你，已互加好友" : "申请已发送"); b.textContent = "已申请"; refresh(); }
+        else { toast(r.d.error || "发送失败"); b.disabled = false; }
+      });
+    } else if (act === "accept") {
+      api("/api/friends/request", "POST", { to: id }).then(function (r) { if (r.ok) { toast("已接受并互加好友"); refresh(); } else toast(r.d.error || "失败"); });
+    } else if (act === "respond") {
+      api("/api/friends/respond", "POST", { id: id, accept: b.getAttribute("data-accept") === "1" }).then(function (r) { if (r.ok) { toast(r.d.status === "accepted" ? "已添加好友" : "已拒绝"); refresh(); } else toast(r.d.error || "失败"); });
+    } else if (act === "chat") {
+      var f = friends.find(function (x) { return x.id === id; }); if (f) loadChat(id);
+    } else if (act === "del") {
+      if (!confirm("删除这条留言？")) return;
+      api("/api/friends/message/" + id, "DELETE").then(function (r) { if (r.ok) { toast("已删除"); loadChat(current.id); } else toast(r.d.error || "失败"); });
+    }
+  });
+  document.addEventListener("click", function (e) { var d = e.target.closest ? e.target.closest("[data-del]") : null; if (d) { e.preventDefault(); } });
+  $("doSearch").addEventListener("click", function () {
+    var q = $("q").value.trim(); if (!q) return;
+    api("/api/friends/search?q=" + encodeURIComponent(q)).then(function (r) { if (r.ok) renderSearch(r.d.users); else toast(r.d.error || "搜索失败"); });
+  });
+  $("q").addEventListener("keydown", function (e) { if (e.key === "Enter") $("doSearch").click(); });
+  $("sendMsg").addEventListener("click", function () {
+    if (!current) return;
+    var v = $("msgText").value.trim(); if (!v) return toast("留言不能为空");
+    api("/api/friends/message", "POST", { to: current.id, text: v }).then(function (r) {
+      if (r.ok) { $("msgText").value = ""; loadChat(current.id); } else toast(r.d.error || "发送失败");
+    });
+  });
+
+  fetch("/api/me", { credentials: "same-origin" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (m) {
+    if (!m) { document.querySelector(".friends-main").innerHTML = '<section class="f-card"><h2>FRIENDS</h2><p class="f-empty">请先登录后使用好友功能 · <a href="/admin/login.html" style="color:var(--signal)">去登录 →</a></p></section>'; return; }
+    me = m; refresh();
+  });
+  if (window.Motion) { Motion.initCursorLine(); Motion.initRipple(); Motion.staggerEnter(); }
+})();
+</script>
+</body>
+</html>
