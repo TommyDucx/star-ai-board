@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>国际象棋 · AI 下一步推荐 — S.T.A.R.</title>
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
-<link rel="stylesheet" href="css/site.css?v=39">
+<link rel="stylesheet" href="css/site.css?v=40">
 <link rel="stylesheet" href="css/motion.css?v=39">
 <link rel="stylesheet" href="css/chessboard.min.css?v=26">
-  <link rel="stylesheet" href="css/chess-motion.css?v=3">
+  <link rel="stylesheet" href="css/chess-motion.css?v=4">
 <style>
   /* ===== 视口预算布局：topbar + 内容区撑满 100vh，无页面滚动 ===== */
   html, body { height: 100%; overflow: hidden; }
@@ -25,21 +25,21 @@
   @media (prefers-reduced-motion: reduce) { #evalfill { transition: none; } }
   .eval-col { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 0; flex: 0 0 64px; width: 64px; }
   .eval-col #evalwrap { flex: 1; width: 16px; }
-  #evalpct { width: 100%; text-align: center; font-variant-numeric: tabular-nums; font-size: 11px; font-family: ui-monospace, Menlo, monospace; color: var(--muted); white-space: nowrap; }
+  #evalpct { width: 100%; text-align: center; font-variant-numeric: tabular-nums; font-size: 11px; font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; color: var(--muted); white-space: nowrap; }
   .panel { width: 300px; flex: none; max-height: 100%; min-height: 0;
     display: flex; flex-direction: column; overflow: hidden; }
   .panel > .row { flex: none; }
   .cand { display: flex; align-items: center; gap: 10px; padding: 6px 9px; border: 1px solid var(--line); margin-bottom: 6px; background: var(--surface); }
   #cands { max-height: 148px; overflow-y: auto; }
   .cand .n { width: 22px; height: 22px; border-radius: 50%; background: var(--signal); color: #080a09; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 12px; flex: 0 0 22px; }
-  .cand .pv { flex: 1; font-family: ui-monospace, Menlo, monospace; color: var(--faint); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cand .pv { flex: 1; font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; color: var(--faint); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cand .score { font-family: monospace; color: var(--muted); font-size: 12px; }
   /* 走法列表吃掉面板剩余高度（内部滚动），面板整体不超出视口 */
   .moves { margin-top: 6px; flex: 1 1 auto; min-height: 48px; overflow-y: auto; font-size: 13px; border-top: 1px solid var(--line); padding-top: 6px; }
   .moves table { width: 100%; border-collapse: collapse; }
   .moves td { padding: 2px 4px; }
   .moves .num { color: var(--faint); width: 26px; }
-  .moves .mv { font-family: ui-monospace, Menlo, monospace; cursor: pointer; }
+  .moves .mv { font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; cursor: pointer; }
   .moves .mv:hover { color: var(--signal); }
   /* 小屏回退：恢复自然文档流（手机上无法塞进一屏属预期） */
   @media (max-width: 960px) {
@@ -64,12 +64,12 @@
     align-items:center; justify-content:center; gap:12px; pointer-events:none;
     background:radial-gradient(60% 60% at 50% 50%, rgba(8,10,9,.85), rgba(8,10,9,.38));
     animation:finaleIn .45s var(--ease-out); }
-  .checkmate-finale small { font-family:ui-monospace,Menlo,monospace; letter-spacing:.5em; color:#ff5a4d; font-size:12px; }
-  .checkmate-finale b { font-family:ui-monospace,Menlo,monospace; font-weight:800;
+  .checkmate-finale small { font-family:"Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; letter-spacing:.5em; color:#ff5a4d; font-size:12px; }
+  .checkmate-finale b { font-family:"Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-weight:800;
     font-size:clamp(40px,7vw,86px); letter-spacing:.12em; color:#fff;
     text-shadow:-3px 0 #2ed3ff, 3px 0 #e02c1a, 0 0 36px rgba(215,255,63,.22);
     animation:finaleJitter .12s steps(2,end) infinite; }
-  .checkmate-finale i { font-style:normal; font-family:ui-monospace,Menlo,monospace;
+  .checkmate-finale i { font-style:normal; font-family:"Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif;
     color:var(--muted); font-size:12px; letter-spacing:.2em; }
   @keyframes finaleIn { from{opacity:0;} to{opacity:1;} }
   @keyframes finaleJitter { 0%{transform:translate(0,0);} 50%{transform:translate(1.5px,-1px);} 100%{transform:translate(-1px,1px);} }
@@ -257,9 +257,9 @@
 <script src="js/lib/jquery.min.js?v=26"></script>
 <script src="js/lib/chess.min.js?v=26"></script>
 <script src="js/lib/chessboard.min.js?v=26"></script>
-<script src="js/chess-motion.js?v=12"></script>
+<script src="js/chess-motion.js?v=37"></script>
 <script src="js/chess.js?v=47"></script>
-<script src="js/motion.js?v=36"></script>
+<script src="js/motion.js?v=37"></script>
 <script>
   // 守卫：motion.js 加载失败时不要抛 ReferenceError 中断内联初始化（与 main.html 一致）
   if (window.Motion) { Motion.initCursorLine(); Motion.initRipple(); Motion.staggerEnter(); }

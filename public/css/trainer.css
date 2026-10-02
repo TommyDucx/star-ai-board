@@ -14,7 +14,7 @@
 .tr-box { color:var(--tr); font-size:12px; letter-spacing:2px; }
 .tr-row .lib-row-rail { display:flex; flex-direction:column; gap:8px; align-items:end; justify-content:center; }
 .tr-row .lib-row-rail .library-action { min-height:34px; }
-.tr-stats { display:flex; flex-wrap:wrap; gap:14px; padding:12px 14px; border-bottom:1px solid var(--line); color:var(--muted); font:11px ui-monospace,Menlo,monospace; letter-spacing:.06em; }
+.tr-stats { display:flex; flex-wrap:wrap; gap:14px; padding:12px 14px; border-bottom:1px solid var(--line); color:var(--muted); font:11px "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; letter-spacing:.06em; }
 .tr-stats.tr-err span:first-child { color:#ff9d6b; }
 .tr-stats .tr-done { color:var(--tr); font-size:12.5px; }
 .trainer-shell .tr-import .lib-row-sum { -webkit-line-clamp:1; }

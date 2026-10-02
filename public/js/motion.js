@@ -262,10 +262,18 @@
   function wireNav() {
     document.addEventListener("click", e => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-      const a = e.target && e.target.closest ? e.target.closest("[data-nav]") : null;
+      const t = e.target;
+      // 「进入系统」按钮式导航（无 href）
+      if (t && t.closest && t.closest("#enter-btn")) {
+        e.preventDefault();
+        return sliceRoute("main.html", { point: { x: e.clientX, y: e.clientY } });
+      }
+      const a = t && t.closest ? t.closest("[data-nav], a[href]") : null;
       if (!a) return;
+      const href = a.getAttribute("href");
+      if (!href || href.charAt(0) === "#" || /^(https?:|javascript:|mailto:|tel:)/.test(href)) return;
       e.preventDefault();
-      sliceRoute(a.getAttribute("href"), { point: { x: e.clientX, y: e.clientY } });
+      sliceRoute(href, { point: { x: e.clientX, y: e.clientY } });
     });
   }
 
@@ -501,8 +509,8 @@
   }
 
   /* 进入编队：DOM 就绪后执行（main.html 等内容由脚本注入的页面也能覆盖到） */
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(enterFlow, 20); });
-  else setTimeout(enterFlow, 20);
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(enterFlow, 20); wireNav(); });
+  else { setTimeout(enterFlow, 20); wireNav(); }
   // bfcache 恢复时清掉残留的过渡暂停标记，否则装饰动画会一直停着
   window.addEventListener("pageshow", function () { document.documentElement.classList.remove("route-busy"); });
 

@@ -269,7 +269,7 @@
     const cell = key => `<td style="padding:6px 10px;border-bottom:1px solid var(--line)"><span style="color:${CLASSES[key].color}">${CLASSES[key].label}</span></td>
       <td style="text-align:center;font-family:monospace">${cnt("w", key)}</td><td style="text-align:center;font-family:monospace">${cnt("b", key)}</td>`;
     const head = `<table style="width:100%;border-collapse:collapse;font-size:12px">
-      <tr style="font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--faint);letter-spacing:.1em">
+      <tr style="font-family:"Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif;font-size:10px;color:var(--faint);letter-spacing:.1em">
         <td>等级</td><td style="text-align:center">白</td><td style="text-align:center">黑</td></tr>
       ${order.map(cell).join("")}</table>`;
     const maxCp = Math.max(...nodes.map(n => Math.abs(n.cp)), 0.1);
@@ -323,7 +323,7 @@
     const issue = issueText(r);
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-        <span style="font-family:ui-monospace,Menlo,monospace;font-size:10px;border:1px solid ${c.color}66;color:${c.color};padding:3px 10px">${c.label} ${c.sym}</span>
+        <span style="font-family:"Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif;font-size:10px;border:1px solid ${c.color}66;color:${c.color};padding:3px 10px">${c.label} ${c.sym}</span>
         <span style="font-size:15px;font-weight:600">${r.n}. ${r.san}</span>
         <span style="font-size:12px;color:var(--muted)">${r.p === "w" ? "白方" : "黑方"} · ${phaseName(r.n)}</span>
       </div>

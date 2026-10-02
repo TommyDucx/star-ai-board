@@ -37,7 +37,7 @@
   border: 1px solid rgba(215,255,63,.26); background: rgba(215,255,63,.05);
   animation: cellTwinkle 3.6s ease-in-out infinite; }
 @keyframes cellTwinkle { 0%,100%{opacity:0;} 14%,40%{opacity:1;} 66%{opacity:0;} }
-.boot .boot-word { font-family: ui-monospace, Menlo, monospace; font-weight: 800;
+.boot .boot-word { font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-weight: 800;
   font-size: clamp(44px,9vw,104px); letter-spacing: .08em; line-height: 1; display: flex; align-items: baseline; gap: .35em; }
 .boot .boot-word .w-p { animation: bootProjectIn .8s var(--ease-out) .1s both; }
 /* 最终态为默认样式（无 JS / reduced-motion 时天然正确）；解码前置态由 .decoding 覆盖 */
@@ -47,7 +47,7 @@
 .boot .boot-word .w-s.locked { animation: starLock .55s var(--ease-out) forwards; }
 @keyframes starLock { from{letter-spacing:.5em; opacity:.8; text-shadow:none;}
   to{letter-spacing:.08em; opacity:1; text-shadow:0 0 22px rgba(215,255,63,.55), 0 0 4px rgba(215,255,63,.85);} }
-.boot .boot-meta { font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: .3em;
+.boot .boot-meta { font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-size: 10px; letter-spacing: .3em;
   color: var(--muted); text-transform: uppercase; animation: bootMetaIn .8s var(--ease-out) .75s both; }
 .boot .boot-rules { width: min(440px,62vw); height: 1px; background: var(--lineStrong); position: relative; overflow: visible; }
 .boot .boot-rules::before { content:""; position:absolute; inset:0; background: var(--signal); transform-origin: left;
@@ -58,7 +58,7 @@
   animation: rulePulse 1.7s cubic-bezier(.45,0,.2,1) 1.8s infinite; }
 /* 阶段标签 + 三段进度条 */
 .boot-stage { display:flex; align-items:center; gap:14px;
-  font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing:.28em;
+  font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-size: 10px; letter-spacing:.28em;
   color: var(--muted); text-transform: uppercase; margin-top: 2px; }
 .boot-stage b { color: var(--signal); font-weight:700; min-width:11ch; text-align:left;
   text-shadow:0 0 10px rgba(215,255,63,.4); }
@@ -69,7 +69,7 @@
   transition:transform .5s cubic-bezier(.65,0,.35,1); }
 /* UCI 握手日志：左下角终端流 */
 .boot-log { position:absolute; left:26px; bottom:64px; z-index:2;
-  font-family: ui-monospace, Menlo, monospace; font-size:11px; line-height:1.75;
+  font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-size:11px; line-height:1.75;
   color:rgba(215,255,63,.72); text-align:left; pointer-events:none; }
 .boot-log .ln { opacity:0; transform:translateY(4px); animation: logIn .22s ease forwards; }
 .boot-log .ln.rsp { color:rgba(234,255,160,.5); }
@@ -80,7 +80,7 @@
   background:linear-gradient(90deg,transparent,rgba(215,255,63,.55),transparent);
   animation: bootScan 3.2s ease-in-out .6s infinite; pointer-events:none; }
 .boot .boot-skip { position: absolute; bottom: 40px; left: 0; right: 0; text-align: center;
-  font-family: ui-monospace, Menlo, monospace; font-size: 9px; color: var(--faint); letter-spacing: .24em;
+  font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-size: 9px; color: var(--faint); letter-spacing: .24em;
   text-transform: uppercase; animation: bootMetaIn .6s var(--ease-out) 1.6s both; }
 @keyframes bootProjectIn { 0%{opacity:0;clip-path:inset(0 100% 0 0);transform:translate(-90px);} to{opacity:1;clip-path:inset(0);transform:translate(0);} }
 /* 字距从很宽收缩到位 + 模糊聚焦上升 */
@@ -200,10 +200,10 @@ body .panel, body .panel-go, body .feat, body .card, body #detail, body #recs, b
 .card,.panel,.mod,.status,.rank-row,.library-card,.library-detail-paper,.library-empty,.quest,.honor,.report-stat,.account-card,.mission,.site-corner-nav{border-radius:var(--star-radius)!important}
 input,select,textarea,.library-search,.library-select,.library-form input,.library-form textarea,.library-form select{border-radius:var(--star-radius-sm)!important}
 .topbar .logo{cursor:pointer}
-.site-back{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border:1px solid var(--lineStrong);color:var(--muted);background:rgba(255,255,255,.025);text-decoration:none;font:11px ui-monospace,Menlo,monospace;letter-spacing:.05em;white-space:nowrap;transition:.18s}
+.site-back{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border:1px solid var(--lineStrong);color:var(--muted);background:rgba(255,255,255,.025);text-decoration:none;font:11px "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif;letter-spacing:.05em;white-space:nowrap;transition:.18s}
 .site-back:hover{color:var(--signal);border-color:var(--signal);background:rgba(215,255,63,.08)}
 .site-corner-nav{position:fixed;left:18px;top:16px;z-index:80;display:flex;gap:7px;padding:6px;background:#0a0c0b;border:1px solid var(--line)}
-.site-corner-nav a{display:inline-flex;align-items:center;padding:7px 10px;color:var(--paper);font:11px ui-monospace,Menlo,monospace;letter-spacing:.06em;text-decoration:none;border:1px solid transparent}
+.site-corner-nav a{display:inline-flex;align-items:center;padding:7px 10px;color:var(--paper);font:11px "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif;letter-spacing:.06em;text-decoration:none;border:1px solid transparent}
 .site-corner-nav a:hover{color:var(--signal);border-color:var(--signal)}
 @media(max-width:660px){.site-back{padding:6px 9px;font-size:10px}.site-corner-nav{left:10px;top:10px}}
 
@@ -265,7 +265,7 @@ input,select,textarea,.library-search,.library-select,.library-form input,.libra
 .route-veil { position: fixed; inset: 0; z-index: 250; pointer-events: none; overflow: hidden;
   contain: strict; will-change: clip-path, transform, opacity; background: #0a0c0b; }
 .route-veil .veil-label { position: absolute; left: clamp(24px, 4vw, 72px); bottom: 46px; display: grid; gap: 12px; }
-.route-veil .veil-label span { color: var(--signal); font: 600 10px ui-monospace, Menlo, monospace; letter-spacing: .34em; text-transform: uppercase; }
+.route-veil .veil-label span { color: var(--signal); font: 600 10px "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; letter-spacing: .34em; text-transform: uppercase; }
 .route-veil .veil-label b { color: var(--paper); font-size: clamp(22px, 3.2vw, 42px); font-weight: 800; letter-spacing: .02em; }
 .route-veil .veil-bar { position: absolute; left: clamp(24px, 4vw, 72px); right: clamp(24px, 4vw, 72px); bottom: 30px; height: 2px;
   background: linear-gradient(90deg, var(--signal), transparent); transform-origin: left; animation: veilBar .6s cubic-bezier(.76,0,.24,1) both; }

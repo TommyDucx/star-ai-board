@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <title>S.T.A.R. — 本地引擎 AI 推荐</title>
-<link rel="stylesheet" href="css/site.css?v=39">
+<link rel="stylesheet" href="css/site.css?v=40">
 <link rel="stylesheet" href="css/motion.css?v=39">
 <link rel="stylesheet" href="css/shared-library.css?v=3">
   <link rel="stylesheet" href="css/trainer.css?v=5">
@@ -15,7 +15,7 @@
   .page { display: grid; grid-template-columns: 200px 1fr; height: calc(100vh - 64px); min-height: 480px; }
   .side { border-right: 1px solid var(--line); background: var(--surface);
     padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
-  .side-head { font-family: ui-monospace, Menlo, monospace; font-size: 10px;
+  .side-head { font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-size: 10px;
     color: var(--faint); letter-spacing: .3em; padding: 6px 12px 12px; }
   .side-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px;
     cursor: pointer; color: var(--muted); border: 1px solid transparent;
@@ -25,10 +25,10 @@
     border-color: rgba(215,255,63,0.3); }
   .side-item .ico { width: 22px; height: 22px; flex: none;
     display: flex; align-items: center; justify-content: center;
-    font-family: ui-monospace, Menlo, monospace; font-size: 14px; }
+    font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-size: 14px; }
   .side-item .label { font-size: 14px; font-weight: 600; letter-spacing: .04em; }
   .side-item .sub { font-size: 10.5px; color: var(--faint); margin-top: 2px;
-    font-family: ui-monospace, Menlo, monospace; }
+    font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; }
 
   /* ===== 内容区 ===== */
   .content { overflow-y: auto; display: flex; flex-direction: column; }
@@ -40,11 +40,11 @@
     -webkit-mask-image: radial-gradient(ellipse 80% 70% at 60% 40%, black, transparent 75%);
     mask-image: radial-gradient(ellipse 80% 70% at 60% 40%, black, transparent 75%);
     transform: translate(calc(var(--shift-x,0)*-12px), calc(var(--shift-y,0)*-12px)); transition: transform .5s var(--ease-out); }
-  .hero .kicker { font-family: ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: .3em; color: var(--signal); }
+  .hero .kicker { font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-size: 11px; letter-spacing: .3em; color: var(--signal); }
   .hero h1 { font-size: clamp(38px, 7vw, 76px); font-weight: 800; letter-spacing: .04em; line-height: 1; margin: 18px 0 14px; }
   .hero h1 .outline { color: transparent; -webkit-text-stroke: 1px var(--paper); }
   .hero p { color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.8; }
-  .hero .meta { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--faint);
+  .hero .meta { font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-size: 10px; color: var(--faint);
     letter-spacing: .2em; margin-top: 10px; }
 
   .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
@@ -52,11 +52,11 @@
   .card { border: 1px solid var(--line); background: var(--surface);
     padding: 30px 26px; text-decoration: none; color: inherit; transition: .18s; position: relative; }
   .card:hover { border-color: var(--signal); }
-  .card .tag { font-family: ui-monospace, Menlo, monospace; font-size: 10px;
+  .card .tag { font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-size: 10px;
     letter-spacing: .2em; color: var(--signal); }
   .card h2 { font-size: 26px; margin: 14px 0 8px; }
   .card p { color: var(--muted); font-size: 13.5px; line-height: 1.7; }
-  .card .go { margin-top: 18px; font-family: ui-monospace, Menlo, monospace;
+  .card .go { margin-top: 18px; font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif;
     font-size: 11px; color: var(--paper); }
   .card:hover .go { color: var(--signal); }
 
@@ -64,7 +64,7 @@
   .tac-view { max-width: 980px; margin: 40px auto; padding: 0 20px; }
   .tac-view .tac-card { padding: 40px 36px; }
   .tac-view .feats { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 8px; }
-  .tac-view .feat { font-family: ui-monospace, Menlo, monospace; font-size: 10.5px;
+  .tac-view .feat { font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-size: 10.5px;
     padding: 4px 9px; border: 1px solid var(--line); color: var(--muted); border-radius: 3px; }
   .tac-view .enter { display: inline-flex; align-items: center; gap: 8px;
     margin-top: 20px; padding: 12px 22px; background: var(--signal);
@@ -73,9 +73,9 @@
   .rank-list { display: grid; gap: 8px; margin: 16px 0 8px; }
   .rank-row { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center;
     border: 1px solid var(--line); background: rgba(255,255,255,.025); border-radius: 6px; padding: 9px 11px; }
-  .rank-row .pos { color: var(--signal); font-family: ui-monospace, Menlo, monospace; }
+  .rank-row .pos { color: var(--signal); font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; }
   .rank-row .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .rank-row .score { color: var(--muted); font-family: ui-monospace, Menlo, monospace; }
+  .rank-row .score { color: var(--muted); font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; }
 
   @media (max-width: 760px) {
     .page { grid-template-columns: 1fr; height: auto; }
@@ -88,7 +88,7 @@
   }
   /* 窄屏顶栏规则已统一移到 css/motion.css（全局），此处不再重复 */
 </style>
-  <link rel="stylesheet" href="css/chess-motion.css?v=3">
+  <link rel="stylesheet" href="css/chess-motion.css?v=4">
 </head>
 <body>
 <div class="scanlines"></div>
@@ -155,7 +155,7 @@
 </div>
 
 <script src="js/motion.js?v=37"></script>
-<script src="js/chess-motion.js?v=12"></script>
+<script src="js/chess-motion.js?v=37"></script>
   <script src="js/shared-library.js?v=9"></script>
   <script src="js/trainer.js?v=5"></script>
 <script>

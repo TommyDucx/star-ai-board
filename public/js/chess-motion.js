@@ -26,7 +26,15 @@
   }
 
   function boardRoot(explicit) {
-    return explicit || document.querySelector(".board-b72b1") || document.getElementById("board");
+    let el = explicit || document.querySelector(".board-b72b1") || document.getElementById("board");
+    /* 归一化：chessboard 的格子挂在内层 .board-b72b1（position:relative）上；页面传入的往往是
+       外层容器（#board / #lib-board / #tr-board / #chess-demo，多为 static）——把轨迹层挂到外层的话，
+       absolute 定位的基准会变成 .board-zone 之类的外层相对容器，拖尾整体偏移（平板上直接出屏）。 */
+    if (el && !el.querySelector(":scope > .star-trace-layer")) {
+      const inner = el.querySelector(".board-b72b1");
+      if (inner) el = inner;
+    }
+    return el;
   }
 
   /* 快照：每枚棋子的「所在格子 + 类型 + 屏幕坐标」。
@@ -154,7 +162,7 @@
   function sync(board, fen, animate) {
     if (!board) return;
     rememberBoard(board);
-    const root = boardRoot();
+    const root = boardRoot(board);
     if (!animate || reduced || !root) { board.position(fen, false); return; }
     const prev = snapshot(root);
     board.position(fen, false);
@@ -184,6 +192,7 @@
   }
   function pulse(root, move) {
     if (!root || !move) return;
+    root = boardRoot(root);              // 页面可能传外层容器 → 归一化到内层棋盘，坐标与定位基准才一致
     const layer = ensureLayer(root);
     // 清掉上一手的残留（Kylin 只留当前这一手）
     root.querySelectorAll(":scope > .star-trace-layer .star-move-trace").forEach(el => el.remove());
@@ -194,38 +203,75 @@
     });
     const a = centerOf(root, move.from), b = centerOf(root, move.to);
     if (a && b && layer) {
-      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      // 线宽随棋盘缩放（Kylin 的 7px 对应 ~600px 棋盘）：小棋盘（如首页演示盘）按格子边长折算，避免过粗
+      const NS = "http://www.w3.org/2000/svg";
       const sqEl = root.querySelector(".square-" + (move.from || "e2"));
       const cell = sqEl ? sqEl.getBoundingClientRect().width : 0;
-      if (cell) line.style.setProperty("--trace-w", Math.max(3, Math.min(8, cell / 11)).toFixed(1) + "px");
+      const lw = Math.max(3, Math.min(8, cell / 11)).toFixed(1) + "px";
+      /* 渐变彗尾：userSpaceOnUse 梯度（尾端透明 → 头端亮），坐标随头部实时更新 */
+      const gid = "star-trail-g" + (++pulse._gid);
+      const defs = document.createElementNS(NS, "defs");
+      const grad = document.createElementNS(NS, "linearGradient");
+      grad.setAttribute("id", gid);
+      grad.setAttribute("gradientUnits", "userSpaceOnUse");
+      grad.setAttribute("x1", a.x); grad.setAttribute("y1", a.y);
+      grad.setAttribute("x2", a.x); grad.setAttribute("y2", a.y);
+      [["0", "rgba(215,255,63,0)"], ["0.55", "rgba(215,255,63,.4)"], ["1", "rgba(232,255,140,.95)"]].forEach(([o, c]) => {
+        const st = document.createElementNS(NS, "stop");
+        st.setAttribute("offset", o); st.setAttribute("stop-color", c);
+        grad.appendChild(st);
+      });
+      defs.appendChild(grad);
+      layer.appendChild(defs);
+      const line = document.createElementNS(NS, "line");
       line.setAttribute("x1", a.x); line.setAttribute("y1", a.y);
       line.setAttribute("x2", a.x); line.setAttribute("y2", a.y);
       line.setAttribute("class", "star-move-trace");
+      line.setAttribute("stroke", "url(#" + gid + ")");
+      line.style.setProperty("--trace-w", lw);
+      line.style.strokeDasharray = "none";            // 彗尾是连续光带，不用虚线
       layer.appendChild(line);
+      /* 头部光点：贴着棋子，落地后随整条彗尾一起淡出 */
+      const dot = document.createElementNS(NS, "circle");
+      dot.setAttribute("r", Math.max(2.5, cell / 22).toFixed(1));
+      dot.setAttribute("fill", "#e8ff8c");
+      dot.setAttribute("cx", a.x); dot.setAttribute("cy", a.y);
+      dot.setAttribute("class", "star-trace-head");
+      layer.appendChild(dot);
       /* 彗星式拖尾：线从起点格向「棋子的当前位置」生长——尾巴始终在棋子身后，
          棋子落地时终点自然等于落点格中心，随后整条路径就地淡出，全程与棋子严格对应。
          注意：pulse() 可能先于 sync() 被页面调用，所以棋子元素在 rAF 里延迟解析。 */
       const t0 = performance.now();
       const FLY = 240;                     // 略大于棋子位移时长（.22s），确保落地瞬间仍贴合
       let raf = 0, mover = isDragSettling() ? null : root.querySelector("img.piece-arcade-move");
-      if (!reduced && !mover) { line.setAttribute("x2", b.x); line.setAttribute("y2", b.y); }
+      const head = (x, y) => {
+        line.setAttribute("x2", x); line.setAttribute("y2", y);
+        grad.setAttribute("x2", x); grad.setAttribute("y2", y);
+        dot.setAttribute("cx", x); dot.setAttribute("cy", y);
+      };
+      if (!reduced && !mover) head(b.x, b.y);
       if (!reduced) {
         const step = () => {
           if (!mover) mover = root.querySelector("img.piece-arcade-move");
+          const head = (x, y) => {
+            line.setAttribute("x2", x); line.setAttribute("y2", y);
+            grad.setAttribute("x2", x); grad.setAttribute("y2", y);
+            dot.setAttribute("cx", x); dot.setAttribute("cy", y);
+          };
           if (mover && mover.isConnected) {
             const rb = root.getBoundingClientRect(), r = mover.getBoundingClientRect();
-            line.setAttribute("x2", (r.left - rb.left + r.width / 2).toFixed(1));
-            line.setAttribute("y2", (r.top - rb.top + r.height / 2).toFixed(1));
+            head((r.left - rb.left + r.width / 2).toFixed(1), (r.top - rb.top + r.height / 2).toFixed(1));
           }
           if (performance.now() - t0 < FLY) raf = requestAnimationFrame(step);
-          else { line.setAttribute("x2", b.x); line.setAttribute("y2", b.y); }   // 归位到落点格中心
+          else head(b.x, b.y);                                            // 归位到落点格中心
         };
         raf = requestAnimationFrame(step);
       } else {
         line.setAttribute("x2", b.x); line.setAttribute("y2", b.y);
       }
-      window.setTimeout(() => { window.cancelAnimationFrame(raf); line.remove(); }, reduced ? 0 : 520);
+      window.setTimeout(() => {
+        window.cancelAnimationFrame(raf);
+        line.remove(); dot.remove(); defs.remove();      // 光点与梯度一并回收
+      }, reduced ? 0 : 520);
     }
     // 站点既有的落点标记（描边脉冲）保留：与残留高亮叠加成"落点 + 残影"两层反馈
     root.querySelectorAll(".star-move-mark").forEach(el => el.remove());

@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>对局复盘 — S.T.A.R.</title>
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
-<link rel="stylesheet" href="css/site.css?v=39">
+<link rel="stylesheet" href="css/site.css?v=40">
 <link rel="stylesheet" href="css/motion.css?v=39">
 <link rel="stylesheet" href="css/chessboard.min.css">
-  <link rel="stylesheet" href="css/chess-motion.css?v=3">
+  <link rel="stylesheet" href="css/chess-motion.css?v=4">
 <style>
   .rev-wrap { max-width: 1080px; margin: 0 auto; padding: 26px 20px 60px; }
   .rev-head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
@@ -16,12 +16,12 @@
   .rev-head h1 .sub { font-size: 11px; color: var(--muted); font-weight: 400; margin-left: 8px; }
   .rev-head .flex1 { flex: 1; }
   #summary { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
-  #summary span { font-family: ui-monospace, Menlo, monospace; font-size: 11px; padding: 4px 10px; }
+  #summary span { font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-size: 11px; padding: 4px 10px; }
   .acc-row { display: flex; gap: 12px; margin-bottom: 16px; }
   .acc-box { flex: 1; border: 1px solid var(--line); padding: 12px 16px; }
   .acc-box .who { font-size: 12px; color: var(--muted); }
   .acc-box .num { font-size: 30px; font-weight: 800; }
-  .acc-box .ph { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--faint); letter-spacing: .14em; margin-top: 4px; }
+  .acc-box .ph { font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-size: 10px; color: var(--faint); letter-spacing: .14em; margin-top: 4px; }
   .grid { display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
   @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } .acc-row { flex-direction: column; } }
   /* 小屏适配：明细/统计表可横向滚动，避免把页面撑出横向滚动条 */
@@ -38,13 +38,13 @@
   #detail { border: 1px solid var(--line); padding: 14px; min-height: 120px; }
   #recs { border: 1px solid var(--line); padding: 12px; margin-top: 12px; }
   #recs label { font-size: 12px; color: var(--muted); margin-bottom: 8px; display: block; }
-  .rec { display: flex; gap: 10px; align-items: center; padding: 5px 8px; border: 1px solid var(--line); margin-bottom: 6px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+  .rec { display: flex; gap: 10px; align-items: center; padding: 5px 8px; border: 1px solid var(--line); margin-bottom: 6px; font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-size: 12px; }
   #movelist { margin-top: 12px; max-height: 200px; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-  #movelist .rmv { cursor: pointer; font-family: ui-monospace, Menlo, monospace; font-size: 12px; padding: 3px 8px; border-radius: 4px; color: var(--muted); }
+  #movelist .rmv { cursor: pointer; font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-size: 12px; padding: 3px 8px; border-radius: 4px; color: var(--muted); }
   #movelist .rmv:hover { color: var(--signal); background: var(--surface); }
   #movelist .rmv.on { background: var(--signal); color: #080a09; font-weight: 700; }
   #coach { border: 1px solid var(--line); padding: 12px 14px; margin-bottom: 14px; background: var(--surface); }
-  #coach .ct { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--signal); letter-spacing: .2em; margin-bottom: 6px; }
+  #coach .ct { font-family: "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; font-size: 10px; color: var(--signal); letter-spacing: .2em; margin-bottom: 6px; }
   #coach p { font-size: 13px; color: var(--paper); line-height: 1.7; }
   #coach b { color: var(--amber); }
   /* 窄屏顶栏：压缩间距/内边距，长 crumb 省略号，避免音效按钮被挤出屏外 */
@@ -111,7 +111,7 @@
 <script src="js/lib/chess.min.js"></script>
 <script src="js/lib/chessboard.min.js"></script>
 <script src="js/motion.js?v=37"></script>
-<script src="js/chess-motion.js?v=12"></script>
+<script src="js/chess-motion.js?v=37"></script>
   <script src="js/review.js?v=13"></script>
 </body>
 </html>
