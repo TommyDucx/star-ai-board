@@ -262,49 +262,58 @@ input,select,textarea,.library-search,.library-select,.library-form input,.libra
    .42s、.62s + cubic-bezier(.76,0,.24,1)）。每种「来源页→目标页」用不同一种，
    全部只动 clip-path / transform / opacity（走合成层，不触发重排重绘）。
    ============================================================================ */
-.route-veil { position: fixed; inset: 0; z-index: 250; pointer-events: none; overflow: hidden;
-  contain: strict; will-change: clip-path, transform, opacity; background: #0a0c0b; }
-.route-veil .veil-label { position: absolute; left: clamp(24px, 4vw, 72px); bottom: 46px; display: grid; gap: 12px; }
-.route-veil .veil-label span { color: var(--signal); font: 600 10px "Snell Roundhand","Snell BT","Segoe Script","STSong","SimSun","宋体","Songti SC",serif; letter-spacing: .34em; text-transform: uppercase; }
-.route-veil .veil-label b { color: var(--paper); font-size: clamp(22px, 3.2vw, 42px); font-weight: 800; letter-spacing: .02em; }
-.route-veil .veil-bar { position: absolute; left: clamp(24px, 4vw, 72px); right: clamp(24px, 4vw, 72px); bottom: 30px; height: 2px;
-  background: linear-gradient(90deg, var(--signal), transparent); transform-origin: left; animation: veilBar .6s cubic-bezier(.76,0,.24,1) both; }
-@keyframes veilBar { from { transform: scaleX(.04); opacity: .35 } to { transform: scaleX(1); opacity: 1 } }
+/* 页面切换 · ROUTING 面板（复刻 Project Kylin 的 system-route-transition：
+   斜切信号带横扫 + 顶部 rail + ROUTING/序号文案 + 右下描边大数字 + 故障色条） */
+.route-veil.kylin { position: fixed; inset: 0; z-index: 250; pointer-events: none; overflow: hidden; background: #0a0c0b;
+  background-image: linear-gradient(#eff2e80a 1px, transparent 1px), linear-gradient(90deg, #eff2e80a 1px, transparent 1px);
+  background-size: 84px 84px;
+  animation: kylinPanelIn .38s cubic-bezier(.76,0,.24,1) both; }
+.route-veil.kylin.is-return { animation-name: kylinPanelReturnIn; }
+@keyframes kylinPanelIn { from { transform: translate(-101%) } to { transform: translate(0) } }
+@keyframes kylinPanelReturnIn { from { transform: translate(101%) } to { transform: translate(0) } }
 
-/* ① 桥牌：网格面板自下升起 → 向上擦除（Kylin _libraryEntryBridge，.42s） */
-.route-veil.bridge { background: linear-gradient(#eff2e80a 1px, transparent 1px), linear-gradient(90deg, #eff2e80a 1px, transparent 1px), #0a0c0b;
-  background-size: 84px 84px; display: flex; flex-direction: column; justify-content: flex-end;
-  animation: veilBridgeIn .34s cubic-bezier(.76,0,.24,1) both; }
-.route-veil.bridge.is-out { animation: veilBridgeOut .42s cubic-bezier(.76,0,.24,1) both; }
-@keyframes veilBridgeIn { from { clip-path: inset(100% 0 0); transform: translateY(16px) } to { clip-path: inset(0); transform: none } }
-@keyframes veilBridgeOut { 0% { opacity: 1; clip-path: inset(0) } 58% { opacity: 1 } to { opacity: 0; clip-path: inset(0 0 72%); transform: translateY(-12px) } }
+/* 斜切信号带：38vw 宽、-19° 倾斜，从左扫到右（返回方向反向） */
+.route-veil .route-signal { position: absolute; top: -20vh; left: -18vw; width: 38vw; height: 142vh;
+  background: linear-gradient(90deg, rgba(215,255,63,0) 0%, #d7ff3f 52%, #eaffa8 70%, rgba(215,255,63,0) 100%);
+  filter: drop-shadow(0 0 26px #d7ff3f4d);
+  transform: skew(-19deg) translate(-145vw);
+  animation: kylinSignal .62s cubic-bezier(.76,0,.24,1) .05s both; }
+.route-veil.kylin.is-return .route-signal { animation-name: kylinSignalReturn; }
+@keyframes kylinSignal { 0% { transform: skew(-19deg) translate(-145vw) } 52% { transform: skew(-19deg) translate(42vw) } 100% { transform: skew(-19deg) translate(145vw) } }
+@keyframes kylinSignalReturn { 0% { transform: skew(-19deg) translate(145vw) } 52% { transform: skew(-19deg) translate(-42vw) } 100% { transform: skew(-19deg) translate(-145vw) } }
 
-/* ② 幕布：自下揭开（Kylin _studyDirectoryTransition，.62s） */
-.route-veil.curtain { animation: veilCurtain .62s cubic-bezier(.76,0,.24,1) both; }
-@keyframes veilCurtain { 0% { opacity: 0; clip-path: inset(100% 0 0) } 46% { opacity: 1; clip-path: inset(0) } to { opacity: 1; clip-path: inset(0) } }
+/* 顶部 rail：ROUTING 元信息行 */
+.route-veil .route-rail { position: absolute; top: 4vh; left: 4vw; right: 4vw; height: 34px;
+  border-bottom: 1px solid rgba(239,242,232,.16);
+  display: flex; align-items: center; gap: 14px;
+  font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: var(--muted); }
+.route-veil .route-rail b { color: var(--paper); font-weight: 600; }
+.route-veil .route-rail em { margin-left: auto; color: var(--signal); font-style: normal; }
 
-/* ③ 横向信号横扫 */
-.route-veil.wipeX { animation: veilWipeX .5s cubic-bezier(.76,0,.24,1) both; }
-@keyframes veilWipeX { 0% { opacity: 0; clip-path: inset(0 0 0 100%) } 40% { opacity: 1; clip-path: inset(0 0 0 14%) } to { opacity: 1; clip-path: inset(0) } }
+/* 中部文案：ROUTING / NN + 目标名 + 英文标签（右侧揭开） */
+.route-veil .route-copy { position: absolute; top: 44%; left: 4vw; transform: translateY(-50%);
+  animation: kylinCopyIn .5s cubic-bezier(.76,0,.24,1) .18s both; }
+.route-veil .route-copy span { color: var(--signal); font-size: 10px; letter-spacing: .34em; }
+.route-veil .route-copy b { display: block; margin-top: 14px; color: var(--paper);
+  font-size: clamp(34px, 5.4vw, 84px); font-weight: 800; line-height: 1; letter-spacing: .02em; }
+.route-veil .route-copy small { display: block; margin-top: 12px; color: var(--muted);
+  font-size: 11px; letter-spacing: .3em; text-transform: uppercase; }
+@keyframes kylinCopyIn { 0% { opacity: 0; clip-path: inset(0 100% 0 0); transform: translate(-46px, -50%) } 100% { opacity: 1; clip-path: inset(0); transform: translateY(-50%) } }
 
-/* ④ 光圈：从触发点扩展 */
-.route-veil.radial { background: radial-gradient(120% 120% at var(--rx, 50%) var(--ry, 50%), #0d100e 0 58%, #060807 100%);
-  animation: veilRadial .56s cubic-bezier(.76,0,.24,1) both; }
-@keyframes veilRadial { from { clip-path: circle(0 at var(--rx, 50%) var(--ry, 50%)); opacity: 0 } 38% { opacity: 1 } to { clip-path: circle(150% at var(--rx, 50%) var(--ry, 50%)); opacity: 1 } }
+/* 右下大号描边序号 */
+.route-veil .route-index { position: absolute; right: 3vw; bottom: 4vh; font-style: normal;
+  font-size: clamp(64px, 13vw, 190px); line-height: .85; font-weight: 800;
+  color: transparent; -webkit-text-stroke: 1px rgba(239,242,232,.3);
+  animation: kylinIndexIn .55s cubic-bezier(.76,0,.24,1) .3s both; }
+@keyframes kylinIndexIn { from { opacity: 0; transform: translate(44px) } to { opacity: 1; transform: none } }
 
-/* ⑤ 棋盘格聚合：8×8 方块错峰（棋类页面互跳） */
-.route-veil.chessGrid { background: transparent; }
-.route-veil.chessGrid i { position: absolute; width: 12.5%; height: 12.5%; background: #0a0c0b; border: 1px solid rgba(215,255,63,.16);
-  animation: veilTile .46s cubic-bezier(.76,0,.24,1) both; }
-@keyframes veilTile { from { opacity: 0; transform: scale(.32) } 55% { opacity: 1 } to { opacity: 1; transform: none } }
-
-/* ⑥ 对角斜切 */
-.route-veil.diagonal { animation: veilDiagonal .54s cubic-bezier(.76,0,.24,1) both; }
-@keyframes veilDiagonal { from { opacity: 0; clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%) } 34% { opacity: 1 } to { opacity: 1; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%) } }
-
-/* 过渡期间暂停常驻装饰动画：切换时不再叠加扫描线/故障/极光的持续合成（这就是"切换不流畅"的主因） */
-html.route-busy .scanlines, html.route-busy .pixel-fault, html.route-busy .aurora, html.route-busy .cursor-line { animation-play-state: paused !important; }
-html.route-busy .scanlines, html.route-busy .pixel-fault { opacity: .16 !important; }
+/* 故障色条（信号绿，随机位置错峰闪动） */
+.route-veil .route-fault { position: absolute; background: var(--signal); opacity: .4;
+  animation: kylinFault 1.15s steps(2, end) infinite; }
+.route-veil .route-fault.is-a { left: 7%; top: 22%; width: 16%; height: 8px; }
+.route-veil .route-fault.is-b { left: 63%; top: 66%; width: 24%; height: 3px; animation-delay: .35s; }
+.route-veil .route-fault.is-c { left: 36%; top: 88%; width: 11%; height: 5px; animation-delay: .7s; }
+@keyframes kylinFault { 0%, 100% { opacity: .16; transform: translateX(0) } 50% { opacity: .62; transform: translateX(5px) } }
 
 /* ---- 分页编队（移植 Kylin 的元素级 resolve 关键帧，每页不同） ---- */
 .enter-drop { animation: enterDrop .62s cubic-bezier(.76,0,.24,1) both; }

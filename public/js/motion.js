@@ -309,6 +309,8 @@
     "review.html":     { name: "复盘",       label: "GAME REVIEW",       enter: ["rows"] },
     "account.html":    { name: "我的账号",   label: "ACCOUNT",           enter: ["panel"] }
   };
+  const ROUTE_INDEX = { "index.html": 1, "main.html": 2, "chess.html": 3, "go.html": 4,
+    "tactics.html": 5, "assessment.html": 6, "review.html": 7, "account.html": 8, "friends.html": 9 };
   const FALLBACK_TYPE = { "chess.html": "diagonal", "go.html": "chessGrid", "tactics.html": "wipeX",
     "assessment.html": "bridge", "review.html": "flipUp", "account.html": "zoomOut", "main.html": "radial" };
   const TIMING = { bridge: [340, 660], curtain: [400, 740], wipeX: [340, 640], radial: [360, 660],
@@ -328,27 +330,26 @@
     // 减动效偏好下 CSS 动画被禁用，覆盖层会变成静态全屏色块挡脸——直接跳转
     if (REDUCED) { if (href) window.location.href = href; return; }
     const from = pageOf(location.pathname), to = pageOf(href);
-    const type = (opts && opts.type) || flowOf(from, to);
     const meta = PAGE_META[to] || { name: to.replace(".html", ""), label: "PAGE" };
+    // 返回方向（目标序号小于当前页）信号带反向横扫 —— 与 Project Kylin 的 systemReturnSignal 一致
+    const back = (ROUTE_INDEX[to] !== undefined && ROUTE_INDEX[from] !== undefined)
+      ? ROUTE_INDEX[to] < ROUTE_INDEX[from] : to === "index.html";
     try { sessionStorage.setItem("star_from", from); } catch (e) {}
     document.documentElement.classList.add("route-busy");   // 过渡期间暂停常驻装饰动画（切换更顺）
+    const idx = String((ROUTE_INDEX[to] !== undefined ? ROUTE_INDEX[to] : (Object.keys(PAGE_META).indexOf(to) + 1)) || 1).padStart(2, "0");
     const ov = document.createElement("div");
-    ov.className = "route-veil " + type;
-    if (type === "chessGrid") {
-      let html = "";
-      for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++)
-        html += '<i style="left:' + (c * 12.5) + '%;top:' + (r * 12.5) + '%;animation-delay:' + ((r + c) * 13) + 'ms"></i>';
-      ov.innerHTML = html;
-    } else {
-      ov.innerHTML = '<div class="veil-label"><span>' + meta.label + '</span><b>' + meta.name + '</b></div>' +
-        (type === "radial" ? "" : '<div class="veil-bar"></div>');
-    }
-    if (opts && opts.point) { ov.style.setProperty("--rx", opts.point.x + "px"); ov.style.setProperty("--ry", opts.point.y + "px"); }
+    ov.className = "route-veil kylin" + (back ? " is-return" : "");
+    ov.innerHTML =
+      '<i class="route-signal"></i>' +
+      '<div class="route-rail"><span>STAR / ROUTING</span><b>ARCHIVE TRANSIT</b><em>' + idx + '</em></div>' +
+      '<div class="route-copy"><span>ROUTING / ' + idx + '</span><b>' + meta.name + '</b><small>' + meta.label + '</small></div>' +
+      '<em class="route-index">' + idx + '</em>' +
+      '<i class="route-fault is-a"></i><i class="route-fault is-b"></i><i class="route-fault is-c"></i>';
     document.body.appendChild(ov);
-    const T = TIMING[type] || [340, 640];
-    setTimeout(() => { if (href) window.location.href = href; }, T[0]);
+    // 信号带扫过 + 文案揭开后再跳转（Kylin 总时序 ≈ 0.64s）
+    setTimeout(() => { if (href) window.location.href = href; }, 640);
     // 导航失败(离线等)也要复位，允许重试
-    setTimeout(() => { ov.remove(); routing = false; document.documentElement.classList.remove("route-busy"); }, T[1]);
+    setTimeout(() => { ov.remove(); routing = false; document.documentElement.classList.remove("route-busy"); }, 1500);
   }
 
   /* 进入编队：按目标页套用 Kylin 式的元素 resolve 动画（页头落下 / 栏位揭开 / 列表推入 / 棋盘缩放 …） */
