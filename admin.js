@@ -1633,527 +1633,142 @@ function serveAdminFile(res, rel) {
 function isAdmin(s) { return s && s.role === "admin"; }
 
 // ---------- API 路由 ----------
+/* ---------- 路由模块（原 handleApi 的 if 链按域拆到 routes/ 下） ----------
+ * 拆分原则：每个模块只处理自己域的路径；各域路径互不重叠（已用 32 条路由的匿名矩阵核对），
+ * 因此模块之间的顺序不影响行为，这里仍保持拆分前的先后顺序，便于逐行对照。 */
+const routeAuth = require("./routes/auth");
+const routeLiterature = require("./routes/literature");
+const routeTactics = require("./routes/tactics");
+const routeRating = require("./routes/rating");
+const routeEngagement = require("./routes/engagement");
+const routeLibrary = require("./routes/library");
+const routeTrainer = require("./routes/trainer");
+const routeAdmin = require("./routes/admin");
+const PUBLIC_ROUTES = [routeAuth, routeTactics, routeRating, routeEngagement, routeLibrary, routeLiterature];
+const AUTHED_ROUTES = [routeAuth, routeEngagement, routeLibrary, routeLiterature, routeTrainer, routeTactics, routeRating, routeAdmin];
+
 async function handleApi(req, res, u) {
   const p = u.pathname;
   const m = req.method;
 
+  // 已响应判定：json() 会立即 writeHead，因此这两个标志任一为真即视为该请求已被处理
+  const responded = () => res.writableEnded || res.headersSent;
+  const baseCtx = {
+    req, res, p, m, u,
+    ALL_ROLES,
+    CHESS_RATING_MAX,
+    CHESS_RATING_MIN,
+    CHESS_RATING_START,
+    CHESS_RATING_TIERS,
+    CHESS_TIER_KEYS,
+    RE_USERNAME,
+    TACTICS_LEVELS_PER_TIER,
+    TACTICS_TIERS,
+    TACTICS_TIER_DEFS,
+    TACTICS_TITLES,
+    addLibraryComment,
+    applyTacticsAttempt,
+    chessLeaderboard,
+    chinaDay,
+    claimDailyQuest,
+    clearLoginFail,
+    clientIp,
+    collectLibraryEntry,
+    controlEngine: (...a) => controlEngine(...a),
+    cookieFlags,
+    createLibraryEntry,
+    createSession,
+    currentTacticsPuzzle,
+    deleteLibraryComment,
+    deleteLibraryEntry,
+    engagementLeaderboard,
+    engineStatus: (...a) => engineStatus(...a),
+    findLibraryEntry,
+    findUser,
+    finishChessRatingGame,
+    getAccounts,
+    getChessRating,
+    getConfig,
+    getCurrentToken,
+    getGamesStats: (...a) => getGamesStats(...a),
+    getMetrics: (...a) => getMetrics(...a),
+    getSession,
+    getTactics,
+    hasPerm,
+    hashPassword,
+    json,
+    libraryList,
+    libraryMine,
+    libraryPublicEntry,
+    listSessionsFor,
+    litAccess,
+    litComment,
+    litDecideAccess,
+    litDeleteComment,
+    litGatedMeta,
+    litKnown,
+    litNotifications,
+    litPublic,
+    litRequestAccess,
+    litToggleLike,
+    loadLibrary,
+    loadLit,
+    loadLitContent,
+    loadSessions,
+    loginAllowed,
+    logoutAllFor,
+    logoutOthers,
+    normalizeDayFlags,
+    normalizeUser,
+    noteLoginFail,
+    publicChessRating,
+    publicEngagement,
+    publicPuzzle,
+    publicTactics,
+    rateCheck,
+    readBody,
+    registerLibraryView,
+    saveAccounts,
+    saveConfig,
+    saveSessions,
+    saveUserTactics,
+    startChessRatingGame,
+    startTacticsAttempt,
+    toggleLibraryStar,
+    trainerImport,
+    trainerLines,
+    trainerRemove,
+    trainerSession,
+    validPassword,
+    verifyPassword,
+  };
+
   // ===================== 公开接口（无需登录）=====================
-  // 登录（支持 username / email / phone）
-  if (p === "/api/login" && m === "POST") {
-    const ip = clientIp(req);
-    const body = await readBody(req);
-    const { username, password } = body;
-    if (typeof username !== "string" || typeof password !== "string")
-      return json(res, 400, { error: "缺少参数" });
-    if (!loginAllowed(ip, username))
-      return json(res, 429, { error: "尝试过于频繁，请稍后再试（IP 或账号已被限流）" });
-    const acc = findUser(username);
-    // 不存在用户也做一次 scrypt 比对，弱化枚举时序
-    if (!acc || !verifyPassword(password, acc.pw)) {
-      noteLoginFail(ip, username);
-      return json(res, 401, { error: "用户名或密码错误" });
-    }
-    if (acc.status === "suspended") {
-      noteLoginFail(ip, username);
-      return json(res, 403, { error: "账号已被停用，请联系管理员" });
-    }
-    clearLoginFail(ip, username);
-    acc.lastLoginAt = Date.now(); acc.updatedAt = Date.now();
-    const accounts = getAccounts().map(a => a.username === acc.username ? acc : a);
-    saveAccounts(accounts);
-    const cookie = createSession(acc, req);
-    return json(res, 200,
-      { username: acc.username, role: acc.role, mustChange: !!acc.mustChange },
-      { "Set-Cookie": `star_admin=${cookie}${cookieFlags(req)}; Max-Age=604800` });
-  }
-
-  // 登出
-  if (p === "/api/logout" && m === "POST") {
-    const token = getCurrentToken(req);
-    if (token) { const s = loadSessions(); delete s[token]; saveSessions(s); }
-    return json(res, 200, { ok: true },
-      { "Set-Cookie": "star_admin=; HttpOnly; Path=/; Max-Age=0" });
-  }
-
+  
   // 公开公告
   if (p === "/api/announcement" && m === "GET")
     return json(res, 200, getConfig().announcement || { text: "", enabled: false });
-
-  // 题型配置公开；账号进度仍需登录后按 userId 拉取
-  if (p === "/api/tactics/config" && m === "GET") {
-    return json(res, 200, {
-      tiers: TACTICS_TIER_DEFS.map(t => Object.assign({ levels: TACTICS_LEVELS_PER_TIER }, t)),
-      levelsPerTier: TACTICS_LEVELS_PER_TIER,
-      titleDefs: TACTICS_TITLES,
-    });
+  for (const mod of PUBLIC_ROUTES) {
+    if (!mod.public) continue;
+    await mod.public(baseCtx);
+    if (responded()) return;
   }
 
-  // 棋力评估排行榜公开展示；个人棋力和测评结算仍需登录
-  if (p === "/api/chess-rating/leaderboard" && m === "GET") {
-    return json(res, 200, { leaderboard: chessLeaderboard(u.searchParams.get("limit") || 3) });
-  }
-  if (p === "/api/engagement/leaderboard" && m === "GET") {
-    return json(res, 200, { leaderboard: engagementLeaderboard(u.searchParams.get("limit") || 5) });
-  }
-  // 共享棋谱库：目录与详情公开可读；登录后会额外返回本人收藏/投稿状态。
-  if (p === "/api/library/entries" && m === "GET") {
-    const peek = getSession(req);
-    return json(res, 200, libraryList(peek && peek.userId, u.searchParams));
-  }
-  {
-    // 研读热度：打开详情时由前端 POST 上报（POST 才产生写盘，符合“只读 GET 无副作用”的约定）
-    const viewMatch = /^\/api\/library\/entries\/([A-Za-z0-9-]+)\/view$/.exec(p);
-    if (viewMatch && m === "POST") {
-      if (!rateCheck("libview:" + clientIp(req), 30, 60000)) return json(res, 429, { error:"上报过于频繁" });
-      const views = registerLibraryView(viewMatch[1]);
-      if (views == null) return json(res, 404, { error:"资料不存在或已撤下" });
-      return json(res, 200, { ok:true, views });
-    }
-    const detailMatch = /^\/api\/library\/entries\/([A-Za-z0-9-]+)$/.exec(p);
-    if (detailMatch && m === "GET") {
-      const data = loadLibrary(), entry = findLibraryEntry(data, detailMatch[1]);
-      if (!entry) return json(res, 404, { error:"资料不存在或已撤下" });
-      const peek = getSession(req);
-      return json(res, 200, { entry:libraryPublicEntry(entry, peek && peek.userId, true) });
-    }
-  }
-  if (p === "/api/chess-rating/me" && m === "GET") {
-    const peek = getSession(req);
-    if (!peek) return json(res, 200, { authenticated: false, progress: null });
-    const acc = getAccounts().find(a => a.id === peek.userId);
-    if (!acc || acc.status !== "active") return json(res, 200, { authenticated: false, progress: null });
-    return json(res, 200, {
-      authenticated: true,
-      mustChange: !!acc.mustChange,
-      progress: acc.mustChange ? null : publicChessRating(getChessRating(peek.userId)),
-    });
-  }
-
-  // 注册（开放自助注册：仅用户名 + 密码，验证码/联系方式已移除）
-  if (p === "/api/register" && m === "POST") {
-    const ip = clientIp(req);
-    const body = await readBody(req);
-    const username = String(body.username || "").trim();
-    const { password } = body;
-    if (!RE_USERNAME.test(username))
-      return json(res, 400, { error: "用户名 2-32 位字母数字/._-" });
-    if (!validPassword(password))
-      return json(res, 400, { error: "密码需 8-128 位，且含大写、小写、数字" });
-    // 限流（注册尝试：10 次/10 分钟/IP）
-    if (!rateCheck("reg:" + ip, 10, 600000))
-      return json(res, 429, { error: "注册请求过于频繁，请稍后再试" });
-    const accounts = getAccounts();
-    if (accounts.find(a => a.username.toLowerCase() === username.toLowerCase()))
-      return json(res, 409, { error: "用户名已存在" });
-    const user = normalizeUser({
-      username, role: "member", pw: hashPassword(password),
-      status: "active", createdAt: Date.now(), updatedAt: Date.now(), lastLoginAt: Date.now(),
-    });
-    accounts.push(user); saveAccounts(accounts);
-    const cookie = createSession(user, req);
-    return json(res, 200,
-      { username: user.username, role: user.role },
-      { "Set-Cookie": `star_admin=${cookie}${cookieFlags(req)}; Max-Age=604800` });
-  }
-
-  // 文学板块：点赞与评论（读公开，写需登录）
-  if (p === "/api/literature" && m === "GET") {
-    const s2 = getSession(req);
-    return json(res, 200, litPublic(loadLit(), s2 && s2.userId));
-  }
-  // 文学：受保护作品的正文与授权申请
-  {
-    const lt = /^\/api\/literature\/([a-z0-9][a-z0-9_-]{0,31})\/(text|access\/request|access\/decide)$/.exec(p);
-    if (lt && m === "GET" && lt[2] === "text") {
-      const s2 = getSession(req);
-      const meta = litGatedMeta(lt[1]);
-      if (!meta) return json(res, 404, { error: "作品不存在" });
-      const acc = litAccess(lt[1], s2 && s2.userId);
-      if (!acc.allowed) return json(res, 403, { error: "该作品需要授权", state: acc.state, title: meta.title, author: meta.author, owner: meta.owner });
-      const c = loadLitContent();
-      return json(res, 200, { key: lt[1], title: meta.title, author: meta.author, paragraphs: (c.articles[lt[1]] || {}).paragraphs || [] });
-    }
-  }
   // ===================== 以下均需要登录 =====================
   const s = getSession(req);
   if (!s) return json(res, 401, { error: "未登录" });
-
+  
   // 强制改密：账号仍需改密时，仅放行 /api/me（读资料 / 改密），其余受保护接口一律拦截
   {
     const _acc = getAccounts().find(a => a.id === s.userId);
     if (_acc && _acc.mustChange && p !== "/api/me")
       return json(res, 403, { error: "请先修改密码后再继续操作", mustChange: true });
   }
-
-  // 当前用户资料 / 改名 / 改密
-  if (p === "/api/me") {
-    const accounts = getAccounts();
-    const me = accounts.find(a => a.id === s.userId) || accounts.find(a => a.username === s.username);
-    if (!me) return json(res, 401, { error: "账号不存在" });
-    if (m === "GET") {
-      return json(res, 200, {
-        username: me.username, role: me.role, status: me.status,
-        createdAt: me.createdAt, lastLoginAt: me.lastLoginAt, mustChange: !!me.mustChange,
-      });
-    }
-    if (m === "PUT") {
-      const body = await readBody(req);
-      let changed = false;
-
-      // 改用户名（本人自助；唯一性 + 与账号创建一致的格式校验）
-      const newUname = typeof body.username === "string" ? body.username.trim() : "";
-      if (newUname && newUname !== me.username) {
-        if (!RE_USERNAME.test(newUname))
-          return json(res, 400, { error: "用户名 2-32 位字母数字/._-" });
-        if (accounts.find(a => a.id !== me.id && a.username.toLowerCase() === newUname.toLowerCase()))
-          return json(res, 409, { error: "用户名已存在" });
-        me.username = newUname; me.updatedAt = Date.now(); changed = true;
-        // 同步所有设备会话里的显示名
-        const sessions = loadSessions();
-        for (const tok of Object.keys(sessions))
-          if (sessions[tok].userId === me.id) sessions[tok].username = newUname;
-        saveSessions(sessions);
-      }
-
-      // 改密码：必须先验证当前密码（否则会话被劫持/XSS 时攻击者可直接改密锁死本人）
-      let pwChanged = false;
-      if (body.password) {
-        if (!body.currentPassword || !verifyPassword(String(body.currentPassword), me.pw))
-          return json(res, 403, { error: "当前密码不正确" });
-        if (!validPassword(body.password))
-          return json(res, 400, { error: "新密码需 8-128 位，且含大写、小写、数字" });
-        me.pw = hashPassword(body.password); me.mustChange = false; me.updatedAt = Date.now();
-        changed = true; pwChanged = true;
-      }
-
-      if (!changed) return json(res, 400, { error: "没有需要修改的内容" });
-      saveAccounts(accounts);
-      // 改密后作废本人其它设备的会话，当前会话保持有效
-      if (pwChanged) logoutOthers(me.id, getCurrentToken(req));
-      return json(res, 200, { ok: true, username: me.username });
-    }
-  }
-
-  // 多设备会话管理
-  if (p === "/api/me/sessions") {
-    const cur = getCurrentToken(req);
-    if (m === "GET") {
-      const list = listSessionsFor(s.userId).map(x => ({
-        id: x.token.slice(0, 8), ip: x.ip, ua: x.ua,
-        createdAt: x.createdAt, exp: x.exp, current: x.token === cur,
-      })).sort((a, b) => (b.current ? 1 : 0) - (a.current ? 1 : 0));
-      return json(res, 200, { sessions: list });
-    }
-    if (m === "DELETE") {
-      const n = logoutOthers(s.userId, cur);
-      return json(res, 200, { ok: true, removed: n });
-    }
-  }
-
-  // 成长中心：打开页面即生成当天活跃报告；领奖时再次由服务端校验完成条件。
-  if (p === "/api/engagement/me" && m === "GET") {
-    return json(res, 200, publicEngagement(s.userId, true));
-  }
-  if (p === "/api/engagement/claim" && m === "POST") {
-    const body = await readBody(req);
-    const result = claimDailyQuest(s.userId, String(body.questId || ""));
-    if (result.error) return json(res, 400, { error:result.error });
-    return json(res, 200, Object.assign({ ok:true }, result));
-  }
-
-  // 共享棋谱库：写操作全部绑定当前账号，不能由前端伪造作者或收藏人。
-  if (p === "/api/library/entries" && m === "POST") {
-    const result = createLibraryEntry(s.userId, await readBody(req));
-    if (result.error) return json(res, 400, result);
-    return json(res, 201, result);
-  }
-  if (p === "/api/library/me" && m === "GET") return json(res, 200, libraryMine(s.userId));
-  {
-    const lk = /^\/api\/literature\/([a-z0-9][a-z0-9_-]{0,31})\/(like|comment)$/.exec(p);
-    if (lk && m === "POST") {
-      const s2 = getSession(req);
-      if (!s2) return json(res, 401, { error: "请先登录 S.T.A.R. 账号" });
-      if (!litKnown(lk[1])) return json(res, 404, { error: "作品不存在" });
-      const body = await readBody(req);
-      const r = lk[2] === "like" ? litToggleLike(s2.userId, lk[1]) : litComment(s2.userId, lk[1], body.text);
-      return json(res, r.error ? 400 : 200, r.error ? { error: r.error } : r);
-    }
-    const ld = /^\/api\/literature\/([a-z0-9][a-z0-9_-]{0,31})\/comment\/([A-Za-z0-9-]+)$/.exec(p);
-    if (ld && m === "DELETE") {
-      const s2 = getSession(req);
-      if (!s2) return json(res, 401, { error: "请先登录" });
-      const r = litDeleteComment(s2.userId, ld[1], ld[2], s2.role === "admin");
-      return json(res, r.error ? 404 : 200, r.error ? { error: r.error } : r);
-    }
-  }
-  // 文学：申请授权 / 审批 / 通知（需登录）
-  {
-    const lr = /^\/api\/literature\/([a-z0-9][a-z0-9_-]{0,31})\/access\/request$/.exec(p);
-    if (lr && m === "POST") {
-      if (!litKnown(lr[1])) return json(res, 404, { error: "作品不存在" });
-      return json(res, 200, litRequestAccess(s.userId, lr[1]));
-    }
-    const ld2 = /^\/api\/literature\/([a-z0-9][a-z0-9_-]{0,31})\/access\/decide$/.exec(p);
-    if (ld2 && m === "POST") {
-      const body = await readBody(req);
-      const r = litDecideAccess(s.userId, ld2[1], String(body.userId || ""), body.approve !== false);
-      return json(res, r.error ? 403 : 200, r.error ? { error: r.error } : r);
-    }
-    if (p === "/api/notifications" && m === "GET") return json(res, 200, litNotifications(s.userId));
-  }
-  // 背谱训练（登录可用；仅记录本人学习进度）
-  if (p === "/api/trainer/lines" && m === "GET") {
-    const s2 = getSession(req);
-    if (!s2) return json(res, 401, { error:"请先登录" });
-    return json(res, 200, trainerLines(s2.userId));
-  }
-  if (p === "/api/trainer/import" && m === "POST") {
-    const s2 = getSession(req);
-    if (!s2) return json(res, 401, { error:"请先登录" });
-    const body = await readBody(req);
-    const r = trainerImport(s2.userId, body);
-    return json(res, r.error ? 400 : 200, r.error ? { error: r.error } : r);
-  }
-  {
-    const tk = /^\/api\/trainer\/lines\/([A-Za-z0-9-]+)$/.exec(p);
-    if (tk && m === "DELETE") {
-      const s2 = getSession(req);
-      if (!s2) return json(res, 401, { error:"请先登录" });
-      const r = trainerRemove(s2.userId, tk[1]);
-      return json(res, r.error ? 404 : 200, r.error ? { error: r.error } : r);
-    }
-    if (tk && m === "POST") {
-      const s2 = getSession(req);
-      if (!s2) return json(res, 401, { error:"请先登录" });
-      const body = await readBody(req);
-      const r = trainerSession(s2.userId, tk[1], body);
-      return json(res, r.error ? 404 : 200, r.error ? { error: r.error } : r);
-    }
-  }
-  {
-    const actionMatch = /^\/api\/library\/entries\/([A-Za-z0-9-]+)\/(favorite|collect|comments)$/.exec(p);
-    if (actionMatch && m === "POST") {
-      const [, id, action] = actionMatch;
-      const body = await readBody(req);
-      const result = action === "favorite" ? toggleLibraryStar(s.userId, id) : action === "collect" ? collectLibraryEntry(s.userId, id) : addLibraryComment(s.userId, id, body.text);
-      if (result.error) return json(res, 400, result);
-      return json(res, 200, result);
-    }
-    const deleteCommentMatch = /^\/api\/library\/entries\/([A-Za-z0-9-]+)\/comments\/([A-Za-z0-9-]+)$/.exec(p);
-    if (deleteCommentMatch && m === "DELETE") {
-      const result = deleteLibraryComment(s.userId, deleteCommentMatch[1], deleteCommentMatch[2]);
-      if (result.error) return json(res, 400, result);
-      return json(res, 200, result);
-    }
-    const deleteMatch = /^\/api\/library\/entries\/([A-Za-z0-9-]+)$/.exec(p);
-    if (deleteMatch && m === "DELETE") {
-      const result = deleteLibraryEntry(s.userId, deleteMatch[1]);
-      if (result.error) return json(res, 400, result);
-      return json(res, 200, result);
-    }
-  }
-
-  // 题型闯关进度（账号持久化，跨设备同步）
-  if (p === "/api/tactics/progress" && m === "GET") {
-    return json(res, 200, { progress: publicTactics(getTactics(s.userId)) });
-  }
-  // 每日残局完成上报：把「今日已完成」落到账号上，使换设备后不再显示"今日未完成"。
-  // 该标记只影响一个勾选状态、不给任何奖励，因此接受客户端日期；
-  // 但日期必须是合法 YYYY-MM-DD 且与服务端（Asia/Shanghai）相差不超过 1 天，防止回填历史刷记录。
-  if (p === "/api/tactics/daily-done" && m === "POST") {
-    const body = await readBody(req);
-    const raw = String(body.date || "");
-    const serverDay = chinaDay();
-    const day = (/^\d{4}-\d{2}-\d{2}$/.test(raw) && Math.abs(Date.parse(raw) - Date.parse(serverDay)) <= 86400000)
-      ? raw : serverDay;
-    const prog = getTactics(s.userId);
-    prog.dailyDone = normalizeDayFlags(prog.dailyDone);
-    prog.dailyDone[day] = true;
-    prog.updatedAt = Date.now();
-    saveUserTactics(s.userId, prog);
-    return json(res, 200, { ok: true, date: day, progress: publicTactics(prog) });
-  }
-  if ((p === "/api/tactics/select-tier" || p === "/api/tactics/current") && (m === "POST" || m === "GET")) {
-    const body = m === "POST" ? await readBody(req) : {};
-    const tier = body.tier || u.searchParams.get("tier") || getTactics(s.userId).selectedTier || "beginner";
-    if (!TACTICS_TIERS.includes(tier)) return json(res, 400, { error: "难度档无效" });
-    const prog = getTactics(s.userId);
-    // 仅在难度档真的变化时落盘：原先 GET /api/tactics/current 即使 tier 不变也会写一次进度文件，
-    // 让一个只读语义的 GET 每次调用都产生磁盘写入（Pi 上是 SD 卡）。
-    if (prog.selectedTier !== tier) {
-      prog.selectedTier = tier;
-      saveUserTactics(s.userId, prog);
-    }
-    const cur = currentTacticsPuzzle(prog, tier);
-    return json(res, 200, {
-      tier, currentLevel: cur.levelNo, completed: !cur.puzzle,
-      puzzle: publicPuzzle(cur.puzzle, true),
-      progress: publicTactics(prog),
-    });
-  }
-  if (p === "/api/tactics/attempt/start" && m === "POST") {
-    const body = await readBody(req);
-    const tier = body.tier;
-    if (!TACTICS_TIERS.includes(tier)) return json(res, 400, { error: "难度档无效" });
-    const started = startTacticsAttempt(s.userId, tier);
-    if (started.error) return json(res, 400, { error: started.error, progress: publicTactics(started.prog) });
-    return json(res, 200, {
-      attemptId: started.attempt.id,
-      tier: started.attempt.tier,
-      levelNo: started.attempt.levelNo,
-      puzzle: publicPuzzle(started.puzzle, true),
-      progress: publicTactics(started.prog),
-    });
-  }
-  if (p === "/api/tactics/attempt/submit" && m === "POST") {
-    const body = await readBody(req);
-    const result = applyTacticsAttempt(s.userId, body);
-    if (result.error) return json(res, 400, { error: result.error });
-    const attemptResult = result.attempt.result || {};
-    return json(res, 200, {
-      solved: !!attemptResult.solved,
-      passed: !!attemptResult.solved,
-      duplicate: !!result.duplicate,
-      levelNo: attemptResult.levelNo || result.attempt.levelNo,
-      nextLevel: attemptResult.nextLevel || (result.prog.tiers[result.attempt.tier] || {}).currentLevel,
-      currentStreak: attemptResult.currentStreak || 0,
-      newlyUnlockedTitles: result.newly.map(id => Object.assign({ id }, TACTICS_TITLES.find(t => t.id === id) || {})),
-      newly: result.newly,
-      progress: publicTactics(result.prog),
-    });
-  }
-  // 注：已移除 /api/tactics/result 死路由——public/ 无任何调用方，且允许客户端
-  // 直接传 solved:true 一键通关（反作弊绕过）。正式流程走 /api/tactics/attempt/start + submit。
-
-  // 棋力评估（账号持久化，跨设备同步）
-  if (p === "/api/chess-rating/config" && m === "GET") {
-    return json(res, 200, {
-      tiers: CHESS_RATING_TIERS,
-      limits: { min: CHESS_RATING_MIN, max: CHESS_RATING_MAX, start: CHESS_RATING_START },
-    });
-  }
-  if (p === "/api/chess-rating/game/start" && m === "POST") {
-    const body = await readBody(req);
-    if (body.tier && !CHESS_TIER_KEYS.includes(body.tier)) return json(res, 400, { error: "难度档无效" });
-    if (body.color && !["white", "black", "random"].includes(body.color)) return json(res, 400, { error: "执棋方无效" });
-    const game = startChessRatingGame(s.userId, body);
-    return json(res, 200, {
-      gameId: game.id, tier: game.tier, color: game.color,
-      engine: game.engine, engineElo: game.engineElo, movetime: game.movetime,
-      progress: publicChessRating(getChessRating(s.userId)),
-    });
-  }
-  if (p === "/api/chess-rating/game/finish" && m === "POST") {
-    const body = await readBody(req);
-    const result = finishChessRatingGame(s.userId, body);
-    if (result.error) return json(res, 400, { error: result.error });
-    return json(res, 200, {
-      record: result.record,
-      progress: publicChessRating(result.progress),
-      leaderboard: chessLeaderboard(3),
-    });
-  }
-
-  // ===================== RBAC 受保护资源 =====================
-  function need(perm) {
-    if (!hasPerm(s.role, perm)) { json(res, 403, { error: "权限不足（需要 " + perm + "）" }); return false; }
-    return true;
-  }
-
-  // 看板数据
-  if (p === "/api/admin/metrics" && m === "GET") { if (!need("metrics:read")) return; return json(res, 200, await getMetrics()); }
-  if (p === "/api/admin/games" && m === "GET") { if (!need("games:read")) return; return json(res, 200, getGamesStats()); }
-  if (p === "/api/admin/engines" && m === "GET") { if (!need("engines:read")) return; return json(res, 200, { engines: engineStatus() }); }
-
-  // 账号管理（读）
-  if (p === "/api/admin/accounts" && m === "GET") {
-    if (!need("account:read")) return;
-    return json(res, 200, { accounts: getAccounts().map(publicAccount) });
-  }
-  // 账号管理（建）
-  if (p === "/api/admin/accounts" && m === "POST") {
-    if (!need("account:write")) return;
-    const body = await readBody(req);
-    const uname = String(body.username || "").trim();
-    const pw = body.password, role = body.role;
-    if (!RE_USERNAME.test(uname)) return json(res, 400, { error: "用户名 2-32 位字母数字/._-" });
-    if (!validPassword(pw)) return json(res, 400, { error: "密码需 8-128 位，且含大写、小写、数字" });
-    if (!ALL_ROLES.includes(role)) return json(res, 400, { error: "角色无效" });
-    if (role === "admin" && s.role !== "admin") return json(res, 403, { error: "仅管理员可授予 admin 角色" });
-    const accounts = getAccounts();
-    if (accounts.find(a => a.username.toLowerCase() === uname.toLowerCase())) return json(res, 409, { error: "用户名已存在" });
-    accounts.push(normalizeUser({ username: uname, role, pw: hashPassword(pw), createdAt: Date.now(), updatedAt: Date.now() }));
-    saveAccounts(accounts);
-    return json(res, 200, { ok: true });
-  }
-  // 账号管理（改 / 删）
-  const acctMatch = p.match(/^\/api\/admin\/accounts\/(.+)$/);
-  if (acctMatch && (m === "PUT" || m === "DELETE")) {
-    if (!need("account:write")) return;
-    let uname;
-    try { uname = decodeURIComponent(acctMatch[1]); }
-    catch { return json(res, 400, { error: "非法路径参数" }); }
-    const accounts = getAccounts();
-    const idx = accounts.findIndex(a => a.username === uname);
-    if (idx < 0) return json(res, 404, { error: "账号不存在" });
-    if (m === "DELETE") {
-      if (uname === s.username) return json(res, 400, { error: "不能删除自己" });
-      if (accounts[idx].role === "admin") return json(res, 400, { error: "不能删除管理员账号" });
-      const targetId = accounts[idx].id;
-      accounts.splice(idx, 1);
-      saveAccounts(accounts);
-      logoutAllFor(targetId);
-      return json(res, 200, { ok: true });
-    }
-    const body = await readBody(req);
-    const acc = accounts[idx];
-    // 仅管理员可修改管理员账号（覆盖改密/停用/角色），防止 editor 越权锁死管理员
-    if (acc.role === "admin" && s.role !== "admin")
-      return json(res, 403, { error: "仅管理员可修改管理员账号" });
-    if (uname === s.username && body.role && body.role !== acc.role)
-      return json(res, 403, { error: "不能修改自己的角色" });
-    let revoke = false;   // 状态停用 / 角色变更 / 密码重置后，作废该账号所有在线会话
-    if (body.status && ["active", "suspended"].includes(body.status)) {
-      if (body.status === "suspended" && acc.status !== "suspended") revoke = true;
-      acc.status = body.status;
-    }
-    if (body.password && validPassword(body.password)) {
-      acc.pw = hashPassword(body.password); acc.mustChange = false; revoke = true;
-    }
-    if (body.role && ALL_ROLES.includes(body.role)) {
-      // 防止把自己/唯一管理员降级导致锁死：editor 不能把别人改成 admin 除非自己也是 admin
-      if (body.role === "admin" && s.role !== "admin")
-        return json(res, 403, { error: "仅管理员可授予 admin 角色" });
-      if (acc.role === "admin" && body.role !== "admin" && !accounts.some(a => a !== acc && a.role === "admin"))
-        return json(res, 400, { error: "至少保留一个管理员" });
-      if (body.role !== acc.role) revoke = true;
-      acc.role = body.role;
-    }
-    acc.updatedAt = Date.now();
-    saveAccounts(accounts);
-    if (revoke) logoutAllFor(acc.id);
-    return json(res, 200, { ok: true });
-  }
-
-  // 公告
-  if (p === "/api/admin/announcement" && m === "PUT") {
-    if (!need("announcement:write")) return;
-    const body = await readBody(req);
-    const cfg = getConfig();
-    cfg.announcement = { text: String(body.text || "").slice(0, 500), enabled: !!body.enabled };
-    saveConfig(cfg);
-    return json(res, 200, { ok: true });
-  }
-
-  // 引擎启停
-  const engMatch = p.match(/^\/api\/admin\/engine\/([^/]+)\/(stop|start)$/);
-  if (engMatch && m === "POST") {
-    if (!need("engine:control")) return;
-    let key;
-    try { key = decodeURIComponent(engMatch[1]); }
-    catch { return json(res, 400, { error: "非法路径参数" }); }
-    const ok = controlEngine(key, engMatch[2]);
-    return json(res, ok ? 200 : 404, { ok });
+  const authedCtx = Object.assign({}, baseCtx, { s });
+  for (const mod of AUTHED_ROUTES) {
+    if (!mod.authed) continue;
+    await mod.authed(authedCtx);
+    if (responded()) return;
   }
 
   return json(res, 404, { error: "not found" });
@@ -2165,6 +1780,7 @@ function handleRequest(req, res) {
   const p = u.pathname;
   if (p.startsWith("/api/")) {
     handleApi(req, res, u).catch(e => {
+      console.error("[API 500]", e && e.stack || e);
       if (!res.headersSent) json(res, 500, { error: "server error" });
     });
     return true;

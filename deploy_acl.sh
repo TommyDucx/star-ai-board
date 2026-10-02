@@ -12,6 +12,7 @@ rsync -a --exclude 'stockfish' --exclude 'reckless' --exclude 'katago' --exclude
 cp admin.js /tmp/deploy_acl/star-ai-board/
 mkdir -p /tmp/deploy_acl/star-ai-board/admin
 cp admin/literature_content.json /tmp/deploy_acl/star-ai-board/admin/
+rsync -a routes/ /tmp/deploy_acl/star-ai-board/routes/
 tar czf /tmp/deploy_acl.tar.gz -C /tmp/deploy_acl star-ai-board
 echo "  包内文件数: $(tar tzf /tmp/deploy_acl.tar.gz | wc -l | tr -d ' ')"
 echo "== 上传 =="
