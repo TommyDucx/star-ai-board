@@ -127,6 +127,18 @@
       <span class="ico">✦</span>
       <div><div class="label">背谱训练</div><div class="sub">MEMORY · SRS</div></div>
     </div>
+    <div class="side-item" data-mod="friendsRoom" onclick="sel('friendsRoom', this)">
+      <span class="ico">⚑</span>
+      <div><div class="label">熟人邀战</div><div class="sub">ROOM · NO SIGNUP</div></div>
+    </div>
+    <div class="side-item" data-mod="endgame" onclick="sel('endgame', this)">
+      <span class="ico">♔</span>
+      <div><div class="label">残局闯关</div><div class="sub">ENDGAME · 4 PUZZLES</div></div>
+    </div>
+    <div class="side-item" data-mod="guess" onclick="sel('guess', this)">
+      <span class="ico">✧</span>
+      <div><div class="label">猜大师下一步</div><div class="sub">GUESS · 4 GAMES</div></div>
+    </div>
   </aside>
 
   <main class="content" id="content">
@@ -198,6 +210,58 @@
             '<span class="feat">进度本地存档</span>' +
           '</div>' +
           '<a class="enter magnetic ripple-host" href="tactics.html" data-nav>开始练习 →</a>' +
+        '</div>' +
+      '</div>';
+    },
+    friendsRoom: function () {
+      return '<div class="tac-view">' +
+        '<div class="card tac-card magnetic ripple-host" style="cursor:default">' +
+          '<span class="tag">PLAY / FRIEND ROOM</span>' +
+          '<h2 style="font-size:30px;margin:14px 0 6px">熟人邀战房间</h2>' +
+          '<p>一键生成带 UUID 的专属链接发给朋友：对方打开链接、填个昵称就能直接开下，<b>不用注册</b>。第三人起自动进入观战模式（只能看棋，不能落子、不会收到任何引擎建议）。对局结束可一键导出战报图片。</p>' +
+          '<div class="feats">' +
+            '<span class="feat">免注册开下</span>' +
+            '<span class="feat">链接分享</span>' +
+            '<span class="feat">实时同步</span>' +
+            '<span class="feat">观战只读</span>' +
+            '<span class="feat">10 分钟底时</span>' +
+            '<span class="feat">战报导出</span>' +
+          '</div>' +
+          '<a class="enter magnetic ripple-host" href="room.html" data-nav>创建对局 →</a>' +
+        '</div>' +
+      '</div>';
+    },
+    endgame: function () {
+      return '<div class="tac-view">' +
+        '<div class="card tac-card magnetic ripple-host" style="cursor:default">' +
+          '<span class="tag">TRAIN / ENDGAME LAB</span>' +
+          '<h2 style="font-size:30px;margin:14px 0 6px">残局闯关</h2>' +
+          '<p>四个固定难度残局：单车杀王（入门 / 逼角）、马象杀单王、兵残局对攻。限定步数与倒计时，与自研引擎 my-engine 实时对抗，通关记录自动保存（含最快用时）。</p>' +
+          '<div class="feats">' +
+            '<span class="feat">单车杀王</span>' +
+            '<span class="feat">马象杀单王</span>' +
+            '<span class="feat">兵残局对攻</span>' +
+            '<span class="feat">步数限制</span>' +
+            '<span class="feat">倒计时</span>' +
+            '<span class="feat">通关记录</span>' +
+          '</div>' +
+          '<a class="enter magnetic ripple-host" href="endgame.html" data-nav>开始闯关 →</a>' +
+        '</div>' +
+      '</div>';
+    },
+    guess: function () {
+      return '<div class="tac-view">' +
+        '<div class="card tac-card magnetic ripple-host" style="cursor:default">' +
+          '<span class="tag">PLAY / GUESS THE MASTER</span>' +
+          '<h2 style="font-size:30px;margin:14px 0 6px">猜大师下一步</h2>' +
+          '<p>载入四局历史名局（莫菲歌剧院之局、雷蒂弃后杀、雷加尔杀法、拉斯克王的远征），你代入大师一方，逐步猜他当年下出的每一手，系统按匹配度给分：完全命中 100 / 同棋子 60 / 同目标格 40。</p>' +
+          '<div class="feats">' +
+            '<span class="feat">4 局名局</span>' +
+            '<span class="feat">逐步评分</span>' +
+            '<span class="feat">匹配度评级</span>' +
+            '<span class="feat">最好成绩记录</span>' +
+          '</div>' +
+          '<a class="enter magnetic ripple-host" href="guess.html" data-nav>开始挑战 →</a>' +
         '</div>' +
       '</div>';
     },

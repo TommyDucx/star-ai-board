@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.T.A.R. · 猜大师下一步</title>
+<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
+<link rel="stylesheet" href="css/site.css?v=40">
+<link rel="stylesheet" href="css/motion.css?v=43">
+<link rel="stylesheet" href="css/chessboard.min.css?v=26">
+<link rel="stylesheet" href="css/chess-motion.css?v=43">
+<style>
+  .gm-wrap{width:min(1160px,calc(100vw - 28px));margin:0 auto;padding:22px 0 60px;display:grid;gap:16px}
+  .gm-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .gm-head h1{margin:0;font-size:22px;color:var(--paper)}
+  .gm-head .sub{font-size:10px;letter-spacing:.3em;color:var(--signal);text-transform:uppercase}
+  .gm-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .gm-card{border:1px solid var(--lineStrong);border-radius:14px;padding:16px;background:var(--surface);display:grid;gap:8px;cursor:pointer;transition:.2s}
+  .gm-card:hover{border-color:#d7ff3f66;transform:translateY(-2px)}
+  .gm-card h3{margin:0;font-size:16px;color:var(--paper)}
+  .gm-card .vs{font-size:12.5px;color:var(--muted)}
+  .gm-card p{margin:0;font-size:12.5px;color:var(--muted);line-height:1.75}
+  .gm-tags{display:flex;gap:6px;flex-wrap:wrap}
+  .tg{font-size:10px;letter-spacing:.14em;padding:3px 8px;border-radius:999px;border:1px solid var(--lineStrong);color:var(--muted)}
+  .tg.done{color:var(--signal);border-color:#d7ff3f66;background:#d7ff3f12}
+  .gm-play{display:grid;grid-template-columns:minmax(300px,1fr) 340px;gap:16px;align-items:start}
+  @media(max-width:980px){.gm-play{grid-template-columns:1fr}}
+  .rpanel{border:1px solid var(--lineStrong);background:var(--surface);border-radius:14px;padding:14px}
+  .rpanel h2{margin:0 0 10px;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--signal)}
+  #board{width:100%}
+  .score{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .score>div{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--surface2);display:grid;gap:3px}
+  .score b{font-size:19px;color:var(--paper)}
+  .score span{font-size:10px;color:var(--muted);letter-spacing:.14em}
+  .notice{padding:10px 12px;border-radius:10px;font-size:13px;border:1px solid var(--line);color:var(--muted);background:var(--surface2);line-height:1.75}
+  .notice.ok{border-color:#d7ff3f55;color:var(--signal)}
+  .notice.warn{border-color:#ff6d6455;color:#ffb3ad}
+  .notice.bad{border-color:#8a9288;color:#c9cfc6}
+  .feed{max-height:300px;overflow:auto;display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+  .fi{border-left:2px solid var(--lineStrong);padding-left:9px;line-height:1.6;color:#c9cfc6}
+  .fi.exact{border-color:#d7ff3f;color:var(--signal)}
+  .fi.piece{border-color:#2ed3ff}
+  .fi.target{border-color:#ffcc45}
+  .fi b{color:var(--paper)}
+  .acts{display:flex;gap:8px;flex-wrap:wrap}
+  .rbtn{border:1px solid #ffffff26;background:#ffffff0a;color:var(--paper);border-radius:999px;padding:8px 16px;cursor:pointer;font-size:13px;transition:.18s}
+  .rbtn:hover{border-color:#d7ff3f88;color:var(--signal)}
+  .rbtn.primary{background:var(--signal);border-color:var(--signal);color:#0b0e0c;font-weight:700}
+  .rbtn:disabled{opacity:.45;cursor:default}
+  .bar{height:5px;border-radius:99px;background:#ffffff14;overflow:hidden;margin-top:8px}
+  .bar i{display:block;height:100%;width:0;background:var(--signal);transition:width .3s}
+
+  [hidden]{display:none !important}
+</style>
+</head>
+<body>
+<main class="gm-wrap enter-node">
+  <div class="gm-head"><span class="sub">GUESS THE MASTER</span><h1>猜大师下一步</h1>
+    <span class="badge" style="font-size:10px;color:var(--muted);letter-spacing:.2em">载入历史名局 · 你代入一方 · 按匹配度评分</span>
+  </div>
+
+  <section class="gm-list" id="list"></section>
+
+  <div class="gm-play" id="playarea" hidden>
+    <section class="rpanel">
+      <h2 id="gm-title">对局</h2>
+      <div class="score" style="margin-bottom:10px">
+        <div><b id="sc-score">0</b><span>累计积分</span></div>
+        <div><b id="sc-acc">0%</b><span>匹配度</span></div>
+        <div><b id="sc-ply">0/0</b><span>进度</span></div>
+      </div>
+      <div class="bar"><i id="bar"></i></div>
+      <div id="board" style="margin-top:12px"></div>
+      <div class="notice" id="gm-note" style="margin-top:10px">轮到你猜：在棋盘上走出你认为大师当年下出的那步棋。</div>
+      <div class="acts" style="margin-top:10px">
+        <button class="rbtn" id="btn-show">看大师实际着法</button>
+        <button class="rbtn" id="btn-restart">重来本局</button>
+        <button class="rbtn" id="btn-back">返回列表</button>
+      </div>
+    </section>
+    <div style="display:grid;gap:16px">
+      <section class="rpanel">
+        <h2>对局信息</h2>
+        <p style="margin:0;font-size:13px;color:#c9cfc6;line-height:1.85" id="gm-meta"></p>
+      </section>
+      <section class="rpanel">
+        <h2>逐步反馈</h2>
+        <div class="feed" id="feed"></div>
+      </section>
+      <section class="rpanel" id="final-box" hidden>
+        <h2>最终成绩</h2>
+        <div class="score"><div><b id="f-acc">0%</b><span>匹配度</span></div><div><b id="f-grade">—</b><span>评级</span></div><div><b id="f-exact">0</b><span>完全命中</span></div></div>
+        <div class="acts" style="margin-top:10px"><button class="rbtn primary" id="btn-report">导出战报</button></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script src="js/lib/jquery.min.js"></script>
+<script src="js/lib/chess.min.js"></script>
+<script src="js/lib/chessboard.min.js"></script>
+<script src="js/lib/html2canvas.min.js"></script>
+<script src="js/chess-motion.js?v=13"></script>
+<script src="js/report.js?v=1"></script>
+<script src="js/motion.js?v=39"></script>
+<script>
+(function () {
+  "use strict";
+  var $id = function (i) { return document.getElementById(i); };
+  var THEME = "img/chesspieces/wikipedia/{piece}.png";
+  var guestId = localStorage.getItem("star_guest");
+  if (!guestId) { guestId = (crypto.randomUUID ? crypto.randomUUID() : "g" + Date.now()); localStorage.setItem("star_guest", guestId); }
+  var games = [], game = null, sanList = [], realMoves = [], guesses = [], idx = 0;
+  var cg = new Chess(), board = null, sel = null, done = false, t0 = 0;
+
+  var KIND = { exact: ["完全命中", 100], piece: ["同一枚棋子", 60], target: ["同一目标格", 40], other: ["其他着法", 10], miss: ["未作答", 0] };
+  function esc(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function note(t, cls) { var e = $id("gm-note"); e.innerHTML = t; e.className = "notice" + (cls ? " " + cls : ""); }
+
+  fetch("/api/guess/games?guestId=" + encodeURIComponent(guestId)).then(function (r) { return r.json(); }).then(function (d) {
+    games = (d && d.games) || [];
+    $id("list").innerHTML = games.map(function (g) {
+      return '<article class="gm-card" data-id="' + esc(g.id) + '">' +
+        '<h3>' + esc(g.title) + '</h3>' +
+        '<div class="vs">' + esc(g.white) + ' — ' + esc(g.black) + ' · ' + g.year + ' · ' + esc(g.event) + '</div>' +
+        '<p>' + esc(g.blurb) + '</p>' +
+        '<div class="gm-tags"><span class="tg">' + g.plies + ' 手</span><span class="tg">你代入' + (g.guessSide === "w" ? "白方" : "黑方") + '</span>' +
+        (g.best ? '<span class="tg done">最好 ' + g.best.accuracy + '% · ' + g.best.accuracy + '分</span>' : '') + '</div></article>';
+    }).join("");
+  });
+
+  $id("list").addEventListener("click", function (e) {
+    var c = e.target.closest ? e.target.closest(".gm-card") : null; if (!c) return;
+    fetch("/api/guess/games/" + c.getAttribute("data-id")).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d.game) return;
+      game = d.game; sanList = game.moves.slice();
+      $id("list").style.display = "none"; $id("playarea").hidden = false;
+      $id("gm-title").textContent = game.title;
+      $id("gm-meta").innerHTML = "<b>" + esc(game.white) + "</b> vs <b>" + esc(game.black) + "</b><br>" + game.year + " · " + esc(game.event) + "<br>你代入：" + (game.guessSide === "w" ? "白方" : "黑方");
+      restart();
+    });
+  });
+
+  function restart() {
+    cg = new Chess(); realMoves = []; guesses = []; idx = 0; done = false; t0 = Date.now();
+    $id("final-box").hidden = true; $id("feed").innerHTML = "";
+    renderBoard(); stepToGuess(); updScore();
+  }
+
+
+  /* chessboard.js 0.3.0 不支持 onSquareClick，且会把 click 事件吞掉；
+     用 pointerdown + 位移判定模拟"点击选子"（与 js/chess.js 内既有做法一致）。 */
+  function wireSquareClick(hostEl, onSq) {
+    var press = null;
+    function onPointer(e) {
+      var el = e.target && e.target.closest ? e.target.closest(".square-55d63") : null;
+      var sq = el ? ((el.className.match(/square-([a-h][1-8])/) || [])[1] || null) : null;
+      if (e.type === "pointerdown") press = { sq: sq, x: e.clientX, y: e.clientY, moved: false };
+      else if (e.type === "pointermove" && press) {
+        if (Math.hypot(e.clientX - press.x, e.clientY - press.y) > 6) press.moved = true;
+      } else if (e.type === "pointerup" && press) {
+        if (!press.moved && press.sq) onSq(press.sq);
+        press = null;
+      }
+    }
+    ["pointerdown", "pointermove", "pointerup"].forEach(function (t) { hostEl.addEventListener(t, onPointer); });
+  }
+
+  function renderBoard() {
+    if (board) { try { board.destroy(); } catch (e) {} }
+    board = Chessboard("board", {
+      draggable: true, position: cg.fen(), pieceTheme: THEME, showNotation: true,
+      onDragStart: function (src, piece) {
+        if (done) return false;
+        if (cg.turn() !== game.guessSide || piece.charAt(0) !== game.guessSide) return false;
+        var mvs = cg.moves({ square: src, verbose: true }); if (!mvs.length) return false;
+        sel = src; hl(src, mvs.map(function (m) { return m.to; })); return true;
+      },
+      onDrop: function (src, dst) { clearHl(); if (src === dst) return; play(src, dst); },
+      onSnapEnd: function () { board.position(cg.fen(), false); },
+      appearSpeed: 120, moveSpeed: 160, snapSpeed: 100, snapbackSpeed: 100,
+    });
+    if (window.StarChessMotion) StarChessMotion.register(board);
+    wireSquareClick($id("board"), onSqClick);
+  }
+  function onSqClick(sq) {
+    if (done || !game || cg.turn() !== game.guessSide) return;
+    if (sel && sq !== sel) {
+      var from = sel;
+      var mvs = cg.moves({ square: from, verbose: true });
+      sel = null; clearHl();
+      if (mvs.some(function (m) { return m.to === sq; })) { play(from, sq); return; }
+    } else if (sel === sq) { sel = null; clearHl(); return; }
+    var my = cg.moves({ square: sq, verbose: true });
+    clearHl();
+    var pc = cg.get(sq);
+    if (my.length && pc && pc.color === game.guessSide) { sel = sq; hl(sq, my.map(function (m) { return m.to; })); } else sel = null;
+  }
+  function hl(a, tos) {
+    var root = document.querySelector(".board-b72b1"); if (!root) return;
+    if (!document.getElementById("gm-style")) { var st = document.createElement("style"); st.id = "gm-style"; st.textContent = ".star-sel{box-shadow:inset 0 0 0 3px #d7ff3f99}.star-hl{box-shadow:inset 0 0 0 3px #d7ff3f55}"; document.head.appendChild(st); }
+    var f = root.querySelector(".square-" + a); if (f) f.classList.add("star-sel");
+    tos.forEach(function (t) { var e = root.querySelector(".square-" + t); if (e) e.classList.add("star-hl"); });
+  }
+  function clearHl() { document.querySelectorAll(".star-sel,.star-hl").forEach(function (e) { e.classList.remove("star-sel", "star-hl"); }); }
+
+  /* 推进到下一个「轮到我猜」的位置（一路自动播放大师着法） */
+  function stepToGuess() {
+    while (idx < sanList.length) {
+      var mover = idx % 2 === 0 ? "w" : "b";
+      if (mover === game.guessSide) break;               // 轮到我猜
+      var mv = cg.move(sanList[idx]);
+      if (!mv) { finish(); return; }
+      realMoves.push(mv);
+      idx++;
+    }
+    if (idx >= sanList.length) return finish();
+    if (board) board.position(cg.fen(), false);
+    var left = countGuessLeft();
+    note("第 <b>" + (Math.floor(idx / 2) + 1) + "</b> 回合：猜" + (game.guessSide === "w" ? "白方" : "黑方") + "大师的着法（还剩 " + left + " 步要猜）。", "");
+    updScore();
+  }
+  function countGuessLeft() { var n = 0; for (var i = idx; i < sanList.length; i += 2) n++; return n; }
+
+  function play(from, to) {
+    if (done) return;
+    var fenBefore = cg.fen();
+    var real = cg.move(sanList[idx]);
+    if (!real) return finish();
+    // 独立重建玩家的着法（在「猜之前」的局面里）
+    var gc = new Chess(); gc.load(fenBefore);
+    var mine = null;
+    /* 先在「猜之前」的局面里查合法着法表，再落子：
+       直接 move({from,to,promotion}) 在某些边界下会返回 null/抛错（升变参数与着法不匹配等），
+       从合法着法表里取出真实的 promotion 再走，最稳。 */
+    try {
+      var cands = gc.moves({ verbose: true }).filter(function (m) { return m.from === from && m.to === to; });
+      if (cands.length) mine = gc.move({ from: cands[0].from, to: cands[0].to, promotion: cands[0].promotion });
+      else { try { mine = gc.move({ from: from, to: to }); } catch (e2) { mine = null; } }
+    } catch (e3) { mine = null; }
+    if (window.__gmDbg) window.__gmDbg.push({ ply: idx, from: from, to: to, mine: mine ? mine.san : null, fenBefore: fenBefore });
+    if (!mine) { note("这一步不合法，请重新选择棋子与目标格。", "warn"); return; }   // 不推进进度，避免杂散事件打乱整局
+    var rec = { ply: idx, from: from, to: to };
+    guesses.push(rec);
+    var kind = "miss", got = 0;
+    if (mine) {
+      if (mine.san === real.san) { kind = "exact"; got = 100; }
+      else if (mine.piece === real.piece) { kind = "piece"; got = 60; }
+      else if (mine.to === real.to) { kind = "target"; got = 40; }
+      else { kind = "other"; got = 10; }
+    }
+    realMoves.push(real);
+    idx++;
+    board.position(cg.fen(), false);
+    addFeed(idx, mine ? mine.san : "（无法识别）", real.san, kind, got);
+    note(got === 100 ? "🎯 完全命中！大师当年就是这么下的。" : "大师实际下的是 <b>" + esc(real.san) + "</b>（" + KIND[kind][0] + "，+" + got + " 分）", got === 100 ? "ok" : "bad");
+    updScore();
+    setTimeout(stepToGuess, got === 100 ? 700 : 1300);
+  }
+  function showReal() {
+    if (done || idx >= sanList.length) return;
+    var real = cg.move(sanList[idx]); if (!real) return finish();
+    realMoves.push(real); guesses.push({ ply: idx, from: null, to: null }); idx++;
+    board.position(cg.fen(), false);
+    addFeed(idx, "（跳过）", real.san, "miss", 0);
+    updScore(); setTimeout(stepToGuess, 500);
+  }
+  function addFeed(n, mineSan, realSan, kind, got) {
+    var d = document.createElement("div");
+    d.className = "fi " + kind;
+    d.innerHTML = "<b>第 " + n + " 步</b>　你：" + esc(mineSan) + " · 大师：<b>" + esc(realSan) + "</b>　<span style='color:var(--faint)'>" + KIND[kind][0] + " +" + got + "</span>";
+    var f = $id("feed"); f.appendChild(d); f.scrollTop = f.scrollHeight;
+  }
+  function updScore() {
+    var total = guesses.length, score = 0, exact = 0;
+    // 重新计算（服务端为准，这里做即时反馈）
+    var c = new Chess(); var gi = 0;
+    for (var i = 0; i < guesses.length; i++) {
+      var g = guesses[i]; var mover = g.ply % 2 === 0 ? "w" : "b";
+      if (mover !== game.guessSide) continue;
+      c = new Chess(); var cc = new Chess();
+      for (var j = 0; j < g.ply; j++) cc.move(sanList[j]);
+      var real = cc.move(sanList[g.ply]); var mine = null;
+      if (g.from) { var gc = new Chess(); gc.load(fenBefore(g.ply)); try { mine = gc.move({ from: g.from, to: g.to, promotion: "q" }); } catch (e) {} }
+      if (mine && real) {
+        if (mine.san === real.san) { score += 100; exact++; }
+        else if (mine.piece === real.piece) score += 60;
+        else if (mine.to === real.to) score += 40;
+        else score += 10;
+      }
+    }
+    var acc = total ? Math.round(score / total) : 0;
+    $id("sc-score").textContent = score;
+    $id("sc-acc").textContent = acc + "%";
+    $id("sc-ply").textContent = total + "/" + Math.ceil(sanList.filter(function (_, i) { return (i % 2 === 0 ? "w" : "b") === game.guessSide; }).length);
+    $id("bar").style.width = Math.min(100, 100 * total / Math.max(1, Math.ceil(sanList.filter(function (_, i) { return (i % 2 === 0 ? "w" : "b") === game.guessSide; }).length))) + "%";
+  }
+  function fenBefore(ply) { var c = new Chess(); for (var j = 0; j < ply; j++) c.move(sanList[j]); return c.fen(); }
+
+  function finish() {
+    done = true;
+    note("本局结束，正在计算最终成绩…", "");
+    fetch("/api/guess/finish", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ gameId: game.id, guesses: guesses, guestId: guestId }) })
+      .then(function (r) { return r.json(); }).then(function (d) {
+        if (d.error) { note(d.error, "warn"); return; }
+        $id("final-box").hidden = false;
+        $id("f-acc").textContent = d.accuracy + "%";
+        $id("f-grade").textContent = d.grade;
+        $id("f-exact").textContent = d.exact + "/" + d.total;
+        note("完成！匹配度 <b>" + d.accuracy + "%</b>（" + d.grade + "）· 完全命中 " + d.exact + "/" + d.total + " 步" + (d.best ? " · 历史最好 " + d.best.accuracy + "%" : ""), d.accuracy >= 70 ? "ok" : "");
+      }).catch(function () { note("成绩提交失败，请稍后重试。", "warn"); });
+  }
+
+  $id("btn-show").addEventListener("click", showReal);
+  $id("btn-restart").addEventListener("click", function () { if (game) restart(); });
+  $id("btn-back").addEventListener("click", function () { $id("playarea").hidden = true; $id("list").style.display = ""; });
+  $id("btn-report").addEventListener("click", function () {
+    if (!window.StarReport || !game) return;
+    var seats = {}; seats[game.guessSide] = { name: "你（猜" + (game.guessSide === "w" ? "白" : "黑") + "）" };
+    seats[game.guessSide === "w" ? "b" : "w"] = { name: game.white + " / " + game.black };
+    van();
+    function van() {
+      StarReport.open({
+        room: { id: game.id, seats: seats, moves: realMoves.map(function (m) { return { from: m.from, to: m.to, san: m.san, by: m.color }; }), result: { winner: null, reason: "draw" }, startedAt: t0, endedAt: Date.now() },
+        mySeat: game.guessSide, pieceTheme: THEME,
+      });
+    }
+  });
+  if (window.Motion) { try { Motion.initCursorLine(); Motion.initRipple(); Motion.staggerEnter(); } catch (e) {} }
+})();
+</script>
+</body>
+</html>

@@ -71,3 +71,5 @@ admin/trainer.json
 admin/*.bak-*
 *.bak-*
 admin/friends.json
+admin/rooms.json
+admin/fun_progress.json

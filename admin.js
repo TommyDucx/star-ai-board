@@ -32,6 +32,7 @@ fs.mkdirSync(ADMIN_DIR, { recursive: true });
 // 模块级状态（由 init 注入）
 let PUBLIC_DIR = path.join(__dirname, "public");
 let engineStatus = () => [];
+let engineMoveFn = async () => { throw new Error("引擎未就绪"); };   // 由 server.js 注入（残局 AI 走子）
 let controlEngine = () => false;
 
 // ---------- 密钥 ----------
@@ -1678,7 +1679,9 @@ const routeLibrary = require("./routes/library");
 const routeTrainer = require("./routes/trainer");
 const routeAdmin = require("./routes/admin");
 const routeFriends = require("./routes/friends");
-const PUBLIC_ROUTES = [routeAuth, routeTactics, routeRating, routeEngagement, routeLibrary, routeLiterature];
+const routeRooms = require("./routes/rooms");
+const routeFun = require("./routes/fun");
+const PUBLIC_ROUTES = [routeAuth, routeFun, routeRooms, routeTactics, routeRating, routeEngagement, routeLibrary, routeLiterature];
 const AUTHED_ROUTES = [routeAuth, routeEngagement, routeLibrary, routeLiterature, routeTrainer, routeTactics, routeRating, routeFriends, routeAdmin];
 
 async function handleApi(req, res, u) {
@@ -1718,6 +1721,7 @@ async function handleApi(req, res, u) {
     deleteLibraryEntry,
     engagementLeaderboard,
     engineStatus: (...a) => engineStatus(...a),
+    engineMove: (...a) => engineMoveFn(...a),
     findLibraryEntry,
     findUser,
     finishChessRatingGame,
@@ -1845,6 +1849,7 @@ function init(opts) {
   if (opts.publicDir) PUBLIC_DIR = opts.publicDir;
   if (opts.engineStatus) engineStatus = opts.engineStatus;
   if (opts.controlEngine) controlEngine = opts.controlEngine;
+  if (opts.engineMove) engineMoveFn = opts.engineMove;
   return { handleRequest, logGame };
 }
 

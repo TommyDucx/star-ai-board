@@ -13,6 +13,30 @@ const os = require("os");
 const zlib = require("zlib");
 const { spawn } = require("child_process");
 const { WebSocketServer } = require("ws");
+const rooms = require("./rooms");
+/* 房间广播注册表：roomId -> Set<ws>（一个连接可同时在多个房间？不需要，按单房间订阅） */
+const roomSockets = new Map();
+function roomBroadcast(roomId, payload, exceptWs) {
+  const set = roomSockets.get(roomId);
+  if (!set) return;
+  const data = JSON.stringify(payload);
+  for (const sock of set) { if (sock === exceptWs) continue; try { sock.send(data); } catch (e) {} }
+}
+function roomSub(roomId, ws) {
+  let set = roomSockets.get(roomId);
+  if (!set) { set = new Set(); roomSockets.set(roomId, set); }
+  set.add(ws);
+  ws._rooms = ws._rooms || new Set();
+  ws._rooms.add(roomId);
+}
+function roomUnsubAll(ws) {
+  if (!ws._rooms) return;
+  for (const id of ws._rooms) {
+    const set = roomSockets.get(id);
+    if (set) { set.delete(ws); if (!set.size) roomSockets.delete(id); }
+  }
+  ws._rooms.clear();
+}
 const admin = require("./admin");
 
 const PORT = process.env.PORT || 8765;
@@ -693,6 +717,17 @@ function engineFor(name) {
   const key = ENGINES[name] ? name : "stockfish";
   return { key, cfg: ENGINES[key], eng: chessEngines[key] };
 }
+/* 残局 AI 走子：只服务固定的残局关卡（不接受任意 FEN 的自由分析，避免匿名用户白嫖引擎） */
+async function engineMove(fen, opts = {}) {
+  const { eng } = engineFor(opts.engine || "my-engine");
+  if (!eng) throw new Error("引擎不可用");
+  return await eng.bestMove(fen, {
+    elo: opts.elo == null ? null : clampInt(opts.elo, 800, 2850, null),
+    movetime: clampInt(opts.movetime == null ? 300 : opts.movetime, 100, 1500, 300),
+    multipv: 1,
+    supportsElo: !!(ENGINES[opts.engine || "my-engine"] && ENGINES[opts.engine || "my-engine"].elo),
+  });
+}
 const go = { available: GO_KEYS.length > 0, list: Object.entries(GO_ENGINES).map(([k, c]) => ({ key: k, label: c.label })) };
 
 const wss = new WebSocketServer({ server, maxPayload: 256 * 1024 });   // 拒绝巨型帧（Pi 内存有限）
@@ -718,6 +753,15 @@ setInterval(() => {
 wss.on("connection", (ws, req) => {
   // 连接级错误兜底：客户端异常断开/写失败不应冒泡成未捕获异常
   ws.on("error", () => {});
+  ws.on("close", () => {
+    try {
+      if (ws._roomId) {
+        const room = rooms.leave(ws._roomId, { token: ws._roomToken, guestId: ws._roomGuest });
+        if (room) roomBroadcast(room.id, { type: "room", action: "presence", state: rooms.publicState(room, {}) });
+      }
+      roomUnsubAll(ws);
+    } catch (e) {}
+  });
   ws._ip = clientIp(req);
   // 保存 cookie：每条分析请求据此重新校验会话（账号被停用/改角色后旧连接立即失效）
   ws._cookie = (req.headers && req.headers.cookie) || "";
@@ -756,6 +800,63 @@ wss.on("connection", (ws, req) => {
     if (t === "goengines") {
       ws.send(JSON.stringify({ type: "goengines", id: msg.id, engines: go.list, available: go.available }));
       return;
+    }
+
+    /* ---------- 对局房间：熟人对局 / 观战（免注册，凭 seat token 校验身份） ---------- */
+    if (t === "room") {
+      if (!wsRateCheck("wsroom:" + ws._ip, 120, 60000))
+        return ws.send(JSON.stringify({ type: "error", id: msg.id, code: "RATE_LIMIT", message: "操作过于频繁" }));
+      const action = String(msg.action || "");
+      const reply = (o) => ws.send(JSON.stringify(Object.assign({ type: "room", id: msg.id, action }, o)));
+      const me = { token: msg.token, guestId: msg.guestId, name: msg.name };
+
+      if (action === "join") {
+        const r = rooms.join(msg.roomId, me);
+        if (r.error) return reply({ error: r.error, code: r.code });
+        roomSub(r.room.id, ws);
+        ws._roomId = r.room.id; ws._roomSeat = r.seat || null;
+        ws._roomToken = r.token || null; ws._roomGuest = me.guestId || null;
+        rooms.presence(r.room.id, { token: r.token || me.token, guestId: me.guestId, on: true });
+        reply({ ok: true, role: r.role, seat: r.seat, token: r.token, state: rooms.publicState(r.room, { seat: r.seat }) });
+        roomBroadcast(r.room.id, { type: "room", action: "state", state: rooms.publicState(r.room, {}) }, ws);
+        return;
+      }
+
+      if (action === "move") {
+        const r = rooms.move(msg.roomId, { token: ws._roomToken || me.token, from: msg.from, to: msg.to, promotion: msg.promotion });
+        if (r.error) return reply({ error: r.error, code: r.code });
+        roomBroadcast(r.room.id, { type: "room", action: "moved", state: rooms.publicState(r.room, {}), move: r.move || null });
+        return reply({ ok: true, state: rooms.publicState(r.room, { seat: ws._roomSeat }) });
+      }
+
+      if (action === "resign" || action === "rematch") {
+        const fn = action === "resign" ? rooms.resign : rooms.rematch;
+        const r = fn(msg.roomId, { token: ws._roomToken || me.token });
+        if (r.error) return reply({ error: r.error, code: r.code });
+        roomBroadcast(r.room.id, { type: "room", action: action === "resign" ? "ended" : "restarted", state: rooms.publicState(r.room, {}) });
+        return reply({ ok: true, waitingOther: !!r.waitingOther, state: rooms.publicState(r.room, { seat: ws._roomSeat }) });
+      }
+
+      if (action === "chat") {
+        const r = rooms.chat(msg.roomId, { token: ws._roomToken || me.token, guestId: ws._roomGuest || me.guestId, text: msg.text });
+        if (r.error) return reply({ error: r.error, code: r.code });
+        roomBroadcast(r.room.id, { type: "room", action: "chat", item: r.item });
+        return reply({ ok: true });
+      }
+
+      if (action === "ping") {                      // 心跳：刷新在线状态
+        const room = rooms.get(msg.roomId);
+        if (room) rooms.presence(room.id, { token: ws._roomToken || me.token, guestId: ws._roomGuest || me.guestId, on: true });
+        return reply({ ok: true, state: room ? rooms.publicState(room, { seat: ws._roomSeat }) : null });
+      }
+
+      if (action === "leave") {
+        const room = rooms.leave(msg.roomId, { token: ws._roomToken || me.token, guestId: ws._roomGuest || me.guestId });
+        roomUnsubAll(ws);
+        if (room) roomBroadcast(room.id, { type: "room", action: "state", state: rooms.publicState(room, {}) });
+        return reply({ ok: true });
+      }
+      return reply({ error: "未知操作", code: "BAD_ACTION" });
     }
 
     // 引擎分析（chess / go）必须登录且未处于强制改密期
@@ -855,7 +956,8 @@ function controlEngine(key, action) {
   }
   return false;
 }
-admin.init({ publicDir: PUBLIC_DIR, engineStatus, controlEngine });
+admin.init({ publicDir: PUBLIC_DIR, engineStatus, controlEngine, engineMove });
+rooms.start();
 
 // 进程级兜底：仅记录，不让单个异常拖垮整个服务（连接级错误另有 ws.on("error") 兜底）
 process.on("uncaughtException", e => console.error("[fatal]", e));

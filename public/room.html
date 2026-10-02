@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.T.A.R. · 对局房间</title>
+<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
+<link rel="stylesheet" href="css/site.css?v=40">
+<link rel="stylesheet" href="css/motion.css?v=43">
+<link rel="stylesheet" href="css/chessboard.min.css?v=26">
+<link rel="stylesheet" href="css/chess-motion.css?v=43">
+<style>
+  .room-wrap{width:min(1200px,calc(100vw - 28px));margin:0 auto;padding:22px 0 60px;display:grid;gap:16px}
+  .room-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .room-top h1{margin:0;font-size:22px;color:var(--paper)}
+  .badge{font-size:10px;letter-spacing:.24em;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid var(--lineStrong);color:var(--muted)}
+  .badge.host{color:var(--signal);border-color:#d7ff3f66;background:#d7ff3f12}
+  .badge.spect{border-color:#2ed3ff55;color:var(--cyan)}
+  .badge.live{border-color:#ff6d6455;color:#ff8a80}
+  .room-grid{display:grid;grid-template-columns:minmax(320px,1fr) 340px;gap:18px;align-items:start}
+  @media(max-width:980px){.room-grid{grid-template-columns:1fr}}
+  .rpanel{border:1px solid var(--lineStrong);background:var(--surface);border-radius:14px;padding:14px}
+  .rpanel h2{margin:0 0 10px;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--signal)}
+  #board{width:100%}
+  .board-shell{display:grid;gap:10px}
+  .seat{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface2)}
+  .seat.active{border-color:#d7ff3f66;box-shadow:0 0 0 1px #d7ff3f22 inset}
+  .seat .av{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;background:#eff2e8;color:#0b0e0c}
+  .seat .av.dark{background:#2a3130;color:#eff2e8}
+  .seat .nm{flex:1;font-size:14px;color:var(--paper);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .seat .clock{font-variant-numeric:tabular-nums;font-size:15px;color:var(--signal);letter-spacing:.04em}
+  .seat .off{font-size:10px;color:#ff8a80;letter-spacing:.1em}
+  .moves{max-height:280px;overflow:auto;font-size:13px;line-height:1.9;color:#c9cfc6}
+  .moves ol{margin:0;padding-left:26px}
+  .moves li::marker{color:var(--faint)}
+  .moves b{color:var(--paper);font-weight:600}
+  .acts{display:flex;gap:8px;flex-wrap:wrap}
+  .rbtn{border:1px solid #ffffff26;background:#ffffff0a;color:var(--paper);border-radius:999px;padding:8px 16px;cursor:pointer;font-size:13px;transition:.18s}
+  .rbtn:hover{border-color:#d7ff3f88;color:var(--signal)}
+  .rbtn.primary{background:var(--signal);border-color:var(--signal);color:#0b0e0c;font-weight:700}
+  .rbtn.danger{border-color:#ff6d6455;color:#ff8a80}
+  .rbtn:disabled{opacity:.45;cursor:default}
+  .chat{display:flex;flex-direction:column;gap:8px;height:240px}
+  .chat-log{flex:1;overflow:auto;display:flex;flex-direction:column;gap:6px;font-size:13px}
+  .cl{color:#c9cfc6;line-height:1.6;word-break:break-word}
+  .cl b{color:var(--signal);font-weight:600;margin-right:6px}
+  .cl.sys{color:var(--faint);font-style:italic}
+  .chat-in{display:flex;gap:6px}
+  .chat-in input{flex:1;padding:8px 12px;border:1px solid var(--lineStrong);background:var(--ink);color:var(--paper);border-radius:999px;font-size:13px}
+  .notice{padding:10px 12px;border-radius:10px;font-size:13px;border:1px solid var(--line);color:var(--muted);background:var(--surface2)}
+  .notice.warn{border-color:#ff6d6455;color:#ffb3ad}
+  .notice.ok{border-color:#d7ff3f55;color:var(--signal)}
+  .share{display:flex;gap:8px}
+  .share input{flex:1;padding:9px 12px;border:1px solid var(--lineStrong);background:var(--ink);color:var(--muted);border-radius:8px;font-size:12px}
+  .hero-create{display:grid;gap:14px;justify-items:start;padding:26px}
+  .hero-create h2{font-size:24px;margin:0;color:var(--paper);letter-spacing:.02em}
+  .hero-create p{margin:0;color:var(--muted);font-size:14px;line-height:1.9;max-width:56ch}
+  .modes{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+  .mcard{border:1px solid var(--lineStrong);border-radius:12px;padding:14px 16px;background:var(--surface2);width:200px}
+  .mcard b{display:block;color:var(--paper);margin-bottom:6px}
+  .mcard span{font-size:12px;color:var(--muted);line-height:1.7}
+  .pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff6d64;margin-right:6px;animation:pl 1.4s infinite}
+  @keyframes pl{0%,100%{opacity:1}50%{opacity:.25}}
+
+  [hidden]{display:none !important}
+  #nick-input{padding:9px 14px;border:1px solid var(--lineStrong);background:var(--ink);color:var(--paper);border-radius:999px;font-size:14px;min-width:200px}
+  .name-gate{position:fixed;inset:0;z-index:300;background:rgba(4,6,5,.9);backdrop-filter:blur(6px);display:grid;place-items:center;padding:20px}
+  .ng-card{background:var(--surface);border:1px solid #d7ff3f33;border-radius:16px;padding:24px;display:grid;gap:12px;width:min(360px,94vw);text-align:center}
+  .ng-card b{color:var(--paper);font-size:18px}
+  .ng-card p{margin:0;color:var(--muted);font-size:13px}
+  .ng-card input{padding:11px 14px;border:1px solid var(--lineStrong);background:var(--ink);color:var(--paper);border-radius:999px;font-size:14px;text-align:center}
+</style>
+</head>
+<body>
+<main class="room-wrap enter-node">
+  <div class="room-top">
+    <h1 id="room-title">对局房间</h1>
+    <span class="badge" id="b-role">—</span>
+    <span class="badge" id="b-status">—</span>
+    <span class="badge" id="b-net">连接中</span>
+  </div>
+
+  <!-- 未进入房间：建局入口 -->
+  <section class="rpanel hero-create" id="lobby">
+    <h2>创建熟人邀战房间</h2>
+    <p>点「创建对局」生成一条带 UUID 的专属链接，把它发给朋友——对方打开链接、填个昵称就能直接开下，<b>不需要注册</b>。任何拿到链接的人也能进房间观战（只能看，不能落子、不会收到任何引擎建议）。</p>
+    <div class="acts" style="align-items:center">
+      <input id="nick-input" maxlength="16" placeholder="你的昵称（1–16 字）" autocomplete="nickname">
+      <button class="rbtn primary" id="create-btn">创建对局</button>
+      <a class="rbtn" href="/">返回首页</a>
+    </div>
+    <div class="notice" id="lobby-note" hidden></div>
+    <div class="modes">
+      <div class="mcard"><b>♜ 双人对弈</b><span>无账号、无棋钟压力，10 分钟底时超时判负。</span></div>
+      <div class="mcard"><b>👁 观战模式</b><span>第三人起自动进入观战，实时同步棋步与状态。</span></div>
+      <div class="mcard"><b>⬇ 战报导出</b><span>对局结束一键生成战报卡片（含评估曲线）。</span></div>
+    </div>
+    <p style="font-size:12px;color:var(--faint)">想玩残局？<a href="endgame.html" style="color:var(--signal)">残局闯关</a> · <a href="guess.html" style="color:var(--signal)">猜大师下一步</a></p>
+  </section>
+
+  <!-- 房间主体 -->
+  <div class="room-grid" id="room-ui" hidden>
+    <section class="rpanel board-shell">
+      <div class="seat" id="seat-w"><span class="av">?</span><span class="nm">等待白方…</span><span class="clock" id="clk-w">10:00</span></div>
+      <div id="board"></div>
+      <div class="seat" id="seat-b"><span class="av dark">?</span><span class="nm">等待黑方…</span><span class="clock" id="clk-b">10:00</span></div>
+      <div class="notice" id="turn-note">等待对手入座…</div>
+      <div class="acts">
+        <button class="rbtn danger" id="resign" hidden>认输</button>
+        <button class="rbtn" id="rematch" hidden>再战一局</button>
+        <button class="rbtn" id="report" hidden>导出战报</button>
+        <button class="rbtn" id="leave">离开房间</button>
+      </div>
+    </section>
+
+    <div style="display:grid;gap:16px">
+      <section class="rpanel">
+        <h2>邀请链接</h2>
+        <div class="share">
+          <input id="share-url" readonly>
+          <button class="rbtn" id="copy">复制</button>
+          <button class="rbtn" id="sharebtn">分享</button>
+        </div>
+        <p style="font-size:12px;color:var(--faint);margin:8px 0 0" id="spect-info">观战者 0 人</p>
+      </section>
+      <section class="rpanel">
+        <h2>棋谱</h2>
+        <div class="moves" id="moves"><span style="color:var(--faint)">尚未开始</span></div>
+      </section>
+      <section class="rpanel">
+        <h2>房间消息</h2>
+        <div class="chat">
+          <div class="chat-log" id="chatlog"></div>
+          <div class="chat-in"><input id="chatin" maxlength="200" placeholder="说点什么…"><button class="rbtn" id="chatsend">发送</button></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script src="js/lib/jquery.min.js"></script>
+<script src="js/lib/chess.min.js"></script>
+<script src="js/lib/chessboard.min.js"></script>
+<script src="js/lib/html2canvas.min.js"></script>
+<script src="js/chess-motion.js?v=13"></script>
+<script src="js/report.js?v=1"></script>
+<script src="js/motion.js?v=39"></script>
+<script>
+(function () {
+  "use strict";
+  var $id = function (i) { return document.getElementById(i); };
+  var PIECE_THEME = "img/chesspieces/wikipedia/{piece}.png";
+  var Q = new URLSearchParams(location.search);
+  var roomId = (Q.get("r") || "").trim();
+  var IS_OWNER = Q.get("me") === "1";              // 仅自己创建后跳转时带，用于在新标签页找回房主身份
+  /* 立刻把 me=1 从地址栏抹掉：否则房主从地址栏复制的链接会带上它，
+     在房主自己的浏览器里把房主身份让给打开的标签页（分享时也可能是同一个浏览器）。 */
+  if (IS_OWNER && history.replaceState) {
+    try { history.replaceState(null, "", location.pathname + "?r=" + encodeURIComponent((Q.get("r") || ""))); } catch (e) {}
+  }
+  var SS_G = "star_guest", LS_N = "star_name", SS_R = "star_room_";
+
+  /* ---------- 本地身份 ----------
+     guestId / 座位 token 都用 sessionStorage：按标签页隔离。
+     原因：localStorage 在同一浏览器的所有标签页共享，会让"同一浏览器开两个标签页当两个人"时
+     第二个标签页误认领房主的座位（显示成房主）。sessionStorage 在刷新时保留，
+     所以刷新恢复座位不受影响；昵称仍用 localStorage 以便跨标签页记住。 */
+  function uid() { return (crypto.randomUUID ? crypto.randomUUID() : "g" + Date.now() + Math.random().toString(36).slice(2)); }
+  var guestId = sessionStorage.getItem(SS_G);
+  if (!guestId) { guestId = uid(); sessionStorage.setItem(SS_G, guestId); }
+  var myName = localStorage.getItem(LS_N) || "";
+  function saveRoom(id, v) { try { sessionStorage.setItem(SS_R + id, JSON.stringify(v)); } catch (e) {} }
+  function loadRoom(id) { try { return JSON.parse(sessionStorage.getItem(SS_R + id) || "null"); } catch (e) { return null; } }
+
+  /* ---------- 状态 ---------- */
+  var ws = null, WS_OK = false, retry = 0, mySeat = null, myToken = null, myRole = "spectator";
+  var state = null, cgame = new Chess(), board = null, clockTimer = null, clockBase = null, sel = null, joining = false;
+
+  function setNet(txt, cls) { var e = $id("b-net"); e.textContent = txt; e.className = "badge" + (cls ? " " + cls : ""); }
+  function note(msg, cls) { var e = $id("turn-note"); e.textContent = msg; e.className = "notice" + (cls ? " " + cls : ""); }
+  function fmt(ms) { ms = Math.max(0, ms || 0); var s = Math.floor(ms / 1000); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+  function esc(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+  /* ---------- 建局 ---------- */
+  if (!roomId) {
+    $id("lobby").hidden = false;
+    $id("create-btn").addEventListener("click", function () {
+      var b = this; b.disabled = true; b.textContent = "创建中…";
+      var ni = $id("nick-input");
+      var nm = (ni && ni.value || myName || "").trim().slice(0, 16);
+      if (!nm) { if (ni) { ni.style.borderColor = "#ff6d64"; ni.focus(); } b.disabled = false; b.textContent = "创建对局"; return; }
+      myName = nm; try { localStorage.setItem(LS_N, myName); } catch (e) {}
+      fetch("/api/rooms", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guestId: guestId, name: myName || "房主" }) })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (res) {
+          if (!res.ok) throw new Error(res.d.error || "创建失败");
+          saveRoom(res.d.id, { token: res.d.token, seat: res.d.seat, name: myName });
+          try { localStorage.setItem("star_owner_" + res.d.id, JSON.stringify({ token: res.d.token, seat: res.d.seat, name: myName, at: Date.now() })); } catch (e) {}
+          location.href = "room.html?r=" + res.d.id + "&me=1";
+        })
+        .catch(function (e) { b.disabled = false; b.textContent = "创建对局"; var n = $id("lobby-note"); n.hidden = false; n.className = "notice warn"; n.textContent = e.message; });
+    });
+    return;
+  }
+
+  /* ---------- 进入房间 ---------- */
+  /* 昵称用页面内输入，不用 prompt()：原生弹窗会阻塞页面 JS（移动端还常被拦截） */
+  function gateName() {
+    return new Promise(function (resolve) {
+      if (myName) return resolve(myName);
+      var g = document.createElement("div");
+      g.className = "name-gate";
+      g.innerHTML = '<div class="ng-card"><b>取个昵称进房</b><p>只在本次对局里显示，不需要注册。</p>' +
+        '<input id="ng-input" maxlength="16" placeholder="1–16 字"><button class="rbtn primary" id="ng-go">进入房间</button></div>';
+      document.body.appendChild(g);
+      var inp = g.querySelector("#ng-input"); try { inp.focus(); } catch (e0) {}
+      function go() {
+        var v = (inp.value || "").trim().slice(0, 16);
+        if (!v) { inp.style.borderColor = "#ff6d64"; return; }
+        myName = v; try { localStorage.setItem(LS_N, v); } catch (e) {}
+        g.remove(); resolve(v);
+      }
+      g.querySelector("#ng-go").addEventListener("click", go);
+      inp.addEventListener("keydown", function (e) { if (e.key === "Enter") go(); });
+    });
+  }
+  var rec = loadRoom(roomId) || {};
+  if (!rec.token && IS_OWNER) {                    // 新标签页打开自己的房间：用 localStorage 兜底记录找回身份
+    try { var own = JSON.parse(localStorage.getItem("star_owner_" + roomId) || "null"); if (own && own.token) rec = own; } catch (e2) {}
+  }
+  myToken = rec.token || null;
+  $id("lobby").hidden = true;
+  $id("room-ui").hidden = false;
+  $id("share-url").value = location.origin + "/room.html?r=" + roomId;
+
+  function connect() {
+    var proto = location.protocol === "https:" ? "wss:" : "ws:";
+    ws = new WebSocket(proto + "//" + location.host);
+    ws.onopen = function () {
+      WS_OK = true; retry = 0; setNet("已连接", "host");
+      send("join", { roomId: roomId, guestId: guestId, name: myName, token: myToken });
+    };
+    ws.onmessage = function (ev) { var m; try { m = JSON.parse(ev.data); } catch (e) { return; } if (m.type !== "room") return; onMsg(m); };
+    ws.onclose = function () {
+      WS_OK = false; setNet("重连中…", "live");
+      retry++; var wait = Math.min(6000, 600 * retry);
+      setTimeout(connect, wait);
+    };
+    ws.onerror = function () {};
+  }
+  function send(action, extra) {
+    if (!ws || ws.readyState !== 1) return false;
+    ws.send(JSON.stringify(Object.assign({ type: "room", action: action, roomId: roomId, token: myToken, guestId: guestId, name: myName }, extra || {})));
+    return true;
+  }
+
+  function onMsg(m) {
+    if (m.error) {
+      if (m.code === "ROOM_NOT_FOUND" || m.code === "ROOM_EXPIRED") return deadRoom(m.error);
+      if (m.code === "ROOM_FULL") return note(m.error, "warn");
+      if (m.action === "move") { note(m.error, "warn"); syncToState(); return; }   // 走子失败 → 回到服务端局面
+      note(m.error, "warn"); return;
+    }
+    if (m.action === "join") {
+      mySeat = m.seat; myRole = m.role; if (m.token) myToken = m.token;
+      if (mySeat) saveRoom(roomId, { token: myToken, seat: mySeat, name: myName });
+      applyState(m.state, true);
+      if (mySeat) note("已入座：" + (mySeat === "w" ? "白方" : "黑方") + "，等对方就位即可开始。", "ok");
+      else note("你以观战者身份进入：可以实时看棋，但不能落子。", "");
+      bindBoard(true);
+      return;
+    }
+    if (m.action === "state" || m.action === "presence" || m.action === "moved" || m.action === "ended" || m.action === "restarted") {
+      applyState(m.state, false);
+      if (m.action === "ended") onEnded();
+      if (m.action === "restarted") { sel = null; note("新对局开始（黑白已交换）", "ok"); $id("report").hidden = true; $id("rematch").hidden = true; }
+      return;
+    }
+    if (m.action === "chat") { addChat(m.item); return; }
+  }
+
+  function deadRoom(msg) {
+    var w = $id("room-wrap") || document.querySelector(".room-wrap");
+    var el = document.createElement("section");
+    el.className = "panel hero-create";
+    el.innerHTML = '<h2>链接已失效</h2><p>' + esc(msg || "房间不存在或已过期") + '。房间会在「创建后无人加入 30 分钟」「双方离开 10 分钟」或「结束后 2 小时」自动回收。</p>' +
+      '<div class="acts"><button class="rbtn primary" onclick="location.href=\'room.html\'">创建新房间</button><a class="rbtn" href="/">返回首页</a></div>';
+    var ui = $id("room-ui"); if (ui) ui.remove();
+    document.querySelector(".room-wrap").appendChild(el);
+    setNet("房间失效", "live");
+  }
+
+  /* ---------- 渲染状态 ---------- */
+  function applyState(st, first) {
+    if (!st) return;
+    state = st;
+    // 棋盘
+    if (st.fen !== cgame.fen()) { cgame.load(st.fen); if (board) board.position(st.fen, false); }
+    sel = null;
+    // 座位
+    [["w", "seat-w", "clk-w"], ["b", "seat-b", "clk-b"]].forEach(function (t) {
+      var s = st.seats[t[0]], row = $id(t[1]);
+      var av = row.querySelector(".av"), nm = row.querySelector(".nm");
+      nm.innerHTML = s ? (esc(s.name) + (s.isYou ? ' <span class="badge host" style="margin-left:6px">你</span>' : "") + (s.online ? "" : ' <span class="off">· 掉线中</span>'))
+        : "等待" + (t[0] === "w" ? "白方" : "黑方") + "…";
+      av.textContent = s ? String(s.name || "?").slice(0, 1) : "?";
+      row.classList.toggle("active", st.status === "playing" && st.turn === t[0]);
+      $id(t[2]).textContent = fmt(s ? s.ms : st.baseMs);
+      row.dataset.offline = s && !s.online ? "1" : "";
+    });
+    // 徽标
+    $id("b-role").textContent = mySeat ? (myRole === "host" ? "房主 · 白方" : (mySeat === "w" ? "白方" : "黑方")) : "观战者";
+    $id("b-role").className = "badge " + (mySeat ? "host" : "spect");
+    $id("b-status").textContent = st.status === "waiting" ? "等待对手" : st.status === "playing" ? "对局中" : "已结束";
+    $id("b-status").className = "badge " + (st.status === "playing" ? "live" : "");
+    $id("spect-info").textContent = "观战者 " + (st.spectatorCount || 0) + " 人" + (st.spectatorCount >= 20 ? "（已满）" : "");
+    // 棋谱
+    renderMoves(st);
+    // 提示
+    if (st.status === "waiting") note("等待对手入座：把上面的链接发给朋友就能开始。", "");
+    else if (st.status === "playing") {
+      if (mySeat && st.turn === mySeat) note("轮到你走棋" + (st.inCheck ? "（被将军！）" : ""), st.inCheck ? "warn" : "ok");
+      else if (mySeat) note("等待对手走棋…", "");
+      else note("观战中 · 只读模式（禁止落子与引擎建议）", "");
+    }
+    // 按钮
+    var playing = st.status === "playing";
+    $id("resign").hidden = !(playing && mySeat);
+    $id("rematch").hidden = !(st.status === "finished" && mySeat);
+    $id("report").hidden = st.status !== "finished";
+    clockBase = { at: Date.now(), turn: st.turn, ms: { w: st.seats.w ? st.seats.w.ms : st.baseMs, b: st.seats.b ? st.seats.b.ms : st.baseMs }, running: playing };
+    if (first) $id("copy") && ($id("copy").onclick = copyLink);
+  }
+
+  function renderMoves(st) {
+    var el = $id("moves");
+    if (!st.moves.length) { el.innerHTML = '<span style="color:var(--faint)">尚未开始</span>'; return; }
+    var out = "", i = 0;
+    for (var n = 0; n < st.moves.length; n += 2) {
+      i++;
+      var w = st.moves[n], b = st.moves[n + 1];
+      out += "<li><b>" + esc(w ? w.san : "") + "</b>" + (b ? " <b>" + esc(b.san) + "</b>" : "") + "</li>";
+    }
+    el.innerHTML = '<ol style="padding-left:30px">' + out + "</ol>";
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function addChat(item) {
+    var box = $id("chatlog");
+    var d = document.createElement("div");
+    d.className = "cl"; d.innerHTML = "<b>" + esc(item.name) + "</b>" + esc(item.text);
+    box.appendChild(d); box.scrollTop = box.scrollHeight;
+  }
+  function sysChat(t) { var box = $id("chatlog"); var d = document.createElement("div"); d.className = "cl sys"; d.textContent = t; box.appendChild(d); box.scrollTop = box.scrollHeight; }
+
+  /* ---------- 时钟本地走秒 ---------- */
+  setInterval(function () {
+    if (!clockBase || !clockBase.running) return;
+    var dt = Date.now() - clockBase.at;
+    ["w", "b"].forEach(function (s) {
+      var left = clockBase.ms[s] - (clockBase.turn === s ? dt : 0);
+      $id(s === "w" ? "clk-w" : "clk-b").textContent = fmt(left);
+    });
+  }, 250);
+
+  /* ---------- 棋盘 ---------- */
+  function canMove() { return !!(mySeat && state && state.status === "playing" && state.turn === mySeat); }
+  function tryMove(from, to) {
+    if (!canMove()) { note(mySeat ? "还没轮到你走棋" : "观战者不能落子", "warn"); return "snapback"; }
+    var mv = null;
+    try { mv = cgame.move({ from: from, to: to, promotion: "q" }); } catch (e) { mv = null; }
+    if (!mv) return "snapback";
+    if (board) board.position(cgame.fen(), false);
+    send("move", { from: from, to: to, promotion: "q" });
+    return null;
+  }
+  function syncToState() { if (state) { cgame.load(state.fen); if (board) board.position(state.fen, false); } }
+  function syncToFen(fen) { cgame.load(fen); if (board) board.position(fen, false); }
+
+
+  /* chessboard.js 0.3.0 不支持 onSquareClick，且会把 click 事件吞掉；
+     用 pointerdown + 位移判定模拟"点击选子"（与 js/chess.js 内既有做法一致）。 */
+  function wireSquareClick(hostEl, onSq) {
+    var press = null;
+    function onPointer(e) {
+      var el = e.target && e.target.closest ? e.target.closest(".square-55d63") : null;
+      var sq = el ? ((el.className.match(/square-([a-h][1-8])/) || [])[1] || null) : null;
+      if (e.type === "pointerdown") press = { sq: sq, x: e.clientX, y: e.clientY, moved: false };
+      else if (e.type === "pointermove" && press) {
+        if (Math.hypot(e.clientX - press.x, e.clientY - press.y) > 6) press.moved = true;
+      } else if (e.type === "pointerup" && press) {
+        if (!press.moved && press.sq) onSq(press.sq);
+        press = null;
+      }
+    }
+    ["pointerdown", "pointermove", "pointerup"].forEach(function (t) { hostEl.addEventListener(t, onPointer); });
+  }
+
+  function bindBoard(force) {
+    if (board && !force) return;
+    if (board) { try { board.destroy(); } catch (e) {} }
+    board = Chessboard("board", {
+      draggable: true, position: state ? state.fen : "start",
+      pieceTheme: PIECE_THEME,
+      onDragStart: function (src, piece, pos, orient) {
+        if (!canMove()) return false;
+        var turn = cgame.turn();
+        var color = piece.charAt(0);
+        if (color !== turn || color !== (mySeat === "w" ? "w" : "b")) return false;
+        var mvs = cgame.moves({ square: src, verbose: true });
+        if (!mvs.length) return false;
+        sel = src; highlight(src, mvs.map(function (m) { return m.to; }));
+      },
+      onDrop: function (src, dst) { clearHl(); if (src === dst) return "snapback"; var r = tryMove(src, dst); return r === null ? undefined : "snapback"; },
+      onSnapEnd: function () { if (state && !canMove()) syncToState(); },
+      showNotation: true,
+      appearSpeed: 120, moveSpeed: 160, snapSpeed: 100, snapbackSpeed: 100,
+    });
+    if (window.StarChessMotion) StarChessMotion.register(board);
+    wireSquareClick($id("board"), onSqClick);
+  }
+  /* 点击选子 / 点击落子（chessboard 0.3.0 不触发 onSquareClick，故自行处理） */
+  function onSqClick(sq) {
+    if (!canMove()) { note(mySeat ? "还没轮到你走棋" : "观战者不能落子（只读）", "warn"); return; }
+    if (sel && sq !== sel) {
+      var from = sel;
+      var mvs = cgame.moves({ square: from, verbose: true });
+      sel = null; clearHl();
+      if (mvs.some(function (m) { return m.to === sq; })) { tryMove(from, sq); return; }
+    } else if (sel === sq) { sel = null; clearHl(); return; }
+    var my = cgame.moves({ square: sq, verbose: true });
+    clearHl();
+    if (my.length && cgame.get(sq) && cgame.get(sq).color === cgame.turn()) { sel = sq; highlight(sq, my.map(function (m) { return m.to; })); }
+    else sel = null;
+  }
+  function highlight(from, tos) {
+    var root = document.querySelector(".board-b72b1"); if (!root) return;
+    var f = root.querySelector(".square-" + from); if (f) f.classList.add("star-sel");
+    tos.forEach(function (t) { var e = root.querySelector(".square-" + t); if (e) e.classList.add("star-hl"); });
+    if (!document.getElementById("rm-style")) {
+      var st = document.createElement("style"); st.id = "rm-style";
+      st.textContent = ".star-sel{box-shadow:inset 0 0 0 3px #d7ff3f99}" + (".star-hl{box-shadow:inset 0 0 0 3px #d7ff3f55;background-image:radial-gradient(circle,#d7ff3f4d 22%,transparent 24%)}");
+      document.head.appendChild(st);
+    }
+  }
+  function clearHl() { document.querySelectorAll(".star-sel,.star-hl").forEach(function (e) { e.classList.remove("star-sel", "star-hl"); }); }
+
+  /* ---------- 结束 / 战报 ---------- */
+  function onEnded() {
+    var r = state.result || {};
+    var txt = r.winner ? (r.winner === "w" ? "白方胜" : "黑方胜") : "和棋";
+    sysChat("对局结束：" + txt + "（" + ({ checkmate: "将杀", resign: "认输", timeout: "超时", abandon: "一方离线", stalemate: "逼和", insufficient: "子力不足", draw: "和棋", repetition: "重复局面" }[r.reason] || r.reason) + "）");
+    note("对局已结束：" + txt + "。可以导出战报或再来一局。", "ok");
+  }
+  $id("report").addEventListener("click", function () {
+    if (!window.StarReport || !state) return;
+    StarReport.open({ room: Object.assign({}, state, { moves: state.moves }), mySeat: mySeat, pieceTheme: PIECE_THEME });
+  });
+
+  /* ---------- 交互 ---------- */
+  /* 认输：两段式点击确认，避免 confirm() 阻塞页面 */
+  var resignArm = 0;
+  $id("resign").addEventListener("click", function () {
+    var btn = this;
+    if (!resignArm) {
+      resignArm = 1; btn.textContent = "再点一次确认认输";
+      clearTimeout(btn._t); btn._t = setTimeout(function () { resignArm = 0; btn.textContent = "认输"; }, 3500);
+      return;
+    }
+    clearTimeout(btn._t); resignArm = 0; btn.textContent = "认输"; send("resign");
+  });
+  $id("rematch").addEventListener("click", function () { send("rematch"); note("已发起再战，等待对手同意…", ""); });
+  $id("leave").addEventListener("click", function () { send("leave"); location.href = "/"; });
+  function copyLink() {
+    var v = $id("share-url").value;
+    (navigator.clipboard ? navigator.clipboard.writeText(v) : Promise.reject()).then(function () { note("链接已复制，发给朋友即可。", "ok"); })
+      .catch(function () { $id("share-url").select(); document.execCommand("copy"); note("链接已复制。", "ok"); });
+  }
+  $id("copy").addEventListener("click", copyLink);
+  $id("sharebtn").addEventListener("click", function () {
+    var v = $id("share-url").value;
+    if (navigator.share) navigator.share({ title: "S.T.A.R. 对局邀请", text: "来下一盘？", url: v }).catch(function () {});
+    else copyLink();
+  });
+  $id("chatsend").addEventListener("click", sendChat);
+  $id("chatin").addEventListener("keydown", function (e) { if (e.key === "Enter") sendChat(); });
+  function sendChat() {
+    var v = $id("chatin").value.trim(); if (!v) return;
+    send("chat", { text: v }); $id("chatin").value = "";
+  }
+  setInterval(function () { if (WS_OK) send("ping"); }, 20000);
+
+  /* 启动：先确保有昵称（页面内输入，无原生弹窗），再建立连接 */
+  var nickInput = $id("nick-input");
+  if (nickInput) nickInput.value = myName || "";
+  gateName().then(function () { connect(); });
+  if (window.Motion) { try { Motion.initCursorLine(); Motion.initRipple(); Motion.staggerEnter(); } catch (e) {} }
+})();
+</script>
+</body>
+</html>

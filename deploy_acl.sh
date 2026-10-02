@@ -10,6 +10,8 @@ rm -rf /tmp/deploy_acl && mkdir -p /tmp/deploy_acl/star-ai-board
 rsync -a --exclude 'stockfish' --exclude 'reckless' --exclude 'katago' --exclude 'engines' --exclude '*.nnue' \
   public/ /tmp/deploy_acl/star-ai-board/public/
 cp admin.js /tmp/deploy_acl/star-ai-board/
+cp rooms.js /tmp/deploy_acl/star-ai-board/          # 对局房间模块（server.js / routes/rooms.js 都 require 它）
+cp server.js /tmp/deploy_acl/star-ai-board/         # WS 房间广播与残局 AI 接口都在 server.js
 mkdir -p /tmp/deploy_acl/star-ai-board/admin
 cp admin/literature_content.json /tmp/deploy_acl/star-ai-board/admin/
 rsync -a routes/ /tmp/deploy_acl/star-ai-board/routes/

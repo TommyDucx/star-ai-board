@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.T.A.R. · 残局闯关</title>
+<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
+<link rel="stylesheet" href="css/site.css?v=40">
+<link rel="stylesheet" href="css/motion.css?v=43">
+<link rel="stylesheet" href="css/chessboard.min.css?v=26">
+<link rel="stylesheet" href="css/chess-motion.css?v=43">
+<style>
+  .eg-wrap{width:min(1160px,calc(100vw - 28px));margin:0 auto;padding:22px 0 60px;display:grid;gap:16px}
+  .eg-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .eg-head h1{margin:0;font-size:22px;color:var(--paper)}
+  .eg-head .sub{font-size:10px;letter-spacing:.3em;color:var(--signal);text-transform:uppercase}
+  .eg-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .eg-card{border:1px solid var(--lineStrong);border-radius:14px;padding:16px;background:var(--surface);display:grid;gap:8px;cursor:pointer;transition:.2s}
+  .eg-card:hover{border-color:#d7ff3f66;transform:translateY(-2px)}
+  .eg-card h3{margin:0;font-size:16px;color:var(--paper)}
+  .eg-card p{margin:0;font-size:12.5px;color:var(--muted);line-height:1.75}
+  .eg-tags{display:flex;gap:6px;flex-wrap:wrap}
+  .tg{font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:3px 8px;border-radius:999px;border:1px solid var(--lineStrong);color:var(--muted)}
+  .tg.done{color:var(--signal);border-color:#d7ff3f66;background:#d7ff3f12}
+  .tg.goal{color:var(--cyan);border-color:#2ed3ff55}
+  .eg-play{display:grid;grid-template-columns:minmax(300px,1fr) 330px;gap:16px;align-items:start}
+  @media(max-width:980px){.eg-play{grid-template-columns:1fr}}
+  .rpanel{border:1px solid var(--lineStrong);background:var(--surface);border-radius:14px;padding:14px}
+  .rpanel h2{margin:0 0 10px;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--signal)}
+  #board{width:100%}
+  .hud{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .hud>div{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--surface2);display:grid;gap:3px}
+  .hud b{font-size:19px;color:var(--paper);font-variant-numeric:tabular-nums}
+  .hud span{font-size:10px;color:var(--muted);letter-spacing:.14em}
+  .hud .warn b{color:#ff8a80}
+  .notice{padding:10px 12px;border-radius:10px;font-size:13px;border:1px solid var(--line);color:var(--muted);background:var(--surface2);line-height:1.7}
+  .notice.warn{border-color:#ff6d6455;color:#ffb3ad}
+  .notice.ok{border-color:#d7ff3f55;color:var(--signal)}
+  .starlog{max-height:260px;overflow:auto;font-size:13px;line-height:1.9;color:#c9cfc6}
+  .starlog ol{padding-left:26px;margin:0}
+  .acts{display:flex;gap:8px;flex-wrap:wrap}
+  .rbtn{border:1px solid #ffffff26;background:#ffffff0a;color:var(--paper);border-radius:999px;padding:8px 16px;cursor:pointer;font-size:13px;transition:.18s}
+  .rbtn:hover{border-color:#d7ff3f88;color:var(--signal)}
+  .rbtn.primary{background:var(--signal);border-color:var(--signal);color:#0b0e0c;font-weight:700}
+  .rbtn:disabled{opacity:.45;cursor:default}
+  .medal{font-size:13px;color:var(--signal)}
+
+  [hidden]{display:none !important}
+</style>
+</head>
+<body>
+<main class="eg-wrap enter-node">
+  <div class="eg-head"><span class="sub">ENDGAME LAB</span><h1>残局闯关</h1>
+    <span class="badge" style="font-size:10px;color:var(--muted);letter-spacing:.2em">固定难度 · 步数/倒计时限制 · 与 AI 对抗</span>
+  </div>
+
+  <section class="eg-list" id="list"></section>
+
+  <div class="eg-play" id="playarea" hidden>
+    <section class="rpanel">
+      <h2 id="pz-title">残局</h2>
+      <div class="hud" style="margin-bottom:10px">
+        <div><b id="hud-moves">0/20</b><span>我方步数上限</span></div>
+        <div id="hud-time-box"><b id="hud-time">5:00</b><span>剩余时间</span></div>
+        <div><b id="hud-side">白方</b><span>你执子</span></div>
+      </div>
+      <div id="board"></div>
+      <div class="notice" id="pz-note" style="margin-top:10px">开始后走子，白方（你）先走。</div>
+      <div class="acts" style="margin-top:10px">
+        <button class="rbtn" id="btn-restart">重新开始</button>
+        <button class="rbtn" id="btn-hint">看提示</button>
+        <button class="rbtn" id="btn-report" hidden>导出战报</button>
+        <button class="rbtn primary" id="btn-back">返回关卡列表</button>
+      </div>
+    </section>
+    <div style="display:grid;gap:16px">
+      <section class="rpanel">
+        <h2>目标</h2>
+        <p style="margin:0;font-size:13px;color:#c9cfc6;line-height:1.85" id="pz-desc"></p>
+        <p style="margin:8px 0 0;font-size:12px;color:var(--faint)" id="pz-meta"></p>
+      </section>
+      <section class="rpanel">
+        <h2>着法记录</h2>
+        <div class="starlog" id="log"><span style="color:var(--faint)">尚未开始</span></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script src="js/lib/jquery.min.js"></script>
+<script src="js/lib/chess.min.js"></script>
+<script src="js/lib/chessboard.min.js"></script>
+<script src="js/lib/html2canvas.min.js"></script>
+<script src="js/chess-motion.js?v=13"></script>
+<script src="js/report.js?v=1"></script>
+<script src="js/motion.js?v=39"></script>
+<script>
+(function () {
+  "use strict";
+  var $id = function (i) { return document.getElementById(i); };
+  var THEME = "img/chesspieces/wikipedia/{piece}.png";
+  var LS_G = "star_guest";
+  var guestId = localStorage.getItem(LS_G); if (!guestId) { guestId = (crypto.randomUUID ? crypto.randomUUID() : "g" + Date.now()); localStorage.setItem(LS_G, guestId); }
+  var puzzles = [], cur = null, cg = new Chess(), board = null, moves = [], sel = null;
+  var t0 = 0, timer = null, busy = false, finished = false, myPly = 0;
+
+  function esc(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function fmt(s) { s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+  function note(t, cls) { var e = $id("pz-note"); e.innerHTML = t; e.className = "notice" + (cls ? " " + cls : ""); }
+
+  /* ---------- 列表 ---------- */
+  fetch("/api/endgames?guestId=" + encodeURIComponent(guestId)).then(function (r) { return r.json(); }).then(function (d) {
+    puzzles = (d && d.puzzles) || [];
+    $id("list").innerHTML = puzzles.map(function (p) {
+      return '<article class="eg-card" data-id="' + esc(p.id) + '">' +
+        '<h3>' + esc(p.title) + '</h3><p>' + esc(p.desc) + '</p>' +
+        '<div class="eg-tags"><span class="tg goal">' + (p.goal === "mate" ? "将杀" : "升变") + '</span>' +
+        '<span class="tg">步数 ≤' + p.moveLimit + '</span><span class="tg">' + Math.round(p.seconds / 60) + ' 分钟</span>' +
+        '<span class="tg">AI Elo ' + p.elo + '</span>' +
+        (p.solved ? '<span class="tg done">已通关' + (p.best ? " · 最快 " + fmt(p.best.bestMs / 1000) : "") + '</span>' : '') +
+        '</div></article>';
+    }).join("");
+  });
+
+  $id("list").addEventListener("click", function (e) {
+    var c = e.target.closest ? e.target.closest(".eg-card") : null; if (!c) return;
+    start(c.getAttribute("data-id"));
+  });
+  function start(id) {
+    cur = puzzles.filter(function (p) { return p.id === id; })[0]; if (!cur) return;
+    $id("playarea").hidden = false;
+    $id("list").style.display = "none";
+    $id("pz-title").textContent = cur.title;
+    $id("pz-desc").innerHTML = esc(cur.desc);
+    $id("pz-meta").textContent = "目标：" + (cur.goal === "mate" ? "将杀黑王" : "把兵升变成后") + " · 步数上限 " + cur.moveLimit + " · 限时 " + Math.round(cur.seconds / 60) + " 分钟 · 对手 AI Elo " + cur.elo;
+    cg = new Chess(); cg.load(cur.fen);
+    moves = []; myPly = 0; finished = false; busy = false; sel = null;
+    $id("btn-report").hidden = true;
+    $id("hud-side").textContent = cur.side === "w" ? "白方" : "黑方";
+    renderBoard(); renderLog(); note("开始！" + (cur.goal === "mate" ? "把黑王将杀。" : "抢先升变。"), "");
+    startTimer();
+    updHud();
+  }
+  function startTimer() {
+    clearInterval(timer); t0 = Date.now(); var left = cur.seconds;
+    updTime(left);
+    timer = setInterval(function () {
+      if (finished) return;
+      var el = cur.seconds - (Date.now() - t0) / 1000;
+      updTime(el);
+      if (el <= 0) { clearInterval(timer); fail("时间到！未在限时内完成目标。"); }
+    }, 250);
+  }
+  function updTime(s) { var e = $id("hud-time"); e.textContent = fmt(s); $id("hud-time-box").className = s <= 30 ? "warn" : ""; }
+  function updHud() { $id("hud-moves").textContent = myPly + "/" + cur.moveLimit; }
+
+  /* ---------- 棋盘 ---------- */
+
+  /* chessboard.js 0.3.0 不支持 onSquareClick，且会把 click 事件吞掉；
+     用 pointerdown + 位移判定模拟"点击选子"（与 js/chess.js 内既有做法一致）。 */
+  function wireSquareClick(hostEl, onSq) {
+    var press = null;
+    function onPointer(e) {
+      var el = e.target && e.target.closest ? e.target.closest(".square-55d63") : null;
+      var sq = el ? ((el.className.match(/square-([a-h][1-8])/) || [])[1] || null) : null;
+      if (e.type === "pointerdown") press = { sq: sq, x: e.clientX, y: e.clientY, moved: false };
+      else if (e.type === "pointermove" && press) {
+        if (Math.hypot(e.clientX - press.x, e.clientY - press.y) > 6) press.moved = true;
+      } else if (e.type === "pointerup" && press) {
+        if (!press.moved && press.sq) onSq(press.sq);
+        press = null;
+      }
+    }
+    ["pointerdown", "pointermove", "pointerup"].forEach(function (t) { hostEl.addEventListener(t, onPointer); });
+  }
+
+  function renderBoard() {
+    if (board) { try { board.destroy(); } catch (e) {} }
+    board = Chessboard("board", {
+      draggable: true, position: cg.fen(), pieceTheme: THEME, showNotation: true,
+      onDragStart: function (src, piece) {
+        if (finished || busy) return false;
+        var turn = cg.turn(), wanted = cur.side;
+        if (turn !== wanted || piece.charAt(0) !== turn) return false;
+        var mvs = cg.moves({ square: src, verbose: true }); if (!mvs.length) return false;
+        sel = src; hl(src, mvs.map(function (m) { return m.to; }));
+      },
+      onDrop: function (src, dst) { clearHl(); if (src === dst) return; doMove(src, dst); },
+      onSnapEnd: function () { board.position(cg.fen(), false); },
+      appearSpeed: 120, moveSpeed: 160, snapSpeed: 100, snapbackSpeed: 100,
+    });
+    if (window.StarChessMotion) StarChessMotion.register(board);
+    wireSquareClick($id("board"), onSqClick);
+  }
+  function onSqClick(sq) {
+    if (finished || busy || !cur) return;
+    if (sel && sq !== sel) {
+      var from = sel;
+      var mvs = cg.moves({ square: from, verbose: true });
+      sel = null; clearHl();
+      if (mvs.some(function (m) { return m.to === sq; })) { doMove(from, sq); return; }
+    } else if (sel === sq) { sel = null; clearHl(); return; }
+    var my = cg.moves({ square: sq, verbose: true });
+    clearHl();
+    var pc = cg.get(sq);
+    if (my.length && pc && pc.color === cur.side && cg.turn() === cur.side) { sel = sq; hl(sq, my.map(function (m) { return m.to; })); } else sel = null;
+  }
+  function hl(a, tos) {
+    var root = document.querySelector(".board-b72b1"); if (!root) return;
+    if (!document.getElementById("eg-style")) { var st = document.createElement("style"); st.id = "eg-style"; st.textContent = ".star-sel{box-shadow:inset 0 0 0 3px #d7ff3f99}.star-hl{box-shadow:inset 0 0 0 3px #d7ff3f55}"; document.head.appendChild(st); }
+    var f = root.querySelector(".square-" + a); if (f) f.classList.add("star-sel");
+    tos.forEach(function (t) { var e = root.querySelector(".square-" + t); if (e) e.classList.add("star-hl"); });
+  }
+  function clearHl() { document.querySelectorAll(".star-sel,.star-hl").forEach(function (e) { e.classList.remove("star-sel", "star-hl"); }); }
+
+  /* ---------- 走子流程 ---------- */
+  function doMove(from, to) {
+    if (finished || busy) return;
+    var mv = null; try { mv = cg.move({ from: from, to: to, promotion: "q" }); } catch (e) { mv = null; }
+    if (!mv) { board.position(cg.fen(), false); return; }
+    moves.push({ from: mv.from, to: mv.to });
+    myPly++; updHud();
+    board.position(cg.fen(), false);
+    renderLog();
+    if (checkGoalLocal()) return;
+    if (myPly >= cur.moveLimit) return fail("步数用尽：未在 " + cur.moveLimit + " 步内达成目标。");
+    askAi();
+  }
+  function checkGoalLocal() {
+    if (cg.in_checkmate && cg.in_checkmate()) {
+      var loser = cg.turn();
+      var winner = loser === "w" ? "b" : "w";
+      if (winner === cur.side) { win("漂亮的将杀！"); return true; }
+      fail("被 AI 将杀了。"); return true;
+    }
+    if (cg.in_stalemate && cg.in_stalemate()) { fail("形成逼和，无法完成将杀。"); return true; }
+    return false;
+  }
+  function askAi() {
+    busy = true; note("AI 思考中…", "");
+    fetch("/api/endgames/ai-move", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: cur.id, moves: moves }) })
+      .then(function (r) { return r.json(); }).then(function (d) {
+        busy = false;
+        if (d.error) { note(d.error, "warn"); return; }
+        if (d.move) { moves.push({ from: d.move.from, to: d.move.to }); cg.move({ from: d.move.from, to: d.move.to, promotion: "q" }); board.position(cg.fen(), false); renderLog(); }
+        if (d.over) {
+          if (d.goal) return win("目标达成！");
+          return fail(cg.in_checkmate && cg.in_checkmate() ? "被 AI 将杀了。" : "局面结束，未达成目标。");
+        }
+        if (cg.in_checkmate && cg.in_checkmate()) return fail("被 AI 将杀了。");
+        note("轮到你走棋。", "");
+      }).catch(function () { busy = false; note("网络异常，请重试。", "warn"); });
+  }
+  function renderLog() {
+    var el = $id("log");
+    if (!moves.length) { el.innerHTML = '<span style="color:var(--faint)">尚未开始</span>'; return; }
+    var out = "", i = 0;
+    for (var n = 0; n < moves.length; n += 2) { i++; out += "<li><b>" + esc(san(moves[n])) + "</b>" + (moves[n + 1] ? " <b>" + esc(san(moves[n + 1])) + "</b>" : "") + "</li>"; }
+    el.innerHTML = "<ol>" + out + "</ol>"; el.scrollTop = el.scrollHeight;
+  }
+  function san(mv) {
+    // 用一份副本回放取 SAN（展示用）
+    var c = new Chess(); if (cur) { try { c.load(cur.fen); } catch (e) {} }
+    var idx = moves.indexOf(mv);
+    for (var i = 0; i <= idx; i++) { var r = c.move({ from: moves[i].from, to: moves[i].to, promotion: "q" }); if (!r) return mv.from + "-" + mv.to; if (i === idx) return r.san; }
+    return mv.from + "-" + mv.to;
+  }
+
+  /* ---------- 结束 ---------- */
+  function win(msg) {
+    finished = true; clearInterval(timer);
+    note("<b>通关成功！</b> " + esc(msg), "ok");
+    submit(true);
+  }
+  function fail(msg) { finished = true; clearInterval(timer); note("<b>挑战失败。</b> " + esc(msg), "warn"); submit(false); }
+  function submit(okFlag) {
+    var ms = Date.now() - t0;
+    fetch("/api/endgames/finish", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: cur.id, moves: moves, ms: ms, result: okFlag ? "win" : "lose", guestId: guestId }) })
+      .then(function (r) { return r.json(); }).then(function (d) {
+        if (d.record) note($id("pz-note").innerHTML + " <span class='medal'>已记录：最快 " + fmt(d.record.bestMs / 1000) + " · 第 " + d.record.count + " 次通关</span>", "ok");
+        if (!d.ok) note($id("pz-note").innerHTML + " <span style='color:var(--faint)'>(服务端未确认达成目标，本次不计入记录)</span>", "");
+        $id("btn-report").hidden = false;
+      }).catch(function () {});
+  }
+
+  /* ---------- 按钮 ---------- */
+  $id("btn-restart").addEventListener("click", function () { if (cur) start(cur.id); });
+  $id("btn-back").addEventListener("click", function () { $id("playarea").hidden = true; $id("list").style.display = ""; clearInterval(timer); });
+  $id("btn-hint").addEventListener("click", function () {
+    if (!cur) return;
+    var MAP = {
+      "rook-basic": "先把车升到高位切断黑王，再用己王靠近，把对方逼到边线后用车将军。思路：缩框 → 逼边 → 将杀。",
+      "rook-corner": "黑王在 b3：先用红车控制 f 线/第 3 横线切断它的退路，再让白王从 a1 侧靠近收网。",
+      "kbn-mate": "马象杀王：先把黑王赶向 a8（与白象同色的角）或 h1，用马控制关键逃生格，最后一步必须是把王逼入同色角。",
+      "pawn-race": "比对手快一个节奏：直接推进 a 兵。黑方 h 兵会晚一步升变，你的目标只是先升变。",
+    };
+    note("提示：" + (MAP[cur.id] || "稳扎稳打，先压缩对方王的活动范围。"), "");
+  });
+  $id("btn-report").addEventListener("click", function () {
+    if (!window.StarReport || !cur) return;
+    var seats = {}; seats[cur.side] = { name: "你" }; seats[cur.side === "w" ? "b" : "w"] = { name: "AI (Elo " + cur.elo + ")" };
+    var reason = finished ? (myPly > 0 ? "checkmate" : "resign") : "resign";
+    StarReport.open({
+      room: { id: cur.id, seats: seats, moves: moves, result: { winner: finished ? cur.side : (cur.side === "w" ? "b" : "w"), reason: reason }, startedAt: t0, endedAt: Date.now() },
+      mySeat: cur.side, pieceTheme: THEME,
+    });
+  });
+  if (window.Motion) { try { Motion.initCursorLine(); Motion.initRipple(); Motion.staggerEnter(); } catch (e) {} }
+})();
+</script>
+</body>
+</html>
