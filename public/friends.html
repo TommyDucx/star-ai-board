@@ -184,18 +184,36 @@
       api("/api/friends/message/" + id, "DELETE").then(function (r) { if (r.ok) { toast("已删除"); loadChat(current.id); } else toast(r.d.error || "失败"); });
     }
   });
-  document.addEventListener("click", function (e) { var d = e.target.closest ? e.target.closest("[data-del]") : null; if (d) { e.preventDefault(); } });
+  /* 删除自己的留言（按钮是动态渲染的 → 事件委托） */
+  document.addEventListener("click", function (e) {
+    var d = e.target.closest ? e.target.closest("[data-del]") : null;
+    if (!d || !current) return;
+    if (!confirm("删除这条留言？")) return;
+    api("/api/friends/message/" + d.getAttribute("data-del"), "DELETE").then(function (r) {
+      if (r.ok) { toast("已删除"); loadChat(current.id); } else toast(r.d.error || "失败");
+    });
+  });
   $("doSearch").addEventListener("click", function () {
     var q = $("q").value.trim(); if (!q) return;
     api("/api/friends/search?q=" + encodeURIComponent(q)).then(function (r) { if (r.ok) renderSearch(r.d.users); else toast(r.d.error || "搜索失败"); });
   });
   $("q").addEventListener("keydown", function (e) { if (e.key === "Enter") $("doSearch").click(); });
-  $("sendMsg").addEventListener("click", function () {
-    if (!current) return;
-    var v = $("msgText").value.trim(); if (!v) return toast("留言不能为空");
-    api("/api/friends/message", "POST", { to: current.id, text: v }).then(function (r) {
-      if (r.ok) { $("msgText").value = ""; loadChat(current.id); } else toast(r.d.error || "发送失败");
+  /* 发送按钮与输入框是动态渲染的 → 用事件委托绑定 */
+  document.addEventListener("click", function (e) {
+    var sb = e.target.closest ? e.target.closest("#sendMsg") : null;
+    if (!sb || !current) return;
+    var v = document.getElementById("msgText"); if (!v) return;
+    var text = v.value.trim(); if (!text) return toast("留言不能为空");
+    api("/api/friends/message", "POST", { to: current.id, text: text }).then(function (r) {
+      if (r.ok) { v.value = ""; loadChat(current.id); } else toast(r.d.error || "发送失败");
     });
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" || !current) return;
+    var inp = document.getElementById("msgText");
+    if (inp && document.activeElement === inp) {
+      var sb = document.getElementById("sendMsg"); if (sb) sb.click();
+    }
   });
 
   fetch("/api/me", { credentials: "same-origin" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (m) {
