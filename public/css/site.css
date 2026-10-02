@@ -68,3 +68,17 @@ button { font-family: inherit; }
   .topbar .account-entry .txt { display: none; }
   .topbar #sfxBtn { min-width: 38px !important; padding: 8px 9px !important; }
 }
+
+/* ============================================================================
+   全站按钮统一圆角（胶囊形）：与个人主页的按钮形态保持一致
+   —— 用 --btn-radius 统一控制，需要改形状时只改这一处。
+   ============================================================================ */
+:root { --btn-radius: 999px; }
+.btn, button, input[type="submit"], input[type="button"],
+.enter-btn, .account-entry, .admin-entry, .me-entry,
+.notif-btn, .notif-act, .notif-tag,
+.library-action, .library-back, .library-create, .tr-dim,
+.site-back, .library-detail-actions a, .library-detail-actions button,
+.confirm-btn, .cancel-btn {
+  border-radius: var(--btn-radius, 999px) !important;
+}

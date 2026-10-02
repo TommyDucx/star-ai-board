@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="K3ETkNdYwQCtjNhHt18ACu">
 <script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(String(e.message||e))});</script>
 <title>S.T.A.R. — 下一手下哪？</title>
-<link rel="stylesheet" href="css/site.css?v=38" data-page-node-id="bXhgF85IR6DZ8p1x17tTDp">
+<link rel="stylesheet" href="css/site.css?v=39" data-page-node-id="bXhgF85IR6DZ8p1x17tTDp">
 <link rel="stylesheet" href="css/motion.css?v=39" data-page-node-id="HVT7OH0GnstwfUeutEwc4o">
 <link rel="stylesheet" href="css/chessboard.min.css" data-page-node-id="2eWPP539mjTr5AZkYILkJc">
 <style>
@@ -123,6 +123,43 @@
     background: linear-gradient(90deg, transparent, #ffffff4d, transparent); transform: translateX(-120%);
     transition: transform .52s var(--ease-out); }
   .top .me-entry:hover::after { transform: translateX(120%); }
+
+  /* ---- 通知栏（首页顶栏） ---- */
+  .notif-wrap { position: relative; display: none; }
+  .notif-wrap.on { display: block; }
+  .notif-btn { position: relative; display: inline-flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: var(--btn-radius, 999px); cursor: pointer;
+    border: 1px solid var(--lineStrong); background: linear-gradient(180deg, #ffffff0a, transparent); color: var(--paper);
+    transition: color .18s var(--ease-out), border-color .18s var(--ease-out), box-shadow .18s var(--ease-out); }
+  .notif-btn svg { width: 18px; height: 18px; }
+  .notif-btn:hover { color: var(--signal); border-color: #d7ff3f6b; box-shadow: 0 0 22px #d7ff3f2e; }
+  .notif-badge { position: absolute; top: -5px; right: -5px; min-width: 18px; height: 18px; padding: 0 5px;
+    border-radius: 999px; background: var(--signal); color: #0c1108; font: 700 11px/18px ui-monospace, Menlo, monospace;
+    text-align: center; box-shadow: 0 0 14px #d7ff3f66; }
+  .notif-panel { position: absolute; top: calc(100% + 12px); right: 0; width: min(392px, 92vw); z-index: 60;
+    border: 1px solid var(--lineStrong); border-radius: 14px; overflow: hidden;
+    background: #0a0e0c; box-shadow: 0 30px 70px -26px #000; }
+  .notif-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; border-bottom: 1px solid var(--line);
+    font-family: ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: .18em; color: var(--signal); }
+  .notif-head span { margin-left: auto; color: var(--faint); letter-spacing: .1em; }
+  .notif-list { max-height: 340px; overflow-y: auto; }
+  .notif-item { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .notif-item:last-child { border-bottom: 0; }
+  .notif-item .t { font-size: 13.5px; color: var(--paper); margin-bottom: 6px; }
+  .notif-item .m { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--faint); letter-spacing: .06em; }
+  .notif-item .acts { display: flex; gap: 8px; margin-top: 11px; }
+  .notif-act { border-radius: var(--btn-radius, 999px); padding: 7px 16px; cursor: pointer; font: inherit;
+    font-size: 12.5px; border: 1px solid var(--lineStrong); background: transparent; color: var(--muted);
+    transition: all .18s var(--ease-out); }
+  .notif-act.yes { border-color: #d7ff3f6b; color: var(--signal); }
+  .notif-act.yes:hover { background: #d7ff3f18; box-shadow: 0 0 18px #d7ff3f33; }
+  .notif-act.no:hover { border-color: #ff8a8a66; color: #ff9b9b; }
+  .notif-act:disabled { opacity: .5; cursor: default; box-shadow: none; }
+  .notif-empty { padding: 26px 16px; text-align: center; color: var(--faint); font-size: 13px; }
+  .notif-tag { display: inline-block; padding: 2px 9px; border-radius: 999px; font-family: ui-monospace, Menlo, monospace;
+    font-size: 10.5px; letter-spacing: .1em; border: 1px solid var(--lineStrong); color: var(--muted); }
+  .notif-tag.ok { border-color: #d7ff3f6b; color: var(--signal); }
+  .notif-tag.no { border-color: #ff8a8a55; color: #ff9b9b; }
 </style>
   <link rel="stylesheet" href="css/chess-motion.css?v=3">
 </head>
@@ -149,6 +186,13 @@
   <a href="index.html" class="logo" data-page-node-id="Ez6fYZMw6dF5UUlyZxMvaa">S.T.A.R.</a>
   <span class="brand" data-page-node-id="c0q66xHmMRStjDbMSgxTQ0">AI 下一步推荐引擎</span>
   <span class="flex1" data-page-node-id="GxAiN4hEAWw3DlvWZGv9iL"></span>
+  <div class="notif-wrap" id="notif-wrap">
+    <button class="notif-btn" id="notif-btn" type="button" aria-label="通知" aria-expanded="false" title="通知">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 15.5V11a6 6 0 1 0-12 0v4.5L4.5 18h15L18 15.5Z"/><path d="M9.8 21a2.4 2.4 0 0 0 4.4 0"/></svg>
+      <b class="notif-badge" id="notif-badge" hidden>0</b>
+    </button>
+    <div class="notif-panel" id="notif-panel" hidden></div>
+  </div>
   <a href="me/" class="me-entry" aria-label="个人主页" title="杜承轩 · 个人主页" data-page-node-id="meEntryLink">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4z"/><circle cx="9" cy="10" r="2"/><path d="M6 16c.6-1.6 1.8-2.4 3-2.4s2.4.8 3 2.4M14.5 9.5h3M14.5 13h3"/></svg>
     <span class="txt">个人主页</span><b>→</b>
@@ -257,5 +301,79 @@ fetch("/api/chess-rating/leaderboard?limit=3").then(function(r){return r.json();
 });
 </script>
   <script src="js/chess-motion.js?v=10"></script>
+
+<script>
+/* 通知栏：作者（Tommy）看「待审批的阅读申请」，读者看「我的申请状态」 */
+(function(){
+  "use strict";
+  var wrap=document.getElementById("notif-wrap"), btn=document.getElementById("notif-btn"),
+      badge=document.getElementById("notif-badge"), panel=document.getElementById("notif-panel");
+  if(!wrap||!btn) return;
+  var me=null, state={owner:false,pending:[],mine:[]}, open=false, timer=null;
+
+  function esc(t){return String(t==null?"":t).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+  function timeText(ts){var d=new Date(ts),n=new Date(),p=function(x){return String(x).padStart(2,"0");};
+    return (d.toDateString()===n.toDateString()?"":((d.getMonth()+1)+"月"+d.getDate()+"日 "))+p(d.getHours())+":"+p(d.getMinutes());}
+  var STATUS={pending:["待审批",""],approved:["已通过","ok"],denied:["未通过","no"]};
+
+  function render(){
+    if(!me){ wrap.classList.remove("on"); return; }
+    wrap.classList.add("on");
+    var n = state.owner ? state.pending.length : state.mine.filter(function(m){return m.status==="pending";}).length;
+    if(n>0){ badge.hidden=false; badge.textContent=n>9?"9+":n; } else { badge.hidden=true; }
+    var html='<div class="notif-head">NOTIFICATIONS · 通知<span>'+(state.owner?"待处理 "+state.pending.length:"我的申请")+'</span></div>';
+    if(state.owner){
+      html+='<div class="notif-list">';
+      html+= state.pending.length? state.pending.map(function(r){
+        return '<div class="notif-item" data-item="'+esc(r.key)+'|'+esc(r.userId)+'">'+
+          '<div class="t">《'+esc(r.title)+'》的阅读申请</div>'+
+          '<div class="m">申请人 '+esc(r.name)+' · '+timeText(r.ts)+'</div>'+
+          '<div class="acts"><button class="notif-act yes" data-approve="'+esc(r.key)+'" data-user="'+esc(r.userId)+'">同意</button>'+
+          '<button class="notif-act no" data-deny="'+esc(r.key)+'" data-user="'+esc(r.userId)+'">拒绝</button></div></div>';
+      }).join("") : '<div class="notif-empty">暂无待处理的申请</div>';
+      html+='</div>';
+    } else {
+      html+='<div class="notif-list">';
+      html+= state.mine.length? state.mine.map(function(m){
+        var s=STATUS[m.status]||["—",""];
+        return '<div class="notif-item"><div class="t">《'+esc(m.title)+'》</div>'+
+          '<div class="m">申请于 '+timeText(m.ts)+' · <span class="notif-tag '+s[1]+'">'+s[0]+'</span></div></div>';
+      }).join("") : '<div class="notif-empty">还没有提交过阅读申请</div>';
+      html+='</div>';
+    }
+    panel.innerHTML=html;
+    panel.querySelectorAll("[data-approve],[data-deny]").forEach(function(b){
+      b.addEventListener("click",function(){
+        var yes=b.hasAttribute("data-approve");
+        b.disabled=true;
+        fetch("/api/literature/"+b.getAttribute(yes?"data-approve":"data-deny")+"/access/decide",{
+          method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({userId:b.getAttribute("data-user"),approve:yes})
+        }).then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
+          .then(function(res){ if(!res.ok) b.disabled=false; load(); })
+        .catch(function(){ b.disabled=false; });
+      });
+    });
+  }
+  function load(){
+    fetch("/api/notifications",{credentials:"same-origin"}).then(function(r){ return r.ok?r.json():null; })
+      .then(function(d){ if(!d) return; state=d; state.pending=d.pending||[]; state.mine=d.mine||[];
+        state.owner=!d.owner ? false : true; render(); }).catch(function(){});
+  }
+  btn.addEventListener("click",function(e){
+    e.stopPropagation(); open=!open; panel.hidden=!open; btn.setAttribute("aria-expanded",open?"true":"false");
+    if(open) load();
+  });
+  document.addEventListener("click",function(e){ if(open && !wrap.contains(e.target)){ open=false; panel.hidden=true; btn.setAttribute("aria-expanded","false"); } });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&open){ open=false; panel.hidden=true; } });
+
+  fetch("/api/me",{credentials:"same-origin"}).then(function(r){ return r.ok?r.json():null; }).then(function(m){
+    me=m; if(!me) return;
+    load();
+    timer=setInterval(load,60000);            // 每 60s 刷新（Tommy 的新申请能及时发现）
+    window.addEventListener("pageshow",function(){ load(); });
+  }).catch(function(){});
+})();
+</script>
 </body>
 </html>

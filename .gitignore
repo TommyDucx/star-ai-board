@@ -62,3 +62,11 @@ admin/login_fails.json
 .playwright-cli/
 .write_test_tmp
 qa/
+
+# 文学板块与训练数据：含受保护正文/个人互动记录，不入公开仓库
+admin/literature_content.json
+admin/literature.json
+admin/trainer.json
+# 任何本地备份（可能含账号哈希）
+admin/*.bak-*
+*.bak-*

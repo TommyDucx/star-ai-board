@@ -1045,10 +1045,22 @@ function litName(userId) {
 }
 function litPublic(data, userId) {
   const out = {};
-  for (const key of Object.keys(data.articles)) {
-    const a = litArticle(data, key, false);
-    if (!a) continue;
+  // 受保护作品即使还没有任何点赞/评论也要出现在列表里（否则前端拿不到 gated 状态、卡片显示不出锁标识）
+  const keys = Object.keys(data.articles);
+  Object.keys(loadLitContent().articles || {}).forEach(k => { if (keys.indexOf(k) < 0) keys.push(k); });
+  for (const key of keys) {
+    let a = litArticle(data, key, false);
+    const acc = litAccess(key, userId);
+    // 受保护但还没人互动过：也要返回状态（前端靠它渲染锁标识），只是计数为 0
+    if (!a) {
+      if (!acc.gated) continue;
+      a = { likes: [], comments: [] };
+    }
     out[key] = {
+      gated: !!acc.gated,
+      access: acc.state,
+      allowed: !!acc.allowed,
+      owner: acc.owner || "",
       likes: a.likes.length,
       liked: !!userId && a.likes.indexOf(userId) >= 0,
       comments: a.comments.slice(-LIT_KEEP).map(c => ({
@@ -1072,6 +1084,10 @@ function litComment(userId, key, rawText) {
   text = text.replace(/[\u0000-\u001f\u007f\u200b-\u200f\u2028\u2029]/g, " ").replace(/\s+/g, " ").trim();
   if (!text) return { error: "评论不能为空" };
   if (text.length > LIT_TEXT_MAX) return { error: "评论过长（最多 " + LIT_TEXT_MAX + " 字）" };
+  {
+    const acc = litAccess(key, userId);
+    if (acc.gated && !acc.allowed) return { error: "需要作者授权后才能评论" };
+  }
   const ck = userId + ":" + key;
   const last = litCooldown.get(ck) || 0;
   if (Date.now() - last < LIT_COOLDOWN_MS) return { error: "评论太频繁，请稍后再试" };
@@ -1094,6 +1110,96 @@ function litDeleteComment(userId, key, cid, isAdmin) {
   a.comments.splice(i, 1);
   saveLit(data);
   return { ok: true };
+}
+
+
+// ---------- 文学板块：受保护作品（登录 + 作者授权才可阅读）----------
+// 正文不放在页面上（否则查看源码即可绕过），只存于 admin/literature_content.json；
+// 访问申请记录在 literature.json 的 articles[key].access.requests 里。
+const LIT_CONTENT_FILE = path.join(ADMIN_DIR, "literature_content.json");
+function loadLitContent() {
+  try {
+    const v = JSON.parse(fs.readFileSync(LIT_CONTENT_FILE, "utf8"));
+    if (v && v.articles && typeof v.articles === "object") return v;
+  } catch {}
+  return { schemaVersion: 1, articles: {} };
+}
+function litAccount(userId) {
+  const accounts = loadAccounts();
+  if (!Array.isArray(accounts) || !userId) return null;
+  return accounts.find(a => a && a.id === userId) || null;
+}
+function litGatedMeta(key) {
+  const c = loadLitContent();
+  const art = c.articles[key];
+  if (!art) return null;
+  return { key, title: art.title || key, author: art.author || "", owner: art.owner || "Tommy" };
+}
+function litRequests(data, key) {
+  const a = litArticle(data, key, true);
+  if (!a.access || typeof a.access !== "object") a.access = { requests: [] };
+  if (!Array.isArray(a.access.requests)) a.access.requests = [];
+  return a.access.requests;
+}
+/* 访问状态：public / need_login / owner / granted / pending / denied / none */
+function litAccess(key, userId) {
+  const meta = litGatedMeta(key);
+  if (!meta) return { gated: false, state: "public" };
+  if (!userId) return { gated: true, state: "need_login", owner: meta.owner, title: meta.title, author: meta.author };
+  const acc = litAccount(userId);
+  const uname = acc ? acc.username : "";
+  if (uname && uname === meta.owner) return { gated: true, state: "owner", allowed: true, owner: meta.owner, title: meta.title, author: meta.author };
+  const req = litRequests(loadLit(), key).find(r => r.userId === userId);
+  const st = req ? req.status : "none";
+  return { gated: true, state: st, allowed: st === "approved", owner: meta.owner, title: meta.title, author: meta.author };
+}
+function litRequestAccess(userId, key) {
+  const meta = litGatedMeta(key);
+  if (!meta) return { error: "该作品无需授权" };
+  const data = loadLit();
+  const list = litRequests(data, key);
+  const i = list.findIndex(r => r.userId === userId);
+  if (i >= 0 && list[i].status === "approved") return { state: "approved" };
+  const acc = litAccount(userId);
+  const rec = { userId, name: acc ? acc.username : "读者", ts: Date.now(), status: "pending" };
+  if (i >= 0) list[i] = rec; else list.push(rec);
+  saveLit(data);
+  return { state: "pending", requestedAt: rec.ts };
+}
+function litDecideAccess(deciderId, key, targetUserId, approve) {
+  const meta = litGatedMeta(key);
+  if (!meta) return { error: "该作品无需授权" };
+  const decider = litAccount(deciderId);
+  if (!decider || decider.username !== meta.owner) return { error: "只有作者本人可以审批" };
+  const data = loadLit();
+  const list = litRequests(data, key);
+  const i = list.findIndex(r => r.userId === targetUserId);
+  if (i < 0) return { error: "申请记录不存在" };
+  list[i].status = approve ? "approved" : "denied";
+  list[i].decidedAt = Date.now();
+  list[i].decidedBy = decider.username;
+  saveLit(data);
+  return { ok: true, state: list[i].status, name: list[i].name };
+}
+/* 通知：作者看「待审批」，读者看「我的申请状态」 */
+function litNotifications(userId) {
+  const data = loadLit();
+  const content = loadLitContent();
+  const keys = Object.keys(content.articles || {});
+  const mine = [];
+  const pending = [];
+  for (const key of keys) {
+    const meta = litGatedMeta(key);
+    if (!meta) continue;
+    const list = litRequests(data, key);
+    const myReq = list.find(r => r.userId === userId);
+    if (myReq) mine.push({ key, title: meta.title, status: myReq.status, ts: myReq.ts, decidedAt: myReq.decidedAt || 0 });
+    if (meta.owner && litAccount(userId) && litAccount(userId).username === meta.owner) {
+      list.filter(r => r.status === "pending").forEach(r => pending.push({ key, title: meta.title, userId: r.userId, name: r.name, ts: r.ts }));
+    }
+  }
+  pending.sort((a, b) => b.ts - a.ts);
+  return { owner: pending.length > 0, pending, mine, pendingCount: pending.length };
 }
 
 function registerLibraryView(id) {
@@ -1647,6 +1753,19 @@ async function handleApi(req, res, u) {
     const s2 = getSession(req);
     return json(res, 200, litPublic(loadLit(), s2 && s2.userId));
   }
+  // 文学：受保护作品的正文与授权申请
+  {
+    const lt = /^\/api\/literature\/([a-z0-9][a-z0-9_-]{0,31})\/(text|access\/request|access\/decide)$/.exec(p);
+    if (lt && m === "GET" && lt[2] === "text") {
+      const s2 = getSession(req);
+      const meta = litGatedMeta(lt[1]);
+      if (!meta) return json(res, 404, { error: "作品不存在" });
+      const acc = litAccess(lt[1], s2 && s2.userId);
+      if (!acc.allowed) return json(res, 403, { error: "该作品需要授权", state: acc.state, title: meta.title, author: meta.author, owner: meta.owner });
+      const c = loadLitContent();
+      return json(res, 200, { key: lt[1], title: meta.title, author: meta.author, paragraphs: (c.articles[lt[1]] || {}).paragraphs || [] });
+    }
+  }
   // ===================== 以下均需要登录 =====================
   const s = getSession(req);
   if (!s) return json(res, 401, { error: "未登录" });
@@ -1757,6 +1876,18 @@ async function handleApi(req, res, u) {
       const r = litDeleteComment(s2.userId, ld[1], ld[2], s2.role === "admin");
       return json(res, r.error ? 404 : 200, r.error ? { error: r.error } : r);
     }
+  }
+  // 文学：申请授权 / 审批 / 通知（需登录）
+  {
+    const lr = /^\/api\/literature\/([a-z0-9][a-z0-9_-]{0,31})\/access\/request$/.exec(p);
+    if (lr && m === "POST") return json(res, 200, litRequestAccess(s.userId, lr[1]));
+    const ld2 = /^\/api\/literature\/([a-z0-9][a-z0-9_-]{0,31})\/access\/decide$/.exec(p);
+    if (ld2 && m === "POST") {
+      const body = await readBody(req);
+      const r = litDecideAccess(s.userId, ld2[1], String(body.userId || ""), body.approve !== false);
+      return json(res, r.error ? 403 : 200, r.error ? { error: r.error } : r);
+    }
+    if (p === "/api/notifications" && m === "GET") return json(res, 200, litNotifications(s.userId));
   }
   // 背谱训练（登录可用；仅记录本人学习进度）
   if (p === "/api/trainer/lines" && m === "GET") {
