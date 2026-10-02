@@ -25,12 +25,23 @@
     };
   }
 
+  /* 解析「棋盘根节点」。入参可能是：
+     ① DOM 元素（外层容器 #board / #lib-board …）
+     ② chessboard 实例对象（sync() 传的是实例；实例只有 .container，没有 querySelector，
+        早期直接调用 el.querySelector 会抛 "el.querySelector is not a function"）
+     ③ null / undefined
+     统一归一化到内层 .board-b72b1（position:relative，格子的真正挂载点）：
+     格子在内层，若把轨迹层挂到外层 static 容器，absolute 的定位基准会落到 .board-zone 之类
+     外层相对容器上 → 拖尾整体偏移（平板上直接出屏）。 */
   function boardRoot(explicit) {
-    let el = explicit || document.querySelector(".board-b72b1") || document.getElementById("board");
-    /* 归一化：chessboard 的格子挂在内层 .board-b72b1（position:relative）上；页面传入的往往是
-       外层容器（#board / #lib-board / #tr-board / #chess-demo，多为 static）——把轨迹层挂到外层的话，
-       absolute 定位的基准会变成 .board-zone 之类的外层相对容器，拖尾整体偏移（平板上直接出屏）。 */
-    if (el && !el.querySelector(":scope > .star-trace-layer")) {
+    let el = explicit;
+    if (el && typeof el.querySelector !== "function") {      // 实例对象 / jQuery 包装 → 取容器
+      const c = el.container;
+      el = (c && typeof c.querySelector === "function") ? c : ((c && c[0]) || null);
+    }
+    if (!el || typeof el.querySelector !== "function") el = document.querySelector(".board-b72b1") || document.getElementById("board");
+    if (!el || typeof el.querySelector !== "function") return null;   // 页面尚未建棋盘 → 安全退出
+    if (!el.querySelector(":scope > .star-trace-layer")) {
       const inner = el.querySelector(".board-b72b1");
       if (inner) el = inner;
     }
