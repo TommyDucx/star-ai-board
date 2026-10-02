@@ -437,6 +437,7 @@
       pieceTheme: "img/chesspieces/wikipedia/{piece}.png",
       ...StarChessMotion.boardOptions(),
     });
+    if (window.StarChessMotion) StarChessMotion.register(board);
     $("board").addEventListener("pointerdown", boardPointer);
     document.addEventListener("pointermove", boardPointer);
     document.addEventListener("pointerup", boardPointer);

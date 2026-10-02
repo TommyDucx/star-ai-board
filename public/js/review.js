@@ -193,6 +193,7 @@
     $("summary").innerHTML = renderBoard();
     // 棋盘
     board = Chessboard("board", { draggable: false, position: build().fens[cur], pieceTheme: "img/chesspieces/wikipedia/{piece}.png" });
+    if (window.StarChessMotion) StarChessMotion.register(board);
     // 曲线（首次渲染带描边生长动画）
     drawCurve(true);
     renderStep();

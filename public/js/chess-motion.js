@@ -35,16 +35,42 @@
   function snapshot(root) {
     const list = [];
     root.querySelectorAll(PIECE_SEL).forEach(img => {
-      const sq = ((img.parentElement && img.parentElement.className) || "").match(/square-([a-h][1-8])/);
+      const parent = img.parentElement;
+      const sq = ((parent && parent.className) || "").match(/square-([a-h][1-8])/);
       const type = (img.getAttribute("src") || "").match(/\/([wb][KQRBNP])\.png$/);
-      const r = img.getBoundingClientRect();
-      list.push({ sq: sq ? sq[1] : "", type: type ? type[1] : "", el: img, x: r.x, y: r.y });
+      /* 棋子若挂在格子里（本项目两套棋盘都是这种结构），位置取「格子的矩形」——
+         这样即使棋子本身带 transform（拖拽跟随/上一次动画未结束），也不会把坐标搞错。 */
+      const box = (sq && parent ? parent : img).getBoundingClientRect();
+      list.push({ sq: sq ? sq[1] : "", type: type ? type[1] : "", el: img, x: box.x, y: box.y });
     });
     return list;
   }
 
   let clearTimer = 0;
   let lastMover = null;          // 最近一次位移的棋子（供拖尾跟随）
+  /* 拖拽判定：按下时标记 dragging，抬起后保持 450ms 的"落子余波"窗口。
+     拖拽落子时棋子是被指针带着走的（常带 transform），若此时按 FLIP 播放位移，
+     会把它当成一次真实走子 → 棋子从光标处（可能在棋盘外）飞回、拖尾也跟着跑偏。 */
+  let dragging = false, dragUntil = 0, downPt = null;
+  const DRAG_TAIL_MS = 450;      // 抬起后仍视为"拖拽落子"的余波窗口
+  const DRAG_MIN_PX = 6;         // 位移阈值：小于它算点击式走子（必须保留动画）
+  if (typeof document !== "undefined") {
+    document.addEventListener("pointerdown", function (e) {
+      const root = boardRoot();
+      if (root && root.contains(e.target)) { downPt = { x: e.clientX, y: e.clientY }; dragging = false; }
+      else downPt = null;
+    }, true);
+    document.addEventListener("pointermove", function (e) {
+      if (downPt && !dragging && Math.hypot(e.clientX - downPt.x, e.clientY - downPt.y) > DRAG_MIN_PX) dragging = true;
+    }, true);
+    const endDrag = function () {
+      if (dragging) { dragUntil = Date.now() + DRAG_TAIL_MS; }
+      dragging = false; downPt = null;
+    };
+    document.addEventListener("pointerup", endDrag, true);
+    document.addEventListener("pointercancel", endDrag, true);
+  }
+  function isDragSettling() { return dragging || Date.now() < dragUntil; }
 
   function play(root, before) {
     const after = snapshot(root);
@@ -64,6 +90,8 @@
       moved.push({ el: a.el, dx, dy, d: Math.hypot(dx, dy) });
     });
     if (!moved.length) return;
+    // 拖拽落子：棋子已随指针落到目标格，这里不再补位移动画（否则会从光标处飞回来）
+    if (isDragSettling()) { lastMover = null; return; }
     moved.sort((a, b) => b.d - a.d);                     // 位移大的先走，视觉更自然
     // 单子移动 = 走子（Kylin 用 .22s 干净的街机式位移）；
     // 多子重排（易位 / 悔棋 / 载入局面）= .46s 半透明模糊滑入 + 错峰。
@@ -100,8 +128,32 @@
 
   /* 同步棋盘到指定局面。animate=true 时走 FLIP 位移动画（reduced-motion 下自动退化为瞬时）。
      一律以 useAnimation=false 放置——瞬时落位后由关键帧把它「变成」从旧位置滑过来。 */
+  /* 容器尺寸变化后必须让棋盘重算：chessboard 会按「初始化时的容器宽度」写死内部像素，
+     窗口/设备方向变化后若不调用 resize()，内层棋盘会保持旧尺寸 → 在窄屏上横向溢出。 */
+  const knownBoards = new Set();
+  let resizeTimer = 0;
+  function rememberBoard(b) { if (b && typeof b.resize === "function") knownBoards.add(b); }
+  /* 页面创建棋盘后立刻调用：登记实例，并在容器比初始化时更窄时补一次 resize() */
+  function register(b) {
+    rememberBoard(b);
+    if (!b || typeof b.resize !== "function") return;
+    window.requestAnimationFrame(function () { window.requestAnimationFrame(function () { try { b.resize(); } catch (e) {} }); });
+  }
+  if (typeof window !== "undefined") {
+    window.addEventListener("resize", function () {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(function () {
+        knownBoards.forEach(function (b) { try { b.resize(); } catch (e) {} });
+      }, 150);
+    });
+    window.addEventListener("orientationchange", function () {
+      window.setTimeout(function () { knownBoards.forEach(function (b) { try { b.resize(); } catch (e) {} }); }, 260);
+    });
+  }
+
   function sync(board, fen, animate) {
     if (!board) return;
+    rememberBoard(board);
     const root = boardRoot();
     if (!animate || reduced || !root) { board.position(fen, false); return; }
     const prev = snapshot(root);
@@ -156,7 +208,8 @@
          注意：pulse() 可能先于 sync() 被页面调用，所以棋子元素在 rAF 里延迟解析。 */
       const t0 = performance.now();
       const FLY = 240;                     // 略大于棋子位移时长（.22s），确保落地瞬间仍贴合
-      let raf = 0, mover = root.querySelector("img.piece-arcade-move");
+      let raf = 0, mover = isDragSettling() ? null : root.querySelector("img.piece-arcade-move");
+      if (!reduced && !mover) { line.setAttribute("x2", b.x); line.setAttribute("y2", b.y); }
       if (!reduced) {
         const step = () => {
           if (!mover) mover = root.querySelector("img.piece-arcade-move");
@@ -190,5 +243,5 @@
     }, reduced ? 0 : 620);
   }
 
-  window.StarChessMotion = { boardOptions, sync, pulse };
+  window.StarChessMotion = { boardOptions, sync, pulse, register };
 })();

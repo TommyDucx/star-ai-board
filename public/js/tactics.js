@@ -321,6 +321,7 @@
       pieceTheme: "img/chesspieces/wikipedia/{piece}.png",
       onDrop: onDrop,
     });
+    if (window.StarChessMotion) StarChessMotion.register(board);
     ptitle.textContent = (isDaily ? "今日残局 · " : "第 " + currentLevel(tier) + " 关 · ") + cn(p.theme);
     themesEl.innerHTML = (p.themes || []).slice(0, 6).map(function (t) { return '<span class="tag">' + escHtml(cn(t)) + "</span>"; }).join("");
     setStatus(orient === "white" ? "白方先走，找出最佳着法" : "黑方先走，找出最佳着法", "");

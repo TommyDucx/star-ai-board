@@ -132,6 +132,7 @@
         pieceTheme: "img/chesspieces/wikipedia/{piece}.png",
         onDrop: onDrop,
       });
+      if (window.StarChessMotion) StarChessMotion.register(board);
       var statsEl = root.querySelector("#tr-stats"), posEl = root.querySelector("#tr-pos"), progEl = root.querySelector("#tr-prog");
       function paint() {
         var done = idx >= moves.length;

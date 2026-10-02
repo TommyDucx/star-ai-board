@@ -115,6 +115,7 @@
       draggable: false, position: "start",
       pieceTheme: "img/chesspieces/wikipedia/{piece}.png",
     });
+    if (window.StarChessMotion) StarChessMotion.register(demoBoard);
     demoBoard.resize();
 
     // 自动演示循环（围棋 + 国际象棋 + 数字）

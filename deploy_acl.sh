@@ -1,30 +1,20 @@
 #!/usr/bin/env bash
-# 一键部署「文学作品权限 + 通知栏 + 按钮圆角」相关文件到树莓派。
-# 只推代码与内容文件，绝不覆盖 Pi 上的 admin 数据（accounts/literature/sessions 等）。
+# 一键部署到树莓派：全量同步 public/（排除引擎大文件）+ admin.js + 文学正文文件。
+# 绝不覆盖 Pi 上的 admin 用户数据（accounts/literature/sessions/trainer 等）。
 set -euo pipefail
 cd "$(dirname "$0")"
-PI=pi@192.168.0.107
-FILES=(
-  "admin.js"
-  "admin/literature_content.json"
-  "public/index.html"
-  "public/account.html" "public/assessment.html" "public/chess.html" "public/go.html"
-  "public/main.html" "public/review.html" "public/tactics.html"
-  "public/me/index.html"
-  "public/css/site.css"
-)
+[ -n "${PI_PASS:-}" ] || { echo "请先设置 PI_PASS 环境变量"; exit 1; }
 echo "== 打包 =="
 rm -rf /tmp/deploy_acl && mkdir -p /tmp/deploy_acl/star-ai-board
-for f in "${FILES[@]}"; do
-  [ -f "$f" ] || { echo "  ✗ 缺文件 $f"; exit 1; }
-  mkdir -p "/tmp/deploy_acl/star-ai-board/$(dirname "$f")"
-  cp "$f" "/tmp/deploy_acl/star-ai-board/$f"
-  echo "  + $f"
-done
+# public/ 全量（排除引擎二进制与棋子缓存等大文件）
+rsync -a --exclude 'stockfish' --exclude 'reckless' --exclude 'katago' --exclude 'engines' --exclude '*.nnue' \
+  public/ /tmp/deploy_acl/star-ai-board/public/
+cp admin.js /tmp/deploy_acl/star-ai-board/
+mkdir -p /tmp/deploy_acl/star-ai-board/admin
+cp admin/literature_content.json /tmp/deploy_acl/star-ai-board/admin/
 tar czf /tmp/deploy_acl.tar.gz -C /tmp/deploy_acl star-ai-board
+echo "  包内文件数: $(tar tzf /tmp/deploy_acl.tar.gz | wc -l | tr -d ' ')"
 echo "== 上传 =="
-PI_PASS="${PI_PASS:?请设置 PI_PASS 环境变量}" expect /tmp/scp.exp /tmp/deploy_acl.tar.gz /home/pi/deploy_acl.tar.gz
-echo "== 解包 + 重启 =="
-PI_PASS="$PI_PASS" expect /tmp/rc.exp "cd /home/pi && tar -xzf deploy_acl.tar.gz && rm -f deploy_acl.tar.gz && sudo systemctl restart star-ai-board && sleep 3 && systemctl is-active star-ai-board cloudflared && curl -s -o /dev/null -w 'literature:%{http_code}\n' http://localhost:8765/api/literature && grep -c 'notif-btn' star-ai-board/public/index.html && grep -c 'btn-radius' star-ai-board/public/css/site.css && ls -l star-ai-board/admin/literature_content.json | awk '{print \$5, \$9}'"
-echo "== 完成：本地 md5 对照 =="
-md5 -q admin.js public/index.html public/me/index.html public/css/site.css
+expect /tmp/scp.exp /tmp/deploy_acl.tar.gz /home/pi/deploy_acl.tar.gz
+echo "== 解包 + 重启 + 自检 =="
+expect /tmp/rc.exp "cd /home/pi && tar -xzf deploy_acl.tar.gz && rm -f deploy_acl.tar.gz && sudo systemctl restart star-ai-board && sleep 3 && systemctl is-active star-ai-board cloudflared && curl -s -o /dev/null -w 'literature:%{http_code}\n' http://localhost:8765/api/literature && grep -c 'isDragSettling' star-ai-board/public/js/chess-motion.js && ls -l star-ai-board/admin/literature_content.json | awk '{print \$5, \$9}'"

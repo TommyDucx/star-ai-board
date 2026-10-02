@@ -128,6 +128,7 @@
       var slot = root.querySelector("#lib-board");
       if (!slot || !viewer.moves.length) throw new Error("这份棋谱没有着法");
       viewer.board = window.Chessboard("lib-board", { position: "start", pieceTheme: "img/chesspieces/wikipedia/{piece}.png", draggable: false });
+      if (window.StarChessMotion) StarChessMotion.register(viewer.board);
       var list = root.querySelector("#lib-moves");
       if (list) list.innerHTML = viewer.moves.map(function (san, i) {
         return '<button type="button" class="lib-mv" data-mv="' + (i + 1) + '"><span class="lib-mv-no">' + (i % 2 === 0 ? (i / 2 + 1) + "." : "") + '</span>' + esc(san) + '</button>';
