@@ -1878,7 +1878,9 @@ body:not(.audio-on) .eq i{animation-play-state:paused;transform:scaleY(.25)}
   }
   function load(){
     return fetch(API,{credentials:"same-origin"}).then(function(r){return r.json();}).then(function(d){
-      data=d.articles||{}; paint(); renderSheet();
+      data=d.articles||{};
+      injectCards(); refreshChips();      // 数据到达后再注入锁标识（此前只在数据为空时注入过一次 → 标识不显示）
+      paint(); renderSheet();
     }).catch(function(){});
   }
   /* ---- 交互 ---- */
@@ -1920,7 +1922,10 @@ body:not(.audio-on) .eq i{animation-play-state:paused;transform:scaleY(.25)}
     if(!layer||layer.hidden||!body||!current) return;
     var ex=body.querySelector(".lit-cmts");
     var meta=data[current]||{};
-    if(meta.gated && !meta.allowed) return;                   // 无权限：交给锁定面板
+    if(meta.gated && !meta.allowed){                          // 无权限：渲染锁定面板（不能直接 return，否则没人渲染）
+      if(body.getAttribute("data-text-key")!==current) loadGatedText(current);
+      return;
+    }
     if(ex && ex.getAttribute("data-key")===current) return;   // 已就绪 → 不打断输入
     renderSheet();
   }
