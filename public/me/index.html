@@ -476,6 +476,29 @@ body.audio-on .bg-music i{animation-duration:calc(var(--t,2s) * .5)}
 }
 .music-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(20px,3vw,36px);align-items:start;margin-top:clamp(26px,4vh,44px)}
 .player{padding:20px 22px}
+  /* ---- 曲目列表（多曲） ---- */
+  .pl-cover{width:46px;height:46px;flex:none;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.06);display:grid;place-items:center}
+  .pl-cover img{width:100%;height:100%;object-fit:cover;display:block}
+  .pl-cover span{font-size:16px;opacity:.5}
+  .pl-tracks{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+  .pl-tracks li{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:11px;cursor:pointer;
+    border:1px solid transparent;transition:background .2s var(--ease),border-color .2s var(--ease)}
+  .pl-tracks li:hover{background:rgba(255,255,255,.05)}
+  .pl-tracks li.on{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16)}
+  .pl-idx{font-family:var(--font-mono);font-size:11px;color:var(--ink-3);width:16px;flex:none;text-align:center}
+  .pl-tracks li.on .pl-idx{color:var(--violet)}
+  .pl-t{flex:1;min-width:0;display:grid;gap:2px}
+  .pl-t b{font-size:13.5px;font-weight:600;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pl-t span{font-family:var(--font-mono);font-size:10.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pl-dur{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-3);flex:none}
+  .pl-tracks li.on .pl-dur{color:var(--violet)}
+  .pl-btn{width:26px;height:26px;flex:none;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);
+    color:inherit;display:grid;place-items:center;cursor:pointer;transition:.18s}
+  .pl-btn:hover{border-color:var(--violet);color:var(--violet)}
+  .pl-btn svg{width:11px;height:11px;fill:currentColor}
+  .pl-row{position:relative;overflow:hidden}
+  .pl-row .pl-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(255,255,255,.07);pointer-events:none;transition:width .2s linear}
 .player-row{display:flex;align-items:center;gap:16px}
 .play-btn{
   width:52px;height:52px;flex:none;border-radius:99px;display:grid;place-items:center;
@@ -912,32 +935,34 @@ body:not(.audio-on) .eq i{animation-play-state:paused;transform:scaleY(.25)}
     <div class="bg" aria-hidden="true"><i class="ring"></i><i class="ring r2"></i></div>
     <div class="p-inner">
       <header class="p-head">
-        <p class="p-index anim">// 02 — Music · Logic Pro · 制作中</p>
+        <p class="p-index anim">// 02 — Music · 两首成品 · 持续更新</p>
         <h2 class="p-title anim" style="--d:.06s">
           <span class="zh">音乐</span>
           <span class="en">Music</span>
         </h2>
         <p class="p-desc anim" style="--d:.14s">
-          正在用 Logic Pro 学习编曲与声音设计。还没有成型的作品，
-          下面是把想法变成声音的实验档案——它们会随着作品完成持续更新。
+          正在用 Logic Pro 学习编曲与声音设计。最上面是《雨夜的半音叹息》的两首成品——同一个雨夜主题的两次尝试，
+          F 小调、82 BPM，用大量休止符与半音下行写出"欲言又止"的破碎感。下面是把想法变成声音的实验档案，会随作品完成持续更新。
         </p>
       </header>
       <div class="music-grid">
         <div class="player glass anim" id="player" style="--d:.2s" hidden>
           <div class="player-row">
+            <div class="pl-cover" id="pl-cover"><span>♪</span></div>
             <button class="play-btn" id="play-btn" aria-label="播放">
               <svg id="icon-play" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.6c0-1.2 1.3-1.9 2.3-1.3l9.2 5.9c1 .6 1 2 0 2.6l-9.2 5.9c-1 .6-2.3-.1-2.3-1.3V5.6z"/></svg>
               <svg id="icon-pause" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="6.5" y="5" width="3.6" height="14" rx="1.4"/><rect x="13.9" y="5" width="3.6" height="14" rx="1.4"/></svg>
             </button>
             <div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
             <div class="player-main">
-              <div class="player-title"><b>Rainy Night in F Minor<em>demo</em></b><span id="player-time">0:00 / 0:00</span></div>
+              <div class="player-title"><b id="pl-title">雨夜的半音叹息 <em id="pl-tag">之一</em></b><span id="player-time">0:00 / 0:00</span></div>
               <div class="track" id="track" role="slider" aria-label="播放进度" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0">
                 <div class="track-fill" id="track-fill"></div>
                 <div class="track-knob" id="track-knob"></div>
               </div>
             </div>
           </div>
+          <ol class="pl-tracks" id="pl-tracks"></ol>
         </div>
         <ol class="exp-list glass anim" style="--d:.28s">
           <li>
@@ -952,12 +977,20 @@ body:not(.audio-on) .eq i{animation-play-state:paused;transform:scaleY(.25)}
             <span class="exp-num">02</span>
             <div>
               <h3>Rainy Night in F Minor</h3>
-              <p>用 ABC 记谱写下主题旋律，再以 FM 合成渲染成音频：F 小调、82 BPM。目前唯一一段可以听的 demo。</p>
+              <p>用 ABC 记谱写下主题旋律，再以 FM 合成渲染成音频：F 小调、82 BPM——第一版成品旋律的原型，曲目列表里的第三首。</p>
               <div class="exp-tags"><span>ABC Notation</span><span>FM 合成</span><span>F minor</span></div>
             </div>
           </li>
           <li>
             <span class="exp-num">03</span>
+            <div>
+              <h3>《雨夜的半音叹息》· 两首成品</h3>
+              <p>同一个雨夜主题的两次尝试：F 小调 / F Dorian、82 BPM 钢琴，用大量休止符切断乐句、跳进音程写情绪裂痕、结尾半音下行作"叹息动机"。3:37 与 2:59，可直接试听。</p>
+              <div class="exp-tags"><span>成品</span><span>F minor</span><span>82 BPM</span><span>钢琴</span></div>
+            </div>
+          </li>
+          <li>
+            <span class="exp-num">04</span>
             <div>
               <h3>Nujabes 风格 Beat Lab</h3>
               <p>88 BPM、带 swing 的鼓组与分轨编曲，用 Pedalboard 效果链做 lo-fi 母带处理，向喜欢的制作人靠近一步。</p>
@@ -966,7 +999,7 @@ body:not(.audio-on) .eq i{animation-play-state:paused;transform:scaleY(.25)}
           </li>
         </ol>
       </div>
-      <p class="music-note anim" style="--d:.34s">后续计划：在 Logic Pro 中完成第一首完整作品，并把成品与制作笔记更新到这里。</p>
+      <p class="music-note anim" style="--d:.34s">后续计划：在 Logic Pro 中重制这两首（AI 生成只是起点），把编曲与制作笔记一并更新到这里。</p>
     </div>
   </section>
 
@@ -1438,15 +1471,77 @@ body:not(.audio-on) .eq i{animation-play-state:paused;transform:scaleY(.25)}
   }
 
   /* ---------- audio player ---------- */
-  var player=$("#player"),audio=new Audio("audio/rainy_night_fm.m4a"),
+  /* 曲目表：前两首是《雨夜的半音叹息》成品（2026-09-26，AI 生成后重制），第三首是 FM 合成实验 */
+  var TRACKS=[
+    {n:"雨夜的半音叹息",v:"之一",s:"钢琴 · F 小调 · 82 BPM",f:"audio/rainy-sigh-1.mp3?v=1",c:"img/music/rainy-sigh-1.jpg",d:218},
+    {n:"雨夜的半音叹息",v:"之二",s:"钢琴 · F 小调 · 82 BPM",f:"audio/rainy-sigh-2.mp3?v=1",c:"img/music/rainy-sigh-2.jpg",d:179},
+    {n:"Rainy Night in F Minor",v:"demo",s:"ABC 记谱 → FM 合成",f:"audio/rainy_night_fm.m4a?v=1",c:"",d:25}
+  ];
+  TRACKS.forEach(function(t){t.t=t.n+(t.v==="demo"?"":" · "+t.v);});
+  var cur=0;
+  var player=$("#player"),audio=new Audio(TRACKS[0].f),
       playBtn=$("#play-btn"),iconPlay=$("#icon-play"),iconPause=$("#icon-pause"),
       timeEl=$("#player-time"),track=$("#track"),fill=$("#track-fill"),knob=$("#track-knob");
+  /* 只预取元数据：隧道带宽有限，别一上来就把整首拉下来（注意：此行必须在 var 语句之后，
+     插在 var 声明中间会把 playBtn 等变成未声明赋值，严格模式下直接抛错中断整个脚本） */
+  audio.preload="metadata";
 
   function fmt(s){
     if(!isFinite(s))return "0:00";
     var m=Math.floor(s/60),r=Math.floor(s%60);
     return m+":"+(r<10?"0":"")+r;
   }
+  function renderTracks(){
+    var ol=$("#pl-tracks"); if(!ol) return;
+    ol.innerHTML=TRACKS.map(function(t,i){
+      return '<li data-i="'+i+'"'+(i===cur?' class="on"':'')+'>'+
+        '<span class="pl-row"><span class="pl-fill"></span></span>'+
+        '<span class="pl-idx">'+String(i+1).padStart(2,"0")+'</span>'+
+        '<span class="pl-t"><b>'+t.t+'</b><span>'+t.s+'</span></span>'+
+        '<span class="pl-dur">'+(t.d?fmt(t.d):"—")+'</span>'+
+        '<button class="pl-btn" type="button" aria-label="播放 '+t.t+'"><svg viewBox="0 0 24 24"><path d="M8 5.6c0-1.2 1.3-1.9 2.3-1.3l9.2 5.9c1 .6 1 2 0 2.6l-9.2 5.9c-1 .6-2.3-.1-2.3-1.3V5.6z"/></svg></button>'+
+      '</li>';
+    }).join("");
+  }
+  function markOn(){
+    var ol=$("#pl-tracks"); if(!ol) return;
+    [].forEach.call(ol.children,function(li,i){ li.classList.toggle("on",i===cur); });
+    var t=TRACKS[cur];
+    var ti=$("#pl-title"),tg=$("#pl-tag");
+    if(ti&&ti.firstChild) ti.firstChild.nodeValue=t.n+" ";
+    if(tg) tg.textContent=t.v;
+    var cv=$("#pl-cover");
+    if(cv) cv.innerHTML=t.c?'<img src="'+t.c+'" alt="'+t.t+' 封面">':"<span>♪</span>";
+    if(cv&&t.c){var im=cv.querySelector("img");if(im)im.onerror=function(){cv.innerHTML="<span>♪</span>";};}
+  }
+  function loadTrack(i,autoplay){
+    cur=i;
+    audio.src=TRACKS[i].f;
+    fill.style.width="0%";knob.style.left="0%";
+    track.setAttribute("aria-valuenow","0");
+    // 先按已知时长（ffprobe 实测值）铺好时间轴，metadata 到达后再校准；
+    // 否则经 Cloudflare 隧道 metadata 需 ~3s，期间会显示上一首的时长/进度。
+    var d0=TRACKS[i].d||0;
+    if(d0){ track.setAttribute("aria-valuemax",String(d0)); timeEl.textContent="0:00 / "+fmt(d0); }
+    else timeEl.textContent="加载中…";
+    markOn();
+    audio.load();
+    [].forEach.call(($("#pl-tracks")||{children:[]}).children,function(li){var pf=li.querySelector(".pl-fill");if(pf)pf.style.width="0%";});
+    if(autoplay) audio.play().catch(function(){});
+  }
+  var ol_=$("#pl-tracks");
+  if(ol_){
+    ol_.addEventListener("click",function(e){
+      var li=e.target.closest?e.target.closest("li[data-i]"):null; if(!li) return;
+      var i=Number(li.getAttribute("data-i"));
+      if(i===cur){ audio.paused?audio.play():audio.pause(); }
+      else loadTrack(i,true);
+    });
+  }
+  renderTracks();markOn();
+  audio.addEventListener("ended",function(){
+    if(cur<TRACKS.length-1) loadTrack(cur+1,true);   // 自动续播下一首
+  });
   function showPlayer(){
     if(!player.hidden)return;
     player.hidden=false;
@@ -1459,8 +1554,10 @@ body:not(.audio-on) .eq i{animation-play-state:paused;transform:scaleY(.25)}
     player.style.transform="none";
   }
   audio.addEventListener("loadedmetadata",function(){
+    if(isFinite(audio.duration)&&audio.duration>0) TRACKS[cur].d=Math.round(audio.duration);   // 以真实时长为准（校准预置值）
     track.setAttribute("aria-valuemax",String(Math.round(audio.duration)));
     timeEl.textContent="0:00 / "+fmt(audio.duration);
+    renderTracks();
     showPlayer();
   });
   audio.addEventListener("canplay",showPlayer);
@@ -1470,10 +1567,12 @@ body:not(.audio-on) .eq i{animation-play-state:paused;transform:scaleY(.25)}
     fill.style.width=(p*100)+"%";knob.style.left=(p*100)+"%";
     timeEl.textContent=fmt(audio.currentTime)+" / "+fmt(audio.duration);
     track.setAttribute("aria-valuenow",String(Math.round(audio.currentTime)));
+    var li=$("#pl-tracks")&&$("#pl-tracks").children[cur];
+    if(li){var pf=li.querySelector(".pl-fill");if(pf)pf.style.width=(p*100)+"%";}
   });
   audio.addEventListener("play",function(){iconPlay.hidden=true;iconPause.hidden=false;document.body.classList.add("audio-on")});
   audio.addEventListener("pause",function(){iconPlay.hidden=false;iconPause.hidden=true;document.body.classList.remove("audio-on")});
-  audio.addEventListener("ended",function(){audio.currentTime=0;document.body.classList.remove("audio-on")});
+  /* ended 的续播逻辑见上方（renderTracks 之后） */
   playBtn.addEventListener("click",function(){audio.paused?audio.play():audio.pause()});
   var seeking=false;
   function seek(e){
@@ -1481,7 +1580,11 @@ body:not(.audio-on) .eq i{animation-play-state:paused;transform:scaleY(.25)}
     var p=Math.min(Math.max((e.clientX-r.left)/r.width,0),1);
     if(audio.duration)audio.currentTime=p*audio.duration;
   }
-  track.addEventListener("pointerdown",function(e){seeking=true;track.classList.add("dragging");track.setPointerCapture(e.pointerId);seek(e)});
+  track.addEventListener("pointerdown",function(e){
+    seeking=true;track.classList.add("dragging");
+    try{track.setPointerCapture(e.pointerId);}catch(err){}   // 非活动指针会抛错，不能让它挡住 seek
+    seek(e);
+  });
   track.addEventListener("pointermove",function(e){if(seeking)seek(e)});
   track.addEventListener("pointerup",function(){seeking=false;track.classList.remove("dragging")});
   track.addEventListener("keydown",function(e){

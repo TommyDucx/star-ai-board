@@ -237,9 +237,12 @@ const server = http.createServer((req, res) => {
     const filePath = path.join(PUBLIC_DIR, path.normalize(urlPath));
     // 必须仍在 public 目录内（加 path.sep 防止同名前缀目录绕过 startsWith）
     if (!filePath.startsWith(PUBLIC_DIR + path.sep)) { res.writeHead(403); return res.end("Forbidden"); }
-    fs.readFile(filePath, (err, data) => {
+    /* Range 支持：音频/视频播放器要靠 206 Partial Content 才能拖动进度；
+       同时改为流式发送，避免把整首歌读进 Pi 内存（原来 fs.readFile 一次读 8MB+）。 */
+    fs.stat(filePath, (err, st) => {
       try {
-        if (err) { res.writeHead(404); return res.end("Not Found"); }
+        if (err || !st.isFile()) { res.writeHead(404); return res.end("Not Found"); }
+        const total = st.size;
         const ext = path.extname(filePath);
         const type = MIME[ext] || "application/octet-stream";
         // 缓存分级：带 ?v=N 指纹的非 HTML 资源可永久强缓存（内容变更必换 N）；
@@ -251,11 +254,18 @@ const server = http.createServer((req, res) => {
         const headers = {
           "Content-Type": type,
           "Cache-Control": cacheControl,
+          "Accept-Ranges": "bytes",
           // 基础安全头：防 MIME 嗅探 / 防被第三方 iframe 嵌套 / 限制 referrer 泄漏
           "X-Content-Type-Options": "nosniff",
           "X-Frame-Options": "SAMEORIGIN",
           "Referrer-Policy": "strict-origin-when-cross-origin",
         };
+        /* 音视频不交给 CDN 缓存：Cloudflare 命中缓存后会以 200 整份响应、不透传 Range，
+           导致播放器无法拖动进度（实测：直连源站 seek 正常，经 CF 就失效）。
+           no-store 让请求每次回源，Range 得以透传 → 拖动恢复。文件不大（每首几 MB），代价可接受。 */
+        if (/\.(mp3|m4a|wav|ogg|oga|flac|aac|opus|mp4|webm|mov|m4v)$/i.test(ext)) {
+          headers["Cache-Control"] = "no-store, must-revalidate";
+        }
         /* 用户上传的附件：危险类型（html/svg/js/xml…）一律强制下载 + octet-stream，
            否则同源内联渲染会变成存储型 XSS。安全类型（图片/音频/视频/PDF/纯文本）内联展示。 */
         if (urlPath.startsWith("/uploads/")) {
@@ -273,16 +283,52 @@ const server = http.createServer((req, res) => {
           // 缓存 1 小时（而非 7 天）：附件内容不可变，但用户删除评论后不应让 CDN 长期继续吐文件
           headers["Cache-Control"] = "public, max-age=3600";
         }
-        // 文本类资源 gzip（>1KB 才值得压缩）
-        const accept = req.headers["accept-encoding"] || "";
-        if (/^text\/|application\/json/.test(type) && data.length > 1024 && /\bgzip\b/.test(accept)) {
-          headers["Content-Encoding"] = "gzip";
-          headers["Vary"] = "Accept-Encoding";
-          res.writeHead(200, headers);
-          return res.end(zlib.gzipSync(data));
+        /* ---- Range 请求（bytes=start-end）→ 206 Partial Content：音频/视频拖动进度条依赖它 ---- */
+        const range = req.headers["range"];
+        if (range && /^bytes=/.test(range)) {
+          const m2 = /^bytes=(\d*)-(\d*)$/.exec(range.trim());
+          if (m2) {
+            let start = m2[1] === "" ? null : parseInt(m2[1], 10);
+            let end = m2[2] === "" ? null : parseInt(m2[2], 10);
+            if (start === null && end !== null) { start = Math.max(0, total - end); end = total - 1; }   // bytes=-N 取末尾 N 字节
+            else if (start !== null && end === null) end = total - 1;                                       // bytes=N- 取到结尾
+            if (start === null || isNaN(start)) start = 0;
+            if (end === null || isNaN(end) || end >= total) end = total - 1;
+            if (start > end || start >= total) {
+              res.writeHead(416, { "Content-Range": "bytes */" + total, "Accept-Ranges": "bytes" });
+              return res.end();
+            }
+            headers["Content-Range"] = "bytes " + start + "-" + end + "/" + total;
+            headers["Content-Length"] = String(end - start + 1);
+            res.writeHead(206, headers);
+            if (res.destroyed) return;
+            const rs = fs.createReadStream(filePath, { start: start, end: end });
+            rs.on("error", () => { try { res.destroy(); } catch (_) {} });
+            res.on("close", () => { try { rs.destroy(); } catch (_) {} });   // 客户端中断（切歌/关页）立刻释放 fd
+            return rs.pipe(res);
+          }
         }
+        /* ---- 普通请求：文本走 gzip；二进制（音频/视频/图片）流式发送，不再整文件读进内存 ---- */
+        const accept = req.headers["accept-encoding"] || "";
+        if (/^text\/|application\/json/.test(type) && total > 1024 && /\bgzip\b/.test(accept)) {
+          fs.readFile(filePath, (e2, buf) => {
+            if (e2) { try { if (!res.headersSent) { res.writeHead(500); res.end("Internal Server Error"); } } catch (_) {} return; }
+            const gz = zlib.gzipSync(buf);
+            headers["Content-Encoding"] = "gzip";
+            headers["Vary"] = "Accept-Encoding";
+            headers["Content-Length"] = String(gz.length);
+            res.writeHead(200, headers);
+            res.end(gz);
+          });
+          return;
+        }
+        headers["Content-Length"] = String(total);
         res.writeHead(200, headers);
-        res.end(data);
+        if (res.destroyed) return;
+        const rs2 = fs.createReadStream(filePath);
+        rs2.on("error", () => { try { res.destroy(); } catch (_) {} });
+        res.on("close", () => { try { rs2.destroy(); } catch (_) {} });
+        return rs2.pipe(res);
       } catch (e) {
         // 读文件回调内的意外异常不能外泄（回调在事件循环里，外层 try 捕不到）
         try { if (!res.headersSent) { res.writeHead(500); res.end("Internal Server Error"); } } catch (_) {}
